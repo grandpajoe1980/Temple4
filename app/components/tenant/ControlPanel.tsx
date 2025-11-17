@@ -24,13 +24,16 @@ import { hasRole, can } from '@/lib/permissions';
 interface ControlPanelProps {
   tenant: Tenant;
   onUpdate: (tenant: Tenant) => void;
-  currentUser: User;
+  currentUser?: User | null;
   onImpersonate: (user: User) => void;
   onRefresh: () => void;
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh }) => {
-  const isAdmin = useMemo(() => currentUser.isSuperAdmin || hasRole(currentUser, tenant.id, TenantRole.ADMIN), [currentUser, tenant.id]);
+  const isAdmin = useMemo(
+    () => !!currentUser && (currentUser.isSuperAdmin || hasRole(currentUser, tenant.id, TenantRole.ADMIN)),
+    [currentUser, tenant.id]
+  );
 
   const availableTabs = useMemo(() => {
     return CONTROL_PANEL_TABS.filter(tab => {
@@ -38,6 +41,9 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, currentUs
         return true; // Admins see all tabs
       }
       // Permissions for non-admins
+      if (!currentUser) {
+        return false;
+      }
       switch (tab) {
         case 'Membership & Moderation':
           return can(currentUser, tenant, 'canApproveMembership') || can(currentUser, tenant, 'canBanMembers');
@@ -64,25 +70,41 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, currentUs
       case 'Features':
         return <FeaturesTab tenant={tenant} onUpdate={onUpdate} />;
       case 'Permissions':
-        return <PermissionsTab tenant={tenant} onUpdate={onUpdate} currentUser={currentUser} />;
+        return currentUser ? (
+          <PermissionsTab tenant={tenant} onUpdate={onUpdate} currentUser={currentUser} />
+        ) : null;
       case 'Membership & Moderation':
-        return <MembershipTab tenant={tenant} onUpdate={onUpdate} currentUser={currentUser} onImpersonate={onImpersonate} onRefresh={onRefresh} />;
+        return currentUser ? (
+          <MembershipTab tenant={tenant} onUpdate={onUpdate} currentUser={currentUser} onImpersonate={onImpersonate} onRefresh={onRefresh} />
+        ) : null;
       case 'User Profiles':
-        return <UserProfilesTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />;
+        return currentUser ? (
+          <UserProfilesTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
+        ) : null;
       case 'Donations':
         return <DonationsTab tenant={tenant} onUpdate={onUpdate} />;
       case 'Volunteering':
-        return <VolunteeringTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />;
+        return currentUser ? (
+          <VolunteeringTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
+        ) : null;
       case 'Small Groups':
-        return <SmallGroupsTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />;
+        return currentUser ? (
+          <SmallGroupsTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
+        ) : null;
       case 'Live Stream':
         return <LiveStreamTab tenant={tenant} onUpdate={onUpdate} />;
       case 'Prayer Wall':
-        return <PrayerWallTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />;
+        return currentUser ? (
+          <PrayerWallTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
+        ) : null;
       case 'Resource Center':
-        return <ResourceCenterTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />;
+        return currentUser ? (
+          <ResourceCenterTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
+        ) : null;
       case 'Contact Submissions':
-        return <ContactSubmissionsTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />;
+        return currentUser ? (
+          <ContactSubmissionsTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
+        ) : null;
       default:
         return null;
     }

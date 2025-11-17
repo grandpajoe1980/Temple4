@@ -6743,7 +6743,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$permissions$2e$ts__$5
 ;
 ;
 const ControlPanel = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh })=>{
-    const isAdmin = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>currentUser.isSuperAdmin || (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$permissions$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["hasRole"])(currentUser, tenant.id, __TURBOPACK__imported__module__$5b$project$5d2f$types$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TenantRole"].ADMIN), [
+    const isAdmin = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>!!currentUser && (currentUser.isSuperAdmin || (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$permissions$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["hasRole"])(currentUser, tenant.id, __TURBOPACK__imported__module__$5b$project$5d2f$types$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TenantRole"].ADMIN)), [
         currentUser,
         tenant.id
     ]);
@@ -6753,6 +6753,9 @@ const ControlPanel = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh 
                 return true; // Admins see all tabs
             }
             // Permissions for non-admins
+            if (!currentUser) {
+                return false;
+            }
             switch(tab){
                 case 'Membership & Moderation':
                     return (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$permissions$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["can"])(currentUser, tenant, 'canApproveMembership') || (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$permissions$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["can"])(currentUser, tenant, 'canBanMembers');
@@ -6780,7 +6783,7 @@ const ControlPanel = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh 
                     onUpdate: onUpdate
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 61,
+                    lineNumber: 67,
                     columnNumber: 16
                 }, ("TURBOPACK compile-time value", void 0));
             case 'Branding':
@@ -6789,7 +6792,7 @@ const ControlPanel = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh 
                     onUpdate: onUpdate
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 63,
+                    lineNumber: 69,
                     columnNumber: 16
                 }, ("TURBOPACK compile-time value", void 0));
             case 'Features':
@@ -6798,21 +6801,21 @@ const ControlPanel = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh 
                     onUpdate: onUpdate
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 65,
+                    lineNumber: 71,
                     columnNumber: 16
                 }, ("TURBOPACK compile-time value", void 0));
             case 'Permissions':
-                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$PermissionsTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                return currentUser ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$PermissionsTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                     tenant: tenant,
                     onUpdate: onUpdate,
                     currentUser: currentUser
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 67,
-                    columnNumber: 16
-                }, ("TURBOPACK compile-time value", void 0));
+                    lineNumber: 74,
+                    columnNumber: 11
+                }, ("TURBOPACK compile-time value", void 0)) : null;
             case 'Membership & Moderation':
-                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$MembershipTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                return currentUser ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$MembershipTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                     tenant: tenant,
                     onUpdate: onUpdate,
                     currentUser: currentUser,
@@ -6820,87 +6823,87 @@ const ControlPanel = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh 
                     onRefresh: onRefresh
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 69,
-                    columnNumber: 16
-                }, ("TURBOPACK compile-time value", void 0));
+                    lineNumber: 78,
+                    columnNumber: 11
+                }, ("TURBOPACK compile-time value", void 0)) : null;
             case 'User Profiles':
-                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$UserProfilesTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                return currentUser ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$UserProfilesTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                     tenant: tenant,
                     currentUser: currentUser,
                     onRefresh: onRefresh
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 71,
-                    columnNumber: 16
-                }, ("TURBOPACK compile-time value", void 0));
+                    lineNumber: 82,
+                    columnNumber: 11
+                }, ("TURBOPACK compile-time value", void 0)) : null;
             case 'Donations':
                 return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$DonationsTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                     tenant: tenant,
                     onUpdate: onUpdate
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 73,
+                    lineNumber: 85,
                     columnNumber: 16
                 }, ("TURBOPACK compile-time value", void 0));
             case 'Volunteering':
-                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$VolunteeringTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                return currentUser ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$VolunteeringTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                     tenant: tenant,
                     currentUser: currentUser,
                     onRefresh: onRefresh
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 75,
-                    columnNumber: 16
-                }, ("TURBOPACK compile-time value", void 0));
+                    lineNumber: 88,
+                    columnNumber: 11
+                }, ("TURBOPACK compile-time value", void 0)) : null;
             case 'Small Groups':
-                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$SmallGroupsTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                return currentUser ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$SmallGroupsTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                     tenant: tenant,
                     currentUser: currentUser,
                     onRefresh: onRefresh
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 77,
-                    columnNumber: 16
-                }, ("TURBOPACK compile-time value", void 0));
+                    lineNumber: 92,
+                    columnNumber: 11
+                }, ("TURBOPACK compile-time value", void 0)) : null;
             case 'Live Stream':
                 return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$LiveStreamTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                     tenant: tenant,
                     onUpdate: onUpdate
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 79,
+                    lineNumber: 95,
                     columnNumber: 16
                 }, ("TURBOPACK compile-time value", void 0));
             case 'Prayer Wall':
-                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$PrayerWallTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                return currentUser ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$PrayerWallTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                     tenant: tenant,
                     currentUser: currentUser,
                     onRefresh: onRefresh
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 81,
-                    columnNumber: 16
-                }, ("TURBOPACK compile-time value", void 0));
+                    lineNumber: 98,
+                    columnNumber: 11
+                }, ("TURBOPACK compile-time value", void 0)) : null;
             case 'Resource Center':
-                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$ResourceCenterTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                return currentUser ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$ResourceCenterTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                     tenant: tenant,
                     currentUser: currentUser,
                     onRefresh: onRefresh
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 83,
-                    columnNumber: 16
-                }, ("TURBOPACK compile-time value", void 0));
+                    lineNumber: 102,
+                    columnNumber: 11
+                }, ("TURBOPACK compile-time value", void 0)) : null;
             case 'Contact Submissions':
-                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$ContactSubmissionsTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                return currentUser ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$tenant$2f$tabs$2f$ContactSubmissionsTab$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                     tenant: tenant,
                     currentUser: currentUser,
                     onRefresh: onRefresh
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 85,
-                    columnNumber: 16
-                }, ("TURBOPACK compile-time value", void 0));
+                    lineNumber: 106,
+                    columnNumber: 11
+                }, ("TURBOPACK compile-time value", void 0)) : null;
             default:
                 return null;
         }
@@ -6916,7 +6919,7 @@ const ControlPanel = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh 
                         children: "Control Panel"
                     }, void 0, false, {
                         fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                        lineNumber: 94,
+                        lineNumber: 116,
                         columnNumber: 13
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -6928,13 +6931,13 @@ const ControlPanel = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh 
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                        lineNumber: 95,
+                        lineNumber: 117,
                         columnNumber: 13
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                lineNumber: 93,
+                lineNumber: 115,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6945,12 +6948,12 @@ const ControlPanel = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh 
                     onTabClick: setActiveTab
                 }, void 0, false, {
                     fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                    lineNumber: 98,
+                    lineNumber: 120,
                     columnNumber: 14
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                lineNumber: 97,
+                lineNumber: 119,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6958,13 +6961,13 @@ const ControlPanel = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh 
                 children: renderTabContent()
             }, void 0, false, {
                 fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-                lineNumber: 100,
+                lineNumber: 122,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/tenant/ControlPanel.tsx",
-        lineNumber: 92,
+        lineNumber: 114,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

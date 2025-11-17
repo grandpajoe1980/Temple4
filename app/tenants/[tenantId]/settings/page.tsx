@@ -28,5 +28,13 @@ export default async function TenantSettingsPage({ params }: { params: Promise<{
     redirect(`/tenants/${tenant.id}`);
   }
 
-  return <ControlPanel tenant={tenant} user={user} />;
+  return (
+    <ControlPanel
+      tenant={tenant}
+      onUpdate={() => {}}
+      currentUser={user as any}
+      onImpersonate={() => {}}
+      onRefresh={() => {}}
+    />
+  );
 }

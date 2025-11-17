@@ -91,6 +91,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$
 ;
 ;
 const authOptions = {
+    secret: process.env.NEXTAUTH_SECRET,
     providers: [
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$auth$2f$providers$2f$credentials$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"])({
             name: 'Credentials',

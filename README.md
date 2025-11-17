@@ -17,6 +17,29 @@ A comprehensive multi-tenant platform for religious organizations (churches, tem
 - 🎨 **Customization** - Branding, themes, permissions
 - 📊 **Admin Dashboard** - Analytics, audit logs, settings
 
+## Current Development Status
+
+**⚠️ Note:** This project is currently undergoing Phase A hardening and refactoring.
+
+**Build Status:**
+- ✅ Turbopack compilation: Working
+- ⚠️  TypeScript: 215 errors being addressed
+- 🔧 In active development
+
+**Recent Work:**
+- Async params migration to Next.js 16 (Complete)
+- Type system alignment (In Progress - See Ticket #0002)
+- Comprehensive error analysis and planning
+
+**To Run Locally:**
+The build currently has TypeScript errors that are being systematically addressed. Follow the instructions in `todo.md` and `docs/journal.md` for the latest status.
+
+For the most up-to-date development status, see:
+- `todo.md` - Project plan and progress
+- `docs/journal.md` - Detailed work log
+- `tickets/` - Active issue tracking
+
+
 ## Run Locally
 
 **Prerequisites:** Node.js 18+

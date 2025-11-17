@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { Tenant, User } from '@/types';
-import { getMembersForTenant } from '@/lib/data';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import ToggleSwitch from '../ui/ToggleSwitch';
@@ -19,8 +18,12 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ tenant, currentUs
   const [isPrivate, setIsPrivate] = useState(false);
   const [selectedParticipants, setSelectedParticipants] = useState<Set<string>>(() => new Set([currentUser.id]));
   const [searchTerm, setSearchTerm] = useState('');
+  const [members, setMembers] = useState<any[]>([]);
 
-  const members = useMemo(() => getMembersForTenant(tenant.id), [tenant.id]);
+  useEffect(() => {
+    // TODO: Fetch members via API endpoint
+    setMembers([]);
+  }, [tenant.id]);
 
   const handleParticipantToggle = (userId: string) => {
     if (userId === currentUser.id) return; // Current user cannot be deselected

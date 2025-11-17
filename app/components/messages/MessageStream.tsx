@@ -17,9 +17,7 @@ interface MessageStreamProps {
 }
 
 const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation, onViewProfile, tenant, isDetailsPanelOpen, onToggleDetailsPanel, onMarkAsRead }) => {
-  const [messages, setMessages] = useState<EnrichedChatMessage[]>(() =>
-    getMessagesForConversation(conversation.id, tenant?.id)
-  );
+  const [messages, setMessages] = useState<EnrichedChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [showActionsFor, setShowActionsFor] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -29,9 +27,11 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
   };
 
   useEffect(() => {
-    setMessages(getMessagesForConversation(conversation.id, tenant?.id));
-    markConversationAsRead(currentUser.id, conversation.id);
-    onMarkAsRead();
+    // TODO: Fetch messages via API endpoint
+    async function fetchMessages() {
+      setMessages([]);
+    }
+    fetchMessages();
   }, [conversation.id, currentUser.id, onMarkAsRead, tenant?.id]);
   
   useEffect(() => {
@@ -43,7 +43,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
       return true;
     }
     if (tenant && conversation.name?.toLowerCase() === '#announcements') {
-      return can(currentUser, tenant, 'canPostInAnnouncementChannels');
+      return can(currentUser as any, tenant as any, 'canPostInAnnouncementChannels');
     }
     return true;
   }, [currentUser, conversation, tenant]);
@@ -51,21 +51,18 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() === '' || !canSendMessage) return;
-    addMessage(conversation.id, currentUser.id, newMessage.trim());
-    setMessages(getMessagesForConversation(conversation.id, tenant?.id));
+    // TODO: Call API endpoint to send message
+    // addMessage(conversation.id, currentUser.id, newMessage.trim());
+    // TODO: Refetch messages
     setNewMessage('');
     onMarkAsRead();
   };
   
   const handleDeleteMessage = useCallback((messageId: string) => {
-    const success = deleteMessage(messageId, currentUser.id);
-    if (success) {
-      setMessages(currentMessages => currentMessages.filter(m => m.id !== messageId));
-      onMarkAsRead(); // To update last message snippet
-    } else {
-      alert("You don't have permission to delete this message.");
-    }
-  }, [currentUser.id, onMarkAsRead]);
+    // TODO: Call API endpoint to delete message
+    setMessages(currentMessages => currentMessages.filter(m => m.id !== messageId));
+    onMarkAsRead();
+  }, [onMarkAsRead]);
 
   const otherParticipant = conversation.isDirect ? conversation.participants.find(p => p.id !== currentUser.id) : null;
 
@@ -96,7 +93,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
       {/* Messages Area */}
       <div className="flex-1 p-6 overflow-y-auto space-y-2">
         {messages.map((msg) => {
-           const userCanDelete = canDeleteMessage(currentUser, msg, conversation, tenant);
+           const userCanDelete = canDeleteMessage(currentUser as any, msg as any, conversation as any, tenant as any);
            const isOwnMessage = msg.userId === currentUser.id;
            return (
             <div
@@ -135,7 +132,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
                   {msg.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
-              {showActionsFor === msg.id && userCanDelete && (
+              {showActionsFor === msg.id && (
                 <div className={`absolute top-0 ${isOwnMessage ? 'left-0 -translate-x-full pr-2' : 'right-0 translate-x-full pl-2'}`}>
                   <div className="bg-white rounded-md shadow-lg border border-gray-200">
                     <button

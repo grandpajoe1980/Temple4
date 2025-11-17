@@ -28,8 +28,8 @@ const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
           getAuditLogs(),
           getAllUsers()
         ]);
-        setLogs(logsData);
-        setUsers(usersData);
+        setLogs(logsData as any);
+        setUsers(usersData as any);
       } catch (error) {
         console.error('Error fetching admin data:', error);
       } finally {

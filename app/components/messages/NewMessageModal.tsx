@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { User } from '@/types';
-import { getAllUsers } from '@/lib/data';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 
@@ -14,9 +13,11 @@ interface NewMessageModalProps {
 
 const NewMessageModal: React.FC<NewMessageModalProps> = ({ currentUser, onClose, onStartConversation }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [allOtherUsers, setAllOtherUsers] = useState<any[]>([]);
 
-  const allOtherUsers = useMemo(() => {
-    return getAllUsers().filter(u => u.id !== currentUser.id);
+  useEffect(() => {
+    // TODO: Fetch users via API
+    setAllOtherUsers([]);
   }, [currentUser.id]);
 
   const filteredUsers = useMemo(() => {

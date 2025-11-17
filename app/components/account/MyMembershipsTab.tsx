@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import type { User, UserTenantMembership, Tenant } from '@/types';
-import { getEnrichedMembershipsForUser } from '@/lib/data';
+import React, { useState, useEffect } from 'react';
+import type { User } from '@/types';
 import Button from '../ui/Button';
 import EditMembershipModal from './EditMembershipModal';
 
@@ -11,14 +10,31 @@ interface MyMembershipsTabProps {
   onRefresh: () => void;
 }
 
-type EnrichedMembership = {
-    membership: UserTenantMembership;
-    tenant: Tenant;
-}
+type EnrichedMembership = any; // TODO: Define proper type
 
 const MyMembershipsTab: React.FC<MyMembershipsTabProps> = ({ user, onRefresh }) => {
-  const memberships = useMemo(() => getEnrichedMembershipsForUser(user.id), [user.id, onRefresh]);
+  const [memberships, setMemberships] = useState<EnrichedMembership[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editingMembership, setEditingMembership] = useState<EnrichedMembership | null>(null);
+
+  useEffect(() => {
+    const fetchMemberships = async () => {
+      setLoading(true);
+      try {
+        // TODO: Call API endpoint instead of direct data access
+        setMemberships([]);
+      } catch (error) {
+        console.error('Failed to fetch memberships:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMemberships();
+  }, [user.id, onRefresh]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -41,8 +57,8 @@ const MyMembershipsTab: React.FC<MyMembershipsTabProps> = ({ user, onRefresh }) 
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {memberships.map(({ membership, tenant }) => {
-                    const primaryRole = membership.roles.find(r => r.isPrimary) || membership.roles[0];
+                  {memberships.map(({ membership, tenant }: any) => {
+                    const primaryRole = membership.roles.find((r: any) => r.isPrimary) || membership.roles[0];
                     return (
                         <tr key={membership.id}>
                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">

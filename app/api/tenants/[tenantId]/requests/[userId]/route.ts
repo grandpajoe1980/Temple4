@@ -12,8 +12,9 @@ const requestActionSchema = z.object({
 // 8.4 Approve/Reject Membership Request
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; userId: string } }
+  { params }: { params: Promise<{ tenantId: string; userId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const currentUserId = (session?.user as any)?.id;
 

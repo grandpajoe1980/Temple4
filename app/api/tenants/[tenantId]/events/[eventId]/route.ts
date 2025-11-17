@@ -8,8 +8,9 @@ import { z } from 'zod';
 // 10.3 Get Single Event
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -46,8 +47,9 @@ const eventUpdateSchema = z.object({
 // 10.4 Update Event
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -88,8 +90,9 @@ export async function PUT(
 // 10.5 Delete Event
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 

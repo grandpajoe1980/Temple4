@@ -8,8 +8,9 @@ import { z } from 'zod';
 // 14.3 Get Single Small Group
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; groupId: string } }
+  { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -56,8 +57,9 @@ const groupUpdateSchema = z.object({
 // 14.4 Update Small Group
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; groupId: string } }
+  { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -95,8 +97,9 @@ export async function PUT(
 // 14.5 Delete Small Group
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; groupId: string } }
+  { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 

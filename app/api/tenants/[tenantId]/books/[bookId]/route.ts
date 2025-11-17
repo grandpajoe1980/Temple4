@@ -8,8 +8,9 @@ import { z } from 'zod';
 // 13.3 Get Single Book
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; bookId: string } }
+  { params }: { params: Promise<{ tenantId: string; bookId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -46,8 +47,9 @@ const bookUpdateSchema = z.object({
 // 13.4 Update Book
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; bookId: string } }
+  { params }: { params: Promise<{ tenantId: string; bookId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -91,8 +93,9 @@ export async function PUT(
 // 13.5 Delete Book
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; bookId: string } }
+  { params }: { params: Promise<{ tenantId: string; bookId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 

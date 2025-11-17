@@ -8,8 +8,9 @@ import { z } from 'zod';
 // 12.3 Get Single Podcast
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; podcastId: string } }
+  { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -45,8 +46,9 @@ const podcastUpdateSchema = z.object({
 // 12.4 Update Podcast
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; podcastId: string } }
+  { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -87,8 +89,9 @@ export async function PUT(
 // 12.5 Delete Podcast
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; podcastId: string } }
+  { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 

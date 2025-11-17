@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import type { Tenant, User } from '../lib/types';
+import type { Tenant, User } from '@/types';
 
 import {
     getTenants,
@@ -28,7 +28,7 @@ import ImpersonationBanner from './components/admin/ImpersonationBanner';
 import ProfilePage from './components/profile/ProfilePage';
 import LandingPage from './components/landing/LandingPage';
 import ExplorePage from './components/explore/ExplorePage';
-import { ActionType, Notification } from '../lib/types';
+import { ActionType, Notification } from '@/types';
 import MessagesPage from './components/messages/MessagesPage';
 import RegisterForm from './components/auth/RegisterForm';
 import AccountSettingsPage from './components/account/AccountSettingsPage';

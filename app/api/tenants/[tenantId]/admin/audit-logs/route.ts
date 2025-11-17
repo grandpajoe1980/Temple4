@@ -8,8 +8,9 @@ import { TenantRole } from '@/types';
 // 17.7 Get Audit Logs
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 
@@ -18,7 +19,7 @@ export async function GET(
     }
 
     try {
-        const isAdmin = await hasRole(user.id, params.tenantId, [TenantRole.ADMIN]);
+        const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
             return NextResponse.json({ message: 'You do not have permission to view audit logs.' }, { status: 403 });
         }
@@ -36,7 +37,7 @@ export async function GET(
 
         return NextResponse.json(auditLogs);
     } catch (error) {
-        console.error(`Failed to fetch audit logs for tenant ${params.tenantId}:`, error);
+        console.error(`Failed to fetch audit logs for tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to fetch audit logs' }, { status: 500 });
     }
 }

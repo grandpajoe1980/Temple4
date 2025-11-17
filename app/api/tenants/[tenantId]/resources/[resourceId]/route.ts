@@ -10,8 +10,9 @@ import { ResourceVisibility, FileType } from '@prisma/client';
 // 16.3 Get Resource
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; resourceId: string } }
+  { params }: { params: Promise<{ tenantId: string; resourceId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -47,8 +48,9 @@ const updateResourceSchema = z.object({
 // 16.4 Update Resource
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; resourceId: string } }
+  { params }: { params: Promise<{ tenantId: string; resourceId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -87,8 +89,9 @@ export async function PUT(
 // 16.5 Delete Resource
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; resourceId: string } }
+  { params }: { params: Promise<{ tenantId: string; resourceId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 

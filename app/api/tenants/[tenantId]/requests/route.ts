@@ -7,8 +7,9 @@ import { TenantRole, MembershipStatus } from '@prisma/client';
 // 8.4 List Membership Requests
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 

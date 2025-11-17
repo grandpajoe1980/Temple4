@@ -7,8 +7,9 @@ import { can } from '@/lib/permissions';
 // 17.5 Get Contact Submissions
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 

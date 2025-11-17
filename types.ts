@@ -90,7 +90,7 @@ export interface NotificationPreferences {
 export interface User {
   id: string;
   email: string;
-  password?: string; // NOTE: For mock login simulation.
+  password?: string | null; // NOTE: For mock login simulation, made compatible with Prisma
   isSuperAdmin: boolean;
   profile: UserProfile;
   privacySettings: UserPrivacySettings;

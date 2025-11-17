@@ -8,8 +8,9 @@ import { z } from 'zod';
 // 11.3 Get Single Sermon
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; sermonId: string } }
+  { params }: { params: Promise<{ tenantId: string; sermonId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -47,8 +48,9 @@ const sermonUpdateSchema = z.object({
 // 11.4 Update Sermon
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; sermonId: string } }
+  { params }: { params: Promise<{ tenantId: string; sermonId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -98,8 +100,9 @@ export async function PUT(
 // 11.5 Delete Sermon
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; sermonId: string } }
+  { params }: { params: Promise<{ tenantId: string; sermonId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 

@@ -7,8 +7,9 @@ import { can, canUserViewContent } from '@/lib/permissions';
 // 10.6 List Event RSVPs
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -54,8 +55,9 @@ export async function GET(
 // 10.7 RSVP to an Event
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 

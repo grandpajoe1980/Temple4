@@ -13,8 +13,9 @@ const updateStatusSchema = z.object({
 // 15.3 Update Community Post Status
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; postId: string } }
+  { params }: { params: Promise<{ tenantId: string; postId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 

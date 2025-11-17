@@ -13,8 +13,9 @@ const updateSubmissionSchema = z.object({
 // 17.6 Update Contact Submission
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; submissionId: string } }
+  { params }: { params: Promise<{ tenantId: string; submissionId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 

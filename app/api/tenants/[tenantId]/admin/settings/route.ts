@@ -9,8 +9,9 @@ import { TenantRole } from '@prisma/client';
 // 17.1 Get Tenant Settings
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 
@@ -43,8 +44,9 @@ const settingsSchema = z.object({
 // 17.2 Update Tenant Settings
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 

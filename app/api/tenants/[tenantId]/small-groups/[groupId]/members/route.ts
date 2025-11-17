@@ -8,8 +8,9 @@ import { z } from 'zod';
 // 14.6 List Group Members
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; groupId: string } }
+  { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -59,8 +60,9 @@ const addMemberSchema = z.object({
 // 14.7 Add Group Member
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string; groupId: string } }
+  { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const currentUserId = (session?.user as any)?.id;
 

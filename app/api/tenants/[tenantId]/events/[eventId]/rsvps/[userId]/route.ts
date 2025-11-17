@@ -6,8 +6,9 @@ import { prisma } from '@/lib/db';
 // 10.8 Cancel RSVP
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string; userId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string; userId: string }> }
 ) {
+    const { tenantId, eventId, userId } = await params;
   const session = await getServerSession(authOptions);
   const currentUserId = (session?.user as any)?.id;
 
@@ -17,7 +18,7 @@ export async function DELETE(
 
   // Users can only cancel their own RSVP.
   // Admins could also be allowed, but for now, we'll keep it simple.
-  if (currentUserId !== params.userId) {
+  if (currentUserId !== userId) {
     return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
   }
 
@@ -25,8 +26,8 @@ export async function DELETE(
     await prisma.eventRSVP.delete({
       where: {
         userId_eventId: {
-          userId: params.userId,
-          eventId: params.eventId,
+          userId: userId,
+          eventId: eventId,
         },
       },
     });

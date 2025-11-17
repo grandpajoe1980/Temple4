@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState } from 'react';
-import type { User, NotificationPreferences } from '../../types';
-import { updateUserNotificationPreferences } from '../../seed-data';
+import type { User, NotificationPreferences } from '@/types';
+import { updateUserNotificationPreferences } from '@/lib/data';
 import Button from '../ui/Button';
 import ToggleSwitch from '../ui/ToggleSwitch';
 

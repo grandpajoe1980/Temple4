@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { getUserById } from '@/lib/data';
 import ProfileClientPage from './ProfileClientPage';
 
-export default async function ProfilePage({ params }: { params: { userId: string } }) {
+export default async function ProfilePage({ params }: { params: Promise<{ userId: string }> }) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -12,7 +12,8 @@ export default async function ProfilePage({ params }: { params: { userId: string
     return notFound();
   }
 
-  const user = await getUserById(params.userId);
+  const resolvedParams = await params;
+  const user = await getUserById(resolvedParams.userId);
 
   if (!user) {
     return notFound();

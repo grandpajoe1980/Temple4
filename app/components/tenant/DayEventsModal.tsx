@@ -1,5 +1,5 @@
 import React from 'react';
-import type { EventWithCreator } from '../../types';
+import type { EventWithCreator } from '@/types';
 import Modal from '../ui/Modal';
 import EventCard from './EventCard';
 

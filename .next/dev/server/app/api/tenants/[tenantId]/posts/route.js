@@ -1,0 +1,11 @@
+var R=require("../../../../../chunks/[turbopack]_runtime.js")("server/app/api/tenants/[tenantId]/posts/route.js")
+R.c("server/chunks/node_modules_next_a9fe3965._.js")
+R.c("server/chunks/node_modules_next-auth_51122ec5._.js")
+R.c("server/chunks/node_modules_openid-client_d15f72b3._.js")
+R.c("server/chunks/node_modules_jose_dist_node_cjs_bd88468e._.js")
+R.c("server/chunks/node_modules_zod_v4_13c0c9ea._.js")
+R.c("server/chunks/node_modules_bc634cef._.js")
+R.c("server/chunks/[root-of-the-server]__015d631a._.js")
+R.c("server/chunks/_next-internal_server_app_api_tenants_[tenantId]_posts_route_actions_f114b3ec.js")
+R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/tenants/[tenantId]/posts/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)")
+module.exports=R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/tenants/[tenantId]/posts/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { User, Tenant } from '../../types';
+import type { User, Tenant } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 

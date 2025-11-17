@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import type { Tenant, RolePermissions, User } from '../../../types';
-import { TenantRoleType } from '../../../types';
+import type { Tenant, RolePermissions, User } from '@/types';
+import { TenantRoleType } from '@/types';
 import Button from '../../ui/Button';
-import { updateTenantPermissions } from '../../../seed-data';
-import { adminPermissions } from '../../../constants';
+import { updateTenantPermissions } from '@/lib/data';
+import { adminPermissions } from '@/constants';
 
 interface PermissionsTabProps {
   tenant: Tenant;

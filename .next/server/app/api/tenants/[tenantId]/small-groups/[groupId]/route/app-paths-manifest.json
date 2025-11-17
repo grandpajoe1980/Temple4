@@ -1,0 +1,3 @@
+{
+  "/api/tenants/[tenantId]/small-groups/[groupId]/route": "app/api/tenants/[tenantId]/small-groups/[groupId]/route.js"
+}

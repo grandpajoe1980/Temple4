@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import type { User, UserTenantMembership, Tenant } from '../../types';
-import { updateMembershipProfile } from '../../seed-data';
+import type { User, UserTenantMembership, Tenant } from '@/types';
+import { updateMembershipProfile } from '@/lib/data';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Input from '../ui/Input';

@@ -96,9 +96,14 @@ export async function can(user: User, tenant: Tenant, permission: keyof RolePerm
     const roleType = getRoleType(roleInfo.role);
     const permissions = tenant.permissions as any;
 
+    // If permissions is null or undefined, no permissions are granted
+    if (!permissions) {
+      continue;
+    }
+
     if (roleType === 'ADMIN') {
         // Admins have all permissions defined under the ADMIN key.
-        if (permissions.ADMIN[permission]) {
+        if (permissions.ADMIN && permissions.ADMIN[permission]) {
             return true;
         }
     } else {
@@ -141,30 +146,42 @@ export async function hasRole(userId: string, tenantId: string, requiredRoles: T
  * @returns {Promise<boolean>} True if the user can view the content.
  */
 export async function canUserViewContent(userId: string | null, tenantId: string, contentType: 'posts' | 'calendar' | 'sermons' | 'podcasts' | 'books' | 'prayerWall'): Promise<boolean> {
-    const tenant = await prisma.tenant.findUnique({
-        where: { id: tenantId },
-        include: { settings: true }
-    });
+    try {
+        const tenant = await prisma.tenant.findUnique({
+            where: { id: tenantId },
+            include: { settings: true }
+        });
 
-    if (!tenant || !tenant.settings) return false;
+        if (!tenant || !tenant.settings) {
+            return false;
+        }
 
-    const settings = tenant.settings as any;
+        const settings = tenant.settings as any;
 
-    // Check if the entire feature is disabled
-    const featureFlag = `enable${contentType.charAt(0).toUpperCase() + contentType.slice(1)}`;
-    if (!settings[featureFlag]) {
-        return false;
+        // Check if the entire feature is disabled
+        const featureFlag = `enable${contentType.charAt(0).toUpperCase() + contentType.slice(1)}`;
+        if (!settings[featureFlag]) {
+            return false;
+        }
+
+        const membership = userId ? await getMembershipForUserInTenant(userId, tenantId) : null;
+
+        // If user is not a member, check public visibility settings
+        if (!membership || membership.status !== 'APPROVED') {
+            // Check if visitorVisibility exists and has the content type property
+            if (!settings.visitorVisibility || typeof settings.visitorVisibility !== 'object') {
+                return false;
+            }
+            const result = settings.visitorVisibility[contentType] === true;
+            return result;
+        }
+
+        // If they are an approved member, they can view it as long as the feature is enabled.
+        return true;
+    } catch (error) {
+        console.error('[canUserViewContent] Error:', error);
+        throw error;
     }
-
-    const membership = userId ? await getMembershipForUserInTenant(userId, tenantId) : null;
-
-    // If user is not a member, check public visibility settings
-    if (!membership || membership.status !== 'APPROVED') {
-        return settings.visitorVisibility[contentType];
-    }
-
-    // If they are an approved member, they can view it as long as the feature is enabled.
-    return true;
 }
 
 /**
@@ -177,7 +194,7 @@ export async function canUserViewContent(userId: string | null, tenantId: string
  */
 export async function canUserPost(userId: string, tenantId: string, isAnnouncement: boolean): Promise<boolean> {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
 
     if (!user || !tenant) return false;
 

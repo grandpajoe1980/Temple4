@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User, EnrichedCommunityPost } from '../../../types';
-import { CommunityPostStatus } from '../../../types';
-import { getCommunityPostsForTenant, updateCommunityPostStatus } from '../../../seed-data';
+import type { Tenant, User, EnrichedCommunityPost } from '@/types';
+import { CommunityPostStatus } from '@/types';
+import { getCommunityPostsForTenant, updateCommunityPostStatus } from '@/lib/data';
 import Button from '../../ui/Button';
 
 interface PrayerWallTabProps {

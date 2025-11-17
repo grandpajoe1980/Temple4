@@ -1,9 +1,11 @@
+"use client";
+
 import React from 'react';
-import type { Tenant, User } from '../../types';
-import { getPodcastsForTenant } from '../../seed-data';
+import type { Tenant, User } from '@/types';
+import { getPodcastsForTenant } from '@/lib/data';
 import Button from '../ui/Button';
 import PodcastCard from './PodcastCard';
-import { can } from '../../lib/permissions';
+import { can } from '@/lib/permissions';
 
 interface PodcastsPageProps {
   tenant: Tenant;

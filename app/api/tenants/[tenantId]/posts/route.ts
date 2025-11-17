@@ -1,17 +1,16 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { canUserPost, canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 // 9.1 List Posts
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+  const resolvedParams = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -21,13 +20,13 @@ export async function GET(
   const offset = (page - 1) * limit;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'posts');
+    const canView = await canUserViewContent(userId, resolvedParams.tenantId, 'posts');
     if (!canView) {
         return NextResponse.json({ message: 'You do not have permission to view posts.' }, { status: 403 });
     }
 
     const posts = await prisma.post.findMany({
-      where: { tenantId: params.tenantId },
+      where: { tenantId: resolvedParams.tenantId },
       include: {
         author: {
           select: {
@@ -41,7 +40,7 @@ export async function GET(
       orderBy: { createdAt: 'desc' },
     });
 
-    const totalPosts = await prisma.post.count({ where: { tenantId: params.tenantId } });
+    const totalPosts = await prisma.post.count({ where: { tenantId: resolvedParams.tenantId } });
 
     return NextResponse.json({
         posts,
@@ -53,7 +52,18 @@ export async function GET(
         }
     });
   } catch (error) {
-    console.error(`Failed to fetch posts for tenant ${params.tenantId}:`, error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error(`Failed to fetch posts for tenant ${resolvedParams.tenantId}:`, error);
+    
+    // Write error to file for debugging
+    try {
+      const fs = require('fs');
+      fs.appendFileSync('error-log.txt', `\n[${new Date().toISO String()}] GET /posts error:\n${errorMessage}\n${errorStack}\n\n`);
+    } catch (e) {
+      // Ignore file write errors
+    }
+    
     return NextResponse.json({ message: 'Failed to fetch posts' }, { status: 500 });
   }
 }
@@ -68,8 +78,9 @@ const postCreateSchema = z.object({
 // 9.2 Create Post
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -85,7 +96,7 @@ export async function POST(
     const { title, content, isPinned, isAnnouncement } = result.data;
 
     try {
-        const canPost = await canUserPost(userId, params.tenantId, isAnnouncement || false);
+        const canPost = await canUserPost(userId, resolvedParams.tenantId, isAnnouncement || false);
         if (!canPost) {
             return NextResponse.json({ message: 'You do not have permission to create this type of post.' }, { status: 403 });
         }
@@ -96,7 +107,7 @@ export async function POST(
                 content,
                 isPinned: isPinned || false,
                 isAnnouncement: isAnnouncement || false,
-                tenantId: params.tenantId,
+                tenantId: resolvedParams.tenantId,
                 authorId: userId,
             },
         });
@@ -106,7 +117,7 @@ export async function POST(
 
         return NextResponse.json(newPost, { status: 201 });
     } catch (error) {
-        console.error(`Failed to create post in tenant ${params.tenantId}:`, error);
+        console.error(`Failed to create post in tenant ${resolvedParams.tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to create post' }, { status: 500 });
     }
 }

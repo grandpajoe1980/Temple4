@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import type { ResourceItem } from '../../../types';
-import { FileType, ResourceVisibility } from '../../../types';
+import type { ResourceItem } from '@/types';
+import { FileType, ResourceVisibility } from '@/types';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 

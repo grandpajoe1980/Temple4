@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User } from '../../types';
-import { getMembersForTenant } from '../../seed-data';
+import type { Tenant, User } from '@/types';
+import { getMembersForTenant } from '@/lib/data';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import ToggleSwitch from '../ui/ToggleSwitch';

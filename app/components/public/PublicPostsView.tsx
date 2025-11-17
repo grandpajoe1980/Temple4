@@ -1,6 +1,6 @@
 import React from 'react';
-import type { Tenant } from '../../types';
-import { getPostsForTenant } from '../../seed-data';
+import type { Tenant } from '@/types';
+import { getPostsForTenant } from '@/lib/data';
 import PostCard from '../tenant/PostCard';
 
 interface PublicPostsViewProps {

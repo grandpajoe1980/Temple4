@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useState } from 'react';
-import type { User } from '../../types';
+import type { User } from '@/types';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Tabs from '../ui/Tabs';

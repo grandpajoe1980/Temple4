@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import type { Tenant, User } from '../../types';
-import { getMembershipForUserInTenant } from '../../seed-data';
-import { MembershipStatus, MembershipApprovalMode } from '../../types';
+import type { Tenant, User } from '@/types';
+import { getMembershipForUserInTenant } from '@/lib/data';
+import { MembershipStatus, MembershipApprovalMode } from '@/types';
 import Button from '../ui/Button';
 
 interface PublicHeaderProps {

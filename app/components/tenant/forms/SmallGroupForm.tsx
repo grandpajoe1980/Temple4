@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { EnrichedMember } from '../../../types';
+import type { EnrichedMember } from '@/types';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';

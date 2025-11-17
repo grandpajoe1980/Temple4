@@ -1,6 +1,7 @@
+'use client';
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { User, EnrichedConversation } from '../../types';
-import { getConversationsForUser, getOrCreateDirectConversation } from '../../seed-data';
+import type { User, EnrichedConversation } from '@/types';
 import ConversationList from './ConversationList';
 import MessageStream from './MessageStream';
 import Button from '../ui/Button';
@@ -9,51 +10,70 @@ import NewMessageModal from './NewMessageModal';
 
 interface MessagesPageProps {
   currentUser: User;
+  initialConversations: EnrichedConversation[];
   onBack: () => void;
   onViewProfile: (userId: string) => void;
   initialActiveConversationId?: string | null;
 }
 
-const MessagesPage: React.FC<MessagesPageProps> = ({ currentUser, onBack, onViewProfile, initialActiveConversationId }) => {
-  const [updateTrigger, setUpdateTrigger] = useState(0);
+const MessagesPage: React.FC<MessagesPageProps> = ({ 
+  currentUser, 
+  initialConversations,
+  onBack, 
+  onViewProfile, 
+  initialActiveConversationId 
+}) => {
+  const [conversations, setConversations] = useState<EnrichedConversation[]>(initialConversations);
   const [searchTerm, setSearchTerm] = useState('');
   const [isNewMessageModalOpen, setIsNewMessageModalOpen] = useState(false);
   const [newlyCreatedConvId, setNewlyCreatedConvId] = useState<string | null>(null);
 
-  const allUserConversations = useMemo(() => getConversationsForUser(currentUser.id), [currentUser.id, updateTrigger]);
+  const allUserConversations = useMemo(() => conversations, [conversations]);
   
   const [activeConversation, setActiveConversation] = useState<EnrichedConversation | null>(() => {
     if (initialActiveConversationId) {
-      return allUserConversations.find(c => c.id === initialActiveConversationId) || allUserConversations[0] || null;
+      return conversations.find(c => c.id === initialActiveConversationId) || conversations[0] || null;
     }
-    return allUserConversations.length > 0 ? allUserConversations[0] : null;
+    return conversations.length > 0 ? conversations[0] : null;
   });
 
   useEffect(() => {
     const conversationIdToSelect = newlyCreatedConvId || initialActiveConversationId;
     if (conversationIdToSelect) {
-      const conversationToActivate = allUserConversations.find(c => c.id === conversationIdToSelect);
+      const conversationToActivate = conversations.find(c => c.id === conversationIdToSelect);
       if (conversationToActivate) {
         setActiveConversation(conversationToActivate);
         if (newlyCreatedConvId) {
           setNewlyCreatedConvId(null);
         }
       }
-    } else if (!allUserConversations.some(c => c.id === activeConversation?.id)) {
-        // If current active conversation is gone, select the first one.
-        setActiveConversation(allUserConversations[0] || null);
     }
-  }, [initialActiveConversationId, allUserConversations, newlyCreatedConvId, activeConversation]);
+  }, [initialActiveConversationId, conversations, newlyCreatedConvId]);
   
-  const handleStartConversation = useCallback((recipientId: string) => {
-    const conversation = getOrCreateDirectConversation(currentUser.id, recipientId);
-    setIsNewMessageModalOpen(false);
-    setUpdateTrigger(t => t + 1);
-    setNewlyCreatedConvId(conversation.id);
-  }, [currentUser.id]);
+  const handleStartConversation = useCallback(async (recipientId: string) => {
+    // Create or get conversation via API
+    const response = await fetch('/api/conversations/direct', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipientId }),
+    });
+    
+    if (response.ok) {
+      const conversation = await response.json();
+      setConversations(prev => {
+        const exists = prev.find(c => c.id === conversation.id);
+        return exists ? prev : [...prev, conversation];
+      });
+      setIsNewMessageModalOpen(false);
+      setNewlyCreatedConvId(conversation.id);
+    }
+  }, []);
 
   const forceConversationListUpdate = useCallback(() => {
-    setUpdateTrigger(c => c + 1);
+    // Reload conversations from server
+    fetch('/api/conversations')
+      .then(res => res.json())
+      .then(data => setConversations(data));
   }, []);
 
   return (

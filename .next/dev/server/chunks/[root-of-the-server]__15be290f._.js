@@ -116,12 +116,8 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/@prisma/client [external] (@prisma/client, cjs)");
 ;
-const prisma = global.prisma || new __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["PrismaClient"]({
-    log: [
-        'query'
-    ]
-});
-if ("TURBOPACK compile-time truthy", 1) global.prisma = prisma;
+const prisma = globalThis.prisma || new __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["PrismaClient"]();
+if ("TURBOPACK compile-time truthy", 1) globalThis.prisma = prisma;
 }),
 "[project]/app/api/auth/[...nextauth]/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -163,12 +159,19 @@ const authOptions = {
                 const user = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique({
                     where: {
                         email: credentials.email.toLowerCase()
+                    },
+                    include: {
+                        profile: true
                     }
                 });
                 if (user && user.password && await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].compare(credentials.password, user.password)) {
-                    // Return user object without password
-                    const { password, ...userWithoutPassword } = user;
-                    return userWithoutPassword;
+                    // Return user object with required fields for NextAuth
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        name: user.profile?.displayName || user.email,
+                        isSuperAdmin: user.isSuperAdmin
+                    };
                 } else {
                     return null;
                 }
@@ -182,6 +185,8 @@ const authOptions = {
         async jwt ({ token, user }) {
             if (user) {
                 token.id = user.id;
+                token.email = user.email;
+                token.name = user.name;
                 token.isSuperAdmin = user.isSuperAdmin;
             }
             return token;
@@ -189,6 +194,8 @@ const authOptions = {
         async session ({ session, token }) {
             if (session.user) {
                 session.user.id = token.id;
+                session.user.email = token.email;
+                session.user.name = token.name;
                 session.user.isSuperAdmin = token.isSuperAdmin;
             }
             return session;

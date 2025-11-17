@@ -3,7 +3,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { hasRole } from '@/lib/permissions';
-import { TenantRole } from '@/lib/types';
+import { TenantRole } from '@/types';
 
 const prisma = new PrismaClient();
 

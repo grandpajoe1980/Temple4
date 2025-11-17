@@ -122,6 +122,7 @@
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-outline-style: solid;
       --tw-blur: initial;
       --tw-brightness: initial;
       --tw-contrast: initial;
@@ -269,6 +270,10 @@
   position: fixed;
 }
 
+.fixed\! {
+  position: fixed !important;
+}
+
 .relative {
   position: relative;
 }
@@ -332,6 +337,10 @@
 
 .block {
   display: block;
+}
+
+.contents {
+  display: contents;
 }
 
 .flex {
@@ -686,6 +695,11 @@
   --tw-ring-offset-color: var(--background);
 }
 
+.outline {
+  outline-style: var(--tw-outline-style);
+  outline-width: 1px;
+}
+
 .filter {
   filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
 }
@@ -716,6 +730,10 @@
 
 .ease-in-out {
   animation-timing-function: cubic-bezier(.4, 0, .2, 1);
+}
+
+.running {
+  animation-play-state: running;
 }
 
 @media (hover: hover) {
@@ -1088,6 +1106,12 @@
   syntax: "*";
   inherits: false;
   initial-value: 0 0 #0000;
+}
+
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
 }
 
 @property --tw-blur {

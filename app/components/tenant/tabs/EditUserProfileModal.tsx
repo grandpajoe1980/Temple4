@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import type { User, EnrichedMember, UserProfile } from '../../../types';
-import { adminUpdateUserProfile } from '../../../seed-data';
+import type { User, EnrichedMember, UserProfile } from '@/types';
+import { adminUpdateUserProfile } from '@/lib/data';
 import Modal from '../../ui/Modal';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';

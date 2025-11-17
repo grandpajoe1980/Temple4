@@ -1,6 +1,6 @@
 import React from 'react';
-import type { Tenant } from '../../types';
-import { getEventsForTenant } from '../../seed-data';
+import type { Tenant } from '@/types';
+import { getEventsForTenant } from '@/lib/data';
 import EventCard from '../tenant/EventCard';
 
 interface PublicEventsViewProps {

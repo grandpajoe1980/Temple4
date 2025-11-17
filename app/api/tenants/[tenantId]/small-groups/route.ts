@@ -15,6 +15,10 @@ export async function GET(
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
+  if (!userId) {
+    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  }
+
   try {
     // Any member of a tenant can see the list of small groups if the feature is enabled
     const membership = await getMembershipForUserInTenant(userId, params.tenantId);

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import type { AccountSettings } from '@prisma/client';
 import Button from '../ui/Button';

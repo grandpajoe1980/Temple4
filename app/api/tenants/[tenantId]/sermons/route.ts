@@ -1,34 +1,33 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 // 11.1 List Sermons
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+  const resolvedParams = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'sermons');
+    const canView = await canUserViewContent(userId, resolvedParams.tenantId, 'sermons');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view sermons.' }, { status: 403 });
     }
 
     const sermons = await prisma.sermon.findMany({
-      where: { tenantId: params.tenantId },
+      where: { tenantId: resolvedParams.tenantId },
       orderBy: { date: 'desc' },
     });
 
     return NextResponse.json(sermons);
   } catch (error) {
-    console.error(`Failed to fetch sermons for tenant ${params.tenantId}:`, error);
+    console.error(`Failed to fetch sermons for tenant ${resolvedParams.tenantId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch sermons' }, { status: 500 });
   }
 }
@@ -46,8 +45,9 @@ const sermonSchema = z.object({
 // 11.2 Create Sermon
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -56,7 +56,7 @@ export async function POST(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId }, include: { permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -76,13 +76,13 @@ export async function POST(
         const newSermon = await prisma.sermon.create({
             data: {
                 ...result.data,
-                tenantId: params.tenantId,
+                tenantId: resolvedParams.tenantId,
             },
         });
 
         return NextResponse.json(newSermon, { status: 201 });
     } catch (error) {
-        console.error(`Failed to create sermon in tenant ${params.tenantId}:`, error);
+        console.error(`Failed to create sermon in tenant ${resolvedParams.tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to create sermon' }, { status: 500 });
     }
 }

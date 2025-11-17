@@ -1,9 +1,9 @@
 import React from 'react';
-import type { Tenant, User } from '../../types';
-import { getEventsForTenant, getMembershipForUserInTenant, getPostsForTenant, requestToJoinTenant } from '../../seed-data';
+import type { Tenant, User } from '@/types';
+import { getEventsForTenant, getMembershipForUserInTenant, getPostsForTenant, requestToJoinTenant } from '@/lib/data';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
-import { MembershipStatus, MembershipApprovalMode } from '../../types';
+import { MembershipStatus, MembershipApprovalMode } from '@/types';
 
 type TenantPage = 'home' | 'settings' | 'posts' | 'calendar' | 'sermons' | 'podcasts' | 'books' | 'members' | 'chat' | 'donations' | 'contact' | 'volunteering' | 'smallGroups' | 'liveStream';
 

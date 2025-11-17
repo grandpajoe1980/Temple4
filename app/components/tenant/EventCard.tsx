@@ -1,5 +1,5 @@
 import React from 'react';
-import type { EventWithCreator } from '../../types';
+import type { EventWithCreator } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 

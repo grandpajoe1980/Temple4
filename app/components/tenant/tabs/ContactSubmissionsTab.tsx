@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User, ContactSubmission } from '../../../types';
-import { ContactSubmissionStatus } from '../../../types';
-import { getContactSubmissionsForTenant, updateContactSubmissionStatus, respondToContactSubmission } from '../../../seed-data';
+import type { Tenant, User, ContactSubmission } from '@/types';
+import { ContactSubmissionStatus } from '@/types';
+import { getContactSubmissionsForTenant, updateContactSubmissionStatus, respondToContactSubmission } from '@/lib/data';
 import Button from '../../ui/Button';
 import RespondSubmissionModal from '../forms/RespondSubmissionModal';
 

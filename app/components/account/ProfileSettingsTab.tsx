@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import type { UserProfile } from '@prisma/client';
 import Input from '../ui/Input';

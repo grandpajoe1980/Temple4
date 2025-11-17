@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useMemo } from 'react';
-import type { Tenant, User } from '../../types';
-import { getSmallGroupsForTenant } from '../../seed-data';
+import type { Tenant, User } from '@/types';
+import { getSmallGroupsForTenant } from '@/lib/data';
 import SmallGroupCard from './SmallGroupCard';
 
 interface SmallGroupsPageProps {

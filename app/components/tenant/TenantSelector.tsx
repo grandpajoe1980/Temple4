@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import type { Tenant } from '../../types';
+import type { Tenant } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 

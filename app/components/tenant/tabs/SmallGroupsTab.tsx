@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User, EnrichedSmallGroup } from '../../../types';
-import { getSmallGroupsForTenant, createSmallGroup, getMembersForTenant } from '../../../seed-data';
+import type { Tenant, User, EnrichedSmallGroup } from '@/types';
+import { getSmallGroupsForTenant, createSmallGroup, getMembersForTenant } from '@/lib/data';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import SmallGroupForm from '../forms/SmallGroupForm';

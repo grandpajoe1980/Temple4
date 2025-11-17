@@ -1,6 +1,6 @@
 import React from 'react';
-import type { EnrichedVolunteerNeed, User } from '../../types';
-import { signUpForNeed, cancelSignUp } from '../../seed-data';
+import type { EnrichedVolunteerNeed, User } from '@/types';
+import { signUpForNeed, cancelSignUp } from '@/lib/data';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 

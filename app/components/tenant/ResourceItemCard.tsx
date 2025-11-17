@@ -1,8 +1,8 @@
 import React from 'react';
-import type { EnrichedResourceItem, User, Tenant } from '../../types';
-import { FileType, ResourceVisibility } from '../../types';
-import { can } from '../../lib/permissions';
-import { deleteResourceItem } from '../../seed-data';
+import type { EnrichedResourceItem, User, Tenant } from '@/types';
+import { FileType, ResourceVisibility } from '@/types';
+import { can } from '@/lib/permissions';
+import { deleteResourceItem } from '@/lib/data';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 

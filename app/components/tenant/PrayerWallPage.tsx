@@ -1,11 +1,13 @@
+"use client";
+
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User } from '../../types';
-import { getCommunityPostsForTenant, addCommunityPost } from '../../seed-data';
+import type { Tenant, User } from '@/types';
+import { getCommunityPostsForTenant, addCommunityPost } from '@/lib/data';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import PrayerPostCard from './PrayerPostCard';
 import SubmitPrayerPostForm from './forms/SubmitPrayerPostForm';
-import { CommunityPostStatus, CommunityPostType } from '../../types';
+import { CommunityPostStatus, CommunityPostType } from '@/types';
 
 interface PrayerWallPageProps {
   tenant: Tenant;

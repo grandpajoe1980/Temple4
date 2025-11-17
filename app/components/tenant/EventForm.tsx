@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState, useMemo } from 'react';
-import type { Event } from '../../types';
+import type { Event } from '@/types';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import ToggleSwitch from '../ui/ToggleSwitch';

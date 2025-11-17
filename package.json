@@ -3,11 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "next dev --no-turbo",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts"
+    "db:seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
+    "test:suite": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" test-suite/run-tests.ts",
+    "test:all": "cd test-suite && run-tests-with-server.bat",
+    "test:api": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" -e \"const {TestLogger} = require('./test-suite/test-logger'); const {APITestSuite} = require('./test-suite/api-tests'); const logger = new TestLogger(); const suite = new APITestSuite(logger); suite.runAllTests().then(() => { logger.printSummary(); logger.saveResults(); }).catch(console.error);\"",
+    "test:pages": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" -e \"const {TestLogger} = require('./test-suite/test-logger'); const {PageTestSuite} = require('./test-suite/page-tests'); const logger = new TestLogger(); const suite = new PageTestSuite(logger); suite.runAllTests().then(() => { logger.printSummary(); logger.saveResults(); }).catch(console.error);\"",
+    "test:features": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" -e \"const {TestLogger} = require('./test-suite/test-logger'); const {FeatureTestSuite} = require('./test-suite/feature-tests'); const logger = new TestLogger(); const suite = new FeatureTestSuite(logger); suite.runAllTests().then(() => { logger.printSummary(); logger.saveResults(); }).catch(console.error);\""
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",

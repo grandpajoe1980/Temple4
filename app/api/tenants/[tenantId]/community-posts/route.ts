@@ -10,30 +10,36 @@ import { CommunityPostType, CommunityPostStatus } from '@prisma/client';
 // 15.1 List Community Posts
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
+    if (!userId) {
+        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    }
+
     try {
-        const membership = await getMembershipForUserInTenant(userId, params.tenantId);
+        const membership = await getMembershipForUserInTenant(userId, resolvedParams.tenantId);
         if (!membership) {
             return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
-        const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId } });
-        if (!tenant) {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
+        if (!tenant || !user) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
 
-        const canView = await can(userId, tenant, 'canManagePrayerWall');
+        const canView = await can(user, tenant, 'canManagePrayerWall');
         if (!canView) {
             return NextResponse.json({ message: 'You do not have permission to view the prayer wall.' }, { status: 403 });
         }
 
         const posts = await prisma.communityPost.findMany({
             where: {
-                tenantId: params.tenantId,
+                tenantId: resolvedParams.tenantId,
                 status: 'PUBLISHED',
             },
             orderBy: {
@@ -43,7 +49,7 @@ export async function GET(
 
         return NextResponse.json(posts);
     } catch (error) {
-        console.error(`Failed to fetch community posts for tenant ${params.tenantId}:`, error);
+        console.error(`Failed to fetch community posts for tenant ${resolvedParams.tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to fetch community posts' }, { status: 500 });
     }
 }
@@ -57,8 +63,9 @@ const postSchema = z.object({
 // 15.2 Create Community Post
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -72,12 +79,12 @@ export async function POST(
     }
 
     try {
-        const membership = await getMembershipForUserInTenant(userId, params.tenantId);
+        const membership = await getMembershipForUserInTenant(userId, resolvedParams.tenantId);
         if (!membership) {
             return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
-        const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId } });
+        const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
         if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
@@ -89,7 +96,7 @@ export async function POST(
 
         const newPost = await prisma.communityPost.create({
             data: {
-                tenantId: params.tenantId,
+                tenantId: resolvedParams.tenantId,
                 authorUserId: result.data.isAnonymous ? null : userId,
                 ...result.data,
                 status: CommunityPostStatus.PENDING, // Or PUBLISHED, depending on tenant settings
@@ -98,7 +105,7 @@ export async function POST(
 
         return NextResponse.json(newPost, { status: 201 });
     } catch (error) {
-        console.error(`Failed to create community post for tenant ${params.tenantId}:`, error);
+        console.error(`Failed to create community post for tenant ${resolvedParams.tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to create community post' }, { status: 500 });
     }
 }

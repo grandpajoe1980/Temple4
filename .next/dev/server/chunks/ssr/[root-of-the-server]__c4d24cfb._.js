@@ -78,12 +78,8 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/@prisma/client [external] (@prisma/client, cjs)");
 ;
-const prisma = global.prisma || new __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["PrismaClient"]({
-    log: [
-        'query'
-    ]
-});
-if ("TURBOPACK compile-time truthy", 1) global.prisma = prisma;
+const prisma = globalThis.prisma || new __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["PrismaClient"]();
+if ("TURBOPACK compile-time truthy", 1) globalThis.prisma = prisma;
 }),
 "[project]/app/api/auth/[...nextauth]/route.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -125,12 +121,19 @@ const authOptions = {
                 const user = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.findUnique({
                     where: {
                         email: credentials.email.toLowerCase()
+                    },
+                    include: {
+                        profile: true
                     }
                 });
                 if (user && user.password && await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"].compare(credentials.password, user.password)) {
-                    // Return user object without password
-                    const { password, ...userWithoutPassword } = user;
-                    return userWithoutPassword;
+                    // Return user object with required fields for NextAuth
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        name: user.profile?.displayName || user.email,
+                        isSuperAdmin: user.isSuperAdmin
+                    };
                 } else {
                     return null;
                 }
@@ -144,6 +147,8 @@ const authOptions = {
         async jwt ({ token, user }) {
             if (user) {
                 token.id = user.id;
+                token.email = user.email;
+                token.name = user.name;
                 token.isSuperAdmin = user.isSuperAdmin;
             }
             return token;
@@ -151,6 +156,8 @@ const authOptions = {
         async session ({ session, token }) {
             if (session.user) {
                 session.user.id = token.id;
+                session.user.email = token.email;
+                session.user.name = token.name;
                 session.user.isSuperAdmin = token.isSuperAdmin;
             }
             return session;
@@ -167,18 +174,74 @@ const handler = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules
 "use strict";
 
 __turbopack_context__.s([
+    "addCommunityPost",
+    ()=>addCommunityPost,
+    "addContactSubmission",
+    ()=>addContactSubmission,
+    "addDonationRecord",
+    ()=>addDonationRecord,
+    "addEvent",
+    ()=>addEvent,
+    "addMessage",
+    ()=>addMessage,
+    "addPost",
+    ()=>addPost,
+    "addResourceItem",
+    ()=>addResourceItem,
+    "addVolunteerNeed",
+    ()=>addVolunteerNeed,
+    "adminUpdateUserProfile",
+    ()=>adminUpdateUserProfile,
+    "cancelSignUp",
+    ()=>cancelSignUp,
+    "createConversation",
+    ()=>createConversation,
+    "createSmallGroup",
+    ()=>createSmallGroup,
     "createTenant",
     ()=>createTenant,
+    "deleteMessage",
+    ()=>deleteMessage,
+    "deleteResourceItem",
+    ()=>deleteResourceItem,
+    "getAllUsers",
+    ()=>getAllUsers,
+    "getAuditLogs",
+    ()=>getAuditLogs,
+    "getBooksForTenant",
+    ()=>getBooksForTenant,
+    "getCommunityPostsForTenant",
+    ()=>getCommunityPostsForTenant,
+    "getContactSubmissionsForTenant",
+    ()=>getContactSubmissionsForTenant,
+    "getConversationsForUser",
+    ()=>getConversationsForUser,
+    "getDonationsForTenant",
+    ()=>getDonationsForTenant,
+    "getEnrichedMembershipsForUser",
+    ()=>getEnrichedMembershipsForUser,
     "getEventsForTenant",
     ()=>getEventsForTenant,
+    "getMembersForTenant",
+    ()=>getMembersForTenant,
     "getMembershipForUserInTenant",
     ()=>getMembershipForUserInTenant,
+    "getMessagesForConversation",
+    ()=>getMessagesForConversation,
     "getNotificationsForUser",
     ()=>getNotificationsForUser,
     "getOrCreateDirectConversation",
     ()=>getOrCreateDirectConversation,
+    "getPodcastsForTenant",
+    ()=>getPodcastsForTenant,
     "getPostsForTenant",
     ()=>getPostsForTenant,
+    "getResourceItemsForTenant",
+    ()=>getResourceItemsForTenant,
+    "getSermonsForTenant",
+    ()=>getSermonsForTenant,
+    "getSmallGroupsForTenant",
+    ()=>getSmallGroupsForTenant,
     "getTenantById",
     ()=>getTenantById,
     "getTenants",
@@ -189,10 +252,18 @@ __turbopack_context__.s([
     ()=>getUserByEmail,
     "getUserById",
     ()=>getUserById,
+    "getVolunteerNeedsForTenant",
+    ()=>getVolunteerNeedsForTenant,
+    "joinSmallGroup",
+    ()=>joinSmallGroup,
+    "leaveSmallGroup",
+    ()=>leaveSmallGroup,
     "logAuditEvent",
     ()=>logAuditEvent,
     "markAllNotificationsAsRead",
     ()=>markAllNotificationsAsRead,
+    "markConversationAsRead",
+    ()=>markConversationAsRead,
     "markNotificationAsRead",
     ()=>markNotificationAsRead,
     "registerUser",
@@ -203,8 +274,26 @@ __turbopack_context__.s([
     ()=>requestToJoinTenant,
     "resetPassword",
     ()=>resetPassword,
+    "respondToContactSubmission",
+    ()=>respondToContactSubmission,
+    "signUpForNeed",
+    ()=>signUpForNeed,
+    "updateCommunityPostStatus",
+    ()=>updateCommunityPostStatus,
+    "updateContactSubmissionStatus",
+    ()=>updateContactSubmissionStatus,
+    "updateMemberRolesAndTitle",
+    ()=>updateMemberRolesAndTitle,
+    "updateMembershipProfile",
+    ()=>updateMembershipProfile,
+    "updateMembershipStatus",
+    ()=>updateMembershipStatus,
     "updateTenant",
-    ()=>updateTenant
+    ()=>updateTenant,
+    "updateTenantPermissions",
+    ()=>updateTenantPermissions,
+    "updateUserNotificationPreferences",
+    ()=>updateUserNotificationPreferences
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db.ts [app-rsc] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/@prisma/client [external] (@prisma/client, cjs)");
@@ -248,12 +337,38 @@ async function getUserById(userId) {
     });
 }
 async function getTenants() {
-    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.findMany({
+    const tenants = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.findMany({
         include: {
             settings: true,
             branding: true
         }
     });
+    // Transform Prisma data to match Tenant interface with nested address
+    return tenants.map((tenant)=>({
+            ...tenant,
+            address: {
+                street: tenant.street,
+                city: tenant.city,
+                state: tenant.state,
+                country: tenant.country,
+                postalCode: tenant.postalCode
+            },
+            settings: tenant.settings || {
+                isPublic: true,
+                allowMemberDirectory: true,
+                allowEvents: true,
+                allowDonations: true,
+                allowSmallGroups: true,
+                allowMessaging: true
+            },
+            branding: tenant.branding || {
+                logoUrl: '',
+                bannerImageUrl: '',
+                primaryColor: '#d97706',
+                accentColor: '#92400e'
+            },
+            permissions: tenant.permissions || {}
+        }));
 }
 async function getEventsForTenant(tenantId) {
     return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].event.findMany({
@@ -466,7 +581,7 @@ async function requestToJoinTenant(userId, tenantId) {
                     role: __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["TenantRole"].MEMBER
                 }
             },
-            status: __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["MembershipStatus"].REQUESTED
+            status: __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["MembershipStatus"].PENDING
         }
     });
 }
@@ -507,6 +622,7 @@ async function logAuditEvent(event) {
 async function getOrCreateDirectConversation(userId1, userId2) {
     const existing = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].conversation.findFirst({
         where: {
+            isDirectMessage: true,
             participants: {
                 every: {
                     userId: {
@@ -525,9 +641,7 @@ async function getOrCreateDirectConversation(userId1, userId2) {
     if (existing) return existing;
     return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].conversation.create({
         data: {
-            isDirect: true,
-            isPrivateGroup: false,
-            createdByUserId: userId1,
+            isDirectMessage: true,
             participants: {
                 create: [
                     {
@@ -540,6 +654,285 @@ async function getOrCreateDirectConversation(userId1, userId2) {
             }
         }
     });
+}
+async function getConversationsForUser(userId) {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].conversation.findMany({
+        where: {
+            participants: {
+                some: {
+                    userId: userId
+                }
+            }
+        },
+        include: {
+            participants: {
+                include: {
+                    user: {
+                        include: {
+                            profile: true
+                        }
+                    }
+                }
+            },
+            messages: {
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                take: 1,
+                include: {
+                    user: {
+                        include: {
+                            profile: true
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: {
+            id: 'desc'
+        }
+    });
+}
+async function getMessagesForConversation(conversationId) {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].chatMessage.findMany({
+        where: {
+            conversationId: conversationId
+        },
+        include: {
+            user: {
+                include: {
+                    profile: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: 'asc'
+        }
+    });
+}
+async function addMessage(conversationId, senderId, content) {
+    const message = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].chatMessage.create({
+        data: {
+            conversationId,
+            userId: senderId,
+            text: content
+        },
+        include: {
+            user: {
+                include: {
+                    profile: true
+                }
+            }
+        }
+    });
+    return message;
+}
+async function deleteMessage(messageId) {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].chatMessage.delete({
+        where: {
+            id: messageId
+        }
+    });
+}
+async function markConversationAsRead(conversationId, userId) {
+    // This would update read receipts via ConversationParticipant's lastReadMessageId
+    // For now, just return success
+    return {
+        success: true
+    };
+}
+async function getAllUsers() {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.findMany({
+        include: {
+            profile: true
+        }
+    });
+}
+async function getAuditLogs() {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].auditLog.findMany({
+        include: {
+            actorUser: {
+                include: {
+                    profile: true
+                }
+            },
+            effectiveUser: {
+                include: {
+                    profile: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: 'desc'
+        },
+        take: 100
+    });
+}
+async function getEnrichedMembershipsForUser(userId) {
+    const memberships = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].userTenantMembership.findMany({
+        where: {
+            userId
+        },
+        include: {
+            tenant: {
+                include: {
+                    settings: true,
+                    branding: true
+                }
+            }
+        }
+    });
+    return memberships.map((m)=>({
+            membership: m,
+            tenant: m.tenant
+        }));
+}
+async function updateMembershipProfile(userId, membershipId, data) {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].userTenantMembership.update({
+        where: {
+            id: membershipId,
+            userId
+        },
+        data: {
+            displayName: data.displayName,
+            displayTitle: data.displayTitle
+        }
+    });
+}
+async function updateUserNotificationPreferences(userId, preferences) {
+    // Note: This assumes notification preferences are stored in a JSON field or separate table
+    // Adjust based on your actual schema
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.update({
+        where: {
+            id: userId
+        },
+        data: {
+        }
+    });
+}
+async function getMembersForTenant(tenantId) {
+    // TODO: Implement member fetching with enriched data
+    return [];
+}
+async function updateMembershipStatus(userId, tenantId, status) {
+    // TODO: Implement membership status update
+    return null;
+}
+async function updateMemberRolesAndTitle(userId, tenantId, roles, title) {
+    // TODO: Implement member roles and title update
+    return null;
+}
+async function getSmallGroupsForTenant(tenantId) {
+    // TODO: Implement small groups fetching
+    return [];
+}
+async function createSmallGroup(tenantId, groupData) {
+    // TODO: Implement small group creation
+    return null;
+}
+async function getVolunteerNeedsForTenant(tenantId) {
+    // TODO: Implement volunteer needs fetching
+    return [];
+}
+async function addVolunteerNeed(tenantId, needData) {
+    // TODO: Implement volunteer need creation
+    return null;
+}
+async function getResourceItemsForTenant(tenantId) {
+    // TODO: Implement resource items fetching
+    return [];
+}
+async function addResourceItem(tenantId, itemData) {
+    // TODO: Implement resource item creation
+    return null;
+}
+async function deleteResourceItem(itemId) {
+    // TODO: Implement resource item deletion
+    return null;
+}
+async function getCommunityPostsForTenant(tenantId) {
+    // TODO: Implement community posts fetching
+    return [];
+}
+async function updateCommunityPostStatus(postId, status) {
+    // TODO: Implement community post status update
+    return null;
+}
+async function getContactSubmissionsForTenant(tenantId) {
+    // TODO: Implement contact submissions fetching
+    return [];
+}
+async function updateContactSubmissionStatus(submissionId, status) {
+    // TODO: Implement contact submission status update
+    return null;
+}
+async function respondToContactSubmission(submissionId, response) {
+    // TODO: Implement contact submission response
+    return null;
+}
+async function updateTenantPermissions(tenantId, permissions) {
+    // TODO: Implement tenant permissions update
+    return null;
+}
+async function addPost(tenantId, postData) {
+    // TODO: Implement post creation
+    return null;
+}
+async function addEvent(tenantId, eventData) {
+    // TODO: Implement event creation
+    return null;
+}
+async function getSermonsForTenant(tenantId) {
+    // TODO: Implement sermons fetching
+    return [];
+}
+async function getPodcastsForTenant(tenantId) {
+    // TODO: Implement podcasts fetching
+    return [];
+}
+async function getBooksForTenant(tenantId) {
+    // TODO: Implement books fetching
+    return [];
+}
+async function getDonationsForTenant(tenantId) {
+    // TODO: Implement donations fetching
+    return [];
+}
+async function addDonationRecord(tenantId, donationData) {
+    // TODO: Implement donation record creation
+    return null;
+}
+async function addContactSubmission(tenantId, submissionData) {
+    // TODO: Implement contact submission creation
+    return null;
+}
+async function addCommunityPost(tenantId, postData) {
+    // TODO: Implement community post creation
+    return null;
+}
+async function joinSmallGroup(groupId, userId) {
+    // TODO: Implement small group join
+    return null;
+}
+async function leaveSmallGroup(groupId, userId) {
+    // TODO: Implement small group leave
+    return null;
+}
+async function signUpForNeed(needId, userId) {
+    // TODO: Implement volunteer need sign up
+    return null;
+}
+async function cancelSignUp(needId, userId) {
+    // TODO: Implement volunteer need cancellation
+    return null;
+}
+async function createConversation(conversationData) {
+    // TODO: Implement conversation creation
+    return null;
+}
+async function adminUpdateUserProfile(userId, profileData) {
+    // TODO: Implement admin user profile update
+    return null;
 }
 }),
 "[project]/app/components/HomePageClient.tsx [app-rsc] (client reference proxy) <module evaluation>", ((__turbopack_context__) => {

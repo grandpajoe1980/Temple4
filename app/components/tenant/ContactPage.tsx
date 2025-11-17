@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useState } from 'react';
-import type { Tenant } from '../../types';
-import { addContactSubmission } from '../../seed-data';
+import type { Tenant } from '@/types';
+import { addContactSubmission } from '@/lib/data';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
 import Button from '../ui/Button';

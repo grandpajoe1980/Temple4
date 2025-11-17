@@ -1,0 +1,6 @@
+# Test Results
+test-results/
+*.test-results.json
+*.test-summary.json
+*.test-issues.json
+*.test-report.txt

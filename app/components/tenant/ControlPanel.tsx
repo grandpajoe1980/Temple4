@@ -1,9 +1,11 @@
+"use client";
+
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User } from '../../types';
-import { TenantRole } from '../../types';
+import type { Tenant, User } from '@/types';
+import { TenantRole } from '@/types';
 import Tabs from '../ui/Tabs';
 import Card from '../ui/Card';
-import { CONTROL_PANEL_TABS } from '../../constants';
+import { CONTROL_PANEL_TABS } from '@/constants';
 import GeneralTab from './tabs/GeneralTab';
 import BrandingTab from './tabs/BrandingTab';
 import FeaturesTab from './tabs/FeaturesTab';
@@ -17,7 +19,7 @@ import LiveStreamTab from './tabs/LiveStreamTab';
 import PrayerWallTab from './tabs/PrayerWallTab';
 import ResourceCenterTab from './tabs/ResourceCenterTab';
 import ContactSubmissionsTab from './tabs/ContactSubmissionsTab';
-import { hasRole, can } from '../../lib/permissions';
+import { hasRole, can } from '@/lib/permissions';
 
 interface ControlPanelProps {
   tenant: Tenant;

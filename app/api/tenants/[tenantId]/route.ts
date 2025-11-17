@@ -8,14 +8,15 @@ import { z } from 'zod';
 // 7.2 Get Tenant Details
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+  const resolvedParams = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
   try {
     const tenant = await prisma.tenant.findUnique({
-      where: { id: params.tenantId },
+      where: { id: resolvedParams.tenantId },
       include: {
         branding: true,
         settings: true,
@@ -31,7 +32,7 @@ export async function GET(
       where: {
         userId_tenantId: {
           userId,
-          tenantId: params.tenantId,
+          tenantId: resolvedParams.tenantId,
         },
       },
     }) : null;
@@ -52,7 +53,7 @@ export async function GET(
     return NextResponse.json(tenant);
 
   } catch (error) {
-    console.error(`Failed to fetch tenant ${params.tenantId}:`, error);
+    console.error(`Failed to fetch tenant ${resolvedParams.tenantId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch tenant' }, { status: 500 });
   }
 }
@@ -70,8 +71,9 @@ const tenantUpdateSchema = z.object({
 // 7.4 Update Tenant
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -84,7 +86,7 @@ export async function PUT(
         where: {
             userId_tenantId: {
                 userId,
-                tenantId: params.tenantId,
+                tenantId: resolvedParams.tenantId,
             },
         },
         include: {
@@ -111,7 +113,7 @@ export async function PUT(
             const existingTenant = await prisma.tenant.findFirst({
                 where: {
                     slug: slug,
-                    id: { not: params.tenantId },
+                    id: { not: resolvedParams.tenantId },
                 }
             });
             if (existingTenant) {
@@ -120,7 +122,7 @@ export async function PUT(
         }
 
         const updatedTenant = await prisma.tenant.update({
-            where: { id: params.tenantId },
+            where: { id: resolvedParams.tenantId },
             data: {
                 ...(name && { name }),
                 ...(slug && { slug }),
@@ -136,7 +138,7 @@ export async function PUT(
 
         return NextResponse.json(updatedTenant);
     } catch (error) {
-        console.error(`Failed to update tenant ${params.tenantId}:`, error);
+        console.error(`Failed to update tenant ${resolvedParams.tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to update tenant' }, { status: 500 });
     }
 }

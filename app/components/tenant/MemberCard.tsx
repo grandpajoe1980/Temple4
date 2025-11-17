@@ -1,5 +1,5 @@
 import React from 'react';
-import type { EnrichedMember } from '../../types';
+import type { EnrichedMember } from '@/types';
 import Card from '../ui/Card';
 
 interface MemberCardProps {

@@ -1,8 +1,8 @@
 import React from 'react';
-import type { EnrichedCommunityPost } from '../../types';
+import type { EnrichedCommunityPost } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
-import { CommunityPostType } from '../../types';
+import { CommunityPostType } from '@/types';
 
 interface PrayerPostCardProps {
   post: EnrichedCommunityPost;

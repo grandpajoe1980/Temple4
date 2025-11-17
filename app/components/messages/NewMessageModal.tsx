@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState, useMemo } from 'react';
-import type { User } from '../../types';
-import { getAllUsers } from '../../seed-data';
+import type { User } from '@/types';
+import { getAllUsers } from '@/lib/data';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 

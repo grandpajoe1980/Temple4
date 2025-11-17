@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CommunityPostType } from '../../../types';
+import { CommunityPostType } from '@/types';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
 

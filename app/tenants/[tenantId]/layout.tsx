@@ -12,7 +12,7 @@ export default async function TenantLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { tenantId: string };
+  params: Promise<{ tenantId: string }>;
 }) {
   const session = await getServerSession(authOptions);
 
@@ -20,7 +20,8 @@ export default async function TenantLayout({
     redirect('/auth/login');
   }
 
-  const tenant = await getTenantById(params.tenantId);
+  const resolvedParams = await params;
+  const tenant = await getTenantById(resolvedParams.tenantId);
   const user = await getUserById((session.user as any).id);
 
   if (!tenant || !user) {

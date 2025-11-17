@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User } from '../../types';
-import { getVolunteerNeedsForTenant } from '../../seed-data';
+import type { Tenant, User } from '@/types';
+import { getVolunteerNeedsForTenant } from '@/lib/data';
 import VolunteerNeedCard from './VolunteerNeedCard';
 
 interface VolunteeringPageProps {

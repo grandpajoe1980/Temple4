@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TenantRole, type Tenant, type User, type Notification } from '../../types';
+import { TenantRole, type Tenant, type User, type Notification } from '@/types';
 import Button from '../ui/Button';
 import ControlPanel from './ControlPanel';
 import PostsPage from './PostsPage';
@@ -10,8 +10,8 @@ import PodcastsPage from './PodcastsPage';
 import BooksPage from './BooksPage';
 import HomePage from './HomePage';
 import ChatPage from './ChatPage';
-import { hasRole, can } from '../../lib/permissions';
-import { getMembershipForUserInTenant, getNotificationsForUser, markAllNotificationsAsRead, markNotificationAsRead } from '../../seed-data';
+import { hasRole, can } from '@/lib/permissions';
+import { getMembershipForUserInTenant, getNotificationsForUser, markAllNotificationsAsRead, markNotificationAsRead } from '@/lib/data';
 import NotificationBell from '../notifications/NotificationBell';
 import NotificationPanel from '../notifications/NotificationPanel';
 import DonationsPage from './DonationsPage';

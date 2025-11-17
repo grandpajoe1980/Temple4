@@ -9,7 +9,7 @@ import Button from '@/app/components/ui/Button';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@temple.com');
-  const [password, setPassword] = useState('admin');
+  const [password, setPassword] = useState('password');
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -18,16 +18,15 @@ export default function LoginPage() {
     setError('');
 
     const result = await signIn('credentials', {
-      redirect: false,
       email,
       password,
+      callbackUrl: '/',
     });
 
     if (result?.error) {
       setError('Invalid credentials. Please try again.');
-    } else {
-      router.push('/'); // Redirect to home page on successful login
     }
+    // If successful, NextAuth will handle the redirect
   };
 
   return (
@@ -71,7 +70,7 @@ export default function LoginPage() {
                 </div>
                 <div className="text-center text-xs text-gray-400 pt-4">
                     <p>For this prototype, use:</p>
-                    <p>Email: <strong>admin@temple.com</strong> / Password: <strong>admin</strong></p>
+                    <p>Email: <strong>admin@temple.com</strong> / Password: <strong>password</strong></p>
                     <p>Or any other user from the mock data.</p>
                 </div>
                 </form>

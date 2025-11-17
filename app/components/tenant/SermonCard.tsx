@@ -1,5 +1,5 @@
 import React from 'react';
-import type { EnrichedMediaItem } from '../../types';
+import type { EnrichedMediaItem } from '@/types';
 import Card from '../ui/Card';
 
 interface SermonCardProps {

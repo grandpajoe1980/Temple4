@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 // FIX: Changed 'import type' for TenantRole to a value import.
-import { TenantRole, type EnrichedConversation, type Tenant, type User, type UserTenantMembership } from '../../types';
-import { getMembershipForUserInTenant } from '../../seed-data';
+import { TenantRole, type EnrichedConversation, type Tenant, type User, type UserTenantMembership } from '@/types';
+import { getMembershipForUserInTenant } from '@/lib/data';
 
 interface ConversationDetailsPanelProps {
   conversation: EnrichedConversation;

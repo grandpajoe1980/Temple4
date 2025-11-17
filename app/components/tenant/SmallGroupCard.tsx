@@ -1,6 +1,6 @@
 import React from 'react';
-import type { EnrichedSmallGroup, User } from '../../types';
-import { joinSmallGroup, leaveSmallGroup } from '../../seed-data';
+import type { EnrichedSmallGroup, User } from '@/types';
+import { joinSmallGroup, leaveSmallGroup } from '@/lib/data';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 

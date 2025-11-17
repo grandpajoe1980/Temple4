@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User, EnrichedVolunteerNeed } from '../../../types';
-import { getVolunteerNeedsForTenant, addVolunteerNeed } from '../../../seed-data';
+import type { Tenant, User, EnrichedVolunteerNeed } from '@/types';
+import { getVolunteerNeedsForTenant, addVolunteerNeed } from '@/lib/data';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import VolunteerNeedForm from '../forms/VolunteerNeedForm';

@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User, EnrichedMember, UserTenantRole } from '../../../types';
-import { MembershipApprovalMode, MembershipStatus } from '../../../types';
+import type { Tenant, User, EnrichedMember, UserTenantRole } from '@/types';
+import { MembershipApprovalMode, MembershipStatus } from '@/types';
 import Button from '../../ui/Button';
-import { getMembersForTenant, updateMembershipStatus, updateMemberRolesAndTitle } from '../../../seed-data';
-import { can } from '../../../lib/permissions';
+import { getMembersForTenant, updateMembershipStatus, updateMemberRolesAndTitle } from '@/lib/data';
+import { can } from '@/lib/permissions';
 import EditRolesModal from './EditRolesModal';
 import Modal from '../../ui/Modal';
 

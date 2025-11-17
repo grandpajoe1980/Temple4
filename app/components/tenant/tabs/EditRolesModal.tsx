@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import type { EnrichedMember, UserTenantRole } from '../../../types';
-import { TenantRole } from '../../../types';
+import type { EnrichedMember, UserTenantRole } from '@/types';
+import { TenantRole } from '@/types';
 import Modal from '../../ui/Modal';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import type { Tenant, User, Notification } from '../../types';
+import type { Tenant, User, Notification } from '@/types';
 import Button from '../ui/Button';
 import PublicHeader from './PublicHeader';
 import PublicPostsView from './PublicPostsView';
@@ -10,7 +10,7 @@ import PodcastsPage from '../tenant/PodcastsPage';
 import BooksPage from '../tenant/BooksPage';
 import NotificationBell from '../notifications/NotificationBell';
 import NotificationPanel from '../notifications/NotificationPanel';
-import { getNotificationsForUser, markAllNotificationsAsRead, markNotificationAsRead } from '../../seed-data';
+import { getNotificationsForUser, markAllNotificationsAsRead, markNotificationAsRead } from '@/lib/data';
 
 
 interface PublicTenantPageProps {

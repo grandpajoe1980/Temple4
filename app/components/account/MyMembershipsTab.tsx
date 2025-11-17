@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState, useMemo } from 'react';
-import type { User, UserTenantMembership, Tenant } from '../../types';
-import { getEnrichedMembershipsForUser } from '../../seed-data';
+import type { User, UserTenantMembership, Tenant } from '@/types';
+import { getEnrichedMembershipsForUser } from '@/lib/data';
 import Button from '../ui/Button';
 import EditMembershipModal from './EditMembershipModal';
 

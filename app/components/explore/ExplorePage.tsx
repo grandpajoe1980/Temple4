@@ -1,5 +1,8 @@
+'use client';
+
 import React, { useState, useMemo } from 'react';
-import type { Tenant } from '../../types';
+import { useRouter } from 'next/navigation';
+import type { Tenant } from '@/types';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import TenantCard from './TenantCard';
@@ -7,12 +10,29 @@ import TenantCard from './TenantCard';
 interface ExplorePageProps {
   initialSearchTerm: string;
   tenants: Tenant[];
-  onBack: () => void;
-  onViewTenant: (tenantId: string) => void;
+  onBack?: () => void;
+  onViewTenant?: (tenantId: string) => void;
 }
 
 const ExplorePage: React.FC<ExplorePageProps> = ({ initialSearchTerm, tenants, onBack, onViewTenant }) => {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      router.push('/');
+    }
+  };
+
+  const handleViewTenant = (tenantId: string) => {
+    if (onViewTenant) {
+      onViewTenant(tenantId);
+    } else {
+      router.push(`/tenants/${tenantId}`);
+    }
+  };
 
   const filteredTenants = useMemo(() => {
     const lowercasedTerm = searchTerm.toLowerCase();
@@ -34,7 +54,7 @@ const ExplorePage: React.FC<ExplorePageProps> = ({ initialSearchTerm, tenants, o
           <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center space-x-3">
-                   <button onClick={onBack} className="text-gray-500 hover:text-gray-800">
+                   <button onClick={handleBack} className="text-gray-500 hover:text-gray-800">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
@@ -73,7 +93,7 @@ const ExplorePage: React.FC<ExplorePageProps> = ({ initialSearchTerm, tenants, o
                 {filteredTenants.length > 0 ? (
                     <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredTenants.map(tenant => (
-                            <TenantCard key={tenant.id} tenant={tenant} onView={() => onViewTenant(tenant.id)} />
+                            <TenantCard key={tenant.id} tenant={tenant} onView={() => handleViewTenant(tenant.id)} />
                         ))}
                     </div>
                 ) : (

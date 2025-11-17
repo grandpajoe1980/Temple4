@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User, EnrichedResourceItem, ResourceItem } from '../../../types';
-import { getResourceItemsForTenant, addResourceItem, deleteResourceItem } from '../../../seed-data';
+import type { Tenant, User, EnrichedResourceItem, ResourceItem } from '@/types';
+import { getResourceItemsForTenant, addResourceItem, deleteResourceItem } from '@/lib/data';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import ResourceForm from '../forms/ResourceForm';

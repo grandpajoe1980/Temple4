@@ -1,7 +1,9 @@
+"use client";
+
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User, ResourceItem } from '../../types';
-import { getResourceItemsForTenant, getMembershipForUserInTenant, addResourceItem } from '../../seed-data';
-import { can } from '../../lib/permissions';
+import type { Tenant, User, ResourceItem } from '@/types';
+import { getResourceItemsForTenant, getMembershipForUserInTenant, addResourceItem } from '@/lib/data';
+import { can } from '@/lib/permissions';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import ResourceForm from './forms/ResourceForm';

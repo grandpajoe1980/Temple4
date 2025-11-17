@@ -1,17 +1,16 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 // 10.1 List Events
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+  const resolvedParams = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -20,14 +19,14 @@ export async function GET(
   const to = searchParams.get('to');     // ISO 8601 date string
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'calendar');
+    const canView = await canUserViewContent(userId, resolvedParams.tenantId, 'calendar');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view events.' }, { status: 403 });
     }
 
     const events = await prisma.event.findMany({
       where: {
-        tenantId: params.tenantId,
+        tenantId: resolvedParams.tenantId,
         ...(from && to && {
             startTime: {
                 gte: new Date(from),
@@ -40,7 +39,7 @@ export async function GET(
 
     return NextResponse.json(events);
   } catch (error) {
-    console.error(`Failed to fetch events for tenant ${params.tenantId}:`, error);
+    console.error(`Failed to fetch events for tenant ${resolvedParams.tenantId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch events' }, { status: 500 });
   }
 }
@@ -57,8 +56,9 @@ const eventCreateSchema = z.object({
 // 10.2 Create Event
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -67,7 +67,7 @@ export async function POST(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId }, include: { permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -87,14 +87,14 @@ export async function POST(
         const newEvent = await prisma.event.create({
             data: {
                 ...result.data,
-                tenantId: params.tenantId,
+                tenantId: resolvedParams.tenantId,
                 authorId: userId,
             },
         });
 
         return NextResponse.json(newEvent, { status: 201 });
     } catch (error) {
-        console.error(`Failed to create event in tenant ${params.tenantId}:`, error);
+        console.error(`Failed to create event in tenant ${resolvedParams.tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to create event' }, { status: 500 });
     }
 }

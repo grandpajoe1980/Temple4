@@ -1,5 +1,5 @@
 import React from 'react';
-import type { PostWithAuthor } from '../../types';
+import type { PostWithAuthor } from '@/types';
 import Card from '../ui/Card';
 
 interface PostCardProps {

@@ -1,8 +1,9 @@
+'use client';
 
-import React, { useState, useMemo } from 'react';
-import type { User, AuditLog } from '../../types';
-import { ActionType } from '../../types';
-import { getAuditLogs, getAllUsers } from '../../seed-data';
+import React, { useState, useMemo, useEffect } from 'react';
+import type { User, AuditLog } from '@/types';
+import { ActionType } from '@/types';
+import { getAuditLogs, getAllUsers } from '@/lib/data';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 
@@ -16,8 +17,27 @@ interface EnrichedAuditLog extends AuditLog {
 }
 
 const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
-  const [logs] = useState<AuditLog[]>(getAuditLogs);
-  const [users] = useState<User[]>(getAllUsers);
+  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [logsData, usersData] = await Promise.all([
+          getAuditLogs(),
+          getAllUsers()
+        ]);
+        setLogs(logsData);
+        setUsers(usersData);
+      } catch (error) {
+        console.error('Error fetching admin data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
   
   const [actorFilter, setActorFilter] = useState<string>('all');
   const [actionFilter, setActionFilter] = useState<string>('all');
@@ -33,8 +53,8 @@ const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
   const enrichedLogs: EnrichedAuditLog[] = useMemo(() => {
     return logs.map(log => ({
         ...log,
-        actorDisplayName: usersMap.get(log.actorUserId)?.profile.displayName || log.actorUserId,
-        effectiveDisplayName: log.effectiveUserId ? (usersMap.get(log.effectiveUserId)?.profile.displayName || log.effectiveUserId) : undefined,
+        actorDisplayName: usersMap.get(log.actorUserId)?.profile?.displayName || log.actorUserId,
+        effectiveDisplayName: log.effectiveUserId ? (usersMap.get(log.effectiveUserId)?.profile?.displayName || log.effectiveUserId) : undefined,
     }));
   }, [logs, usersMap]);
   
@@ -54,6 +74,17 @@ const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
       return true;
     });
   }, [enrichedLogs, actorFilter, actionFilter, startDateFilter, endDateFilter]);
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-900">Admin Console: Audit Log</h1>
+        </div>
+        <div className="text-center py-8">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

@@ -1,0 +1,3 @@
+{
+  "/api/tenants/[tenantId]/events/[eventId]/rsvps/[userId]/route": "app/api/tenants/[tenantId]/events/[eventId]/rsvps/[userId]/route.js"
+}

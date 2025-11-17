@@ -1,9 +1,11 @@
+"use client";
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { Tenant, User, EnrichedConversation } from '../../types';
-import { getConversationsForUser, createConversation } from '../../seed-data';
+import type { Tenant, User, EnrichedConversation } from '@/types';
+import { getConversationsForUser, createConversation } from '@/lib/data';
 import ConversationList from '../messages/ConversationList';
 import MessageStream from '../messages/MessageStream';
-import { can } from '../../lib/permissions';
+import { can } from '@/lib/permissions';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import CreateChannelForm from '../messages/CreateChannelForm';

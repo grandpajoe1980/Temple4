@@ -16,7 +16,7 @@ export async function GET(
     const userId = (session?.user as any)?.id;
 
     try {
-        const membership = await getMembershipForUserInTenant(userId, params.tenantId);
+        const membership = userId ? await getMembershipForUserInTenant(userId, params.tenantId) : null;
         const isMember = !!membership;
 
         const resources = await prisma.resourceItem.findMany({

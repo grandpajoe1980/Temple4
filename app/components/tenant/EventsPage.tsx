@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import type { Tenant, User, Event, EventWithCreator } from '../../types';
-import { getEventsForTenant, addEvent as saveEvent } from '../../seed-data';
+import type { Tenant, User, Event, EventWithCreator } from '@/types';
+import { getEventsForTenant, addEvent as saveEvent } from '@/lib/data';
 import Button from '../ui/Button';
 import EventCard from './EventCard';
-import { can } from '../../lib/permissions';
+import { can } from '@/lib/permissions';
 import Modal from '../ui/Modal';
 import EventForm from './EventForm';
 import EventsCalendar from './EventsCalendar';

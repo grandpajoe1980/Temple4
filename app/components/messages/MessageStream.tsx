@@ -1,9 +1,10 @@
+'use client';
+
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import type { User, EnrichedConversation, EnrichedChatMessage, Tenant } from '../../types';
-import { getMessagesForConversation, addMessage, markConversationAsRead, deleteMessage } from '../../seed-data';
+import type { User, EnrichedConversation, EnrichedChatMessage, Tenant } from '@/types';
+import { getMessagesForConversation, addMessage, markConversationAsRead, deleteMessage } from '@/lib/data';
 import Button from '../ui/Button';
-import { can } from '../../lib/permissions';
-import { canDeleteMessage } from '../../lib/permissions';
+import { can, canDeleteMessage } from '@/lib/permissions';
 
 interface MessageStreamProps {
   currentUser: User;

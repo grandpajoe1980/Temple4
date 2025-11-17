@@ -1,9 +1,11 @@
+"use client";
+
 import React from 'react';
-import type { Tenant, User } from '../../types';
-import { getSermonsForTenant } from '../../seed-data';
+import type { Tenant, User } from '@/types';
+import { getSermonsForTenant } from '@/lib/data';
 import Button from '../ui/Button';
 import SermonCard from './SermonCard';
-import { can } from '../../lib/permissions';
+import { can } from '@/lib/permissions';
 
 interface SermonsPageProps {
   tenant: Tenant;

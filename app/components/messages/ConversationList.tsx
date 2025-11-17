@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { EnrichedConversation, User } from '../../types';
+import type { EnrichedConversation, User } from '@/types';
 import Input from '../ui/Input';
 
 interface ConversationListProps {

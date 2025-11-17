@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User, EnrichedDonationRecord } from '../../types';
-import { getDonationsForTenant, addDonationRecord } from '../../seed-data';
+import type { Tenant, User, EnrichedDonationRecord } from '@/types';
+import { getDonationsForTenant, addDonationRecord } from '@/lib/data';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Input from '../ui/Input';

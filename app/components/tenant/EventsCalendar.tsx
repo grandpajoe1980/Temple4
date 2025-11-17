@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState } from 'react';
-import type { EventWithCreator } from '../../types';
+import type { EventWithCreator } from '@/types';
 
 interface EventsCalendarProps {
   events: EventWithCreator[];

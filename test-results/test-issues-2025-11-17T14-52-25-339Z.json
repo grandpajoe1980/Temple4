@@ -1,0 +1,119 @@
+[
+  {
+    "timestamp": "2025-11-17T14:51:34.962Z",
+    "category": "Feature - Membership",
+    "testName": "Join Tenant",
+    "status": "FAIL",
+    "duration": 1312,
+    "error": "Failed to join tenant: 401",
+    "details": {
+      "tenantId": "cmi37u3nv0014v7hczfrcrleo"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T14:51:35.001Z",
+    "category": "Feature - Membership",
+    "testName": "View Tenant Members",
+    "status": "FAIL",
+    "duration": 38,
+    "error": "Failed to view members: 401",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-17T14:51:35.064Z",
+    "category": "Feature - Content Creation",
+    "testName": "Create Post",
+    "status": "FAIL",
+    "duration": 62,
+    "error": "Failed to create post: 401",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-17T14:51:36.558Z",
+    "category": "Feature - Content Creation",
+    "testName": "Create Event",
+    "status": "FAIL",
+    "duration": 1493,
+    "error": "Failed to create event: 401",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-17T14:51:37.884Z",
+    "category": "Feature - Content Creation",
+    "testName": "Create Sermon",
+    "status": "FAIL",
+    "duration": 1325,
+    "error": "Failed to create sermon: 401",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-17T14:51:41.347Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/posts",
+    "status": "FAIL",
+    "duration": 119,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": {
+        "message": "Failed to fetch posts"
+      },
+      "contentType": "application/json"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T14:51:41.546Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/events",
+    "status": "FAIL",
+    "duration": 154,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": {
+        "message": "Failed to fetch events"
+      },
+      "contentType": "application/json"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T14:51:41.750Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/sermons",
+    "status": "FAIL",
+    "duration": 141,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": {
+        "message": "Failed to fetch sermons"
+      },
+      "contentType": "application/json"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T14:51:43.531Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/books",
+    "status": "FAIL",
+    "duration": 1779,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": {
+        "message": "Failed to fetch books"
+      },
+      "contentType": "application/json"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T14:51:47.988Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/community-posts",
+    "status": "FAIL",
+    "duration": 1552,
+    "error": "Unexpected status code: 401 (expected: 200)",
+    "details": {
+      "body": {
+        "message": "Not authenticated"
+      },
+      "contentType": "application/json"
+    }
+  }
+]

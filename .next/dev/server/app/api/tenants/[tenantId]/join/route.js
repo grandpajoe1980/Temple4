@@ -1,0 +1,10 @@
+var R=require("../../../../../chunks/[turbopack]_runtime.js")("server/app/api/tenants/[tenantId]/join/route.js")
+R.c("server/chunks/node_modules_next_09eb539e._.js")
+R.c("server/chunks/node_modules_next-auth_51122ec5._.js")
+R.c("server/chunks/node_modules_openid-client_d15f72b3._.js")
+R.c("server/chunks/node_modules_jose_dist_node_cjs_bd88468e._.js")
+R.c("server/chunks/node_modules_bc634cef._.js")
+R.c("server/chunks/[root-of-the-server]__36e7833d._.js")
+R.c("server/chunks/_next-internal_server_app_api_tenants_[tenantId]_join_route_actions_e0503d79.js")
+R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/tenants/[tenantId]/join/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)")
+module.exports=R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/tenants/[tenantId]/join/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports

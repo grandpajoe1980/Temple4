@@ -92,8 +92,8 @@ export async function GET(request: Request) {
         const tenants = await prisma.tenant.findMany({
             where: {
                 OR: [
-                    { name: { contains: query, mode: 'insensitive' } },
-                    { description: { contains: query, mode: 'insensitive' } },
+                    { name: { contains: query } },
+                    { description: { contains: query } },
                 ],
                 settings: {
                     isPublic: true, // Only search public tenants
@@ -109,8 +109,8 @@ export async function GET(request: Request) {
         const totalTenants = await prisma.tenant.count({
             where: {
                 OR: [
-                    { name: { contains: query, mode: 'insensitive' } },
-                    { description: { contains: query, mode: 'insensitive' } },
+                    { name: { contains: query } },
+                    { description: { contains: query } },
                 ],
                 settings: {
                     isPublic: true,

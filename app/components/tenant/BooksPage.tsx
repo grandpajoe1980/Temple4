@@ -1,8 +1,10 @@
+"use client";
+
 import React, { useState } from 'react';
-import type { Tenant, User, PostInput, PostWithAuthor } from '../../types';
-import { getBooksForTenant, addPost } from '../../seed-data';
+import type { Tenant, User, PostInput, PostWithAuthor } from '@/types';
+import { getBooksForTenant, addPost } from '@/lib/data';
 import Button from '../ui/Button';
-import { can } from '../../lib/permissions';
+import { can } from '@/lib/permissions';
 import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 import BookCard from './BookCard';

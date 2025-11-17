@@ -1,9 +1,11 @@
+"use client";
+
 import React, { useState } from 'react';
-import type { Tenant, User, PostInput, PostWithAuthor } from '../../types';
-import { getPostsForTenant, addPost } from '../../seed-data';
+import type { Tenant, User, PostInput, PostWithAuthor } from '@/types';
+import { getPostsForTenant, addPost } from '@/lib/data';
 import Button from '../ui/Button';
 import PostCard from './PostCard';
-import { can } from '../../lib/permissions';
+import { can } from '@/lib/permissions';
 import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 

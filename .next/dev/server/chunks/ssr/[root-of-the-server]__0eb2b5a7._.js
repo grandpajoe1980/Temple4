@@ -68,12 +68,8 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/@prisma/client [external] (@prisma/client, cjs)");
 ;
-const prisma = global.prisma || new __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["PrismaClient"]({
-    log: [
-        'query'
-    ]
-});
-if ("TURBOPACK compile-time truthy", 1) global.prisma = prisma;
+const prisma = globalThis.prisma || new __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["PrismaClient"]();
+if ("TURBOPACK compile-time truthy", 1) globalThis.prisma = prisma;
 }),
 "[project]/app/api/auth/[...nextauth]/route.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -115,12 +111,19 @@ const authOptions = {
                 const user = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.findUnique({
                     where: {
                         email: credentials.email.toLowerCase()
+                    },
+                    include: {
+                        profile: true
                     }
                 });
                 if (user && user.password && await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"].compare(credentials.password, user.password)) {
-                    // Return user object without password
-                    const { password, ...userWithoutPassword } = user;
-                    return userWithoutPassword;
+                    // Return user object with required fields for NextAuth
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        name: user.profile?.displayName || user.email,
+                        isSuperAdmin: user.isSuperAdmin
+                    };
                 } else {
                     return null;
                 }
@@ -134,6 +137,8 @@ const authOptions = {
         async jwt ({ token, user }) {
             if (user) {
                 token.id = user.id;
+                token.email = user.email;
+                token.name = user.name;
                 token.isSuperAdmin = user.isSuperAdmin;
             }
             return token;
@@ -141,6 +146,8 @@ const authOptions = {
         async session ({ session, token }) {
             if (session.user) {
                 session.user.id = token.id;
+                session.user.email = token.email;
+                session.user.name = token.name;
                 session.user.isSuperAdmin = token.isSuperAdmin;
             }
             return session;
@@ -157,18 +164,74 @@ const handler = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules
 "use strict";
 
 __turbopack_context__.s([
+    "addCommunityPost",
+    ()=>addCommunityPost,
+    "addContactSubmission",
+    ()=>addContactSubmission,
+    "addDonationRecord",
+    ()=>addDonationRecord,
+    "addEvent",
+    ()=>addEvent,
+    "addMessage",
+    ()=>addMessage,
+    "addPost",
+    ()=>addPost,
+    "addResourceItem",
+    ()=>addResourceItem,
+    "addVolunteerNeed",
+    ()=>addVolunteerNeed,
+    "adminUpdateUserProfile",
+    ()=>adminUpdateUserProfile,
+    "cancelSignUp",
+    ()=>cancelSignUp,
+    "createConversation",
+    ()=>createConversation,
+    "createSmallGroup",
+    ()=>createSmallGroup,
     "createTenant",
     ()=>createTenant,
+    "deleteMessage",
+    ()=>deleteMessage,
+    "deleteResourceItem",
+    ()=>deleteResourceItem,
+    "getAllUsers",
+    ()=>getAllUsers,
+    "getAuditLogs",
+    ()=>getAuditLogs,
+    "getBooksForTenant",
+    ()=>getBooksForTenant,
+    "getCommunityPostsForTenant",
+    ()=>getCommunityPostsForTenant,
+    "getContactSubmissionsForTenant",
+    ()=>getContactSubmissionsForTenant,
+    "getConversationsForUser",
+    ()=>getConversationsForUser,
+    "getDonationsForTenant",
+    ()=>getDonationsForTenant,
+    "getEnrichedMembershipsForUser",
+    ()=>getEnrichedMembershipsForUser,
     "getEventsForTenant",
     ()=>getEventsForTenant,
+    "getMembersForTenant",
+    ()=>getMembersForTenant,
     "getMembershipForUserInTenant",
     ()=>getMembershipForUserInTenant,
+    "getMessagesForConversation",
+    ()=>getMessagesForConversation,
     "getNotificationsForUser",
     ()=>getNotificationsForUser,
     "getOrCreateDirectConversation",
     ()=>getOrCreateDirectConversation,
+    "getPodcastsForTenant",
+    ()=>getPodcastsForTenant,
     "getPostsForTenant",
     ()=>getPostsForTenant,
+    "getResourceItemsForTenant",
+    ()=>getResourceItemsForTenant,
+    "getSermonsForTenant",
+    ()=>getSermonsForTenant,
+    "getSmallGroupsForTenant",
+    ()=>getSmallGroupsForTenant,
     "getTenantById",
     ()=>getTenantById,
     "getTenants",
@@ -179,10 +242,18 @@ __turbopack_context__.s([
     ()=>getUserByEmail,
     "getUserById",
     ()=>getUserById,
+    "getVolunteerNeedsForTenant",
+    ()=>getVolunteerNeedsForTenant,
+    "joinSmallGroup",
+    ()=>joinSmallGroup,
+    "leaveSmallGroup",
+    ()=>leaveSmallGroup,
     "logAuditEvent",
     ()=>logAuditEvent,
     "markAllNotificationsAsRead",
     ()=>markAllNotificationsAsRead,
+    "markConversationAsRead",
+    ()=>markConversationAsRead,
     "markNotificationAsRead",
     ()=>markNotificationAsRead,
     "registerUser",
@@ -193,8 +264,26 @@ __turbopack_context__.s([
     ()=>requestToJoinTenant,
     "resetPassword",
     ()=>resetPassword,
+    "respondToContactSubmission",
+    ()=>respondToContactSubmission,
+    "signUpForNeed",
+    ()=>signUpForNeed,
+    "updateCommunityPostStatus",
+    ()=>updateCommunityPostStatus,
+    "updateContactSubmissionStatus",
+    ()=>updateContactSubmissionStatus,
+    "updateMemberRolesAndTitle",
+    ()=>updateMemberRolesAndTitle,
+    "updateMembershipProfile",
+    ()=>updateMembershipProfile,
+    "updateMembershipStatus",
+    ()=>updateMembershipStatus,
     "updateTenant",
-    ()=>updateTenant
+    ()=>updateTenant,
+    "updateTenantPermissions",
+    ()=>updateTenantPermissions,
+    "updateUserNotificationPreferences",
+    ()=>updateUserNotificationPreferences
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db.ts [app-rsc] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/@prisma/client [external] (@prisma/client, cjs)");
@@ -238,12 +327,38 @@ async function getUserById(userId) {
     });
 }
 async function getTenants() {
-    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.findMany({
+    const tenants = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.findMany({
         include: {
             settings: true,
             branding: true
         }
     });
+    // Transform Prisma data to match Tenant interface with nested address
+    return tenants.map((tenant)=>({
+            ...tenant,
+            address: {
+                street: tenant.street,
+                city: tenant.city,
+                state: tenant.state,
+                country: tenant.country,
+                postalCode: tenant.postalCode
+            },
+            settings: tenant.settings || {
+                isPublic: true,
+                allowMemberDirectory: true,
+                allowEvents: true,
+                allowDonations: true,
+                allowSmallGroups: true,
+                allowMessaging: true
+            },
+            branding: tenant.branding || {
+                logoUrl: '',
+                bannerImageUrl: '',
+                primaryColor: '#d97706',
+                accentColor: '#92400e'
+            },
+            permissions: tenant.permissions || {}
+        }));
 }
 async function getEventsForTenant(tenantId) {
     return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].event.findMany({
@@ -456,7 +571,7 @@ async function requestToJoinTenant(userId, tenantId) {
                     role: __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["TenantRole"].MEMBER
                 }
             },
-            status: __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["MembershipStatus"].REQUESTED
+            status: __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["MembershipStatus"].PENDING
         }
     });
 }
@@ -497,6 +612,7 @@ async function logAuditEvent(event) {
 async function getOrCreateDirectConversation(userId1, userId2) {
     const existing = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].conversation.findFirst({
         where: {
+            isDirectMessage: true,
             participants: {
                 every: {
                     userId: {
@@ -515,9 +631,7 @@ async function getOrCreateDirectConversation(userId1, userId2) {
     if (existing) return existing;
     return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].conversation.create({
         data: {
-            isDirect: true,
-            isPrivateGroup: false,
-            createdByUserId: userId1,
+            isDirectMessage: true,
             participants: {
                 create: [
                     {
@@ -530,6 +644,285 @@ async function getOrCreateDirectConversation(userId1, userId2) {
             }
         }
     });
+}
+async function getConversationsForUser(userId) {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].conversation.findMany({
+        where: {
+            participants: {
+                some: {
+                    userId: userId
+                }
+            }
+        },
+        include: {
+            participants: {
+                include: {
+                    user: {
+                        include: {
+                            profile: true
+                        }
+                    }
+                }
+            },
+            messages: {
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                take: 1,
+                include: {
+                    user: {
+                        include: {
+                            profile: true
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: {
+            id: 'desc'
+        }
+    });
+}
+async function getMessagesForConversation(conversationId) {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].chatMessage.findMany({
+        where: {
+            conversationId: conversationId
+        },
+        include: {
+            user: {
+                include: {
+                    profile: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: 'asc'
+        }
+    });
+}
+async function addMessage(conversationId, senderId, content) {
+    const message = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].chatMessage.create({
+        data: {
+            conversationId,
+            userId: senderId,
+            text: content
+        },
+        include: {
+            user: {
+                include: {
+                    profile: true
+                }
+            }
+        }
+    });
+    return message;
+}
+async function deleteMessage(messageId) {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].chatMessage.delete({
+        where: {
+            id: messageId
+        }
+    });
+}
+async function markConversationAsRead(conversationId, userId) {
+    // This would update read receipts via ConversationParticipant's lastReadMessageId
+    // For now, just return success
+    return {
+        success: true
+    };
+}
+async function getAllUsers() {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.findMany({
+        include: {
+            profile: true
+        }
+    });
+}
+async function getAuditLogs() {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].auditLog.findMany({
+        include: {
+            actorUser: {
+                include: {
+                    profile: true
+                }
+            },
+            effectiveUser: {
+                include: {
+                    profile: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: 'desc'
+        },
+        take: 100
+    });
+}
+async function getEnrichedMembershipsForUser(userId) {
+    const memberships = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].userTenantMembership.findMany({
+        where: {
+            userId
+        },
+        include: {
+            tenant: {
+                include: {
+                    settings: true,
+                    branding: true
+                }
+            }
+        }
+    });
+    return memberships.map((m)=>({
+            membership: m,
+            tenant: m.tenant
+        }));
+}
+async function updateMembershipProfile(userId, membershipId, data) {
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].userTenantMembership.update({
+        where: {
+            id: membershipId,
+            userId
+        },
+        data: {
+            displayName: data.displayName,
+            displayTitle: data.displayTitle
+        }
+    });
+}
+async function updateUserNotificationPreferences(userId, preferences) {
+    // Note: This assumes notification preferences are stored in a JSON field or separate table
+    // Adjust based on your actual schema
+    return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.update({
+        where: {
+            id: userId
+        },
+        data: {
+        }
+    });
+}
+async function getMembersForTenant(tenantId) {
+    // TODO: Implement member fetching with enriched data
+    return [];
+}
+async function updateMembershipStatus(userId, tenantId, status) {
+    // TODO: Implement membership status update
+    return null;
+}
+async function updateMemberRolesAndTitle(userId, tenantId, roles, title) {
+    // TODO: Implement member roles and title update
+    return null;
+}
+async function getSmallGroupsForTenant(tenantId) {
+    // TODO: Implement small groups fetching
+    return [];
+}
+async function createSmallGroup(tenantId, groupData) {
+    // TODO: Implement small group creation
+    return null;
+}
+async function getVolunteerNeedsForTenant(tenantId) {
+    // TODO: Implement volunteer needs fetching
+    return [];
+}
+async function addVolunteerNeed(tenantId, needData) {
+    // TODO: Implement volunteer need creation
+    return null;
+}
+async function getResourceItemsForTenant(tenantId) {
+    // TODO: Implement resource items fetching
+    return [];
+}
+async function addResourceItem(tenantId, itemData) {
+    // TODO: Implement resource item creation
+    return null;
+}
+async function deleteResourceItem(itemId) {
+    // TODO: Implement resource item deletion
+    return null;
+}
+async function getCommunityPostsForTenant(tenantId) {
+    // TODO: Implement community posts fetching
+    return [];
+}
+async function updateCommunityPostStatus(postId, status) {
+    // TODO: Implement community post status update
+    return null;
+}
+async function getContactSubmissionsForTenant(tenantId) {
+    // TODO: Implement contact submissions fetching
+    return [];
+}
+async function updateContactSubmissionStatus(submissionId, status) {
+    // TODO: Implement contact submission status update
+    return null;
+}
+async function respondToContactSubmission(submissionId, response) {
+    // TODO: Implement contact submission response
+    return null;
+}
+async function updateTenantPermissions(tenantId, permissions) {
+    // TODO: Implement tenant permissions update
+    return null;
+}
+async function addPost(tenantId, postData) {
+    // TODO: Implement post creation
+    return null;
+}
+async function addEvent(tenantId, eventData) {
+    // TODO: Implement event creation
+    return null;
+}
+async function getSermonsForTenant(tenantId) {
+    // TODO: Implement sermons fetching
+    return [];
+}
+async function getPodcastsForTenant(tenantId) {
+    // TODO: Implement podcasts fetching
+    return [];
+}
+async function getBooksForTenant(tenantId) {
+    // TODO: Implement books fetching
+    return [];
+}
+async function getDonationsForTenant(tenantId) {
+    // TODO: Implement donations fetching
+    return [];
+}
+async function addDonationRecord(tenantId, donationData) {
+    // TODO: Implement donation record creation
+    return null;
+}
+async function addContactSubmission(tenantId, submissionData) {
+    // TODO: Implement contact submission creation
+    return null;
+}
+async function addCommunityPost(tenantId, postData) {
+    // TODO: Implement community post creation
+    return null;
+}
+async function joinSmallGroup(groupId, userId) {
+    // TODO: Implement small group join
+    return null;
+}
+async function leaveSmallGroup(groupId, userId) {
+    // TODO: Implement small group leave
+    return null;
+}
+async function signUpForNeed(needId, userId) {
+    // TODO: Implement volunteer need sign up
+    return null;
+}
+async function cancelSignUp(needId, userId) {
+    // TODO: Implement volunteer need cancellation
+    return null;
+}
+async function createConversation(conversationData) {
+    // TODO: Implement conversation creation
+    return null;
+}
+async function adminUpdateUserProfile(userId, profileData) {
+    // TODO: Implement admin user profile update
+    return null;
 }
 }),
 "[project]/lib/permissions.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
@@ -608,9 +1001,13 @@ async function can(user, tenant, permission) {
     for (const roleInfo of membership.roles){
         const roleType = getRoleType(roleInfo.role);
         const permissions = tenant.permissions;
+        // If permissions is null or undefined, no permissions are granted
+        if (!permissions) {
+            continue;
+        }
         if (roleType === 'ADMIN') {
             // Admins have all permissions defined under the ADMIN key.
-            if (permissions.ADMIN[permission]) {
+            if (permissions.ADMIN && permissions.ADMIN[permission]) {
                 return true;
             }
         } else {
@@ -631,28 +1028,40 @@ async function hasRole(userId, tenantId, requiredRoles) {
     return membership.roles.some((roleInfo)=>requiredRoles.includes(roleInfo.role));
 }
 async function canUserViewContent(userId, tenantId, contentType) {
-    const tenant = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.findUnique({
-        where: {
-            id: tenantId
-        },
-        include: {
-            settings: true
+    try {
+        const tenant = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.findUnique({
+            where: {
+                id: tenantId
+            },
+            include: {
+                settings: true
+            }
+        });
+        if (!tenant || !tenant.settings) {
+            return false;
         }
-    });
-    if (!tenant || !tenant.settings) return false;
-    const settings = tenant.settings;
-    // Check if the entire feature is disabled
-    const featureFlag = `enable${contentType.charAt(0).toUpperCase() + contentType.slice(1)}`;
-    if (!settings[featureFlag]) {
-        return false;
+        const settings = tenant.settings;
+        // Check if the entire feature is disabled
+        const featureFlag = `enable${contentType.charAt(0).toUpperCase() + contentType.slice(1)}`;
+        if (!settings[featureFlag]) {
+            return false;
+        }
+        const membership = userId ? await getMembershipForUserInTenant(userId, tenantId) : null;
+        // If user is not a member, check public visibility settings
+        if (!membership || membership.status !== 'APPROVED') {
+            // Check if visitorVisibility exists and has the content type property
+            if (!settings.visitorVisibility || typeof settings.visitorVisibility !== 'object') {
+                return false;
+            }
+            const result = settings.visitorVisibility[contentType] === true;
+            return result;
+        }
+        // If they are an approved member, they can view it as long as the feature is enabled.
+        return true;
+    } catch (error) {
+        console.error('[canUserViewContent] Error:', error);
+        throw error;
     }
-    const membership = userId ? await getMembershipForUserInTenant(userId, tenantId) : null;
-    // If user is not a member, check public visibility settings
-    if (!membership || membership.status !== 'APPROVED') {
-        return settings.visitorVisibility[contentType];
-    }
-    // If they are an approved member, they can view it as long as the feature is enabled.
-    return true;
 }
 async function canUserPost(userId, tenantId, isAnnouncement) {
     const user = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.findUnique({
@@ -663,9 +1072,6 @@ async function canUserPost(userId, tenantId, isAnnouncement) {
     const tenant = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.findUnique({
         where: {
             id: tenantId
-        },
-        include: {
-            permissions: true
         }
     });
     if (!user || !tenant) return false;
@@ -758,7 +1164,8 @@ async function TenantLayout({ children, params }) {
     if (!session || !session.user) {
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["redirect"])('/auth/login');
     }
-    const tenant = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getTenantById"])(params.tenantId);
+    const resolvedParams = await params;
+    const tenant = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getTenantById"])(resolvedParams.tenantId);
     const user = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$data$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getUserById"])(session.user.id);
     if (!tenant || !user) {
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["redirect"])('/');
@@ -786,7 +1193,7 @@ async function TenantLayout({ children, params }) {
                                             className: "h-8 w-auto"
                                         }, void 0, false, {
                                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                            lineNumber: 45,
+                                            lineNumber: 46,
                                             columnNumber: 26
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                                             xmlns: "http://www.w3.org/2000/svg",
@@ -797,12 +1204,12 @@ async function TenantLayout({ children, params }) {
                                                 d: "M12 2L1 9l4 2.18v6.32L12 22l7-4.5V11.18L23 9l-3-1.68V5h-2v1.32L12 2zm0 16.5l-5-3.25V11.4l5 2.75v5.6zM12 12L7 9.25 12 6.5 17 9.25 12 12z"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                                lineNumber: 48,
+                                                lineNumber: 49,
                                                 columnNumber: 29
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                            lineNumber: 47,
+                                            lineNumber: 48,
                                             columnNumber: 26
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -810,13 +1217,13 @@ async function TenantLayout({ children, params }) {
                                             children: tenant.name
                                         }, void 0, false, {
                                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                            lineNumber: 51,
+                                            lineNumber: 52,
                                             columnNumber: 21
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                    lineNumber: 43,
+                                    lineNumber: 44,
                                     columnNumber: 18
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -828,7 +1235,7 @@ async function TenantLayout({ children, params }) {
                                             children: "← Switch Tenant"
                                         }, void 0, false, {
                                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                            lineNumber: 54,
+                                            lineNumber: 55,
                                             columnNumber: 21
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"], {
@@ -837,7 +1244,7 @@ async function TenantLayout({ children, params }) {
                                             children: "Global Messages"
                                         }, void 0, false, {
                                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                            lineNumber: 58,
+                                            lineNumber: 59,
                                             columnNumber: 21
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"], {
@@ -846,7 +1253,7 @@ async function TenantLayout({ children, params }) {
                                             children: "Account"
                                         }, void 0, false, {
                                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                            lineNumber: 59,
+                                            lineNumber: 60,
                                             columnNumber: 21
                                         }, this),
                                         user.isSuperAdmin && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"], {
@@ -855,7 +1262,7 @@ async function TenantLayout({ children, params }) {
                                             children: "Admin Console"
                                         }, void 0, false, {
                                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                            lineNumber: 61,
+                                            lineNumber: 62,
                                             columnNumber: 25
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -867,7 +1274,7 @@ async function TenantLayout({ children, params }) {
                                                     className: "h-8 w-8 rounded-full"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                                    lineNumber: 64,
+                                                    lineNumber: 65,
                                                     columnNumber: 26
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -875,13 +1282,13 @@ async function TenantLayout({ children, params }) {
                                                     children: user.profile?.displayName
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                                    lineNumber: 65,
+                                                    lineNumber: 66,
                                                     columnNumber: 26
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                            lineNumber: 63,
+                                            lineNumber: 64,
                                             columnNumber: 21
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"], {
@@ -890,19 +1297,19 @@ async function TenantLayout({ children, params }) {
                                             children: "Logout"
                                         }, void 0, false, {
                                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                            lineNumber: 67,
+                                            lineNumber: 68,
                                             columnNumber: 22
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                                    lineNumber: 53,
+                                    lineNumber: 54,
                                     columnNumber: 18
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                            lineNumber: 42,
+                            lineNumber: 43,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$tenants$2f5b$tenantId$5d2f$TenantNav$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"], {
@@ -910,18 +1317,18 @@ async function TenantLayout({ children, params }) {
                             canViewSettings: canViewSettings
                         }, void 0, false, {
                             fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                            lineNumber: 70,
+                            lineNumber: 71,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                    lineNumber: 41,
+                    lineNumber: 42,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                lineNumber: 40,
+                lineNumber: 41,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -931,18 +1338,18 @@ async function TenantLayout({ children, params }) {
                     children: children
                 }, void 0, false, {
                     fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                    lineNumber: 74,
+                    lineNumber: 75,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-                lineNumber: 73,
+                lineNumber: 74,
                 columnNumber: 8
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/tenants/[tenantId]/layout.tsx",
-        lineNumber: 39,
+        lineNumber: 40,
         columnNumber: 5
     }, this);
 }

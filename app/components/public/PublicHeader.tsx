@@ -26,7 +26,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ tenant, currentUser, onJoin
       switch (membership.status) {
         case MembershipStatus.APPROVED:
           return <Button onClick={onGoToDashboard}>Go to Member Dashboard</Button>;
-        case MembershipStatus.REQUESTED:
+        case MembershipStatus.PENDING:
           return <Button disabled>Request Sent</Button>;
         case MembershipStatus.BANNED:
           return <Button disabled variant="danger">Access Restricted</Button>;

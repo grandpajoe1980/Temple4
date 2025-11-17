@@ -32,7 +32,7 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
           <p className="mt-2 text-gray-600">You are currently banned from this community. Please contact an administrator for more information.</p>
         </div>
       );
-    } else if (membership?.status === MembershipStatus.REQUESTED) {
+    } else if (membership?.status === MembershipStatus.PENDING) {
       joinContent = (
         <div className="text-center">
           <h3 className="text-xl font-semibold text-gray-800">Request Sent</h3>

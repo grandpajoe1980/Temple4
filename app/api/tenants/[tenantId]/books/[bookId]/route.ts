@@ -36,10 +36,11 @@ export async function GET(
 
 const bookUpdateSchema = z.object({
     title: z.string().min(1).optional(),
-    author: z.string().min(1).optional(),
+    authorName: z.string().min(1).optional(),
     description: z.string().optional(),
-    coverImageUrl: z.string().url().optional(),
-    purchaseUrl: z.string().url().optional(),
+    imageUrl: z.string().url().optional(),
+    pdfUrl: z.string().url().optional(),
+    externalUrl: z.string().url().optional(),
 });
 
 // 13.4 Update Book
@@ -55,7 +56,10 @@ export async function PUT(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ 
+        where: { id: params.tenantId },
+        select: { id: true, name: true, permissions: true }
+    });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -97,7 +101,10 @@ export async function DELETE(
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ 
+        where: { id: params.tenantId },
+        select: { id: true, name: true, permissions: true }
+    });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });

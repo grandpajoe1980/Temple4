@@ -18,7 +18,7 @@ export async function GET(
 
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -28,7 +28,7 @@ export async function GET(
     const event = await prisma.event.findUnique({ where: { id: params.eventId } });
     const canManage = await can(user, tenant, 'canCreateEvents'); // Assuming this permission level
     
-    if (event?.authorId !== userId && !canManage) {
+    if (event?.createdByUserId !== userId && !canManage) {
         return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 

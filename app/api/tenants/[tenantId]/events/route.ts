@@ -28,13 +28,13 @@ export async function GET(
       where: {
         tenantId: resolvedParams.tenantId,
         ...(from && to && {
-            startTime: {
+            startDateTime: {
                 gte: new Date(from),
                 lte: new Date(to),
             },
         }),
       },
-      orderBy: { startTime: 'asc' },
+      orderBy: { startDateTime: 'asc' },
     });
 
     return NextResponse.json(events);
@@ -46,11 +46,12 @@ export async function GET(
 
 const eventCreateSchema = z.object({
     title: z.string().min(1),
-    description: z.string().optional(),
-    startTime: z.string().datetime(),
-    endTime: z.string().datetime(),
-    location: z.string().optional(),
-    isAllDay: z.boolean().optional(),
+    description: z.string(),
+    startDateTime: z.string().datetime(),
+    endDateTime: z.string().datetime(),
+    locationText: z.string(),
+    isOnline: z.boolean().optional(),
+    onlineUrl: z.string().url().optional(),
 });
 
 // 10.2 Create Event
@@ -67,7 +68,7 @@ export async function POST(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId }, select: { id: true, name: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -88,7 +89,9 @@ export async function POST(
             data: {
                 ...result.data,
                 tenantId: resolvedParams.tenantId,
-                authorId: userId,
+                createdByUserId: userId,
+                startDateTime: new Date(result.data.startDateTime),
+                endDateTime: new Date(result.data.endDateTime),
             },
         });
 

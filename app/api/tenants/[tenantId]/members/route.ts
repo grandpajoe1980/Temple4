@@ -1,10 +1,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { getMembershipForUserInTenant } from '@/lib/data';
-
-const prisma = new PrismaClient();
+import { TenantRole, MembershipStatus } from '@prisma/client';
+import { prisma } from '@/lib/db';
 
 // 8.1 List Members
 export async function GET(
@@ -25,28 +23,35 @@ export async function GET(
 
   try {
     // First, check if the requesting user has permission to view the member list
-    const requestingUserMembership = await getMembershipForUserInTenant(userId, params.tenantId);
-    const tenant = await prisma.tenant.findUnique({
-        where: { id: params.tenantId },
-        include: { settings: true }
-    });
+    const [requestingMembership, tenant] = await Promise.all([
+        prisma.userTenantMembership.findUnique({
+            where: { userId_tenantId: { userId, tenantId: params.tenantId } },
+            include: { roles: true },
+        }),
+        prisma.tenant.findUnique({
+            where: { id: params.tenantId },
+            include: { settings: true },
+        })
+    ]);
 
     if (!tenant) {
         return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
     }
 
     // Deny access if the directory is disabled and the user is not an admin/staff
-    const canViewDirectory = tenant.settings?.enableMemberDirectory || 
-                             ['ADMIN', 'STAFF', 'MODERATOR'].includes(requestingUserMembership?.role || '');
+    const roleNames = requestingMembership?.roles.map(role => role.role) ?? [];
+    const canViewDirectory =
+        tenant.settings?.enableMemberDirectory ||
+        roleNames.some(role => [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR].includes(role));
 
     if (!canViewDirectory) {
         return NextResponse.json({ message: 'You do not have permission to view the member directory.' }, { status: 403 });
     }
 
-    const members = await prisma.membership.findMany({
+    const members = await prisma.userTenantMembership.findMany({
       where: {
         tenantId: params.tenantId,
-        status: 'APPROVED', // Only list approved members
+        status: MembershipStatus.APPROVED,
       },
       include: {
         user: {
@@ -55,6 +60,7 @@ export async function GET(
             profile: true,
           },
         },
+        roles: true,
       },
       skip: offset,
       take: limit,
@@ -67,10 +73,10 @@ export async function GET(
       },
     });
 
-    const totalMembers = await prisma.membership.count({
+    const totalMembers = await prisma.userTenantMembership.count({
         where: {
             tenantId: params.tenantId,
-            status: 'APPROVED',
+            status: MembershipStatus.APPROVED,
         }
     });
 

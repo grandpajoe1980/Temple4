@@ -1,11 +1,9 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 // 10.3 Get Single Event
 export async function GET(

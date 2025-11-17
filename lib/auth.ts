@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-import { User, ActionType } from '@/types'; 
+import { prisma } from './db';
+import { User } from '@/types';
 import bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
 
 // This is a placeholder for the real audit log function
 const logAuditEvent = async (event: any) => {

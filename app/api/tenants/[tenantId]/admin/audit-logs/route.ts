@@ -1,11 +1,9 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
-
-const prisma = new PrismaClient();
 
 // 17.7 Get Audit Logs
 export async function GET(

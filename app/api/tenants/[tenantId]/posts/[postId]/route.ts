@@ -1,11 +1,10 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { TenantRole } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 // 9.3 Get Single Post
 export async function GET(
@@ -74,9 +73,14 @@ export async function PUT(
         }
 
         // Check if user is the author or a moderator
-        const membership = await prisma.membership.findUnique({ where: { userId_tenantId: { userId, tenantId: params.tenantId } } });
+        const membership = await prisma.userTenantMembership.findUnique({
+            where: { userId_tenantId: { userId, tenantId: params.tenantId } },
+            include: { roles: true },
+        });
         const isAuthor = post.authorId === userId;
-        const canModerate = ['ADMIN', 'MODERATOR'].includes(membership?.role || '');
+        const canModerate = membership?.roles.some(role =>
+            [TenantRole.ADMIN, TenantRole.MODERATOR].includes(role.role)
+        );
 
         if (!isAuthor && !canModerate) {
             return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
@@ -113,9 +117,14 @@ export async function DELETE(
         }
 
         // Check if user is the author or a moderator/admin
-        const membership = await prisma.membership.findUnique({ where: { userId_tenantId: { userId, tenantId: params.tenantId } } });
+        const membership = await prisma.userTenantMembership.findUnique({
+            where: { userId_tenantId: { userId, tenantId: params.tenantId } },
+            include: { roles: true },
+        });
         const isAuthor = post.authorId === userId;
-        const canModerate = ['ADMIN', 'MODERATOR'].includes(membership?.role || '');
+        const canModerate = membership?.roles.some(role =>
+            [TenantRole.ADMIN, TenantRole.MODERATOR].includes(role.role)
+        );
 
         if (!isAuthor && !canModerate) {
             return NextResponse.json({ message: 'Forbidden' }, { status: 403 });

@@ -44,11 +44,18 @@ export async function PUT(
     }
 
     try {
+        const membership = await prisma.userTenantMembership.findUnique({
+            where: { userId_tenantId: { userId: params.userId, tenantId: params.tenantId } },
+        });
+
+        if (!membership) {
+            return NextResponse.json({ message: 'Member not found' }, { status: 404 });
+        }
+
         // Disconnect all existing roles and connect the new ones
-        await prisma.userTenantMembershipRole.deleteMany({
+        await prisma.userTenantRole.deleteMany({
             where: {
-                userTenantMembershipUserId: params.userId,
-                userTenantMembershipTenantId: params.tenantId,
+                membershipId: membership.id,
             },
         });
 
@@ -103,6 +110,15 @@ export async function DELETE(
     }
 
     try {
+        const membership = await prisma.userTenantMembership.findUnique({
+            where: { userId_tenantId: { userId: params.userId, tenantId: params.tenantId } },
+        });
+
+        if (!membership) {
+            return NextResponse.json({ message: 'Member not found' }, { status: 404 });
+        }
+
+        await prisma.userTenantRole.deleteMany({ where: { membershipId: membership.id } });
         await prisma.userTenantMembership.delete({
             where: { userId_tenantId: { userId: params.userId, tenantId: params.tenantId } },
         });

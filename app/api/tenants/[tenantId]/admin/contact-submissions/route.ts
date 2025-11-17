@@ -1,10 +1,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { can } from '@/lib/permissions';
-
-const prisma = new PrismaClient();
 
 // 17.5 Get Contact Submissions
 export async function GET(

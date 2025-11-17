@@ -1,3 +1,0 @@
-{
-  "/api/tenants/[tenantId]/small-groups/[groupId]/members/route": "app/api/tenants/[tenantId]/small-groups/[groupId]/members/route.js"
-}

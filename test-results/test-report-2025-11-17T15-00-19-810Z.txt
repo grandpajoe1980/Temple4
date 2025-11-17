@@ -1,0 +1,85 @@
+================================================================================
+TEMPLE PLATFORM - COMPREHENSIVE TEST REPORT
+================================================================================
+
+Generated: 11/17/2025, 3:00:19 PM
+Total Duration: 2.66s
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total Tests: 10
+✓ Passed:    7
+✗ Failed:    0
+⚠ Errors:    0
+⊘ Skipped:   3
+
+
+API - AUTHENTICATION
+--------------------------------------------------------------------------------
+✓ PASS: POST /api/auth/register (650ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/auth/callback/credentials (1125ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/auth/me (174ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/auth/forgot-password (92ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+API - TENANTS
+--------------------------------------------------------------------------------
+✓ PASS: GET /api/tenants (426ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/tenants (25ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+API - MEMBERS
+--------------------------------------------------------------------------------
+⊘ SKIP: All member endpoints
+  Error: No test tenant available
+
+API - CONTENT
+--------------------------------------------------------------------------------
+⊘ SKIP: All content endpoints
+  Error: No test tenant available
+
+API - CONVERSATIONS
+--------------------------------------------------------------------------------
+✓ PASS: GET /api/conversations (172ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+API - ADMIN
+--------------------------------------------------------------------------------
+⊘ SKIP: All admin endpoints
+  Error: No test tenant available
+
+================================================================================
+END OF REPORT
+================================================================================

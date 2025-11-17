@@ -1600,7 +1600,7 @@ const MessageStream = ({ currentUser, conversation, onViewProfile, tenant, isDet
         ]
     }, void 0, true);
 };
-_s(MessageStream, "pTaNRmNd7IUcCkfq6jROlgH4WiQ=");
+_s(MessageStream, "2rj/ZHf1uYZmhk7R4fTB0gNbAgc=");
 _c = MessageStream;
 const __TURBOPACK__default__export__ = MessageStream;
 var _c;
@@ -2164,7 +2164,7 @@ const MessagesPage = ({ currentUser, initialConversations, onBack, onViewProfile
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(MessagesPage, "aWczoyxnzLwYw/4zju5gyKuAZgI=");
+_s(MessagesPage, "hWDc3UxUz9RadKSnKb6OxY4+T+Q=");
 _c = MessagesPage;
 const __TURBOPACK__default__export__ = MessagesPage;
 var _c;

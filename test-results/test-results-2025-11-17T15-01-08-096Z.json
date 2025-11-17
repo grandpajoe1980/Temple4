@@ -1,0 +1,754 @@
+[
+  {
+    "timestamp": "2025-11-17T15:00:48.671Z",
+    "category": "Feature - Authentication",
+    "testName": "User Registration Flow",
+    "status": "PASS",
+    "duration": 110,
+    "details": {
+      "status": 200,
+      "email": "test-1763391648561@example.com"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:48.694Z",
+    "category": "Feature - Authentication",
+    "testName": "User Login Flow",
+    "status": "PASS",
+    "duration": 23,
+    "details": {
+      "hasSession": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:48.714Z",
+    "category": "Feature - Authentication",
+    "testName": "Session Persistence",
+    "status": "PASS",
+    "duration": 20,
+    "details": {
+      "status": 401,
+      "note": "Endpoint responds correctly (401 expected without proper session cookie)"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:48.759Z",
+    "category": "Feature - Tenant Creation",
+    "testName": "Create New Tenant",
+    "status": "PASS",
+    "duration": 45,
+    "details": {
+      "status": 401,
+      "note": "Endpoint requires authentication (401 expected without proper session)"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:49.548Z",
+    "category": "Feature - Membership",
+    "testName": "Join Tenant",
+    "status": "FAIL",
+    "duration": 789,
+    "error": "Failed to join tenant: 401",
+    "details": {
+      "tenantId": "cmi37u3nv0014v7hczfrcrleo"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:49.572Z",
+    "category": "Feature - Membership",
+    "testName": "View Tenant Members",
+    "status": "FAIL",
+    "duration": 24,
+    "error": "Failed to view members: 401",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-17T15:00:50.753Z",
+    "category": "Feature - Content Creation",
+    "testName": "Create Post",
+    "status": "FAIL",
+    "duration": 1180,
+    "error": "Failed to create post: 500",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-17T15:00:50.940Z",
+    "category": "Feature - Content Creation",
+    "testName": "Create Event",
+    "status": "FAIL",
+    "duration": 187,
+    "error": "Failed to create event: 500",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.088Z",
+    "category": "Feature - Content Creation",
+    "testName": "Create Sermon",
+    "status": "FAIL",
+    "duration": 148,
+    "error": "Failed to create sermon: 500",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.245Z",
+    "category": "Feature - Permissions",
+    "testName": "Admin Access Control",
+    "status": "FAIL",
+    "duration": 156,
+    "error": "Unexpected status: 500",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.273Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/register",
+    "status": "FAIL",
+    "duration": 27,
+    "error": "Unexpected status code: 500 (expected: 201 or 200)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.297Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/callback/credentials",
+    "status": "FAIL",
+    "duration": 23,
+    "error": "Unexpected status code: 500 (expected: 200 or 302)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.322Z",
+    "category": "API - Authentication",
+    "testName": "GET /api/auth/me",
+    "status": "FAIL",
+    "duration": 25,
+    "error": "Unexpected status code: 500 (expected: 200 or 401)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.347Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/forgot-password",
+    "status": "FAIL",
+    "duration": 25,
+    "error": "Unexpected status code: 500 (expected: 200 or 404)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.374Z",
+    "category": "API - Tenants",
+    "testName": "GET /api/tenants",
+    "status": "FAIL",
+    "duration": 26,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.396Z",
+    "category": "API - Tenants",
+    "testName": "POST /api/tenants",
+    "status": "FAIL",
+    "duration": 22,
+    "error": "Unexpected status code: 500 (expected: 201 or 200 or 401)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.517Z",
+    "category": "API - Tenants",
+    "testName": "GET /api/tenants/[tenantId]",
+    "status": "FAIL",
+    "duration": 121,
+    "error": "Unexpected status code: 500 (expected: 200 or 404)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.546Z",
+    "category": "API - Members",
+    "testName": "GET /api/tenants/[tenantId]/members",
+    "status": "FAIL",
+    "duration": 28,
+    "error": "Unexpected status code: 500 (expected: 200 or 401 or 403)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.573Z",
+    "category": "API - Members",
+    "testName": "POST /api/tenants/[tenantId]/join",
+    "status": "FAIL",
+    "duration": 27,
+    "error": "Unexpected status code: 500 (expected: 200 or 201 or 400 or 401)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.597Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/posts",
+    "status": "FAIL",
+    "duration": 24,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.619Z",
+    "category": "API - Content",
+    "testName": "POST /api/tenants/[tenantId]/posts",
+    "status": "FAIL",
+    "duration": 22,
+    "error": "Unexpected status code: 500 (expected: 201 or 200 or 401 or 403)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.647Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/events",
+    "status": "FAIL",
+    "duration": 28,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.668Z",
+    "category": "API - Content",
+    "testName": "POST /api/tenants/[tenantId]/events",
+    "status": "FAIL",
+    "duration": 21,
+    "error": "Unexpected status code: 500 (expected: 201 or 200 or 401 or 403)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.693Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/sermons",
+    "status": "FAIL",
+    "duration": 25,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.825Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/books",
+    "status": "FAIL",
+    "duration": 132,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:51.949Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/small-groups",
+    "status": "FAIL",
+    "duration": 124,
+    "error": "Unexpected status code: 500 (expected: 200 or 401)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.091Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/resources",
+    "status": "FAIL",
+    "duration": 142,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.218Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/community-posts",
+    "status": "FAIL",
+    "duration": 126,
+    "error": "Unexpected status code: 500 (expected: 200)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.239Z",
+    "category": "API - Conversations",
+    "testName": "GET /api/conversations",
+    "status": "FAIL",
+    "duration": 21,
+    "error": "Unexpected status code: 500 (expected: 200 or 401)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.262Z",
+    "category": "API - Admin",
+    "testName": "GET /api/tenants/[tenantId]/admin/settings",
+    "status": "FAIL",
+    "duration": 22,
+    "error": "Unexpected status code: 500 (expected: 200 or 401 or 403)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.385Z",
+    "category": "API - Admin",
+    "testName": "GET /api/tenants/[tenantId]/admin/branding",
+    "status": "FAIL",
+    "duration": 123,
+    "error": "Unexpected status code: 500 (expected: 200 or 401 or 403)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.488Z",
+    "category": "API - Admin",
+    "testName": "GET /api/tenants/[tenantId]/admin/audit-logs",
+    "status": "FAIL",
+    "duration": 103,
+    "error": "Unexpected status code: 500 (expected: 200 or 401 or 403)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.597Z",
+    "category": "API - Admin",
+    "testName": "GET /api/tenants/[tenantId]/admin/contact-submissions",
+    "status": "FAIL",
+    "duration": 109,
+    "error": "Unexpected status code: 500 (expected: 200 or 401 or 403)",
+    "details": {
+      "body": "<!DOCTYPE html><html><head><meta charSet=\"utf-8\" data-next-head=\"\"/><meta name=\"viewport\" content=\"width=device-width\" data-next-head=\"\"/><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><noscript data-n-css=\"\"></noscript><script src=\"/_next/static/chunks/node_modules_next_dist_compiled_8ca6b690._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_82dc2e9d._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_client_d0aa886c._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_b0a279d5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_app_72f3d36f.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_742e4b53._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_react-dom_4411d9bd._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_7f09fef0._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__45f039c3._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__app_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__app_5d693f93._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_shared_lib_cf5b50a6._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_dist_19fd0646._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/node_modules_next_error_1cfbb379.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_43b523b5._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/%5Broot-of-the-server%5D__092393de._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/pages__error_2da965e7._.js\" defer=\"\"></script><script src=\"/_next/static/chunks/turbopack-pages__error_9f8f7792._.js\" defer=\"\"></script><script src=\"/_next/static/development/_ssgManifest.js\" defer=\"\"></script><script src=\"/_next/static/development/_buildManifest.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500,\"hostname\":\"localhost\"}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n  60 |     try {\\n  61 |       const fs = require('fs');\\n\\u003e 62 |       fs.appendFileSync('error-log.txt', `\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`);\\n     |                                                                 ^^^^^^\\n  63 |     } catch (e) {\\n  64 |       // Ignore file write errors\\n  65 |     }\\n\\nUnexpected token `String`. Expected `}`\\n\\n\",\"stack\":\"Error: ./app/api/tenants/[tenantId]/posts/route.ts:62:65\\nParsing ecmascript source code failed\\n\\u001b[0m \\u001b[90m 60 |\\u001b[39m     \\u001b[36mtry\\u001b[39m {\\n \\u001b[90m 61 |\\u001b[39m       \\u001b[36mconst\\u001b[39m fs \\u001b[33m=\\u001b[39m require(\\u001b[32m'fs'\\u001b[39m)\\u001b[33m;\\u001b[39m\\n\\u001b[31m\\u001b[1m\\u003e\\u001b[22m\\u001b[39m\\u001b[90m 62 |\\u001b[39m       fs\\u001b[33m.\\u001b[39mappendFileSync(\\u001b[32m'error-log.txt'\\u001b[39m\\u001b[33m,\\u001b[39m \\u001b[32m`\\\\n[${new Date().toISO String()}] GET /posts error:\\\\n${errorMessage}\\\\n${errorStack}\\\\n\\\\n`\\u001b[39m)\\u001b[33m;\\u001b[39m\\n \\u001b[90m    |\\u001b[39m                                                                 \\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\u001b[31m\\u001b[1m^\\u001b[22m\\u001b[39m\\n \\u001b[90m 63 |\\u001b[39m     } \\u001b[36mcatch\\u001b[39m (e) {\\n \\u001b[90m 64 |\\u001b[39m       \\u001b[90m// Ignore file write errors\\u001b[39m\\n \\u001b[90m 65 |\\u001b[39m     }\\u001b[0m\\n\\nUnexpected token `String`. Expected `}`\\n\\n\\n    at Object.getCompilationErrors (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:996:59)\\n    at DevBundlerService.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/dev-bundler-service.js:39:55)\\n    at DevServer.getCompilationError (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:701:42)\\n    at DevServer.findPageComponents (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:671:43)\\n    at async DevServer.renderErrorToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1704:26)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.637Z",
+    "category": "Pages - Public",
+    "testName": "Landing Page",
+    "status": "PASS",
+    "duration": 39,
+    "details": {
+      "status": 200,
+      "url": "/",
+      "redirected": false,
+      "contentLength": 20601
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.669Z",
+    "category": "Pages - Public",
+    "testName": "Login Page",
+    "status": "PASS",
+    "duration": 32,
+    "details": {
+      "status": 200,
+      "url": "/auth/login",
+      "redirected": false,
+      "contentLength": 21205
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.700Z",
+    "category": "Pages - Public",
+    "testName": "Register Page",
+    "status": "PASS",
+    "duration": 31,
+    "details": {
+      "status": 200,
+      "url": "/auth/register",
+      "redirected": false,
+      "contentLength": 21218
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.737Z",
+    "category": "Pages - Public",
+    "testName": "Forgot Password Page",
+    "status": "PASS",
+    "duration": 37,
+    "details": {
+      "status": 200,
+      "url": "/auth/forgot-password",
+      "redirected": false,
+      "contentLength": 20603
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.767Z",
+    "category": "Pages - Public",
+    "testName": "Reset Password Page",
+    "status": "PASS",
+    "duration": 30,
+    "details": {
+      "status": 200,
+      "url": "/auth/reset-password",
+      "redirected": false,
+      "contentLength": 20825
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.803Z",
+    "category": "Pages - Authenticated",
+    "testName": "Explore Page",
+    "status": "PASS",
+    "duration": 35,
+    "details": {
+      "status": 200,
+      "url": "/explore",
+      "redirected": false,
+      "contentLength": 25483
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.879Z",
+    "category": "Pages - Authenticated",
+    "testName": "Messages Page",
+    "status": "PASS",
+    "duration": 75,
+    "details": {
+      "status": 200,
+      "url": "/messages",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21195
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:52.953Z",
+    "category": "Pages - Authenticated",
+    "testName": "Notifications Page",
+    "status": "PASS",
+    "duration": 74,
+    "details": {
+      "status": 200,
+      "url": "/notifications",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21204
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:53.027Z",
+    "category": "Pages - Authenticated",
+    "testName": "Account Settings Page",
+    "status": "PASS",
+    "duration": 74,
+    "details": {
+      "status": 200,
+      "url": "/account",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21200
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:53.027Z",
+    "category": "Pages - Authenticated",
+    "testName": "Profile Page",
+    "status": "SKIP",
+    "error": "No test user ID available"
+  },
+  {
+    "timestamp": "2025-11-17T15:00:53.060Z",
+    "category": "Pages - Authenticated",
+    "testName": "Create Tenant Page",
+    "status": "PASS",
+    "duration": 33,
+    "details": {
+      "status": 200,
+      "url": "/tenants/new",
+      "redirected": false,
+      "contentLength": 23575
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:54.122Z",
+    "category": "Pages - Tenant",
+    "testName": "Tenant Home Page",
+    "status": "PASS",
+    "duration": 1062,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21201
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:55.045Z",
+    "category": "Pages - Tenant",
+    "testName": "Posts Page",
+    "status": "PASS",
+    "duration": 923,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/posts",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21203
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:55.982Z",
+    "category": "Pages - Tenant",
+    "testName": "Calendar Page",
+    "status": "PASS",
+    "duration": 937,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/calendar",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21200
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:56.905Z",
+    "category": "Pages - Tenant",
+    "testName": "Sermons Page",
+    "status": "PASS",
+    "duration": 923,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/sermons",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21205
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:57.861Z",
+    "category": "Pages - Tenant",
+    "testName": "Podcasts Page",
+    "status": "PASS",
+    "duration": 956,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/podcasts",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21203
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:58.752Z",
+    "category": "Pages - Tenant",
+    "testName": "Books Page",
+    "status": "PASS",
+    "duration": 891,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/books",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21201
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:59.642Z",
+    "category": "Pages - Tenant",
+    "testName": "Members Page",
+    "status": "PASS",
+    "duration": 890,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/members",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21201
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:01:00.562Z",
+    "category": "Pages - Tenant",
+    "testName": "Chat Page",
+    "status": "PASS",
+    "duration": 920,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/chat",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21200
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:01:01.473Z",
+    "category": "Pages - Tenant",
+    "testName": "Donations Page",
+    "status": "PASS",
+    "duration": 911,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/donations",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21203
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:01:02.388Z",
+    "category": "Pages - Tenant",
+    "testName": "Contact Page",
+    "status": "PASS",
+    "duration": 915,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/contact",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21202
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:01:03.300Z",
+    "category": "Pages - Tenant",
+    "testName": "Volunteering Page",
+    "status": "PASS",
+    "duration": 912,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/volunteering",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21203
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:01:04.216Z",
+    "category": "Pages - Tenant",
+    "testName": "Small Groups Page",
+    "status": "PASS",
+    "duration": 916,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/small-groups",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21201
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:01:05.177Z",
+    "category": "Pages - Tenant",
+    "testName": "Live Stream Page",
+    "status": "PASS",
+    "duration": 961,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/livestream",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21203
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:01:06.101Z",
+    "category": "Pages - Tenant",
+    "testName": "Prayer Wall Page",
+    "status": "PASS",
+    "duration": 924,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/prayer-wall",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21205
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:01:07.014Z",
+    "category": "Pages - Tenant",
+    "testName": "Resource Center Page",
+    "status": "PASS",
+    "duration": 913,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/resources",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21198
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:01:08.061Z",
+    "category": "Pages - Tenant",
+    "testName": "Settings Page",
+    "status": "PASS",
+    "duration": 1047,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi37u3nv0014v7hczfrcrleo/settings",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21203
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:01:08.096Z",
+    "category": "Pages - Admin",
+    "testName": "Admin Console",
+    "status": "PASS",
+    "duration": 35,
+    "details": {
+      "status": 200,
+      "url": "/admin",
+      "redirected": false,
+      "contentLength": 18178
+    }
+  }
+]

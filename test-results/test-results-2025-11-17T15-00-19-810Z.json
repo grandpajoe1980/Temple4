@@ -1,0 +1,107 @@
+[
+  {
+    "timestamp": "2025-11-17T15:00:17.792Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/register",
+    "status": "PASS",
+    "duration": 650,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:18.917Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/callback/credentials",
+    "status": "PASS",
+    "duration": 1125,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:19.091Z",
+    "category": "API - Authentication",
+    "testName": "GET /api/auth/me",
+    "status": "PASS",
+    "duration": 174,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:19.183Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/forgot-password",
+    "status": "PASS",
+    "duration": 92,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:19.610Z",
+    "category": "API - Tenants",
+    "testName": "GET /api/tenants",
+    "status": "PASS",
+    "duration": 426,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:19.636Z",
+    "category": "API - Tenants",
+    "testName": "POST /api/tenants",
+    "status": "PASS",
+    "duration": 25,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:19.637Z",
+    "category": "API - Members",
+    "testName": "All member endpoints",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  },
+  {
+    "timestamp": "2025-11-17T15:00:19.637Z",
+    "category": "API - Content",
+    "testName": "All content endpoints",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  },
+  {
+    "timestamp": "2025-11-17T15:00:19.809Z",
+    "category": "API - Conversations",
+    "testName": "GET /api/conversations",
+    "status": "PASS",
+    "duration": 172,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:19.809Z",
+    "category": "API - Admin",
+    "testName": "All admin endpoints",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  }
+]

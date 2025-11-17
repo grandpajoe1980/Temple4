@@ -1,0 +1,162 @@
+[
+  {
+    "timestamp": "2025-11-17T15:00:34.246Z",
+    "category": "Pages - Public",
+    "testName": "Landing Page",
+    "status": "PASS",
+    "duration": 3112,
+    "details": {
+      "status": 200,
+      "url": "/",
+      "redirected": false,
+      "contentLength": 21206
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:34.651Z",
+    "category": "Pages - Public",
+    "testName": "Login Page",
+    "status": "PASS",
+    "duration": 405,
+    "details": {
+      "status": 200,
+      "url": "/auth/login",
+      "redirected": false,
+      "contentLength": 21196
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:34.973Z",
+    "category": "Pages - Public",
+    "testName": "Register Page",
+    "status": "PASS",
+    "duration": 321,
+    "details": {
+      "status": 200,
+      "url": "/auth/register",
+      "redirected": false,
+      "contentLength": 21212
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:35.306Z",
+    "category": "Pages - Public",
+    "testName": "Forgot Password Page",
+    "status": "PASS",
+    "duration": 333,
+    "details": {
+      "status": 200,
+      "url": "/auth/forgot-password",
+      "redirected": false,
+      "contentLength": 20597
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:35.577Z",
+    "category": "Pages - Public",
+    "testName": "Reset Password Page",
+    "status": "PASS",
+    "duration": 271,
+    "details": {
+      "status": 200,
+      "url": "/auth/reset-password",
+      "redirected": false,
+      "contentLength": 20823
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:35.946Z",
+    "category": "Pages - Authenticated",
+    "testName": "Explore Page",
+    "status": "PASS",
+    "duration": 368,
+    "details": {
+      "status": 200,
+      "url": "/explore",
+      "redirected": false,
+      "contentLength": 25488
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:36.466Z",
+    "category": "Pages - Authenticated",
+    "testName": "Messages Page",
+    "status": "PASS",
+    "duration": 520,
+    "details": {
+      "status": 200,
+      "url": "/messages",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21200
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:36.869Z",
+    "category": "Pages - Authenticated",
+    "testName": "Notifications Page",
+    "status": "PASS",
+    "duration": 403,
+    "details": {
+      "status": 200,
+      "url": "/notifications",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21195
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:37.222Z",
+    "category": "Pages - Authenticated",
+    "testName": "Account Settings Page",
+    "status": "PASS",
+    "duration": 353,
+    "details": {
+      "status": 200,
+      "url": "/account",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21194
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:37.222Z",
+    "category": "Pages - Authenticated",
+    "testName": "Profile Page",
+    "status": "SKIP",
+    "error": "No test user ID available"
+  },
+  {
+    "timestamp": "2025-11-17T15:00:37.488Z",
+    "category": "Pages - Authenticated",
+    "testName": "Create Tenant Page",
+    "status": "PASS",
+    "duration": 265,
+    "details": {
+      "status": 200,
+      "url": "/tenants/new",
+      "redirected": false,
+      "contentLength": 23577
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:00:37.488Z",
+    "category": "Pages - Tenant",
+    "testName": "All tenant pages",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  },
+  {
+    "timestamp": "2025-11-17T15:00:37.754Z",
+    "category": "Pages - Admin",
+    "testName": "Admin Console",
+    "status": "PASS",
+    "duration": 266,
+    "details": {
+      "status": 200,
+      "url": "/admin",
+      "redirected": false,
+      "contentLength": 18171
+    }
+  }
+]

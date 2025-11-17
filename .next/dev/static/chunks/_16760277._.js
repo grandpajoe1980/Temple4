@@ -1600,7 +1600,7 @@ const MessageStream = ({ currentUser, conversation, onViewProfile, tenant, isDet
         ]
     }, void 0, true);
 };
-_s(MessageStream, "pTaNRmNd7IUcCkfq6jROlgH4WiQ=");
+_s(MessageStream, "2rj/ZHf1uYZmhk7R4fTB0gNbAgc=");
 _c = MessageStream;
 const __TURBOPACK__default__export__ = MessageStream;
 var _c;

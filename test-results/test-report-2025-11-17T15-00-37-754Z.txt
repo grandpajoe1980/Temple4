@@ -1,0 +1,115 @@
+================================================================================
+TEMPLE PLATFORM - COMPREHENSIVE TEST REPORT
+================================================================================
+
+Generated: 11/17/2025, 3:00:37 PM
+Total Duration: 6.62s
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total Tests: 13
+✓ Passed:    11
+✗ Failed:    0
+⚠ Errors:    0
+⊘ Skipped:   2
+
+
+PAGES - PUBLIC
+--------------------------------------------------------------------------------
+✓ PASS: Landing Page (3112ms)
+  Details: {
+  "status": 200,
+  "url": "/",
+  "redirected": false,
+  "contentLength": 21206
+}
+✓ PASS: Login Page (405ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/login",
+  "redirected": false,
+  "contentLength": 21196
+}
+✓ PASS: Register Page (321ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/register",
+  "redirected": false,
+  "contentLength": 21212
+}
+✓ PASS: Forgot Password Page (333ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/forgot-password",
+  "redirected": false,
+  "contentLength": 20597
+}
+✓ PASS: Reset Password Page (271ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/reset-password",
+  "redirected": false,
+  "contentLength": 20823
+}
+
+PAGES - AUTHENTICATED
+--------------------------------------------------------------------------------
+✓ PASS: Explore Page (368ms)
+  Details: {
+  "status": 200,
+  "url": "/explore",
+  "redirected": false,
+  "contentLength": 25488
+}
+✓ PASS: Messages Page (520ms)
+  Details: {
+  "status": 200,
+  "url": "/messages",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21200
+}
+✓ PASS: Notifications Page (403ms)
+  Details: {
+  "status": 200,
+  "url": "/notifications",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21195
+}
+✓ PASS: Account Settings Page (353ms)
+  Details: {
+  "status": 200,
+  "url": "/account",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21194
+}
+⊘ SKIP: Profile Page
+  Error: No test user ID available
+✓ PASS: Create Tenant Page (265ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/new",
+  "redirected": false,
+  "contentLength": 23577
+}
+
+PAGES - TENANT
+--------------------------------------------------------------------------------
+⊘ SKIP: All tenant pages
+  Error: No test tenant available
+
+PAGES - ADMIN
+--------------------------------------------------------------------------------
+✓ PASS: Admin Console (266ms)
+  Details: {
+  "status": 200,
+  "url": "/admin",
+  "redirected": false,
+  "contentLength": 18171
+}
+
+================================================================================
+END OF REPORT
+================================================================================

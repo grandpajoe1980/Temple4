@@ -258,17 +258,19 @@ model UserTenantRole {
 // --- CONTENT & MESSAGING ---
 
 model Post {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   tenantId      String
-  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   authorUserId  String
-  author        User     @relation(fields: [authorUserId], references: [id])
-  type          String // 'BLOG' | 'ANNOUNCEMENT' | 'BOOK'
+  author        User      @relation(fields: [authorUserId], references: [id])
+  type          String    // 'BLOG' | 'ANNOUNCEMENT' | 'BOOK'
   title         String
   body          String
-  isPublished   Boolean  @default(false)
-  publishedAt   DateTime @default(now())
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime  @default(now())
   deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Event {
@@ -461,15 +463,16 @@ model VolunteerSignup {
 // --- SMALL GROUP MODELS ---
 
 model SmallGroup {
-  id            String                 @id @default(cuid())
-  tenantId      String
-  tenant        Tenant                 @relation(fields: [tenantId], references: [id])
-  name          String
-  description   String
-  leaderUserId  String
+  id              String                 @id @default(cuid())
+  tenantId        String
+  tenant          Tenant                 @relation(fields: [tenantId], references: [id])
+  name            String
+  description     String
+  leaderUserId    String
   meetingSchedule String
-  isActive      Boolean                @default(true)
-  members       SmallGroupMembership[]
+  isActive        Boolean                @default(true)
+  isPublic        Boolean                @default(false)
+  members         SmallGroupMembership[]
 }
 
 model SmallGroupMembership {

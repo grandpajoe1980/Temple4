@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { User } from '@/types';
+import type { User, UserProfile } from '@prisma/client';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Tabs from '../ui/Tabs';
@@ -12,7 +12,11 @@ import NotificationSettingsTab from './NotificationSettingsTab';
 import AccountSettingsTab from './AccountSettingsTab';
 
 interface AccountSettingsPageProps {
-  user: User;
+  user: User & {
+    profile: UserProfile | null;
+    privacySettings: any;
+    accountSettings: any;
+  };
   onBack: () => void;
   onRefresh: () => void;
 }
@@ -23,17 +27,28 @@ const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user, onBack,
   const [activeTab, setActiveTab] = useState(TABS[0]);
 
   const renderTabContent = () => {
+    if (!user.profile) {
+      return <div>Profile not found</div>;
+    }
+    
     switch (activeTab) {
       case 'Profile':
-        return <ProfileSettingsTab user={user} onRefresh={onRefresh} />;
+        return <ProfileSettingsTab profile={user.profile} onUpdate={(profile) => {
+          // Update user profile and call onRefresh
+          onRefresh();
+        }} />;
       case 'Privacy':
-        return <PrivacySettingsTab user={user} onRefresh={onRefresh} />;
+        return <PrivacySettingsTab settings={user.privacySettings || {} as any} onUpdate={(settings) => {
+          onRefresh();
+        }} />;
       case 'My Memberships':
-        return <MyMembershipsTab user={user} onRefresh={onRefresh} />;
+        return <MyMembershipsTab user={user as any} onRefresh={onRefresh} />;
       case 'Account':
-        return <AccountSettingsTab user={user} onRefresh={onRefresh} />;
+        return <AccountSettingsTab settings={user.accountSettings || {} as any} onUpdate={(settings) => {
+          onRefresh();
+        }} />;
       case 'Notifications':
-        return <NotificationSettingsTab user={user} onRefresh={onRefresh} />;
+        return <NotificationSettingsTab user={user as any} onRefresh={onRefresh} />;
       // Add other tabs here later
       default:
         return (

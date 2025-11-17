@@ -10,7 +10,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { groupId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -21,7 +21,7 @@ export async function GET(
         }
 
         const group = await prisma.smallGroup.findUnique({
-            where: { id: params.groupId },
+            where: { id: groupId },
             include: { members: true }
         });
 
@@ -34,8 +34,8 @@ export async function GET(
             return NextResponse.json({ message: 'This is a private group.' }, { status: 403 });
         }
 
-        const members = await prisma.smallGroupMember.findMany({
-            where: { smallGroupId: params.groupId },
+        const members = await prisma.smallGroupMembership.findMany({
+            where: { groupId: groupId },
             include: {
                 user: {
                     select: {
@@ -48,7 +48,7 @@ export async function GET(
 
         return NextResponse.json(members);
     } catch (error) {
-        console.error(`Failed to fetch group members for group ${params.groupId}:`, error);
+        console.error(`Failed to fetch group members for group ${groupId}:`, error);
         return NextResponse.json({ message: 'Failed to fetch group members' }, { status: 500 });
     }
 }
@@ -62,7 +62,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { groupId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const currentUserId = (session?.user as any)?.id;
 
@@ -79,7 +79,7 @@ export async function POST(
     try {
         // A user can request to join, or a leader can add them.
         const group = await prisma.smallGroup.findUnique({
-            where: { id: params.groupId },
+            where: { id: groupId },
             include: { members: true }
         });
 
@@ -95,17 +95,17 @@ export async function POST(
         }
 
         // Check if user is already a member
-        const existingMembership = await prisma.smallGroupMember.findFirst({
-            where: { smallGroupId: params.groupId, userId: userId }
+        const existingMembership = await prisma.smallGroupMembership.findFirst({
+            where: { groupId: groupId, userId: userId }
         });
 
         if (existingMembership) {
             return NextResponse.json({ message: 'User is already a member of this group.' }, { status: 409 });
         }
 
-        const newMember = await prisma.smallGroupMember.create({
+        const newMember = await prisma.smallGroupMembership.create({
             data: {
-                smallGroupId: params.groupId,
+                groupId: groupId,
                 userId: userId,
                 role: 'MEMBER', // Defaults to member, leaders can change this later
             }
@@ -113,7 +113,7 @@ export async function POST(
 
         return NextResponse.json(newMember, { status: 201 });
     } catch (error) {
-        console.error(`Failed to add member to group ${params.groupId}:`, error);
+        console.error(`Failed to add member to group ${groupId}:`, error);
         return NextResponse.json({ message: 'Failed to add member' }, { status: 500 });
     }
 }

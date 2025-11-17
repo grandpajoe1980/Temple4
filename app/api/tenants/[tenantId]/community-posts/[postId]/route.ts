@@ -15,7 +15,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; postId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { postId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -41,7 +41,7 @@ export async function PUT(
 
         const updatedPost = await prisma.communityPost.update({
             where: {
-                id: params.postId,
+                id: postId,
                 tenantId: tenantId,
             },
             data: {
@@ -51,7 +51,7 @@ export async function PUT(
 
         return NextResponse.json(updatedPost);
     } catch (error) {
-        console.error(`Failed to update community post ${params.postId}:`, error);
+        console.error(`Failed to update community post ${postId}:`, error);
         return NextResponse.json({ message: 'Failed to update community post' }, { status: 500 });
     }
 }

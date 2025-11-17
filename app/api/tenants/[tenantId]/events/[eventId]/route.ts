@@ -10,7 +10,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { eventId, tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const event = await prisma.event.findUnique({
-      where: { id: params.eventId, tenantId: tenantId },
+      where: { id: eventId, tenantId: tenantId },
     });
 
     if (!event) {
@@ -30,7 +30,7 @@ export async function GET(
 
     return NextResponse.json(event);
   } catch (error) {
-    console.error(`Failed to fetch event ${params.eventId}:`, error);
+    console.error(`Failed to fetch event ${eventId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch event' }, { status: 500 });
   }
 }
@@ -49,7 +49,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { eventId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -76,13 +76,13 @@ export async function PUT(
 
     try {
         const updatedEvent = await prisma.event.update({
-            where: { id: params.eventId, tenantId: tenantId },
+            where: { id: eventId, tenantId: tenantId },
             data: result.data,
         });
 
         return NextResponse.json(updatedEvent);
     } catch (error) {
-        console.error(`Failed to update event ${params.eventId}:`, error);
+        console.error(`Failed to update event ${eventId}:`, error);
         return NextResponse.json({ message: 'Failed to update event' }, { status: 500 });
     }
 }
@@ -92,7 +92,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { eventId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -114,12 +114,12 @@ export async function DELETE(
 
     try {
         await prisma.event.delete({
-            where: { id: params.eventId, tenantId: tenantId },
+            where: { id: eventId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete event ${params.eventId}:`, error);
+        console.error(`Failed to delete event ${eventId}:`, error);
         return NextResponse.json({ message: 'Failed to delete event' }, { status: 500 });
     }
 }

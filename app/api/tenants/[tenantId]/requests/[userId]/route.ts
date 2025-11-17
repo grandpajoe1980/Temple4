@@ -14,7 +14,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; userId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { tenantId, userId } = await params;
   const session = await getServerSession(authOptions);
   const currentUserId = (session?.user as any)?.id;
 
@@ -28,7 +28,9 @@ export async function PUT(
     include: { roles: true },
   });
 
-  const hasPermission = currentUserMembership?.roles.some(role => [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR].includes(role.role));
+  const hasPermission = currentUserMembership?.roles.some(role => 
+    ([TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR] as TenantRole[]).includes(role.role)
+  );
 
   if (!hasPermission) {
     return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
@@ -45,7 +47,7 @@ export async function PUT(
   try {
     const updatedRequest = await prisma.userTenantMembership.update({
       where: {
-        userId_tenantId: { userId: params.userId, tenantId: tenantId },
+        userId_tenantId: { userId: userId, tenantId: tenantId },
         status: 'PENDING', // Ensure we're only actioning a pending request
       },
       data: {
@@ -54,12 +56,12 @@ export async function PUT(
     });
 
     // Here you would typically trigger a notification to the user
-    // e.g., createNotification(params.userId, 'Your membership request was ' + newStatus.toLowerCase());
+    // e.g., createNotification(userId, 'Your membership request was ' + newStatus.toLowerCase());
 
     return NextResponse.json(updatedRequest);
   } catch (error) {
     // This could fail if the request doesn't exist or wasn't in a 'REQUESTED' state
-    console.error(`Failed to ${action.toLowerCase()} membership for user ${params.userId} in tenant ${tenantId}:`, error);
+    console.error(`Failed to ${action.toLowerCase()} membership for user ${userId} in tenant ${tenantId}:`, error);
     return NextResponse.json({ message: `Failed to ${action.toLowerCase()} membership request` }, { status: 500 });
   }
 }

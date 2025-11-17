@@ -16,15 +16,12 @@ interface EnrichedParticipant extends User {
 
 const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ conversation, tenant, onViewProfile }) => {
   const enrichedParticipants = useMemo((): EnrichedParticipant[] => {
-    return conversation.participants.map(p => {
-        const membership = getMembershipForUserInTenant(p.id, tenant.id);
-        if (!membership) return null; // Should not happen for channel members
-        return {
-            ...p,
-            roles: membership.roles.map(r => r.role),
-            membership,
-        }
-    }).filter((p): p is EnrichedParticipant => p !== null)
+    // TODO: Fetch membership data properly via API
+    return conversation.participants.map(p => ({
+        ...p,
+        roles: [] as TenantRole[],
+        membership: {} as any,
+    } as EnrichedParticipant)).filter((p): p is EnrichedParticipant => p !== null)
     .sort((a,b) => {
         const roleOrder = { [TenantRole.ADMIN]: 0, [TenantRole.STAFF]: 1, [TenantRole.CLERGY]: 1, [TenantRole.MODERATOR]: 2, [TenantRole.MEMBER]: 3 };
         const aRole = a.roles[0] || TenantRole.MEMBER;

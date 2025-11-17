@@ -10,7 +10,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { groupId, tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const group = await prisma.smallGroup.findUnique({
-      where: { id: params.groupId, tenantId: tenantId },
+      where: { id: groupId, tenantId: tenantId },
       include: {
           members: {
               include: {
@@ -43,7 +43,7 @@ export async function GET(
 
     return NextResponse.json(group);
   } catch (error) {
-    console.error(`Failed to fetch group ${params.groupId}:`, error);
+    console.error(`Failed to fetch group ${groupId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch group' }, { status: 500 });
   }
 }
@@ -59,7 +59,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { groupId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -74,8 +74,8 @@ export async function PUT(
 
     try {
         // Only a group leader can update the group
-        const groupMembership = await prisma.smallGroupMember.findUnique({
-            where: { userId_smallGroupId: { userId, smallGroupId: params.groupId } }
+        const groupMembership = await prisma.smallGroupMembership.findUnique({
+            where: { groupId_userId: { groupId: groupId, userId: userId } }
         });
 
         if (groupMembership?.role !== 'LEADER') {
@@ -83,13 +83,13 @@ export async function PUT(
         }
 
         const updatedGroup = await prisma.smallGroup.update({
-            where: { id: params.groupId, tenantId: tenantId },
+            where: { id: groupId, tenantId: tenantId },
             data: result.data,
         });
 
         return NextResponse.json(updatedGroup);
     } catch (error) {
-        console.error(`Failed to update group ${params.groupId}:`, error);
+        console.error(`Failed to update group ${groupId}:`, error);
         return NextResponse.json({ message: 'Failed to update group' }, { status: 500 });
     }
 }
@@ -99,7 +99,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { groupId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -109,8 +109,8 @@ export async function DELETE(
 
     try {
         // Only a group leader can delete the group
-        const groupMembership = await prisma.smallGroupMember.findUnique({
-            where: { userId_smallGroupId: { userId, smallGroupId: params.groupId } }
+        const groupMembership = await prisma.smallGroupMembership.findUnique({
+            where: { groupId_userId: { groupId: groupId, userId: userId } }
         });
 
         if (groupMembership?.role !== 'LEADER') {
@@ -118,12 +118,12 @@ export async function DELETE(
         }
 
         await prisma.smallGroup.delete({
-            where: { id: params.groupId, tenantId: tenantId },
+            where: { id: groupId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete group ${params.groupId}:`, error);
+        console.error(`Failed to delete group ${groupId}:`, error);
         return NextResponse.json({ message: 'Failed to delete group' }, { status: 500 });
     }
 }

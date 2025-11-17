@@ -45,7 +45,13 @@ export async function POST(request: Request) {
       data: {
         name,
         slug,
-        ...restOfData,
+        creed: restOfData.creed,
+        street: restOfData.street || '',
+        city: restOfData.city || '',
+        state: restOfData.state || '',
+        country: restOfData.country || '',
+        postalCode: restOfData.postalCode || '',
+        description: restOfData.description || '',
         // Default settings and branding
         branding: {
           create: {},

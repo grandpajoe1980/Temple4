@@ -45,7 +45,8 @@ export async function GET(
 
 const groupSchema = z.object({
     name: z.string().min(3),
-    description: z.string().optional(),
+    description: z.string(),
+    meetingSchedule: z.string(),
     isPublic: z.boolean().optional(),
 });
 
@@ -78,6 +79,7 @@ export async function POST(
             data: {
                 ...result.data,
                 tenantId: tenantId,
+                leaderUserId: userId,
                 // The creator automatically becomes the leader
                 members: {
                     create: {

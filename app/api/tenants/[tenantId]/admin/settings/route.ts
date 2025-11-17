@@ -9,8 +9,9 @@ import { TenantRole } from '@prisma/client';
 // 17.1 Get Tenant Settings
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 
@@ -19,18 +20,18 @@ export async function GET(
     }
 
     try {
-        const isAdmin = await hasRole(user.id, params.tenantId, [TenantRole.ADMIN]);
+        const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
             return NextResponse.json({ message: 'You do not have permission to view tenant settings.' }, { status: 403 });
         }
 
         const settings = await prisma.tenantSettings.findUnique({
-            where: { tenantId: params.tenantId },
+            where: { tenantId: tenantId },
         });
 
         return NextResponse.json(settings);
     } catch (error) {
-        console.error(`Failed to fetch tenant settings for tenant ${params.tenantId}:`, error);
+        console.error(`Failed to fetch tenant settings for tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to fetch tenant settings' }, { status: 500 });
     }
 }
@@ -43,8 +44,9 @@ const settingsSchema = z.object({
 // 17.2 Update Tenant Settings
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 
@@ -58,19 +60,19 @@ export async function PUT(
     }
 
     try {
-        const isAdmin = await hasRole(user.id, params.tenantId, [TenantRole.ADMIN]);
+        const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
             return NextResponse.json({ message: 'You do not have permission to update tenant settings.' }, { status: 403 });
         }
 
         const updatedSettings = await prisma.tenantSettings.update({
-            where: { tenantId: params.tenantId },
+            where: { tenantId: tenantId },
             data: result.data,
         });
 
         return NextResponse.json(updatedSettings);
     } catch (error) {
-        console.error(`Failed to update tenant settings for tenant ${params.tenantId}:`, error);
+        console.error(`Failed to update tenant settings for tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to update tenant settings' }, { status: 500 });
     }
 }

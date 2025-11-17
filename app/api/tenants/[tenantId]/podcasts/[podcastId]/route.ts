@@ -8,19 +8,20 @@ import { z } from 'zod';
 // 12.3 Get Single Podcast
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; podcastId: string } }
+  { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'podcasts');
+    const canView = await canUserViewContent(userId, tenantId, 'podcasts');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view this podcast.' }, { status: 403 });
     }
 
     const podcast = await prisma.podcast.findUnique({
-      where: { id: params.podcastId, tenantId: params.tenantId },
+      where: { id: params.podcastId, tenantId: tenantId },
     });
 
     if (!podcast) {
@@ -45,8 +46,9 @@ const podcastUpdateSchema = z.object({
 // 12.4 Update Podcast
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; podcastId: string } }
+  { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -55,7 +57,7 @@ export async function PUT(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -73,7 +75,7 @@ export async function PUT(
 
     try {
         const updatedPodcast = await prisma.podcast.update({
-            where: { id: params.podcastId, tenantId: params.tenantId },
+            where: { id: params.podcastId, tenantId: tenantId },
             data: result.data,
         });
 
@@ -87,8 +89,9 @@ export async function PUT(
 // 12.5 Delete Podcast
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; podcastId: string } }
+  { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -97,7 +100,7 @@ export async function DELETE(
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -110,7 +113,7 @@ export async function DELETE(
 
     try {
         await prisma.podcast.delete({
-            where: { id: params.podcastId, tenantId: params.tenantId },
+            where: { id: params.podcastId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });

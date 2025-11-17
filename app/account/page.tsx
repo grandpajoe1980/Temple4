@@ -19,7 +19,7 @@ export default async function Page() {
   
   return (
     <AccountSettingsPage 
-      user={user}
+      user={user as any}
       onBack={() => {}}
       onRefresh={() => {}}
     />

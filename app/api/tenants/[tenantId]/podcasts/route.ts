@@ -8,25 +8,26 @@ import { z } from 'zod';
 // 12.1 List Podcasts
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'podcasts');
+    const canView = await canUserViewContent(userId, tenantId, 'podcasts');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view podcasts.' }, { status: 403 });
     }
 
     const podcasts = await prisma.podcast.findMany({
-      where: { tenantId: params.tenantId },
+      where: { tenantId: tenantId },
       orderBy: { publishedAt: 'desc' },
     });
 
     return NextResponse.json(podcasts);
   } catch (error) {
-    console.error(`Failed to fetch podcasts for tenant ${params.tenantId}:`, error);
+    console.error(`Failed to fetch podcasts for tenant ${tenantId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch podcasts' }, { status: 500 });
   }
 }
@@ -42,8 +43,9 @@ const podcastSchema = z.object({
 // 12.2 Create Podcast
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -53,7 +55,7 @@ export async function POST(
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const tenant = await prisma.tenant.findUnique({ 
-        where: { id: params.tenantId },
+        where: { id: tenantId },
         select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true }
     });
 
@@ -75,14 +77,14 @@ export async function POST(
         const newPodcast = await prisma.podcast.create({
             data: {
                 ...result.data,
-                tenantId: params.tenantId,
+                tenantId: tenantId,
                 authorUserId: userId,
             },
         });
 
         return NextResponse.json(newPodcast, { status: 201 });
     } catch (error) {
-        console.error(`Failed to create podcast in tenant ${params.tenantId}:`, error);
+        console.error(`Failed to create podcast in tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to create podcast' }, { status: 500 });
     }
 }

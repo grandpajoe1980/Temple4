@@ -13,8 +13,9 @@ const updateStatusSchema = z.object({
 // 15.3 Update Community Post Status
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; postId: string } }
+  { params }: { params: Promise<{ tenantId: string; postId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -28,7 +29,7 @@ export async function PUT(
     }
 
     try {
-        const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId } });
+        const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
@@ -41,7 +42,7 @@ export async function PUT(
         const updatedPost = await prisma.communityPost.update({
             where: {
                 id: params.postId,
-                tenantId: params.tenantId,
+                tenantId: tenantId,
             },
             data: {
                 status: result.data.status,

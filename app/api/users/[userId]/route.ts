@@ -5,8 +5,9 @@ import { prisma } from '@/lib/db';
 
 export async function GET(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
+    const { userId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
@@ -15,7 +16,7 @@ export async function GET(
 
   try {
     const user = await prisma.user.findUnique({
-      where: { id: params.userId },
+      where: { id: userId },
       include: {
         profile: true,
         privacySettings: true,
@@ -30,15 +31,16 @@ export async function GET(
     const { password, ...userWithoutPassword } = user;
     return NextResponse.json(userWithoutPassword);
   } catch (error) {
-    console.error(`Failed to fetch user ${params.userId}:`, error);
+    console.error(`Failed to fetch user ${userId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch user' }, { status: 500 });
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
+    const { userId } = await params;
     const session = await getServerSession(authOptions);
     const currentUserId = (session?.user as any)?.id;
     const isSuperAdmin = (session?.user as any)?.isSuperAdmin;
@@ -48,7 +50,7 @@ export async function PUT(
     }
 
     // A user can update their own profile, or a super admin can update any profile.
-    if (currentUserId !== params.userId && !isSuperAdmin) {
+    if (currentUserId !== userId && !isSuperAdmin) {
         return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
@@ -56,7 +58,7 @@ export async function PUT(
         const { profile, privacySettings, accountSettings } = await request.json();
 
         const updatedUser = await prisma.user.update({
-            where: { id: params.userId },
+            where: { id: userId },
             data: {
                 profile: {
                     update: profile,
@@ -78,7 +80,7 @@ export async function PUT(
         const { password, ...userWithoutPassword } = updatedUser;
         return NextResponse.json(userWithoutPassword);
     } catch (error) {
-        console.error(`Failed to update user ${params.userId}:`, error);
+        console.error(`Failed to update user ${userId}:`, error);
         return NextResponse.json({ message: 'Failed to update user' }, { status: 500 });
     }
 }

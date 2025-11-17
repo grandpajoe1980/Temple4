@@ -12,8 +12,9 @@ const requestActionSchema = z.object({
 // 8.4 Approve/Reject Membership Request
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; userId: string } }
+  { params }: { params: Promise<{ tenantId: string; userId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const currentUserId = (session?.user as any)?.id;
 
@@ -23,7 +24,7 @@ export async function PUT(
 
   // Check if the current user has permission to manage requests
   const currentUserMembership = await prisma.userTenantMembership.findUnique({
-    where: { userId_tenantId: { userId: currentUserId, tenantId: params.tenantId } },
+    where: { userId_tenantId: { userId: currentUserId, tenantId: tenantId } },
     include: { roles: true },
   });
 
@@ -44,7 +45,7 @@ export async function PUT(
   try {
     const updatedRequest = await prisma.userTenantMembership.update({
       where: {
-        userId_tenantId: { userId: params.userId, tenantId: params.tenantId },
+        userId_tenantId: { userId: params.userId, tenantId: tenantId },
         status: 'PENDING', // Ensure we're only actioning a pending request
       },
       data: {
@@ -58,7 +59,7 @@ export async function PUT(
     return NextResponse.json(updatedRequest);
   } catch (error) {
     // This could fail if the request doesn't exist or wasn't in a 'REQUESTED' state
-    console.error(`Failed to ${action.toLowerCase()} membership for user ${params.userId} in tenant ${params.tenantId}:`, error);
+    console.error(`Failed to ${action.toLowerCase()} membership for user ${params.userId} in tenant ${tenantId}:`, error);
     return NextResponse.json({ message: `Failed to ${action.toLowerCase()} membership request` }, { status: 500 });
   }
 }

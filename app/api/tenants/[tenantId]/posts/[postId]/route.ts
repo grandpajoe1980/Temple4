@@ -9,19 +9,20 @@ import { z } from 'zod';
 // 9.3 Get Single Post
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; postId: string } }
+  { params }: { params: Promise<{ tenantId: string; postId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'posts');
+    const canView = await canUserViewContent(userId, tenantId, 'posts');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view this post.' }, { status: 403 });
     }
 
     const post = await prisma.post.findUnique({
-      where: { id: params.postId, tenantId: params.tenantId },
+      where: { id: params.postId, tenantId: tenantId },
       include: {
         author: {
           select: {
@@ -52,8 +53,9 @@ const postUpdateSchema = z.object({
 // 9.4 Update Post
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; postId: string } }
+  { params }: { params: Promise<{ tenantId: string; postId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -68,13 +70,13 @@ export async function PUT(
 
     try {
         const post = await prisma.post.findUnique({ where: { id: params.postId } });
-        if (!post || post.tenantId !== params.tenantId) {
+        if (!post || post.tenantId !== tenantId) {
             return NextResponse.json({ message: 'Post not found' }, { status: 404 });
         }
 
         // Check if user is the author or a moderator
         const membership = await prisma.userTenantMembership.findUnique({
-            where: { userId_tenantId: { userId, tenantId: params.tenantId } },
+            where: { userId_tenantId: { userId, tenantId: tenantId } },
             include: { roles: true },
         });
         const isAuthor = post.authorUserId === userId;
@@ -101,8 +103,9 @@ export async function PUT(
 // 9.5 Delete Post
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; postId: string } }
+  { params }: { params: Promise<{ tenantId: string; postId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -112,13 +115,13 @@ export async function DELETE(
 
     try {
         const post = await prisma.post.findUnique({ where: { id: params.postId } });
-        if (!post || post.tenantId !== params.tenantId) {
+        if (!post || post.tenantId !== tenantId) {
             return NextResponse.json({ message: 'Post not found' }, { status: 404 });
         }
 
         // Check if user is the author or a moderator/admin
         const membership = await prisma.userTenantMembership.findUnique({
-            where: { userId_tenantId: { userId, tenantId: params.tenantId } },
+            where: { userId_tenantId: { userId, tenantId: tenantId } },
             include: { roles: true },
         });
         const isAuthor = post.authorUserId === userId;

@@ -6,8 +6,9 @@ import { MembershipStatus, MembershipApprovalMode, TenantRole } from '@prisma/cl
 
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
@@ -15,7 +16,6 @@ export async function POST(
   }
 
   const userId = (session.user as any).id;
-  const tenantId = params.tenantId;
 
   try {
     const tenant = await prisma.tenant.findUnique({

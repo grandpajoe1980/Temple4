@@ -28,7 +28,7 @@ export default function Page() {
           router.push('/');
           return;
         }
-        setUser(userData);
+        setUser(userData as any);
       } catch (error) {
         console.error('Error loading user:', error);
         router.push('/');

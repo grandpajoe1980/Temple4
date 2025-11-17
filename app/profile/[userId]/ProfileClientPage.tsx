@@ -9,7 +9,7 @@ import ProfileSettingsTab from '@/app/components/account/ProfileSettingsTab';
 import PrivacySettingsTab from '@/app/components/account/PrivacySettingsTab';
 import AccountSettingsTab from '@/app/components/account/AccountSettingsTab';
 import Button from '@/app/components/ui/Button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/Tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 interface ProfileClientPageProps {
   user: User & {

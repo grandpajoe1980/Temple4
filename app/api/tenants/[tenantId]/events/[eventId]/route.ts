@@ -8,19 +8,20 @@ import { z } from 'zod';
 // 10.3 Get Single Event
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'calendar');
+    const canView = await canUserViewContent(userId, tenantId, 'calendar');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view this event.' }, { status: 403 });
     }
 
     const event = await prisma.event.findUnique({
-      where: { id: params.eventId, tenantId: params.tenantId },
+      where: { id: params.eventId, tenantId: tenantId },
     });
 
     if (!event) {
@@ -46,8 +47,9 @@ const eventUpdateSchema = z.object({
 // 10.4 Update Event
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -56,7 +58,7 @@ export async function PUT(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -74,7 +76,7 @@ export async function PUT(
 
     try {
         const updatedEvent = await prisma.event.update({
-            where: { id: params.eventId, tenantId: params.tenantId },
+            where: { id: params.eventId, tenantId: tenantId },
             data: result.data,
         });
 
@@ -88,8 +90,9 @@ export async function PUT(
 // 10.5 Delete Event
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -98,7 +101,7 @@ export async function DELETE(
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -111,7 +114,7 @@ export async function DELETE(
 
     try {
         await prisma.event.delete({
-            where: { id: params.eventId, tenantId: params.tenantId },
+            where: { id: params.eventId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });

@@ -10,18 +10,19 @@ import { ResourceVisibility, FileType } from '@prisma/client';
 // 16.1 List Resources
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
     try {
-        const membership = userId ? await getMembershipForUserInTenant(userId, params.tenantId) : null;
+        const membership = userId ? await getMembershipForUserInTenant(userId, tenantId) : null;
         const isMember = !!membership;
 
         const resources = await prisma.resourceItem.findMany({
             where: {
-                tenantId: params.tenantId,
+                tenantId: tenantId,
                 // Public resources are visible to all, members-only to members
                 visibility: isMember ? undefined : 'PUBLIC',
             },
@@ -32,7 +33,7 @@ export async function GET(
 
         return NextResponse.json(resources);
     } catch (error) {
-        console.error(`Failed to fetch resources for tenant ${params.tenantId}:`, error);
+        console.error(`Failed to fetch resources for tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to fetch resources' }, { status: 500 });
     }
 }
@@ -48,8 +49,9 @@ const resourceSchema = z.object({
 // 16.2 Upload Resource
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -63,7 +65,7 @@ export async function POST(
     }
 
     try {
-        const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId } });
+        const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
@@ -75,7 +77,7 @@ export async function POST(
 
         const newResource = await prisma.resourceItem.create({
             data: {
-                tenantId: params.tenantId,
+                tenantId: tenantId,
                 uploaderUserId: userId,
                 ...result.data,
             },
@@ -83,7 +85,7 @@ export async function POST(
 
         return NextResponse.json(newResource, { status: 201 });
     } catch (error) {
-        console.error(`Failed to upload resource for tenant ${params.tenantId}:`, error);
+        console.error(`Failed to upload resource for tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to upload resource' }, { status: 500 });
     }
 }

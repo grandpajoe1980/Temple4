@@ -7,8 +7,9 @@ import { can, canUserViewContent } from '@/lib/permissions';
 // 10.6 List Event RSVPs
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -18,7 +19,7 @@ export async function GET(
 
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -54,8 +55,9 @@ export async function GET(
 // 10.7 RSVP to an Event
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string; eventId: string } }
+  { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -65,7 +67,7 @@ export async function POST(
 
     try {
         // Check if user can view the event in the first place
-        const canView = await canUserViewContent(userId, params.tenantId, 'calendar');
+        const canView = await canUserViewContent(userId, tenantId, 'calendar');
         if (!canView) {
             return NextResponse.json({ message: 'Cannot RSVP to an event you cannot see.' }, { status: 403 });
         }

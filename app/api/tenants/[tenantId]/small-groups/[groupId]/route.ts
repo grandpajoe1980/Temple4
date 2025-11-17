@@ -8,19 +8,20 @@ import { z } from 'zod';
 // 14.3 Get Single Small Group
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; groupId: string } }
+  { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
   try {
-    const membership = await getMembershipForUserInTenant(userId, params.tenantId);
+    const membership = await getMembershipForUserInTenant(userId, tenantId);
     if (!membership) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
     const group = await prisma.smallGroup.findUnique({
-      where: { id: params.groupId, tenantId: params.tenantId },
+      where: { id: params.groupId, tenantId: tenantId },
       include: {
           members: {
               include: {
@@ -56,8 +57,9 @@ const groupUpdateSchema = z.object({
 // 14.4 Update Small Group
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; groupId: string } }
+  { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -81,7 +83,7 @@ export async function PUT(
         }
 
         const updatedGroup = await prisma.smallGroup.update({
-            where: { id: params.groupId, tenantId: params.tenantId },
+            where: { id: params.groupId, tenantId: tenantId },
             data: result.data,
         });
 
@@ -95,8 +97,9 @@ export async function PUT(
 // 14.5 Delete Small Group
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; groupId: string } }
+  { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -115,7 +118,7 @@ export async function DELETE(
         }
 
         await prisma.smallGroup.delete({
-            where: { id: params.groupId, tenantId: params.tenantId },
+            where: { id: params.groupId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });

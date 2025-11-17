@@ -8,8 +8,9 @@ import { z } from 'zod';
 // 14.1 List Small Groups
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -19,15 +20,15 @@ export async function GET(
 
   try {
     // Any member of a tenant can see the list of small groups if the feature is enabled
-    const membership = await getMembershipForUserInTenant(userId, params.tenantId);
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { settings: true } });
+    const membership = await getMembershipForUserInTenant(userId, tenantId);
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, include: { settings: true } });
 
     if (!tenant?.settings?.enableSmallGroups || !membership) {
         return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
     const groups = await prisma.smallGroup.findMany({
-      where: { tenantId: params.tenantId },
+      where: { tenantId: tenantId },
       include: {
           _count: {
               select: { members: true }
@@ -37,7 +38,7 @@ export async function GET(
 
     return NextResponse.json(groups);
   } catch (error) {
-    console.error(`Failed to fetch small groups for tenant ${params.tenantId}:`, error);
+    console.error(`Failed to fetch small groups for tenant ${tenantId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch small groups' }, { status: 500 });
   }
 }
@@ -51,8 +52,9 @@ const groupSchema = z.object({
 // 14.2 Create Small Group
 export async function POST(
   request: Request,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -61,7 +63,7 @@ export async function POST(
     }
     
     // Any member can create a small group
-    const membership = await getMembershipForUserInTenant(userId, params.tenantId);
+    const membership = await getMembershipForUserInTenant(userId, tenantId);
     if (!membership) {
         return NextResponse.json({ message: 'You must be a member of this tenant to create a group.' }, { status: 403 });
     }
@@ -75,7 +77,7 @@ export async function POST(
         const newGroup = await prisma.smallGroup.create({
             data: {
                 ...result.data,
-                tenantId: params.tenantId,
+                tenantId: tenantId,
                 // The creator automatically becomes the leader
                 members: {
                     create: {
@@ -88,7 +90,7 @@ export async function POST(
 
         return NextResponse.json(newGroup, { status: 201 });
     } catch (error) {
-        console.error(`Failed to create small group in tenant ${params.tenantId}:`, error);
+        console.error(`Failed to create small group in tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to create small group' }, { status: 500 });
     }
 }

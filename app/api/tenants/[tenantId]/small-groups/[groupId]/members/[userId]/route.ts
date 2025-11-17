@@ -6,8 +6,9 @@ import { prisma } from '@/lib/db';
 // 14.8 Remove Group Member
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; groupId: string; userId: string } }
+  { params }: { params: Promise<{ tenantId: string; groupId: string; userId: string }> }
 ) {
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const currentUserId = (session?.user as any)?.id;
 
@@ -17,7 +18,7 @@ export async function DELETE(
 
     try {
         const group = await prisma.smallGroup.findUnique({
-            where: { id: params.groupId },
+            where: { id: groupId },
             include: { members: true }
         });
 
@@ -26,7 +27,7 @@ export async function DELETE(
         }
 
         const isLeader = group.members.some((m: any) => m.userId === currentUserId && m.role === 'LEADER');
-        const isSelf = currentUserId === params.userId;
+        const isSelf = currentUserId === userId;
 
         // A user can leave a group, or a leader can remove them.
         if (!isLeader && !isSelf) {
@@ -36,15 +37,15 @@ export async function DELETE(
         await prisma.smallGroupMember.delete({
             where: {
                 userId_smallGroupId: {
-                    userId: params.userId,
-                    smallGroupId: params.groupId,
+                    userId: userId,
+                    smallGroupId: groupId,
                 }
             }
         });
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to remove member from group ${params.groupId}:`, error);
+        console.error(`Failed to remove member from group ${groupId}:`, error);
         return NextResponse.json({ message: 'Failed to remove member' }, { status: 500 });
     }
 }

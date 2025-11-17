@@ -95,7 +95,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; bookId: string }> }
 ) {
-    const { tenantId, bookId } = await params;
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 

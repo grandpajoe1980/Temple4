@@ -29,7 +29,7 @@ export async function PUT(
     }
 
     try {
-        const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId } });
+        const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
@@ -42,7 +42,7 @@ export async function PUT(
         const updatedPost = await prisma.communityPost.update({
             where: {
                 id: params.postId,
-                tenantId: params.tenantId,
+                tenantId: tenantId,
             },
             data: {
                 status: result.data.status,

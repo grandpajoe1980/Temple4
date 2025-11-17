@@ -19,7 +19,7 @@ export async function GET(
 
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -67,7 +67,7 @@ export async function POST(
 
     try {
         // Check if user can view the event in the first place
-        const canView = await canUserViewContent(userId, params.tenantId, 'calendar');
+        const canView = await canUserViewContent(userId, tenantId, 'calendar');
         if (!canView) {
             return NextResponse.json({ message: 'Cannot RSVP to an event you cannot see.' }, { status: 403 });
         }

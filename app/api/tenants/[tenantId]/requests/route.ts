@@ -19,7 +19,7 @@ export async function GET(
 
   // Check if the user has permission to view requests (ADMIN or STAFF)
   const membership = await prisma.userTenantMembership.findUnique({
-    where: { userId_tenantId: { userId, tenantId: params.tenantId } },
+    where: { userId_tenantId: { userId, tenantId: tenantId } },
     include: { roles: true },
   });
 
@@ -32,7 +32,7 @@ export async function GET(
   try {
     const requests = await prisma.userTenantMembership.findMany({
       where: {
-        tenantId: params.tenantId,
+        tenantId: tenantId,
         status: MembershipStatus.PENDING,
       },
       include: {
@@ -56,7 +56,7 @@ export async function GET(
 
     return NextResponse.json(requests);
   } catch (error) {
-    console.error(`Failed to fetch membership requests for tenant ${params.tenantId}:`, error);
+    console.error(`Failed to fetch membership requests for tenant ${tenantId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch requests' }, { status: 500 });
   }
 }

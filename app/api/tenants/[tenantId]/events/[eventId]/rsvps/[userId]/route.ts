@@ -8,7 +8,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; eventId: string; userId: string }> }
 ) {
-    const { tenantId, eventId, userId } = await params;
+    const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const currentUserId = (session?.user as any)?.id;
 
@@ -35,7 +35,7 @@ export async function DELETE(
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     // This will error if the RSVP doesn't exist, which is fine.
-    console.error(`Failed to delete RSVP for user ${params.userId} from event ${params.eventId}:`, error);
+    console.error(`Failed to delete RSVP for user ${userId} from event ${eventId}:`, error);
     return NextResponse.json({ message: 'Failed to cancel RSVP' }, { status: 500 });
   }
 }

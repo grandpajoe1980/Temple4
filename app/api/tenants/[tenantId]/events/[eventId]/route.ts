@@ -15,13 +15,13 @@ export async function GET(
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'calendar');
+    const canView = await canUserViewContent(userId, tenantId, 'calendar');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view this event.' }, { status: 403 });
     }
 
     const event = await prisma.event.findUnique({
-      where: { id: params.eventId, tenantId: params.tenantId },
+      where: { id: params.eventId, tenantId: tenantId },
     });
 
     if (!event) {
@@ -58,7 +58,7 @@ export async function PUT(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -76,7 +76,7 @@ export async function PUT(
 
     try {
         const updatedEvent = await prisma.event.update({
-            where: { id: params.eventId, tenantId: params.tenantId },
+            where: { id: params.eventId, tenantId: tenantId },
             data: result.data,
         });
 
@@ -101,7 +101,7 @@ export async function DELETE(
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -114,7 +114,7 @@ export async function DELETE(
 
     try {
         await prisma.event.delete({
-            where: { id: params.eventId, tenantId: params.tenantId },
+            where: { id: params.eventId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });

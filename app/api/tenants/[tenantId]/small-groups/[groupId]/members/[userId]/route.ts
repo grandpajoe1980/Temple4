@@ -8,7 +8,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; groupId: string; userId: string }> }
 ) {
-    const { tenantId, groupId, userId } = await params;
+    const { tenantId } = await params;
     const session = await getServerSession(authOptions);
     const currentUserId = (session?.user as any)?.id;
 

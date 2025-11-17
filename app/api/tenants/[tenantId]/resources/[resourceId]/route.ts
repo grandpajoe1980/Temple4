@@ -18,7 +18,7 @@ export async function GET(
 
     try {
         const resource = await prisma.resourceItem.findUnique({
-            where: { id: params.resourceId, tenantId: params.tenantId },
+            where: { id: params.resourceId, tenantId: tenantId },
         });
 
         if (!resource) {
@@ -26,7 +26,7 @@ export async function GET(
         }
 
         if (resource.visibility === 'MEMBERS_ONLY') {
-            const membership = await getMembershipForUserInTenant(userId, params.tenantId);
+            const membership = await getMembershipForUserInTenant(userId, tenantId);
             if (!membership) {
                 return NextResponse.json({ message: 'This resource is for members only.' }, { status: 403 });
             }
@@ -64,7 +64,7 @@ export async function PUT(
     }
 
     try {
-        const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId } });
+        const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
@@ -75,7 +75,7 @@ export async function PUT(
         }
 
         const updatedResource = await prisma.resourceItem.update({
-            where: { id: params.resourceId, tenantId: params.tenantId },
+            where: { id: params.resourceId, tenantId: tenantId },
             data: result.data,
         });
 
@@ -100,7 +100,7 @@ export async function DELETE(
     }
 
     try {
-        const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId } });
+        const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
@@ -111,7 +111,7 @@ export async function DELETE(
         }
 
         await prisma.resourceItem.delete({
-            where: { id: params.resourceId, tenantId: params.tenantId },
+            where: { id: params.resourceId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });

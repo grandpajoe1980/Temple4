@@ -15,7 +15,7 @@ export async function GET(
     const userId = (session?.user as any)?.id;
 
     try {
-        const membership = await getMembershipForUserInTenant(userId, params.tenantId);
+        const membership = await getMembershipForUserInTenant(userId, tenantId);
         if (!membership) {
             return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }

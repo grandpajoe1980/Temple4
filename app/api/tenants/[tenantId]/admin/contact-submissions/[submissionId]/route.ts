@@ -15,7 +15,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; submissionId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { tenantId, submissionId } = await params;
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 
@@ -29,7 +29,7 @@ export async function PUT(
     }
 
     try {
-        const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId } });
+        const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
@@ -40,13 +40,13 @@ export async function PUT(
         }
 
         const updatedSubmission = await prisma.contactSubmission.update({
-            where: { id: params.submissionId, tenantId: params.tenantId },
+            where: { id: submissionId, tenantId: tenantId },
             data: { status: result.data.status },
         });
 
         return NextResponse.json(updatedSubmission);
     } catch (error) {
-        console.error(`Failed to update contact submission ${params.submissionId}:`, error);
+        console.error(`Failed to update contact submission ${submissionId}:`, error);
         return NextResponse.json({ message: 'Failed to update contact submission' }, { status: 500 });
     }
 }

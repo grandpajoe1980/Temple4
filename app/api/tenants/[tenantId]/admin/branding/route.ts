@@ -20,18 +20,18 @@ export async function GET(
     }
 
     try {
-        const isAdmin = await hasRole(user.id, params.tenantId, [TenantRole.ADMIN]);
+        const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
             return NextResponse.json({ message: 'You do not have permission to view tenant branding.' }, { status: 403 });
         }
 
         const branding = await prisma.tenantBranding.findUnique({
-            where: { tenantId: params.tenantId },
+            where: { tenantId: tenantId },
         });
 
         return NextResponse.json(branding);
     } catch (error) {
-        console.error(`Failed to fetch tenant branding for tenant ${params.tenantId}:`, error);
+        console.error(`Failed to fetch tenant branding for tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to fetch tenant branding' }, { status: 500 });
     }
 }
@@ -63,19 +63,19 @@ export async function PUT(
     }
 
     try {
-        const isAdmin = await hasRole(user.id, params.tenantId, [TenantRole.ADMIN]);
+        const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
             return NextResponse.json({ message: 'You do not have permission to update tenant branding.' }, { status: 403 });
         }
 
         const updatedBranding = await prisma.tenantBranding.update({
-            where: { tenantId: params.tenantId },
+            where: { tenantId: tenantId },
             data: result.data,
         });
 
         return NextResponse.json(updatedBranding);
     } catch (error) {
-        console.error(`Failed to update tenant branding for tenant ${params.tenantId}:`, error);
+        console.error(`Failed to update tenant branding for tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to update tenant branding' }, { status: 500 });
     }
 }

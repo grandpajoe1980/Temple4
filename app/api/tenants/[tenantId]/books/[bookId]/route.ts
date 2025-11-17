@@ -15,13 +15,13 @@ export async function GET(
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'books');
+    const canView = await canUserViewContent(userId, tenantId, 'books');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view this book.' }, { status: 403 });
     }
 
     const book = await prisma.book.findUnique({
-      where: { id: params.bookId, tenantId: params.tenantId },
+      where: { id: bookId, tenantId: tenantId },
     });
 
     if (!book) {
@@ -30,7 +30,7 @@ export async function GET(
 
     return NextResponse.json(book);
   } catch (error) {
-    console.error(`Failed to fetch book ${params.bookId}:`, error);
+    console.error(`Failed to fetch book ${bookId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch book' }, { status: 500 });
   }
 }
@@ -59,7 +59,7 @@ export async function PUT(
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const tenant = await prisma.tenant.findUnique({ 
-        where: { id: params.tenantId },
+        where: { id: tenantId },
         select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true }
     });
 
@@ -79,13 +79,13 @@ export async function PUT(
 
     try {
         const updatedBook = await prisma.book.update({
-            where: { id: params.bookId, tenantId: params.tenantId },
+            where: { id: bookId, tenantId: tenantId },
             data: result.data,
         });
 
         return NextResponse.json(updatedBook);
     } catch (error) {
-        console.error(`Failed to update book ${params.bookId}:`, error);
+        console.error(`Failed to update book ${bookId}:`, error);
         return NextResponse.json({ message: 'Failed to update book' }, { status: 500 });
     }
 }
@@ -95,7 +95,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; bookId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { tenantId, bookId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -105,7 +105,7 @@ export async function DELETE(
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const tenant = await prisma.tenant.findUnique({ 
-        where: { id: params.tenantId },
+        where: { id: tenantId },
         select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true }
     });
 
@@ -120,12 +120,12 @@ export async function DELETE(
 
     try {
         await prisma.book.delete({
-            where: { id: params.bookId, tenantId: params.tenantId },
+            where: { id: bookId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete book ${params.bookId}:`, error);
+        console.error(`Failed to delete book ${bookId}:`, error);
         return NextResponse.json({ message: 'Failed to delete book' }, { status: 500 });
     }
 }

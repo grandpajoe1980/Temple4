@@ -60,14 +60,39 @@ Prior work in WORK-JOURNAL.md shows:
 - According to backend.md and projectplan.md, app uses Next.js 16 App Router
 - These files shouldn't be in the build but are causing TypeScript errors
 
-**Decision Needed:**
-Should I:
-A) Remove/rename legacy App.tsx and index.tsx (not used in Next.js App Router)
-B) Fix the TypeScript errors in these files
-C) Move them to a /legacy folder for reference
+#### 18:50 - Significant Build Progress, Type Errors Remain
+**Major Accomplishments:**
+- ✅ Fixed 25+ API route handlers for Next.js 16 async params
+- ✅ Created and ran automation scripts to fix systematic issues
+- ✅ Fixed auth imports, Tabs imports, type imports
+- ✅ Moved legacy App.tsx/index.tsx to /legacy folder
+- ✅ Fixed User type password field compatibility
+- ✅ Fixed params.X usage after destructuring (multiple iterations)
 
-**Recommendation:** Option A - Remove from app/ directory as they conflict with Next.js
-App Router which uses app/page.tsx as entry point, not App.tsx/index.tsx
+**Build Status:**
+- ✅ Turbopack compilation: SUCCESS
+- ⚠️  TypeScript type checking: IN PROGRESS (more errors remain)
+- 🔧 Working through systematic type mismatches
+
+**Known Remaining Issues:**
+- Multiple param destructuring issues in various route files
+- Need systematic approach to ensure ALL params are destructured properly
+- Type mismatches between Prisma generated types and custom types
+- Some route files need manual review and fixes
+
+**Technical Debt & Learnings:**
+- Next.js 16 breaking change (async params) requires systematic migration
+- Automated scripts help but need multiple passes
+- Type system alignment between Prisma and custom types needs architecture decision
+
+**Next Concrete Steps:**
+1. Complete remaining param destructuring fixes (manual or better script)
+2. Address remaining TypeScript type errors
+3. Get successful build
+4. Run test suite to establish baseline
+5. Create Phase A tickets
+
+**Time Investment:** ~45 minutes on systematic async params migration
 
 ### Decision Log
 

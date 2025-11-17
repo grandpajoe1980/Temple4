@@ -15,7 +15,7 @@ export async function GET(
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'sermons');
+    const canView = await canUserViewContent(userId, tenantId, 'sermons');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view this sermon.' }, { status: 403 });
     }
@@ -23,7 +23,7 @@ export async function GET(
     const sermon = await prisma.mediaItem.findFirst({
       where: { 
         id: params.sermonId, 
-        tenantId: params.tenantId,
+        tenantId: tenantId,
         type: 'SERMON_VIDEO'
       },
     });
@@ -59,7 +59,7 @@ export async function PUT(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -79,7 +79,7 @@ export async function PUT(
         const updatedSermon = await prisma.mediaItem.updateMany({
             where: { 
                 id: params.sermonId, 
-                tenantId: params.tenantId,
+                tenantId: tenantId,
                 type: 'SERMON_VIDEO'
             },
             data: result.data,
@@ -111,7 +111,7 @@ export async function DELETE(
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -126,7 +126,7 @@ export async function DELETE(
         await prisma.mediaItem.deleteMany({
             where: { 
                 id: params.sermonId, 
-                tenantId: params.tenantId,
+                tenantId: tenantId,
                 type: 'SERMON_VIDEO'
             },
         });

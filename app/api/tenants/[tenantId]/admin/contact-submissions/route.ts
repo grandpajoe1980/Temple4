@@ -18,7 +18,7 @@ export async function GET(
     }
 
     try {
-        const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId } });
+        const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
@@ -29,13 +29,13 @@ export async function GET(
         }
 
         const submissions = await prisma.contactSubmission.findMany({
-            where: { tenantId: params.tenantId },
+            where: { tenantId: tenantId },
             orderBy: { createdAt: 'desc' },
         });
 
         return NextResponse.json(submissions);
     } catch (error) {
-        console.error(`Failed to fetch contact submissions for tenant ${params.tenantId}:`, error);
+        console.error(`Failed to fetch contact submissions for tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to fetch contact submissions' }, { status: 500 });
     }
 }

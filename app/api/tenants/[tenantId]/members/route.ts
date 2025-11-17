@@ -26,11 +26,11 @@ export async function GET(
     // First, check if the requesting user has permission to view the member list
     const [requestingMembership, tenant] = await Promise.all([
         prisma.userTenantMembership.findUnique({
-            where: { userId_tenantId: { userId, tenantId: params.tenantId } },
+            where: { userId_tenantId: { userId, tenantId: tenantId } },
             include: { roles: true },
         }),
         prisma.tenant.findUnique({
-            where: { id: params.tenantId },
+            where: { id: tenantId },
             include: { settings: true },
         })
     ]);
@@ -52,7 +52,7 @@ export async function GET(
 
     const members = await prisma.userTenantMembership.findMany({
       where: {
-        tenantId: params.tenantId,
+        tenantId: tenantId,
         status: MembershipStatus.APPROVED,
       },
       include: {
@@ -77,7 +77,7 @@ export async function GET(
 
     const totalMembers = await prisma.userTenantMembership.count({
         where: {
-            tenantId: params.tenantId,
+            tenantId: tenantId,
             status: MembershipStatus.APPROVED,
         }
     });
@@ -92,7 +92,7 @@ export async function GET(
         }
     });
   } catch (error) {
-    console.error(`Failed to fetch members for tenant ${params.tenantId}:`, error);
+    console.error(`Failed to fetch members for tenant ${tenantId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch members' }, { status: 500 });
   }
 }

@@ -15,13 +15,13 @@ export async function GET(
   const userId = (session?.user as any)?.id;
 
   try {
-    const membership = await getMembershipForUserInTenant(userId, params.tenantId);
+    const membership = await getMembershipForUserInTenant(userId, tenantId);
     if (!membership) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
     const group = await prisma.smallGroup.findUnique({
-      where: { id: params.groupId, tenantId: params.tenantId },
+      where: { id: params.groupId, tenantId: tenantId },
       include: {
           members: {
               include: {
@@ -83,7 +83,7 @@ export async function PUT(
         }
 
         const updatedGroup = await prisma.smallGroup.update({
-            where: { id: params.groupId, tenantId: params.tenantId },
+            where: { id: params.groupId, tenantId: tenantId },
             data: result.data,
         });
 
@@ -118,7 +118,7 @@ export async function DELETE(
         }
 
         await prisma.smallGroup.delete({
-            where: { id: params.groupId, tenantId: params.tenantId },
+            where: { id: params.groupId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });

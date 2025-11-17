@@ -20,8 +20,11 @@ export async function GET(
       return NextResponse.json({ message: 'You do not have permission to view books.' }, { status: 403 });
     }
 
-    const books = await prisma.book.findMany({
-      where: { tenantId: resolvedParams.tenantId },
+    const books = await prisma.post.findMany({
+      where: { 
+        tenantId: resolvedParams.tenantId,
+        type: 'BOOK'
+      },
       orderBy: { title: 'asc' },
     });
 
@@ -34,10 +37,7 @@ export async function GET(
 
 const bookSchema = z.object({
     title: z.string().min(1),
-    author: z.string().min(1),
-    description: z.string().optional(),
-    coverImageUrl: z.string().url().optional(),
-    purchaseUrl: z.string().url().optional(),
+    body: z.string().min(1),
 });
 
 // 13.2 Create Book
@@ -54,7 +54,7 @@ export async function POST(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -71,10 +71,13 @@ export async function POST(
     }
 
     try {
-        const newBook = await prisma.book.create({
+        const newBook = await prisma.post.create({
             data: {
                 ...result.data,
+                type: 'BOOK',
                 tenantId: resolvedParams.tenantId,
+                authorUserId: userId,
+                isPublished: true,
             },
         });
 

@@ -37,7 +37,7 @@ export async function GET(
       },
       skip: offset,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { publishedAt: 'desc' },
     });
 
     const totalPosts = await prisma.post.count({ where: { tenantId: resolvedParams.tenantId } });

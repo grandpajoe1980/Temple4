@@ -9,19 +9,24 @@ import { z } from 'zod';
 // 13.3 Get Single Book
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; bookId: string } }
+  { params }: { params: Promise<{ tenantId: string; bookId: string }> }
 ) {
+  const resolvedParams = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'books');
+    const canView = await canUserViewContent(userId, resolvedParams.tenantId, 'books');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view this book.' }, { status: 403 });
     }
 
-    const book = await prisma.book.findUnique({
-      where: { id: params.bookId, tenantId: params.tenantId },
+    const book = await prisma.post.findFirst({
+      where: { 
+        id: resolvedParams.bookId, 
+        tenantId: resolvedParams.tenantId,
+        type: 'BOOK'
+      },
     });
 
     if (!book) {
@@ -30,24 +35,22 @@ export async function GET(
 
     return NextResponse.json(book);
   } catch (error) {
-    console.error(`Failed to fetch book ${params.bookId}:`, error);
+    console.error(`Failed to fetch book ${resolvedParams.bookId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch book' }, { status: 500 });
   }
 }
 
 const bookUpdateSchema = z.object({
     title: z.string().min(1).optional(),
-    author: z.string().min(1).optional(),
-    description: z.string().optional(),
-    coverImageUrl: z.string().url().optional(),
-    purchaseUrl: z.string().url().optional(),
+    body: z.string().optional(),
 });
 
 // 13.4 Update Book
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; bookId: string } }
+  { params }: { params: Promise<{ tenantId: string; bookId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -56,7 +59,7 @@ export async function PUT(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -73,14 +76,23 @@ export async function PUT(
     }
 
     try {
-        const updatedBook = await prisma.book.update({
-            where: { id: params.bookId, tenantId: params.tenantId },
+        const updatedBook = await prisma.post.updateMany({
+            where: { 
+              id: resolvedParams.bookId, 
+              tenantId: resolvedParams.tenantId,
+              type: 'BOOK'
+            },
             data: result.data,
         });
 
-        return NextResponse.json(updatedBook);
+        if (updatedBook.count === 0) {
+            return NextResponse.json({ message: 'Book not found' }, { status: 404 });
+        }
+
+        const book = await prisma.post.findUnique({ where: { id: resolvedParams.bookId } });
+        return NextResponse.json(book);
     } catch (error) {
-        console.error(`Failed to update book ${params.bookId}:`, error);
+        console.error(`Failed to update book ${resolvedParams.bookId}:`, error);
         return NextResponse.json({ message: 'Failed to update book' }, { status: 500 });
     }
 }
@@ -88,8 +100,9 @@ export async function PUT(
 // 13.5 Delete Book
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; bookId: string } }
+  { params }: { params: Promise<{ tenantId: string; bookId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -98,7 +111,7 @@ export async function DELETE(
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -110,13 +123,25 @@ export async function DELETE(
     }
 
     try {
-        await prisma.book.delete({
-            where: { id: params.bookId, tenantId: params.tenantId },
+        const book = await prisma.post.findFirst({
+            where: { 
+              id: resolvedParams.bookId, 
+              tenantId: resolvedParams.tenantId,
+              type: 'BOOK'
+            },
+        });
+        
+        if (!book) {
+            return NextResponse.json({ message: 'Book not found' }, { status: 404 });
+        }
+
+        await prisma.post.delete({
+            where: { id: resolvedParams.bookId },
         });
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete book ${params.bookId}:`, error);
+        console.error(`Failed to delete book ${resolvedParams.bookId}:`, error);
         return NextResponse.json({ message: 'Failed to delete book' }, { status: 500 });
     }
 }

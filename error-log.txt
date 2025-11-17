@@ -1,0 +1,212 @@
+
+[2025-11-17T15:10:22.098Z] GET /posts error:
+
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].post.findMany()` invocation in
+/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/[root-of-the-server]__2f3d1d9a._.js:427:152
+
+  424         status: 403
+  425     });
+  426 }
+→ 427 const posts = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].post.findMany({
+        where: {
+          tenantId: "cmi37u3nv0014v7hczfrcrleo"
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              profile: true
+            }
+          }
+        },
+        skip: 0,
+        take: 10,
+        orderBy: {
+          createdAt: "desc",
+          ~~~~~~~~~
+      ?   id?: SortOrder,
+      ?   tenantId?: SortOrder,
+      ?   authorUserId?: SortOrder,
+      ?   type?: SortOrder,
+      ?   title?: SortOrder,
+      ?   body?: SortOrder,
+      ?   isPublished?: SortOrder,
+      ?   publishedAt?: SortOrder,
+      ?   deletedAt?: SortOrder | SortOrderInput,
+      ?   tenant?: TenantOrderByWithRelationInput,
+      ?   author?: UserOrderByWithRelationInput
+        }
+      })
+
+Unknown argument `createdAt`. Available options are marked with ?.
+PrismaClientValidationError: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].post.findMany()` invocation in
+/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/[root-of-the-server]__2f3d1d9a._.js:427:152
+
+  424         status: 403
+  425     });
+  426 }
+→ 427 const posts = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].post.findMany({
+        where: {
+          tenantId: "cmi37u3nv0014v7hczfrcrleo"
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              profile: true
+            }
+          }
+        },
+        skip: 0,
+        take: 10,
+        orderBy: {
+          createdAt: "desc",
+          ~~~~~~~~~
+      ?   id?: SortOrder,
+      ?   tenantId?: SortOrder,
+      ?   authorUserId?: SortOrder,
+      ?   type?: SortOrder,
+      ?   title?: SortOrder,
+      ?   body?: SortOrder,
+      ?   isPublished?: SortOrder,
+      ?   publishedAt?: SortOrder,
+      ?   deletedAt?: SortOrder | SortOrderInput,
+      ?   tenant?: TenantOrderByWithRelationInput,
+      ?   author?: UserOrderByWithRelationInput
+        }
+      })
+
+Unknown argument `createdAt`. Available options are marked with ?.
+    at Nn (/home/runner/work/Temple4/Temple4/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at ei.handleRequestError (/home/runner/work/Temple4/Temple4/node_modules/@prisma/client/runtime/library.js:121:6911)
+    at ei.handleAndLogRequestError (/home/runner/work/Temple4/Temple4/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/home/runner/work/Temple4/Temple4/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/home/runner/work/Temple4/Temple4/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async GET (/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/[root-of-the-server]__2f3d1d9a._.js:427:23)
+    at async AppRouteRouteModule.do (/home/runner/work/Temple4/Temple4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37789)
+    at async AppRouteRouteModule.handle (/home/runner/work/Temple4/Temple4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:45045)
+    at async responseGenerator (/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/node_modules_next_a9fe3965._.js:15485:38)
+    at async AppRouteRouteModule.handleResponse (/home/runner/work/Temple4/Temple4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:1:187851)
+    at async handleResponse (/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/node_modules_next_a9fe3965._.js:15547:32)
+    at async handler (/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/node_modules_next_a9fe3965._.js:15600:13)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1413:9)
+    at async DevServer.renderPageComponent (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1465:24)
+    at async DevServer.renderToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1515:32)
+    at async DevServer.pipeImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1021:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/next-server.js:394:17)
+    at async DevServer.handleRequestImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:912:17)
+    at async /home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:382:20
+    at async Span.traceAsyncFn (/home/runner/work/Temple4/Temple4/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:378:24)
+    at async invokeRender (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/router-server.js:240:21)
+    at async handleRequest (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/router-server.js:436:24)
+    at async requestHandlerImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/router-server.js:484:13)
+    at async Server.requestListener (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/start-server.js:226:13)
+
+
+[2025-11-17T15:10:32.794Z] GET /posts error:
+
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].post.findMany()` invocation in
+/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/[root-of-the-server]__2f3d1d9a._.js:427:152
+
+  424         status: 403
+  425     });
+  426 }
+→ 427 const posts = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].post.findMany({
+        where: {
+          tenantId: "cmi37u3nv0014v7hczfrcrleo"
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              profile: true
+            }
+          }
+        },
+        skip: 0,
+        take: 10,
+        orderBy: {
+          createdAt: "desc",
+          ~~~~~~~~~
+      ?   id?: SortOrder,
+      ?   tenantId?: SortOrder,
+      ?   authorUserId?: SortOrder,
+      ?   type?: SortOrder,
+      ?   title?: SortOrder,
+      ?   body?: SortOrder,
+      ?   isPublished?: SortOrder,
+      ?   publishedAt?: SortOrder,
+      ?   deletedAt?: SortOrder | SortOrderInput,
+      ?   tenant?: TenantOrderByWithRelationInput,
+      ?   author?: UserOrderByWithRelationInput
+        }
+      })
+
+Unknown argument `createdAt`. Available options are marked with ?.
+PrismaClientValidationError: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].post.findMany()` invocation in
+/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/[root-of-the-server]__2f3d1d9a._.js:427:152
+
+  424         status: 403
+  425     });
+  426 }
+→ 427 const posts = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].post.findMany({
+        where: {
+          tenantId: "cmi37u3nv0014v7hczfrcrleo"
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              profile: true
+            }
+          }
+        },
+        skip: 0,
+        take: 10,
+        orderBy: {
+          createdAt: "desc",
+          ~~~~~~~~~
+      ?   id?: SortOrder,
+      ?   tenantId?: SortOrder,
+      ?   authorUserId?: SortOrder,
+      ?   type?: SortOrder,
+      ?   title?: SortOrder,
+      ?   body?: SortOrder,
+      ?   isPublished?: SortOrder,
+      ?   publishedAt?: SortOrder,
+      ?   deletedAt?: SortOrder | SortOrderInput,
+      ?   tenant?: TenantOrderByWithRelationInput,
+      ?   author?: UserOrderByWithRelationInput
+        }
+      })
+
+Unknown argument `createdAt`. Available options are marked with ?.
+    at Nn (/home/runner/work/Temple4/Temple4/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at ei.handleRequestError (/home/runner/work/Temple4/Temple4/node_modules/@prisma/client/runtime/library.js:121:6911)
+    at ei.handleAndLogRequestError (/home/runner/work/Temple4/Temple4/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/home/runner/work/Temple4/Temple4/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/home/runner/work/Temple4/Temple4/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async GET (/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/[root-of-the-server]__2f3d1d9a._.js:427:23)
+    at async AppRouteRouteModule.do (/home/runner/work/Temple4/Temple4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37789)
+    at async AppRouteRouteModule.handle (/home/runner/work/Temple4/Temple4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:45045)
+    at async responseGenerator (/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/node_modules_next_a9fe3965._.js:15485:38)
+    at async AppRouteRouteModule.handleResponse (/home/runner/work/Temple4/Temple4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:1:187851)
+    at async handleResponse (/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/node_modules_next_a9fe3965._.js:15547:32)
+    at async handler (/home/runner/work/Temple4/Temple4/.next/dev/server/chunks/node_modules_next_a9fe3965._.js:15600:13)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1413:9)
+    at async DevServer.renderPageComponent (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1465:24)
+    at async DevServer.renderToResponseImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1515:32)
+    at async DevServer.pipeImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:1021:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/next-server.js:394:17)
+    at async DevServer.handleRequestImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/base-server.js:912:17)
+    at async /home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:382:20
+    at async Span.traceAsyncFn (/home/runner/work/Temple4/Temple4/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/dev/next-dev-server.js:378:24)
+    at async invokeRender (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/router-server.js:240:21)
+    at async handleRequest (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/router-server.js:436:24)
+    at async requestHandlerImpl (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/router-server.js:484:13)
+    at async Server.requestListener (/home/runner/work/Temple4/Temple4/node_modules/next/dist/server/lib/start-server.js:226:13)
+

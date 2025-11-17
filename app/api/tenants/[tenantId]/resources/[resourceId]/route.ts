@@ -12,13 +12,13 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; resourceId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { resourceId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
     try {
         const resource = await prisma.resourceItem.findUnique({
-            where: { id: params.resourceId, tenantId: tenantId },
+            where: { id: resourceId, tenantId: tenantId },
         });
 
         if (!resource) {
@@ -34,7 +34,7 @@ export async function GET(
 
         return NextResponse.json(resource);
     } catch (error) {
-        console.error(`Failed to fetch resource ${params.resourceId}:`, error);
+        console.error(`Failed to fetch resource ${resourceId}:`, error);
         return NextResponse.json({ message: 'Failed to fetch resource' }, { status: 500 });
     }
 }
@@ -50,7 +50,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; resourceId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { resourceId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -75,13 +75,13 @@ export async function PUT(
         }
 
         const updatedResource = await prisma.resourceItem.update({
-            where: { id: params.resourceId, tenantId: tenantId },
+            where: { id: resourceId, tenantId: tenantId },
             data: result.data,
         });
 
         return NextResponse.json(updatedResource);
     } catch (error) {
-        console.error(`Failed to update resource ${params.resourceId}:`, error);
+        console.error(`Failed to update resource ${resourceId}:`, error);
         return NextResponse.json({ message: 'Failed to update resource' }, { status: 500 });
     }
 }
@@ -91,7 +91,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; resourceId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { resourceId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -111,12 +111,12 @@ export async function DELETE(
         }
 
         await prisma.resourceItem.delete({
-            where: { id: params.resourceId, tenantId: tenantId },
+            where: { id: resourceId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete resource ${params.resourceId}:`, error);
+        console.error(`Failed to delete resource ${resourceId}:`, error);
         return NextResponse.json({ message: 'Failed to delete resource' }, { status: 500 });
     }
 }

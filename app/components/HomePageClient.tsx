@@ -4,12 +4,11 @@ import { useRouter } from 'next/navigation';
 import LandingPage from './landing/LandingPage';
 import TenantSelector from './tenant/TenantSelector';
 import { Session } from 'next-auth';
-import { Tenant } from '@prisma/client';
 
 interface HomePageClientProps {
   session: Session | null;
-  tenants: Tenant[];
-  allTenants: Tenant[];
+  tenants: any[];
+  allTenants: any[];
 }
 
 export default function HomePageClient({ session, tenants, allTenants }: HomePageClientProps) {

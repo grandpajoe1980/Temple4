@@ -15,7 +15,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; submissionId: string }> }
 ) {
-    const { tenantId, submissionId } = await params;
+    const { submissionId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const user = session?.user as any;
 

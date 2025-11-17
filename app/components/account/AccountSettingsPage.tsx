@@ -25,7 +25,10 @@ const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user, onBack,
   const renderTabContent = () => {
     switch (activeTab) {
       case 'Profile':
-        return <ProfileSettingsTab user={user} onRefresh={onRefresh} />;
+        return <ProfileSettingsTab profile={user.profile} onUpdate={(profile) => {
+          // Update user profile and call onRefresh
+          onRefresh();
+        }} />;
       case 'Privacy':
         return <PrivacySettingsTab user={user} onRefresh={onRefresh} />;
       case 'My Memberships':

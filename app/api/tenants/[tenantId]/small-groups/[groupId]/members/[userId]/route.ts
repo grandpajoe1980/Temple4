@@ -8,7 +8,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; groupId: string; userId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { groupId, tenantId, userId } = await params;
     const session = await getServerSession(authOptions);
     const currentUserId = (session?.user as any)?.id;
 
@@ -34,11 +34,11 @@ export async function DELETE(
             return NextResponse.json({ message: 'You can only remove yourself from the group.' }, { status: 403 });
         }
 
-        await prisma.smallGroupMember.delete({
+        await prisma.smallGroupMembership.delete({
             where: {
-                userId_smallGroupId: {
+                groupId_userId: {
+                    groupId: groupId,
                     userId: userId,
-                    smallGroupId: groupId,
                 }
             }
         });

@@ -10,7 +10,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; sermonId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { sermonId, tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -22,7 +22,7 @@ export async function GET(
 
     const sermon = await prisma.mediaItem.findFirst({
       where: { 
-        id: params.sermonId, 
+        id: sermonId, 
         tenantId: tenantId,
         type: 'SERMON_VIDEO'
       },
@@ -34,7 +34,7 @@ export async function GET(
 
     return NextResponse.json(sermon);
   } catch (error) {
-    console.error(`Failed to fetch sermon ${params.sermonId}:`, error);
+    console.error(`Failed to fetch sermon ${sermonId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch sermon' }, { status: 500 });
   }
 }
@@ -50,7 +50,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; sermonId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { sermonId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -78,7 +78,7 @@ export async function PUT(
     try {
         const updatedSermon = await prisma.mediaItem.updateMany({
             where: { 
-                id: params.sermonId, 
+                id: sermonId, 
                 tenantId: tenantId,
                 type: 'SERMON_VIDEO'
             },
@@ -89,10 +89,10 @@ export async function PUT(
             return NextResponse.json({ message: 'Sermon not found' }, { status: 404 });
         }
 
-        const sermon = await prisma.mediaItem.findUnique({ where: { id: params.sermonId } });
+        const sermon = await prisma.mediaItem.findUnique({ where: { id: sermonId } });
         return NextResponse.json(sermon);
     } catch (error) {
-        console.error(`Failed to update sermon ${params.sermonId}:`, error);
+        console.error(`Failed to update sermon ${sermonId}:`, error);
         return NextResponse.json({ message: 'Failed to update sermon' }, { status: 500 });
     }
 }
@@ -102,7 +102,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; sermonId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { sermonId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -125,7 +125,7 @@ export async function DELETE(
     try {
         await prisma.mediaItem.deleteMany({
             where: { 
-                id: params.sermonId, 
+                id: sermonId, 
                 tenantId: tenantId,
                 type: 'SERMON_VIDEO'
             },
@@ -133,7 +133,7 @@ export async function DELETE(
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete sermon ${params.sermonId}:`, error);
+        console.error(`Failed to delete sermon ${sermonId}:`, error);
         return NextResponse.json({ message: 'Failed to delete sermon' }, { status: 500 });
     }
 }

@@ -23,7 +23,9 @@ export async function GET(
     include: { roles: true },
   });
 
-  const hasPermission = membership?.roles.some(role => [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR].includes(role.role));
+  const hasPermission = membership?.roles.some(role => 
+    ([TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR] as TenantRole[]).includes(role.role)
+  );
 
   if (!hasPermission) {
     return NextResponse.json({ message: 'Forbidden' }, { status: 403 });

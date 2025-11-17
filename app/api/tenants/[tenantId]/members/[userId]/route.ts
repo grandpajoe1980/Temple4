@@ -14,7 +14,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; userId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { tenantId, userId } = await params;
     const session = await getServerSession(authOptions);
     const currentUserId = (session?.user as any)?.id;
 
@@ -35,7 +35,7 @@ export async function PUT(
     }
 
     // Prevent user from changing their own role
-    if (currentUserId === params.userId) {
+    if (currentUserId === userId) {
         return NextResponse.json({ message: 'Admins cannot change their own role.' }, { status: 400 });
     }
 
@@ -46,7 +46,7 @@ export async function PUT(
 
     try {
         const membership = await prisma.userTenantMembership.findUnique({
-            where: { userId_tenantId: { userId: params.userId, tenantId: tenantId } },
+            where: { userId_tenantId: { userId: userId, tenantId: tenantId } },
         });
 
         if (!membership) {
@@ -61,7 +61,7 @@ export async function PUT(
         });
 
         const updatedMembership = await prisma.userTenantMembership.update({
-            where: { userId_tenantId: { userId: params.userId, tenantId: tenantId } },
+            where: { userId_tenantId: { userId: userId, tenantId: tenantId } },
             data: {
                 roles: {
                     create: result.data.roles.map(role => ({
@@ -76,7 +76,7 @@ export async function PUT(
 
         return NextResponse.json(updatedMembership);
     } catch (error) {
-        console.error(`Failed to update role for user ${params.userId} in tenant ${tenantId}:`, error);
+        console.error(`Failed to update role for user ${userId} in tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to update role' }, { status: 500 });
     }
 }
@@ -86,7 +86,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; userId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { tenantId, userId } = await params;
     const session = await getServerSession(authOptions);
     const currentUserId = (session?.user as any)?.id;
 
@@ -107,13 +107,13 @@ export async function DELETE(
     }
 
     // Prevent user from removing themselves
-    if (currentUserId === params.userId) {
+    if (currentUserId === userId) {
         return NextResponse.json({ message: 'Admins cannot remove themselves.' }, { status: 400 });
     }
 
     try {
         const membership = await prisma.userTenantMembership.findUnique({
-            where: { userId_tenantId: { userId: params.userId, tenantId: tenantId } },
+            where: { userId_tenantId: { userId: userId, tenantId: tenantId } },
         });
 
         if (!membership) {
@@ -122,11 +122,11 @@ export async function DELETE(
 
         await prisma.userTenantRole.deleteMany({ where: { membershipId: membership.id } });
         await prisma.userTenantMembership.delete({
-            where: { userId_tenantId: { userId: params.userId, tenantId: tenantId } },
+            where: { userId_tenantId: { userId: userId, tenantId: tenantId } },
         });
         return new NextResponse(null, { status: 204 }); // No Content
     } catch (error) {
-        console.error(`Failed to remove user ${params.userId} from tenant ${tenantId}:`, error);
+        console.error(`Failed to remove user ${userId} from tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to remove member' }, { status: 500 });
     }
 }

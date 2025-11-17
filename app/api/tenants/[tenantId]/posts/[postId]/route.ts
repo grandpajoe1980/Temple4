@@ -11,7 +11,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; postId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { postId, tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -22,7 +22,7 @@ export async function GET(
     }
 
     const post = await prisma.post.findUnique({
-      where: { id: params.postId, tenantId: tenantId },
+      where: { id: postId, tenantId: tenantId },
       include: {
         author: {
           select: {
@@ -39,7 +39,7 @@ export async function GET(
 
     return NextResponse.json(post);
   } catch (error) {
-    console.error(`Failed to fetch post ${params.postId}:`, error);
+    console.error(`Failed to fetch post ${postId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch post' }, { status: 500 });
   }
 }
@@ -55,7 +55,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; postId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { postId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -69,7 +69,7 @@ export async function PUT(
     }
 
     try {
-        const post = await prisma.post.findUnique({ where: { id: params.postId } });
+        const post = await prisma.post.findUnique({ where: { id: postId } });
         if (!post || post.tenantId !== tenantId) {
             return NextResponse.json({ message: 'Post not found' }, { status: 404 });
         }
@@ -89,13 +89,13 @@ export async function PUT(
         }
 
         const updatedPost = await prisma.post.update({
-            where: { id: params.postId },
+            where: { id: postId },
             data: result.data,
         });
 
         return NextResponse.json(updatedPost);
     } catch (error) {
-        console.error(`Failed to update post ${params.postId}:`, error);
+        console.error(`Failed to update post ${postId}:`, error);
         return NextResponse.json({ message: 'Failed to update post' }, { status: 500 });
     }
 }
@@ -105,7 +105,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; postId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { postId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -114,7 +114,7 @@ export async function DELETE(
     }
 
     try {
-        const post = await prisma.post.findUnique({ where: { id: params.postId } });
+        const post = await prisma.post.findUnique({ where: { id: postId } });
         if (!post || post.tenantId !== tenantId) {
             return NextResponse.json({ message: 'Post not found' }, { status: 404 });
         }
@@ -134,12 +134,12 @@ export async function DELETE(
         }
 
         await prisma.post.delete({
-            where: { id: params.postId },
+            where: { id: postId },
         });
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete post ${params.postId}:`, error);
+        console.error(`Failed to delete post ${postId}:`, error);
         return NextResponse.json({ message: 'Failed to delete post' }, { status: 500 });
     }
 }

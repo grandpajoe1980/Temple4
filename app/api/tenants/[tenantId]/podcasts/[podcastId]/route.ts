@@ -10,7 +10,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { podcastId, tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const podcast = await prisma.podcast.findUnique({
-      where: { id: params.podcastId, tenantId: tenantId },
+      where: { id: podcastId, tenantId: tenantId },
     });
 
     if (!podcast) {
@@ -30,7 +30,7 @@ export async function GET(
 
     return NextResponse.json(podcast);
   } catch (error) {
-    console.error(`Failed to fetch podcast ${params.podcastId}:`, error);
+    console.error(`Failed to fetch podcast ${podcastId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch podcast' }, { status: 500 });
   }
 }
@@ -48,7 +48,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { podcastId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -75,13 +75,13 @@ export async function PUT(
 
     try {
         const updatedPodcast = await prisma.podcast.update({
-            where: { id: params.podcastId, tenantId: tenantId },
+            where: { id: podcastId, tenantId: tenantId },
             data: result.data,
         });
 
         return NextResponse.json(updatedPodcast);
     } catch (error) {
-        console.error(`Failed to update podcast ${params.podcastId}:`, error);
+        console.error(`Failed to update podcast ${podcastId}:`, error);
         return NextResponse.json({ message: 'Failed to update podcast' }, { status: 500 });
     }
 }
@@ -91,7 +91,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { podcastId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -113,12 +113,12 @@ export async function DELETE(
 
     try {
         await prisma.podcast.delete({
-            where: { id: params.podcastId, tenantId: tenantId },
+            where: { id: podcastId, tenantId: tenantId },
         });
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete podcast ${params.podcastId}:`, error);
+        console.error(`Failed to delete podcast ${podcastId}:`, error);
         return NextResponse.json({ message: 'Failed to delete podcast' }, { status: 500 });
     }
 }

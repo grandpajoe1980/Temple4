@@ -9,7 +9,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { eventId, tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
@@ -26,7 +26,7 @@ export async function GET(
     }
 
     // Only event creators or admins/staff can see the full RSVP list
-    const event = await prisma.event.findUnique({ where: { id: params.eventId } });
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
     const canManage = await can(user, tenant, 'canCreateEvents'); // Assuming this permission level
     
     if (event?.createdByUserId !== userId && !canManage) {
@@ -34,7 +34,7 @@ export async function GET(
     }
 
     const rsvps = await prisma.eventRSVP.findMany({
-      where: { eventId: params.eventId },
+      where: { eventId: eventId },
       include: {
         user: {
           select: {
@@ -47,7 +47,7 @@ export async function GET(
 
     return NextResponse.json(rsvps);
   } catch (error) {
-    console.error(`Failed to fetch RSVPs for event ${params.eventId}:`, error);
+    console.error(`Failed to fetch RSVPs for event ${eventId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch RSVPs' }, { status: 500 });
   }
 }
@@ -57,7 +57,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
-    const { tenantId } = await params;
+    const { eventId, tenantId } = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -74,7 +74,7 @@ export async function POST(
 
         // Check if user is already RSVP'd
         const existingRsvp = await prisma.eventRSVP.findUnique({
-            where: { userId_eventId: { userId, eventId: params.eventId } }
+            where: { userId_eventId: { userId, eventId: eventId } }
         });
 
         if (existingRsvp) {
@@ -84,13 +84,13 @@ export async function POST(
         const newRsvp = await prisma.eventRSVP.create({
             data: {
                 userId,
-                eventId: params.eventId,
+                eventId: eventId,
             },
         });
 
         return NextResponse.json(newRsvp, { status: 201 });
     } catch (error) {
-        console.error(`Failed to RSVP to event ${params.eventId}:`, error);
+        console.error(`Failed to RSVP to event ${eventId}:`, error);
         return NextResponse.json({ message: 'Failed to RSVP to event' }, { status: 500 });
     }
 }

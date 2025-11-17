@@ -2,30 +2,29 @@
 
 import React, { useState } from 'react';
 import type { Tenant, User, PostInput, PostWithAuthor } from '@/types';
-import { getPostsForTenant, addPost } from '@/lib/data';
+import { addPost } from '@/lib/data';
 import Button from '../ui/Button';
 import PostCard from './PostCard';
-import { can } from '@/lib/permissions';
 import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 
 interface PostsPageProps {
   tenant: Tenant;
   user: User;
+  posts: PostWithAuthor[];
+  canCreate: boolean;
 }
 
-const PostsPage: React.FC<PostsPageProps> = ({ tenant, user }) => {
-  const [posts, setPosts] = useState<PostWithAuthor[]>(() => getPostsForTenant(tenant.id));
+const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts, canCreate }) => {
+  const [posts, setPosts] = useState<PostWithAuthor[]>(initialPosts);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const canCreate = can(user, tenant, 'canCreatePosts');
 
-  const handleCreatePost = (postData: PostInput) => {
-    addPost({
+  const handleCreatePost = async (postData: PostInput) => {
+    await addPost(tenant.id, {
       ...postData,
-      tenantId: tenant.id,
       authorUserId: user.id,
     });
-    setPosts(getPostsForTenant(tenant.id)); // Re-fetch to get the latest list with the new post
+    // TODO: Refetch or optimistically update
     setIsModalOpen(false);
   };
 

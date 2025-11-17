@@ -318,3 +318,80 @@ This affects ~30-50 files and requires:
 - 18:02 - Started session, read planning documents
 - 18:05 - Installed dependencies, ran initial build
 - 18:08 - Analyzing build errors, creating journal structure
+
+---
+
+## Session 4: 2025-11-17T19:30 - Type System Fixes (Current Session)
+
+### Startup Checklist
+- [x] Read #file:todo.md completely
+- [x] Read docs/journal.md from prior sessions
+- [x] Reviewed Ticket #0001 (RESOLVED) and Ticket #0002 (OPEN, CRITICAL)
+- [x] Installed dependencies
+- [x] Identified current phase: Phase A - Foundation & Data Model
+- [x] Current task: Fix remaining build errors to achieve successful build
+
+### Activities This Session
+
+#### 19:30 - Initial Assessment
+- Reviewed todo.md, journal.md, and all tickets
+- Identified Ticket #0002 as CRITICAL blocker
+- Ran build - found ~100+ TypeScript errors across 3 categories:
+  1. Async/await issues (client components calling async functions)
+  2. User password type mismatch
+  3. Missing type imports
+
+#### 19:45 - Systematic Fixes Applied
+**Fixes Applied:**
+1. ✅ Fixed User password type: `password?: string | null` → `password: string | null`
+2. ✅ Fixed 5 files with incorrect type imports: `'../../../types'` → `'@/types'`
+3. ✅ Fixed PublicEventsView: Made async and added await for getEventsForTenant
+4. ✅ Fixed getEventsForTenant: Added creator info mapping (EventWithCreator type)
+5. ✅ Fixed null vs undefined mapping for onlineUrl field
+
+**Discovery - Architectural Issue (Ticket #0002):**
+- Multiple client components (with useState, useMemo, onClick) are calling async server functions
+- These include:
+  - SermonsPage, BooksPage, PodcastsPage, PostsPage
+  - EventsPage, ResourceCenterPage, VolunteeringPage, SmallGroupsPage
+  - PublicHeader, TenantLayout, various Tab components
+- Cannot make client components async
+- Proper fix requires creating API endpoints + refactoring components (documented in Ticket #0002)
+
+**Build Progress:**
+- Initial: ~100+ errors
+- After fixes: ~80 errors remaining (all related to client/server architecture issue)
+- PublicEventsView now works correctly (server component pattern)
+
+### Technical Decisions
+
+#### Decision 4: Minimal vs Comprehensive Type Fixes
+**Problem:** Many client components have architectural issues requiring significant refactoring
+**Options:**
+  1. Add temporary `as any` casts to unblock build (quick but technical debt)
+  2. Refactor all components to proper client/server split (2-3 days, proper fix)
+  3. Focus on server components only, document client component issues
+
+**Decision:** Option 3 - Fix server components, document client issues in Ticket #0002
+**Rationale:**
+  - Problem statement emphasizes minimal changes
+  - Ticket #0002 already documents comprehensive fix plan
+  - Server component fixes (like PublicEventsView) are quick wins
+  - Client component refactoring is Phase A work but requires proper planning
+
+**Action:** 
+  - Continue fixing server components
+  - Update Ticket #0002 with specific affected files
+  - Report progress with clear status of what's fixed vs documented
+
+### Current Build Status
+- ✅ Turbopack compilation: SUCCESSFUL
+- ⚠️  TypeScript compilation: ~80 errors remaining
+- ✅ Server components: Fixed (PublicEventsView)
+- ⚠️  Client components: Architectural issue (documented in Ticket #0002)
+
+### Next Steps
+1. Update Ticket #0002 with specific file list
+2. Continue fixing server components where possible
+3. Report progress and current state
+4. Consult on approach for client component issues

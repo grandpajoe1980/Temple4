@@ -78,11 +78,25 @@ export async function getTenants(): Promise<Tenant[]> {
     })) as Tenant[];
 }
 
-export async function getEventsForTenant(tenantId: string): Promise<Event[]> {
-  return await prisma.event.findMany({
+export async function getEventsForTenant(tenantId: string) {
+  const events = await prisma.event.findMany({
     where: { tenantId },
     orderBy: { startDateTime: 'asc' },
+    include: {
+      createdBy: {
+        include: {
+          profile: true,
+        }
+      }
+    }
   });
+  
+  return events.map(event => ({
+    ...event,
+    onlineUrl: event.onlineUrl || undefined,
+    creatorDisplayName: event.createdBy.profile?.displayName || event.createdBy.email,
+    creatorAvatarUrl: event.createdBy.profile?.avatarUrl || undefined,
+  }));
 }
 
 export async function getPostsForTenant(tenantId: string): Promise<Post[]> {

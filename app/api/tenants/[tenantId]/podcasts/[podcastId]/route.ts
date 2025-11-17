@@ -1,28 +1,32 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
 
 // 12.3 Get Single Podcast
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; podcastId: string } }
+  { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
+  const resolvedParams = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'podcasts');
+    const canView = await canUserViewContent(userId, resolvedParams.tenantId, 'podcasts');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view this podcast.' }, { status: 403 });
     }
 
-    const podcast = await prisma.podcast.findUnique({
-      where: { id: params.podcastId, tenantId: params.tenantId },
+    const podcast = await prisma.mediaItem.findFirst({
+      where: { 
+        id: resolvedParams.podcastId, 
+        tenantId: resolvedParams.tenantId,
+        type: 'PODCAST_AUDIO'
+      },
     });
 
     if (!podcast) {
@@ -31,7 +35,7 @@ export async function GET(
 
     return NextResponse.json(podcast);
   } catch (error) {
-    console.error(`Failed to fetch podcast ${params.podcastId}:`, error);
+    console.error(`Failed to fetch podcast ${resolvedParams.podcastId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch podcast' }, { status: 500 });
   }
 }
@@ -39,16 +43,15 @@ export async function GET(
 const podcastUpdateSchema = z.object({
     title: z.string().min(1).optional(),
     description: z.string().optional(),
-    audioUrl: z.string().url().optional(),
-    publishedDate: z.string().datetime().optional(),
-    series: z.string().optional(),
+    embedUrl: z.string().url().optional(),
 });
 
 // 12.4 Update Podcast
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; podcastId: string } }
+  { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -57,7 +60,7 @@ export async function PUT(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -74,14 +77,23 @@ export async function PUT(
     }
 
     try {
-        const updatedPodcast = await prisma.podcast.update({
-            where: { id: params.podcastId, tenantId: params.tenantId },
+        const updatedPodcast = await prisma.mediaItem.updateMany({
+            where: { 
+              id: resolvedParams.podcastId, 
+              tenantId: resolvedParams.tenantId,
+              type: 'PODCAST_AUDIO'
+            },
             data: result.data,
         });
 
-        return NextResponse.json(updatedPodcast);
+        if (updatedPodcast.count === 0) {
+            return NextResponse.json({ message: 'Podcast not found' }, { status: 404 });
+        }
+
+        const podcast = await prisma.mediaItem.findUnique({ where: { id: resolvedParams.podcastId } });
+        return NextResponse.json(podcast);
     } catch (error) {
-        console.error(`Failed to update podcast ${params.podcastId}:`, error);
+        console.error(`Failed to update podcast ${resolvedParams.podcastId}:`, error);
         return NextResponse.json({ message: 'Failed to update podcast' }, { status: 500 });
     }
 }
@@ -89,8 +101,9 @@ export async function PUT(
 // 12.5 Delete Podcast
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; podcastId: string } }
+  { params }: { params: Promise<{ tenantId: string; podcastId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -99,7 +112,7 @@ export async function DELETE(
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -111,13 +124,25 @@ export async function DELETE(
     }
 
     try {
-        await prisma.podcast.delete({
-            where: { id: params.podcastId, tenantId: params.tenantId },
+        const podcast = await prisma.mediaItem.findFirst({
+            where: { 
+              id: resolvedParams.podcastId, 
+              tenantId: resolvedParams.tenantId,
+              type: 'PODCAST_AUDIO'
+            },
+        });
+        
+        if (!podcast) {
+            return NextResponse.json({ message: 'Podcast not found' }, { status: 404 });
+        }
+
+        await prisma.mediaItem.delete({
+            where: { id: resolvedParams.podcastId },
         });
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete podcast ${params.podcastId}:`, error);
+        console.error(`Failed to delete podcast ${resolvedParams.podcastId}:`, error);
         return NextResponse.json({ message: 'Failed to delete podcast' }, { status: 500 });
     }
 }

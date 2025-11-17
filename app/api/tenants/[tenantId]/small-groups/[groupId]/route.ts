@@ -2,10 +2,10 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { PrismaClient, SmallGroupMember } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { getMembershipForUserInTenant } from '@/lib/data';
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
 
 // 14.3 Get Single Small Group
 export async function GET(

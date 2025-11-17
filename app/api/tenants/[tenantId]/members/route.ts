@@ -1,10 +1,9 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { getMembershipForUserInTenant } from '@/lib/data';
 
-const prisma = new PrismaClient();
 
 // 8.1 List Members
 export async function GET(

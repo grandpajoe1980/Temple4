@@ -28,13 +28,13 @@ export async function GET(
       where: {
         tenantId: resolvedParams.tenantId,
         ...(from && to && {
-            startTime: {
+            startDateTime: {
                 gte: new Date(from),
                 lte: new Date(to),
             },
         }),
       },
-      orderBy: { startTime: 'asc' },
+      orderBy: { startDateTime: 'asc' },
     });
 
     return NextResponse.json(events);
@@ -47,10 +47,11 @@ export async function GET(
 const eventCreateSchema = z.object({
     title: z.string().min(1),
     description: z.string().optional(),
-    startTime: z.string().datetime(),
-    endTime: z.string().datetime(),
-    location: z.string().optional(),
-    isAllDay: z.boolean().optional(),
+    startDateTime: z.string().datetime(),
+    endDateTime: z.string().datetime(),
+    locationText: z.string().optional(),
+    isOnline: z.boolean().optional(),
+    onlineUrl: z.string().optional(),
 });
 
 // 10.2 Create Event
@@ -88,7 +89,7 @@ export async function POST(
             data: {
                 ...result.data,
                 tenantId: resolvedParams.tenantId,
-                authorId: userId,
+                createdByUserId: userId,
             },
         });
 

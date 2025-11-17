@@ -20,9 +20,12 @@ export async function GET(
       return NextResponse.json({ message: 'You do not have permission to view sermons.' }, { status: 403 });
     }
 
-    const sermons = await prisma.sermon.findMany({
-      where: { tenantId: resolvedParams.tenantId },
-      orderBy: { date: 'desc' },
+    const sermons = await prisma.mediaItem.findMany({
+      where: { 
+        tenantId: resolvedParams.tenantId,
+        type: 'SERMON_VIDEO'
+      },
+      orderBy: { publishedAt: 'desc' },
     });
 
     return NextResponse.json(sermons);
@@ -35,11 +38,7 @@ export async function GET(
 const sermonSchema = z.object({
     title: z.string().min(1),
     description: z.string().optional(),
-    speaker: z.string().min(1),
-    date: z.string().datetime(),
-    videoUrl: z.string().url().optional(),
-    audioUrl: z.string().url().optional(),
-    series: z.string().optional(),
+    embedUrl: z.string().url(),
 });
 
 // 11.2 Create Sermon
@@ -56,7 +55,7 @@ export async function POST(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -73,10 +72,12 @@ export async function POST(
     }
 
     try {
-        const newSermon = await prisma.sermon.create({
+        const newSermon = await prisma.mediaItem.create({
             data: {
                 ...result.data,
+                type: 'SERMON_VIDEO',
                 tenantId: resolvedParams.tenantId,
+                authorUserId: userId,
             },
         });
 

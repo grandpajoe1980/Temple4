@@ -1,28 +1,32 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
 
 // 11.3 Get Single Sermon
 export async function GET(
   request: Request,
-  { params }: { params: { tenantId: string; sermonId: string } }
+  { params }: { params: Promise<{ tenantId: string; sermonId: string }> }
 ) {
+  const resolvedParams = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
   try {
-    const canView = await canUserViewContent(userId, params.tenantId, 'sermons');
+    const canView = await canUserViewContent(userId, resolvedParams.tenantId, 'sermons');
     if (!canView) {
       return NextResponse.json({ message: 'You do not have permission to view this sermon.' }, { status: 403 });
     }
 
-    const sermon = await prisma.sermon.findUnique({
-      where: { id: params.sermonId, tenantId: params.tenantId },
+    const sermon = await prisma.mediaItem.findFirst({
+      where: { 
+        id: resolvedParams.sermonId, 
+        tenantId: resolvedParams.tenantId,
+        type: 'SERMON_VIDEO'
+      },
     });
 
     if (!sermon) {
@@ -31,7 +35,7 @@ export async function GET(
 
     return NextResponse.json(sermon);
   } catch (error) {
-    console.error(`Failed to fetch sermon ${params.sermonId}:`, error);
+    console.error(`Failed to fetch sermon ${resolvedParams.sermonId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch sermon' }, { status: 500 });
   }
 }
@@ -39,18 +43,15 @@ export async function GET(
 const sermonUpdateSchema = z.object({
     title: z.string().min(1).optional(),
     description: z.string().optional(),
-    speaker: z.string().min(1).optional(),
-    date: z.string().datetime().optional(),
-    videoUrl: z.string().url().optional(),
-    audioUrl: z.string().url().optional(),
-    series: z.string().optional(),
+    embedUrl: z.string().url().optional(),
 });
 
 // 11.4 Update Sermon
 export async function PUT(
   request: Request,
-  { params }: { params: { tenantId: string; sermonId: string } }
+  { params }: { params: Promise<{ tenantId: string; sermonId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -59,7 +60,7 @@ export async function PUT(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -76,14 +77,23 @@ export async function PUT(
     }
 
     try {
-        const updatedSermon = await prisma.sermon.update({
-            where: { id: params.sermonId, tenantId: params.tenantId },
+        const updatedSermon = await prisma.mediaItem.updateMany({
+            where: { 
+              id: resolvedParams.sermonId, 
+              tenantId: resolvedParams.tenantId,
+              type: 'SERMON_VIDEO'
+            },
             data: result.data,
         });
 
-        return NextResponse.json(updatedSermon);
+        if (updatedSermon.count === 0) {
+            return NextResponse.json({ message: 'Sermon not found' }, { status: 404 });
+        }
+
+        const sermon = await prisma.mediaItem.findUnique({ where: { id: resolvedParams.sermonId } });
+        return NextResponse.json(sermon);
     } catch (error) {
-        console.error(`Failed to update sermon ${params.sermonId}:`, error);
+        console.error(`Failed to update sermon ${resolvedParams.sermonId}:`, error);
         return NextResponse.json({ message: 'Failed to update sermon' }, { status: 500 });
     }
 }
@@ -91,8 +101,9 @@ export async function PUT(
 // 11.5 Delete Sermon
 export async function DELETE(
   request: Request,
-  { params }: { params: { tenantId: string; sermonId: string } }
+  { params }: { params: Promise<{ tenantId: string; sermonId: string }> }
 ) {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -101,7 +112,7 @@ export async function DELETE(
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -113,13 +124,25 @@ export async function DELETE(
     }
 
     try {
-        await prisma.sermon.delete({
-            where: { id: params.sermonId, tenantId: params.tenantId },
+        const sermon = await prisma.mediaItem.findFirst({
+            where: { 
+              id: resolvedParams.sermonId, 
+              tenantId: resolvedParams.tenantId,
+              type: 'SERMON_VIDEO'
+            },
+        });
+        
+        if (!sermon) {
+            return NextResponse.json({ message: 'Sermon not found' }, { status: 404 });
+        }
+
+        await prisma.mediaItem.delete({
+            where: { id: resolvedParams.sermonId },
         });
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete sermon ${params.sermonId}:`, error);
+        console.error(`Failed to delete sermon ${resolvedParams.sermonId}:`, error);
         return NextResponse.json({ message: 'Failed to delete sermon' }, { status: 500 });
     }
 }

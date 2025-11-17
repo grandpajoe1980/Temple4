@@ -1,0 +1,3 @@
+{
+  "/api/tenants/[tenantId]/community-posts/[postId]/route": "app/api/tenants/[tenantId]/community-posts/[postId]/route.js"
+}

@@ -1,0 +1,130 @@
+import type { Tenant, TenantFeaturePermissions, RolePermissions } from './types';
+import { MembershipApprovalMode, TenantRoleType } from './types';
+
+export const CONTROL_PANEL_TABS = ['General', 'Branding', 'Features', 'Permissions', 'Membership & Moderation', 'User Profiles', 'Donations', 'Volunteering', 'Small Groups', 'Live Stream', 'Prayer Wall', 'Resource Center', 'Contact Submissions'];
+
+const defaultRolePermissions: RolePermissions = {
+  canCreatePosts: false,
+  canCreateEvents: false,
+  canCreateSermons: false,
+  canCreatePodcasts: false,
+  canCreateBooks: false,
+  canCreateGroupChats: false,
+  canInviteMembers: false,
+  canApproveMembership: false,
+  canBanMembers: false,
+  canModeratePosts: false,
+  canModerateChats: false,
+  canPostInAnnouncementChannels: false,
+  canManagePrayerWall: false,
+  canUploadResources: false,
+  canManageResources: false,
+  canManageContactSubmissions: false,
+};
+
+export const adminPermissions: RolePermissions = {
+  canCreatePosts: true,
+  canCreateEvents: true,
+  canCreateSermons: true,
+  canCreatePodcasts: true,
+  canCreateBooks: true,
+  canCreateGroupChats: true,
+  canInviteMembers: true,
+  canApproveMembership: true,
+  canBanMembers: true,
+  canModeratePosts: true,
+  canModerateChats: true,
+  canPostInAnnouncementChannels: true,
+  canManagePrayerWall: true,
+  canUploadResources: true,
+  canManageResources: true,
+  canManageContactSubmissions: true,
+};
+
+const defaultPermissions: TenantFeaturePermissions = {
+  [TenantRoleType.MEMBER]: {
+    ...defaultRolePermissions,
+    canCreatePosts: true,
+    canUploadResources: true, // Allow members to upload resources by default
+  },
+  [TenantRoleType.STAFF]: {
+    ...defaultRolePermissions,
+    canCreatePosts: true,
+    canCreateEvents: true,
+    canCreateSermons: true,
+    canInviteMembers: true,
+    canModeratePosts: true,
+    canModerateChats: true,
+    canPostInAnnouncementChannels: true,
+    canManagePrayerWall: true,
+    canUploadResources: true,
+    canManageResources: true,
+    canManageContactSubmissions: true,
+  },
+  [TenantRoleType.MODERATOR]: {
+    ...defaultRolePermissions,
+    canModeratePosts: true,
+    canModerateChats: true,
+    canApproveMembership: true,
+    canBanMembers: true,
+    canManagePrayerWall: true,
+    canManageResources: true, // Moderators can manage resources
+  },
+  ADMIN: {
+    ...adminPermissions,
+  },
+};
+
+
+export const getInitialTenant = (): Omit<Tenant, 'id' | 'name' | 'slug' | 'creed' | 'address' | 'description'> => ({
+  settings: {
+    isPublic: true,
+    membershipApprovalMode: MembershipApprovalMode.OPEN,
+    enableCalendar: true,
+    enablePosts: true,
+    enableSermons: true,
+    enablePodcasts: false,
+    enableBooks: false,
+    enableMemberDirectory: true,
+    enableGroupChat: true,
+    enableComments: true,
+    enableReactions: true,
+    enableDonations: false,
+    enableVolunteering: true,
+    enableSmallGroups: true,
+    enableLiveStream: false,
+    enablePrayerWall: false,
+    enableResourceCenter: false,
+    donationSettings: {
+      mode: 'EXTERNAL',
+      externalUrl: '',
+      currency: 'USD',
+      suggestedAmounts: [10, 25, 50, 100],
+      allowCustomAmounts: true,
+      leaderboardEnabled: false,
+      leaderboardVisibility: 'MEMBERS_ONLY',
+      leaderboardTimeframe: 'ALL_TIME',
+    },
+    liveStreamSettings: {
+        provider: 'YOUTUBE',
+        embedUrl: '',
+        isLive: false,
+    },
+    visitorVisibility: {
+      calendar: true,
+      posts: true,
+      sermons: true,
+      podcasts: false,
+      books: false,
+      prayerWall: false,
+    },
+  },
+  branding: {
+    logoUrl: '',
+    bannerImageUrl: '',
+    primaryColor: '#8B5CF6', // A warm purple
+    accentColor: '#F59E0B', // A warm amber
+    customLinks: [],
+  },
+  permissions: defaultPermissions,
+});

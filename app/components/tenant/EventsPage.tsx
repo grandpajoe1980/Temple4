@@ -1,0 +1,124 @@
+import React, { useState } from 'react';
+import type { Tenant, User, Event, EventWithCreator } from '@/types';
+import { getEventsForTenant, addEvent as saveEvent } from '@/lib/data';
+import Button from '../ui/Button';
+import EventCard from './EventCard';
+import { can } from '@/lib/permissions';
+import Modal from '../ui/Modal';
+import EventForm from './EventForm';
+import EventsCalendar from './EventsCalendar';
+import DayEventsModal from './DayEventsModal';
+
+interface EventsPageProps {
+  tenant: Tenant;
+  user: User;
+}
+
+type ViewMode = 'list' | 'calendar';
+
+const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
+  const [events, setEvents] = useState<EventWithCreator[]>(() => getEventsForTenant(tenant.id));
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('calendar');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [dayModalOpen, setDayModalOpen] = useState(false);
+  
+  const canCreate = can(user, tenant, 'canCreateEvents');
+
+  const handleCreateEvent = (eventData: Omit<Event, 'id' | 'tenantId' | 'createdByUserId'>) => {
+    saveEvent({
+      ...eventData,
+      tenantId: tenant.id,
+      createdByUserId: user.id,
+    });
+    setEvents(getEventsForTenant(tenant.id));
+    setIsModalOpen(false);
+  };
+  
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    setDayModalOpen(true);
+  };
+  
+  const eventsForSelectedDay = events.filter(e => {
+    if (!selectedDate) return false;
+    const eventDate = new Date(e.startDateTime);
+    return eventDate.getFullYear() === selectedDate.getFullYear() &&
+           eventDate.getMonth() === selectedDate.getMonth() &&
+           eventDate.getDate() === selectedDate.getDate();
+  });
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Calendar & Events</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            See what's happening at {tenant.name}.
+          </p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <div className="bg-gray-200 p-1 rounded-lg flex space-x-1">
+             <button
+              onClick={() => setViewMode('calendar')}
+              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                viewMode === 'calendar' ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-300'
+              }`}
+            >
+              Calendar
+            </button>
+             <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                viewMode === 'list' ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-300'
+              }`}
+            >
+              List
+            </button>
+          </div>
+           {canCreate && (
+            <Button onClick={() => setIsModalOpen(true)}>
+            + Add Event
+            </Button>
+           )}
+        </div>
+      </div>
+
+      {viewMode === 'calendar' ? (
+        <EventsCalendar events={events} onDateClick={handleDateClick} />
+      ) : (
+        <>
+        {events.length > 0 ? (
+          <div className="space-y-6">
+            {events.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center bg-white p-12 rounded-lg shadow-sm">
+            <h3 className="text-lg font-medium text-gray-900">No Events Scheduled</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              There are no upcoming events. {canCreate ? 'You can schedule a new one.' : ''}
+            </p>
+          </div>
+        )}
+        </>
+      )}
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create a New Event">
+        <EventForm onSubmit={handleCreateEvent} onCancel={() => setIsModalOpen(false)} />
+      </Modal>
+
+      {selectedDate && (
+        <DayEventsModal
+          isOpen={dayModalOpen}
+          onClose={() => setDayModalOpen(false)}
+          date={selectedDate}
+          events={eventsForSelectedDay}
+        />
+      )}
+    </div>
+  );
+};
+
+export default EventsPage;

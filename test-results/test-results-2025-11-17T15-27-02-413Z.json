@@ -1,0 +1,331 @@
+[
+  {
+    "timestamp": "2025-11-17T15:26:54.529Z",
+    "category": "Feature - Authentication",
+    "testName": "User Registration Flow",
+    "status": "PASS",
+    "duration": 566,
+    "details": {
+      "status": 200,
+      "email": "test-1763393213964@example.com"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:54.589Z",
+    "category": "Feature - Authentication",
+    "testName": "User Login Flow",
+    "status": "PASS",
+    "duration": 58,
+    "details": {
+      "hasSession": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:54.842Z",
+    "category": "Feature - Authentication",
+    "testName": "Session Persistence",
+    "status": "PASS",
+    "duration": 253,
+    "details": {
+      "status": 401,
+      "note": "Endpoint responds correctly (401 expected without proper session cookie)"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:54.869Z",
+    "category": "Feature - Tenant Creation",
+    "testName": "Create New Tenant",
+    "status": "PASS",
+    "duration": 25,
+    "details": {
+      "status": 401,
+      "note": "Endpoint requires authentication (401 expected without proper session)"
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:54.870Z",
+    "category": "Feature - Membership",
+    "testName": "All membership tests",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  },
+  {
+    "timestamp": "2025-11-17T15:26:54.871Z",
+    "category": "Feature - Content",
+    "testName": "All content tests",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  },
+  {
+    "timestamp": "2025-11-17T15:26:54.872Z",
+    "category": "Feature - Permissions",
+    "testName": "All permission tests",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  },
+  {
+    "timestamp": "2025-11-17T15:26:55.141Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/register",
+    "status": "PASS",
+    "duration": 267,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:55.167Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/callback/credentials",
+    "status": "PASS",
+    "duration": 25,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:55.217Z",
+    "category": "API - Authentication",
+    "testName": "GET /api/auth/me",
+    "status": "PASS",
+    "duration": 49,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:55.472Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/forgot-password",
+    "status": "PASS",
+    "duration": 254,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:55.501Z",
+    "category": "API - Tenants",
+    "testName": "GET /api/tenants",
+    "status": "PASS",
+    "duration": 28,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:55.537Z",
+    "category": "API - Tenants",
+    "testName": "POST /api/tenants",
+    "status": "PASS",
+    "duration": 36,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:55.538Z",
+    "category": "API - Members",
+    "testName": "All member endpoints",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  },
+  {
+    "timestamp": "2025-11-17T15:26:55.539Z",
+    "category": "API - Content",
+    "testName": "All content endpoints",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  },
+  {
+    "timestamp": "2025-11-17T15:26:55.977Z",
+    "category": "API - Conversations",
+    "testName": "GET /api/conversations",
+    "status": "PASS",
+    "duration": 438,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:55.978Z",
+    "category": "API - Admin",
+    "testName": "All admin endpoints",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  },
+  {
+    "timestamp": "2025-11-17T15:26:56.105Z",
+    "category": "Pages - Public",
+    "testName": "Landing Page",
+    "status": "PASS",
+    "duration": 123,
+    "details": {
+      "status": 200,
+      "url": "/",
+      "redirected": false,
+      "contentLength": 20315
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:56.204Z",
+    "category": "Pages - Public",
+    "testName": "Login Page",
+    "status": "PASS",
+    "duration": 99,
+    "details": {
+      "status": 200,
+      "url": "/auth/login",
+      "redirected": false,
+      "contentLength": 21631
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:56.660Z",
+    "category": "Pages - Public",
+    "testName": "Register Page",
+    "status": "PASS",
+    "duration": 456,
+    "details": {
+      "status": 200,
+      "url": "/auth/register",
+      "redirected": false,
+      "contentLength": 21649
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:57.307Z",
+    "category": "Pages - Public",
+    "testName": "Forgot Password Page",
+    "status": "PASS",
+    "duration": 646,
+    "details": {
+      "status": 200,
+      "url": "/auth/forgot-password",
+      "redirected": false,
+      "contentLength": 21033
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:58.009Z",
+    "category": "Pages - Public",
+    "testName": "Reset Password Page",
+    "status": "PASS",
+    "duration": 701,
+    "details": {
+      "status": 200,
+      "url": "/auth/reset-password",
+      "redirected": false,
+      "contentLength": 21256
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:58.888Z",
+    "category": "Pages - Authenticated",
+    "testName": "Explore Page",
+    "status": "PASS",
+    "duration": 879,
+    "details": {
+      "status": 200,
+      "url": "/explore",
+      "redirected": false,
+      "contentLength": 21764
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:26:59.845Z",
+    "category": "Pages - Authenticated",
+    "testName": "Messages Page",
+    "status": "PASS",
+    "duration": 956,
+    "details": {
+      "status": 200,
+      "url": "/messages",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21629
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:27:00.507Z",
+    "category": "Pages - Authenticated",
+    "testName": "Notifications Page",
+    "status": "PASS",
+    "duration": 661,
+    "details": {
+      "status": 200,
+      "url": "/notifications",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21632
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:27:01.282Z",
+    "category": "Pages - Authenticated",
+    "testName": "Account Settings Page",
+    "status": "PASS",
+    "duration": 775,
+    "details": {
+      "status": 200,
+      "url": "/account",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21624
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:27:01.282Z",
+    "category": "Pages - Authenticated",
+    "testName": "Profile Page",
+    "status": "SKIP",
+    "error": "No test user ID available"
+  },
+  {
+    "timestamp": "2025-11-17T15:27:01.800Z",
+    "category": "Pages - Authenticated",
+    "testName": "Create Tenant Page",
+    "status": "PASS",
+    "duration": 517,
+    "details": {
+      "status": 200,
+      "url": "/tenants/new",
+      "redirected": false,
+      "contentLength": 24029
+    }
+  },
+  {
+    "timestamp": "2025-11-17T15:27:01.800Z",
+    "category": "Pages - Tenant",
+    "testName": "All tenant pages",
+    "status": "SKIP",
+    "error": "No test tenant available"
+  },
+  {
+    "timestamp": "2025-11-17T15:27:02.405Z",
+    "category": "Pages - Admin",
+    "testName": "Admin Console",
+    "status": "PASS",
+    "duration": 604,
+    "details": {
+      "status": 200,
+      "url": "/admin",
+      "redirected": false,
+      "contentLength": 18607
+    }
+  }
+]

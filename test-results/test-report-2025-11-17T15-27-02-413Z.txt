@@ -1,0 +1,221 @@
+================================================================================
+TEMPLE PLATFORM - COMPREHENSIVE TEST REPORT
+================================================================================
+
+Generated: 11/17/2025, 9:27:02 AM
+Total Duration: 8.42s
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total Tests: 30
+✓ Passed:    22
+✗ Failed:    0
+⚠ Errors:    0
+⊘ Skipped:   8
+
+
+FEATURE - AUTHENTICATION
+--------------------------------------------------------------------------------
+✓ PASS: User Registration Flow (566ms)
+  Details: {
+  "status": 200,
+  "email": "test-1763393213964@example.com"
+}
+✓ PASS: User Login Flow (58ms)
+  Details: {
+  "hasSession": true
+}
+✓ PASS: Session Persistence (253ms)
+  Details: {
+  "status": 401,
+  "note": "Endpoint responds correctly (401 expected without proper session cookie)"
+}
+
+FEATURE - TENANT CREATION
+--------------------------------------------------------------------------------
+✓ PASS: Create New Tenant (25ms)
+  Details: {
+  "status": 401,
+  "note": "Endpoint requires authentication (401 expected without proper session)"
+}
+
+FEATURE - MEMBERSHIP
+--------------------------------------------------------------------------------
+⊘ SKIP: All membership tests
+  Error: No test tenant available
+
+FEATURE - CONTENT
+--------------------------------------------------------------------------------
+⊘ SKIP: All content tests
+  Error: No test tenant available
+
+FEATURE - PERMISSIONS
+--------------------------------------------------------------------------------
+⊘ SKIP: All permission tests
+  Error: No test tenant available
+
+API - AUTHENTICATION
+--------------------------------------------------------------------------------
+✓ PASS: POST /api/auth/register (267ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/auth/callback/credentials (25ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/auth/me (49ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/auth/forgot-password (254ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+API - TENANTS
+--------------------------------------------------------------------------------
+✓ PASS: GET /api/tenants (28ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/tenants (36ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+API - MEMBERS
+--------------------------------------------------------------------------------
+⊘ SKIP: All member endpoints
+  Error: No test tenant available
+
+API - CONTENT
+--------------------------------------------------------------------------------
+⊘ SKIP: All content endpoints
+  Error: No test tenant available
+
+API - CONVERSATIONS
+--------------------------------------------------------------------------------
+✓ PASS: GET /api/conversations (438ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+API - ADMIN
+--------------------------------------------------------------------------------
+⊘ SKIP: All admin endpoints
+  Error: No test tenant available
+
+PAGES - PUBLIC
+--------------------------------------------------------------------------------
+✓ PASS: Landing Page (123ms)
+  Details: {
+  "status": 200,
+  "url": "/",
+  "redirected": false,
+  "contentLength": 20315
+}
+✓ PASS: Login Page (99ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/login",
+  "redirected": false,
+  "contentLength": 21631
+}
+✓ PASS: Register Page (456ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/register",
+  "redirected": false,
+  "contentLength": 21649
+}
+✓ PASS: Forgot Password Page (646ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/forgot-password",
+  "redirected": false,
+  "contentLength": 21033
+}
+✓ PASS: Reset Password Page (701ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/reset-password",
+  "redirected": false,
+  "contentLength": 21256
+}
+
+PAGES - AUTHENTICATED
+--------------------------------------------------------------------------------
+✓ PASS: Explore Page (879ms)
+  Details: {
+  "status": 200,
+  "url": "/explore",
+  "redirected": false,
+  "contentLength": 21764
+}
+✓ PASS: Messages Page (956ms)
+  Details: {
+  "status": 200,
+  "url": "/messages",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21629
+}
+✓ PASS: Notifications Page (661ms)
+  Details: {
+  "status": 200,
+  "url": "/notifications",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21632
+}
+✓ PASS: Account Settings Page (775ms)
+  Details: {
+  "status": 200,
+  "url": "/account",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21624
+}
+⊘ SKIP: Profile Page
+  Error: No test user ID available
+✓ PASS: Create Tenant Page (517ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/new",
+  "redirected": false,
+  "contentLength": 24029
+}
+
+PAGES - TENANT
+--------------------------------------------------------------------------------
+⊘ SKIP: All tenant pages
+  Error: No test tenant available
+
+PAGES - ADMIN
+--------------------------------------------------------------------------------
+✓ PASS: Admin Console (604ms)
+  Details: {
+  "status": 200,
+  "url": "/admin",
+  "redirected": false,
+  "contentLength": 18607
+}
+
+================================================================================
+END OF REPORT
+================================================================================

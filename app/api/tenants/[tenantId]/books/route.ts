@@ -34,10 +34,11 @@ export async function GET(
 
 const bookSchema = z.object({
     title: z.string().min(1),
-    author: z.string().min(1),
+    authorName: z.string().min(1),
     description: z.string().optional(),
-    coverImageUrl: z.string().url().optional(),
-    purchaseUrl: z.string().url().optional(),
+    imageUrl: z.string().url().optional(),
+    pdfUrl: z.string().url().optional(),
+    externalUrl: z.string().url().optional(),
 });
 
 // 13.2 Create Book
@@ -54,7 +55,10 @@ export async function POST(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ 
+        where: { id: resolvedParams.tenantId },
+        select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true }
+    });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -75,6 +79,7 @@ export async function POST(
             data: {
                 ...result.data,
                 tenantId: resolvedParams.tenantId,
+                authorUserId: userId,
             },
         });
 

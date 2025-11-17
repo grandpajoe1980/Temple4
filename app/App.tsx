@@ -151,6 +151,7 @@ const App: React.FC = () => {
         actionType: 'IMPERSONATE_START',
         entityType: 'USER',
         entityId: impersonatedUser.id,
+        metadata: null,
       });
       setOriginalUser(user);
       setUser(impersonatedUser);
@@ -165,6 +166,7 @@ const App: React.FC = () => {
         actionType: 'IMPERSONATE_END',
         entityType: 'USER',
         entityId: user.id,
+        metadata: null,
       });
       setUser(originalUser);
       setOriginalUser(null);

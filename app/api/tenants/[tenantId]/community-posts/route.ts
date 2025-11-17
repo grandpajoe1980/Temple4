@@ -99,7 +99,7 @@ export async function POST(
                 tenantId: resolvedParams.tenantId,
                 authorUserId: result.data.isAnonymous ? null : userId,
                 ...result.data,
-                status: CommunityPostStatus.PENDING, // Or PUBLISHED, depending on tenant settings
+                status: 'PENDING_APPROVAL', // Or PUBLISHED, depending on tenant settings
             },
         });
 

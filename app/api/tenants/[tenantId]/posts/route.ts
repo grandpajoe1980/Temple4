@@ -70,9 +70,8 @@ export async function GET(
 
 const postCreateSchema = z.object({
     title: z.string().min(1, "Title is required"),
-    content: z.string().min(1, "Content is required"),
-    isPinned: z.boolean().optional(),
-    isAnnouncement: z.boolean().optional(),
+    body: z.string().min(1, "Content is required"),
+    type: z.string().optional(),
 });
 
 // 9.2 Create Post
@@ -93,10 +92,11 @@ export async function POST(
         return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const { title, content, isPinned, isAnnouncement } = result.data;
+    const { title, body, type } = result.data;
 
     try {
-        const canPost = await canUserPost(userId, resolvedParams.tenantId, isAnnouncement || false);
+        const isAnnouncement = type === 'ANNOUNCEMENT';
+        const canPost = await canUserPost(userId, resolvedParams.tenantId, isAnnouncement);
         if (!canPost) {
             return NextResponse.json({ message: 'You do not have permission to create this type of post.' }, { status: 403 });
         }
@@ -104,11 +104,11 @@ export async function POST(
         const newPost = await prisma.post.create({
             data: {
                 title,
-                content,
-                isPinned: isPinned || false,
-                isAnnouncement: isAnnouncement || false,
+                body,
+                type: type || 'BLOG',
                 tenantId: resolvedParams.tenantId,
-                authorId: userId,
+                authorUserId: userId,
+                isPublished: true,
             },
         });
 

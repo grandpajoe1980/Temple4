@@ -77,9 +77,9 @@ export async function PUT(
             where: { userId_tenantId: { userId, tenantId: params.tenantId } },
             include: { roles: true },
         });
-        const isAuthor = post.authorId === userId;
+        const isAuthor = post.authorUserId === userId;
         const canModerate = membership?.roles.some(role =>
-            [TenantRole.ADMIN, TenantRole.MODERATOR].includes(role.role)
+            (role.role === TenantRole.ADMIN || role.role === TenantRole.MODERATOR)
         );
 
         if (!isAuthor && !canModerate) {
@@ -121,9 +121,9 @@ export async function DELETE(
             where: { userId_tenantId: { userId, tenantId: params.tenantId } },
             include: { roles: true },
         });
-        const isAuthor = post.authorId === userId;
+        const isAuthor = post.authorUserId === userId;
         const canModerate = membership?.roles.some(role =>
-            [TenantRole.ADMIN, TenantRole.MODERATOR].includes(role.role)
+            (role.role === TenantRole.ADMIN || role.role === TenantRole.MODERATOR)
         );
 
         if (!isAuthor && !canModerate) {

@@ -19,8 +19,12 @@ export async function GET(
       return NextResponse.json({ message: 'You do not have permission to view this sermon.' }, { status: 403 });
     }
 
-    const sermon = await prisma.sermon.findUnique({
-      where: { id: params.sermonId, tenantId: params.tenantId },
+    const sermon = await prisma.mediaItem.findFirst({
+      where: { 
+        id: params.sermonId, 
+        tenantId: params.tenantId,
+        type: 'SERMON_VIDEO'
+      },
     });
 
     if (!sermon) {
@@ -37,11 +41,7 @@ export async function GET(
 const sermonUpdateSchema = z.object({
     title: z.string().min(1).optional(),
     description: z.string().optional(),
-    speaker: z.string().min(1).optional(),
-    date: z.string().datetime().optional(),
-    videoUrl: z.string().url().optional(),
-    audioUrl: z.string().url().optional(),
-    series: z.string().optional(),
+    embedUrl: z.string().url().optional(),
 });
 
 // 11.4 Update Sermon
@@ -57,7 +57,7 @@ export async function PUT(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -74,12 +74,21 @@ export async function PUT(
     }
 
     try {
-        const updatedSermon = await prisma.sermon.update({
-            where: { id: params.sermonId, tenantId: params.tenantId },
+        const updatedSermon = await prisma.mediaItem.updateMany({
+            where: { 
+                id: params.sermonId, 
+                tenantId: params.tenantId,
+                type: 'SERMON_VIDEO'
+            },
             data: result.data,
         });
 
-        return NextResponse.json(updatedSermon);
+        if (updatedSermon.count === 0) {
+            return NextResponse.json({ message: 'Sermon not found' }, { status: 404 });
+        }
+
+        const sermon = await prisma.mediaItem.findUnique({ where: { id: params.sermonId } });
+        return NextResponse.json(sermon);
     } catch (error) {
         console.error(`Failed to update sermon ${params.sermonId}:`, error);
         return NextResponse.json({ message: 'Failed to update sermon' }, { status: 500 });
@@ -99,7 +108,7 @@ export async function DELETE(
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -111,8 +120,12 @@ export async function DELETE(
     }
 
     try {
-        await prisma.sermon.delete({
-            where: { id: params.sermonId, tenantId: params.tenantId },
+        await prisma.mediaItem.deleteMany({
+            where: { 
+                id: params.sermonId, 
+                tenantId: params.tenantId,
+                type: 'SERMON_VIDEO'
+            },
         });
 
         return new NextResponse(null, { status: 204 });

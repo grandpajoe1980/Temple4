@@ -18,7 +18,7 @@ export async function GET(
     }
 
     try {
-        const isAdmin = await hasRole(user, params.tenantId, TenantRole.ADMIN);
+        const isAdmin = await hasRole(user.id, params.tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
             return NextResponse.json({ message: 'You do not have permission to view audit logs.' }, { status: 403 });
         }

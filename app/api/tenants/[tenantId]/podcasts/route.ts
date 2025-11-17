@@ -21,7 +21,7 @@ export async function GET(
 
     const podcasts = await prisma.podcast.findMany({
       where: { tenantId: params.tenantId },
-      orderBy: { publishedDate: 'desc' },
+      orderBy: { publishedAt: 'desc' },
     });
 
     return NextResponse.json(podcasts);
@@ -35,8 +35,8 @@ const podcastSchema = z.object({
     title: z.string().min(1),
     description: z.string().optional(),
     audioUrl: z.string().url(),
-    publishedDate: z.string().datetime(),
-    series: z.string().optional(),
+    imageUrl: z.string().url().optional(),
+    duration: z.number().int().positive().optional(),
 });
 
 // 12.2 Create Podcast
@@ -52,7 +52,10 @@ export async function POST(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ 
+        where: { id: params.tenantId },
+        select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true }
+    });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -73,6 +76,7 @@ export async function POST(
             data: {
                 ...result.data,
                 tenantId: params.tenantId,
+                authorUserId: userId,
             },
         });
 

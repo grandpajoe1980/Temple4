@@ -38,8 +38,8 @@ const podcastUpdateSchema = z.object({
     title: z.string().min(1).optional(),
     description: z.string().optional(),
     audioUrl: z.string().url().optional(),
-    publishedDate: z.string().datetime().optional(),
-    series: z.string().optional(),
+    imageUrl: z.string().url().optional(),
+    duration: z.number().int().positive().optional(),
 });
 
 // 12.4 Update Podcast
@@ -55,7 +55,7 @@ export async function PUT(
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
@@ -97,7 +97,7 @@ export async function DELETE(
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, include: { permissions: true } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: params.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
         return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });

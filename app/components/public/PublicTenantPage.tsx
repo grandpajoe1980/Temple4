@@ -31,7 +31,7 @@ const PublicTenantPage: React.FC<PublicTenantPageProps> = ({ tenant, currentUser
 
   useEffect(() => {
     if (currentUser) {
-        setNotifications(getNotificationsForUser(currentUser.id));
+        getNotificationsForUser(currentUser.id).then(setNotifications);
     } else {
         setNotifications([]);
     }
@@ -82,12 +82,12 @@ const PublicTenantPage: React.FC<PublicTenantPageProps> = ({ tenant, currentUser
       case 'calendar':
         return <PublicEventsView tenant={tenant} />;
       case 'sermons':
-        // Assuming SermonsPage is safe for public view as it's read-only
-        return <SermonsPage tenant={tenant} user={currentUser!} />; // Pass a dummy user or adapt component
+        // TODO: Create proper public view components or fetch data here
+        return <SermonsPage tenant={tenant} user={currentUser!} sermons={[]} canCreate={false} />;
        case 'podcasts':
-        return <PodcastsPage tenant={tenant} user={currentUser!} />;
+        return <PodcastsPage tenant={tenant} user={currentUser!} podcasts={[]} canCreate={false} />;
        case 'books':
-        return <BooksPage tenant={tenant} user={currentUser!} />;
+        return <BooksPage tenant={tenant} user={currentUser!} books={[]} canCreate={false} />;
       default:
         return <div>Content not available.</div>;
     }
@@ -138,6 +138,7 @@ const PublicTenantPage: React.FC<PublicTenantPageProps> = ({ tenant, currentUser
           <PublicHeader
             tenant={tenant}
             currentUser={currentUser}
+            membership={null}
             onJoin={onJoin}
             onNavigateToLogin={onNavigateToLogin}
             onGoToDashboard={onGoToDashboard}

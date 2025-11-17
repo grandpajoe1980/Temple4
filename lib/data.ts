@@ -161,11 +161,18 @@ export async function getMembershipForUserInTenant(userId: string, tenantId: str
   });
 }
 
-export async function getNotificationsForUser(userId: string): Promise<Notification[]> {
-    return await prisma.notification.findMany({
+export async function getNotificationsForUser(userId: string) {
+    const notifications = await prisma.notification.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
     });
+    
+    return notifications.map(notif => ({
+        ...notif,
+        type: notif.type as any,
+        actorUserId: notif.actorUserId ?? undefined,
+        link: notif.link ?? undefined,
+    }));
 }
 
 export async function markNotificationAsRead(notificationId: string): Promise<Notification> {

@@ -20,9 +20,8 @@ const BooksPage: React.FC<BooksPageProps> = ({ tenant, user, books: initialBooks
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCreatePost = async (postData: PostInput) => {
-    await addPost({
+    await addPost(tenant.id, {
       ...postData,
-      tenantId: tenant.id,
       authorUserId: user.id,
     });
     // TODO: In a real app, we'd refetch or optimistically update

@@ -22,13 +22,43 @@ export async function getTenantsForUser(userId: string): Promise<Tenant[]> {
 }
 
 export async function getTenantById(tenantId: string) {
-  return await prisma.tenant.findUnique({
+  const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
     include: {
       settings: true,
       branding: true,
     },
   });
+  
+  if (!tenant) return null;
+  
+  // Transform Prisma data to match Tenant interface with nested address
+  return {
+    ...tenant,
+    address: {
+      street: tenant.street,
+      city: tenant.city,
+      state: tenant.state,
+      country: tenant.country,
+      postalCode: tenant.postalCode,
+    },
+    settings: tenant.settings || {
+      isPublic: true,
+      allowMemberDirectory: true,
+      allowEvents: true,
+      allowDonations: true,
+      allowSmallGroups: true,
+      allowMessaging: true,
+    } as any,
+    branding: tenant.branding || {
+      logoUrl: '',
+      bannerImageUrl: '',
+      primaryColor: '#d97706',
+      accentColor: '#92400e',
+      customLinks: [],
+    } as any,
+    permissions: tenant.permissions as any || {},
+  };
 }
 
 export async function getUserById(userId: string) {
@@ -78,11 +108,25 @@ export async function getTenants(): Promise<Tenant[]> {
     })) as Tenant[];
 }
 
-export async function getEventsForTenant(tenantId: string): Promise<Event[]> {
-  return await prisma.event.findMany({
+export async function getEventsForTenant(tenantId: string) {
+  const events = await prisma.event.findMany({
     where: { tenantId },
     orderBy: { startDateTime: 'asc' },
+    include: {
+      createdBy: {
+        include: {
+          profile: true,
+        }
+      }
+    }
   });
+  
+  return events.map(event => ({
+    ...event,
+    onlineUrl: event.onlineUrl || undefined,
+    creatorDisplayName: event.createdBy.profile?.displayName || event.createdBy.email,
+    creatorAvatarUrl: event.createdBy.profile?.avatarUrl || undefined,
+  }));
 }
 
 export async function getPostsForTenant(tenantId: string): Promise<Post[]> {

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Tenant } from '../../../types';
+import type { Tenant } from '@/types';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';

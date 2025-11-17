@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Tenant, DonationSettings } from '../../../types';
+import type { Tenant, DonationSettings } from '@/types';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';

@@ -7,8 +7,8 @@ interface PublicEventsViewProps {
   tenant: Tenant;
 }
 
-const PublicEventsView: React.FC<PublicEventsViewProps> = ({ tenant }) => {
-  const events = getEventsForTenant(tenant.id);
+const PublicEventsView: React.FC<PublicEventsViewProps> = async ({ tenant }) => {
+  const events = await getEventsForTenant(tenant.id);
 
   return (
     <div className="space-y-6">

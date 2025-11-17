@@ -55,7 +55,7 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, current
     onRefresh();
   };
 
-  const requested = allMembers.filter(m => m.membership.status === MembershipStatus.REQUESTED);
+  const requested = allMembers.filter(m => m.membership.status === MembershipStatus.PENDING);
   const approved = allMembers.filter(m => m.membership.status === MembershipStatus.APPROVED);
   const banned = allMembers.filter(m => m.membership.status === MembershipStatus.BANNED);
 
@@ -104,7 +104,7 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, current
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                            <div className="flex items-center justify-end space-x-2">
-                             {member.membership.status === MembershipStatus.REQUESTED && canApprove && (
+                             {member.membership.status === MembershipStatus.PENDING && canApprove && (
                                 <>
                                   <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.membership.id, MembershipStatus.REJECTED, member.profile.displayName)}>Reject</Button>
                                   <Button size="sm" onClick={() => handleStatusUpdate(member.membership.id, MembershipStatus.APPROVED, member.profile.displayName)}>Approve</Button>

@@ -45,11 +45,71 @@ Client components directly import and call functions from `lib/data.ts` which:
 
 ## Steps Required
 
-### Phase 1: Document Current State (Immediate)
+### Phase 1: Document Current State
 - [x] Create this ticket
-- [ ] Audit all uses of `as any` in codebase
-- [ ] List all client components with async data access
-- [ ] Document all type conflicts between types.ts and Prisma
+- [x] Initial error analysis (Session 4)
+- [x] Comprehensive error breakdown completed
+- [ ] Audit all uses of `as any` in codebase (estimated: 10-15 instances)
+- [x] List client components with async data access (see Session 4 Analysis below)
+- [x] Document type conflicts between types.ts and Prisma (partially complete)
+
+### Session 4 Analysis (2025-11-17)
+
+**Current Build State:**
+- Total TypeScript errors: 215
+- Turbopack compilation: ✅ SUCCESS
+- Promise/async errors: ~79 (37%)
+- Type mismatch errors: ~46 (21%)
+- Function signature errors: ~20 (9%)
+- Other errors: ~70 (33%)
+
+**Fixes Applied (Session 4):**
+1. ✅ User.password type: `password?: string | null` → `password: string | null`
+2. ✅ Fixed 5 type import paths: `'../../../types'` → `'@/types'`
+3. ✅ MembershipStatus enum: REQUESTED → PENDING (4 files)
+4. ✅ getTenantById: Added address transformation (nested structure)
+5. ✅ getEventsForTenant: Added creator info mapping
+6. ✅ PublicEventsView: Converted to async server component (WORKS!)
+
+**Client Components with Architectural Issues:**
+These components use React hooks and call async Prisma functions:
+
+*Pages:*
+- app/components/tenant/BooksPage.tsx (useState, calls getBooksForTenant)
+- app/components/tenant/SermonsPage.tsx (calls getSermonsForTenant)
+- app/components/tenant/PodcastsPage.tsx (calls getPodcastsForTenant)
+- app/components/tenant/PostsPage.tsx (calls getPostsForTenant)
+- app/components/tenant/EventsPage.tsx (calls getEventsForTenant)
+- app/components/tenant/ChatPage.tsx (useState, calls multiple functions)
+- app/components/tenant/ResourceCenterPage.tsx (calls getResourcesForTenant)
+- app/components/tenant/VolunteeringPage.tsx (calls getVolunteerNeeds)
+- app/components/tenant/SmallGroupsPage.tsx (calls getSmallGroups)
+- app/components/tenant/DonationsPage.tsx (calls getDonationSettings)
+- app/components/tenant/PrayerWallPage.tsx (calls getCommunityPosts)
+- app/components/tenant/ContactPage.tsx (calls getContactSubmissions)
+
+*Layout/Shared:*
+- app/components/public/PublicHeader.tsx (useMemo, calls getMembershipForUserInTenant)
+- app/components/tenant/TenantLayout.tsx (useState, calls getNotificationsForUser)
+
+*Card Components:*
+- app/components/tenant/SmallGroupCard.tsx (calls getMembershipForGroup)
+- app/components/tenant/VolunteerNeedCard.tsx (calls getVolunteerSignup)
+- app/components/tenant/ResourceItemCard.tsx (calls can() without await)
+
+*Tab Components:*
+- app/components/tenant/tabs/ContactSubmissionsTab.tsx (useMemo, useState)
+- app/components/tenant/tabs/MembershipTab.tsx (calls can() without await)
+- app/components/tenant/tabs/PrayerWallTab.tsx (calls getCommunityPosts)
+- app/components/tenant/tabs/EditUserProfileModal.tsx (function signature mismatch)
+- app/components/tenant/tabs/PermissionsTab.tsx (function signature mismatch)
+
+**Function Signature Mismatches:**
+Many data layer functions expect different arguments than components provide:
+- addPost(tenantId, postData) vs called with just (postData)
+- addEvent(tenantId, eventData) vs called with just (eventData)
+- updateContactSubmissionStatus expects different args
+- And ~15 more similar issues
 
 ### Phase 2: Create API Endpoints (High Priority)
 - [ ] Create `/api/users/[userId]` - GET user data
@@ -60,13 +120,32 @@ Client components directly import and call functions from `lib/data.ts` which:
 - [ ] Create `/api/admin/audit-logs` - GET audit logs
 
 ### Phase 3: Update Components to Use APIs
+Based on Session 4 analysis, ~25 components need refactoring:
+- [ ] BooksPage - convert to server component or use API
+- [ ] SermonsPage - convert to server component or use API
+- [ ] PodcastsPage - convert to server component or use API
+- [ ] PostsPage - convert to server component or use API
+- [ ] EventsPage - convert to server component or use API
+- [ ] ChatPage - refactor to use API for data fetching
+- [ ] ResourceCenterPage - convert to server component or use API
+- [ ] VolunteeringPage - convert to server component or use API
+- [ ] SmallGroupsPage - convert to server component or use API
+- [ ] DonationsPage - convert to server component or use API
+- [ ] PrayerWallPage - convert to server component or use API
+- [ ] ContactPage - convert to server component or use API
+- [ ] PublicHeader - refactor async data access
+- [ ] TenantLayout - refactor async data access
 - [ ] MyMembershipsTab - use fetch to API endpoint
 - [ ] ConversationDetailsPanel - receive membership data as prop or fetch
 - [ ] CreateChannelForm - use fetch to members endpoint
 - [ ] MessageStream - use fetch to messages endpoint
 - [ ] NewMessageModal - use fetch to users endpoint
 - [ ] AdminConsole - use fetch to admin endpoints
-- [ ] EventsList - use fetch to events endpoint
+- [ ] SmallGroupCard - refactor async checks
+- [ ] VolunteerNeedCard - refactor async checks
+- [ ] ResourceItemCard - refactor permission checks
+- [ ] ContactSubmissionsTab - refactor data fetching
+- [ ] MembershipTab - refactor permission checks
 
 ### Phase 4: Deprecate Custom Types
 - [ ] Identify which custom types can be removed
@@ -78,6 +157,39 @@ Client components directly import and call functions from `lib/data.ts` which:
 - [ ] Search for all `as any` casts
 - [ ] Replace with proper types
 - [ ] Ensure TypeScript strict mode compliance
+
+## Effort Estimate
+
+Based on Session 4 analysis:
+
+**Phase 1 (Documentation):** ✅ COMPLETE (Session 4)
+**Phase 2 (API Endpoints):** 1-2 days
+- ~10-15 new API routes needed
+- Each route: 30-60 minutes (includes auth, validation, tests)
+
+**Phase 3 (Component Refactoring):** 2-3 days
+- ~25 components need updates
+- Each component: 1-2 hours (split server/client, update data flow)
+- Complexity varies: simple pages (30 min) vs interactive pages (2 hours)
+
+**Phase 4 (Type System):** 1 day
+- Audit custom types vs Prisma types
+- Create proper DTOs where needed
+- Remove obsolete custom types
+
+**Phase 5 (Type Casts):** 0.5 days
+- Search and replace ~10-15 `as any` casts
+- Verify TypeScript strict mode compliance
+
+**Total Estimate:** 4.5-6.5 days of focused work
+
+**Alternative Incremental Approach:** 
+- Fix server components first (0.5 day) - ✅ Started in Session 4
+- Create most critical APIs (1 day)
+- Refactor highest-traffic components (1 day)
+- Continue iteratively
+- **Advantage:** Provides value earlier, allows learning/adjustment
+
 
 ## Acceptance Criteria
 

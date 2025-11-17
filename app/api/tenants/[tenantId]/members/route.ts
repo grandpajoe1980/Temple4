@@ -40,9 +40,10 @@ export async function GET(
 
     // Deny access if the directory is disabled and the user is not an admin/staff
     const roleNames = requestingMembership?.roles.map(role => role.role) ?? [];
+    const allowedRoles: TenantRole[] = [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR];
     const canViewDirectory =
         tenant.settings?.enableMemberDirectory ||
-        roleNames.some(role => [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR].includes(role));
+        roleNames.some(role => allowedRoles.includes(role));
 
     if (!canViewDirectory) {
         return NextResponse.json({ message: 'You do not have permission to view the member directory.' }, { status: 403 });

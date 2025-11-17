@@ -59,7 +59,7 @@ export async function GET(
     // Write error to file for debugging
     try {
       const fs = require('fs');
-      fs.appendFileSync('error-log.txt', `\n[${new Date().toISO String()}] GET /posts error:\n${errorMessage}\n${errorStack}\n\n`);
+      fs.appendFileSync('error-log.txt', `\n[${new Date().toISOString()}] GET /posts error:\n${errorMessage}\n${errorStack}\n\n`);
     } catch (e) {
       // Ignore file write errors
     }

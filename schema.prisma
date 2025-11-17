@@ -98,6 +98,12 @@ enum SmallGroupRole {
   MEMBER
 }
 
+enum RSVPStatus {
+  GOING
+  INTERESTED
+  NOT_GOING
+}
+
 // --- USER-RELATED MODELS ---
 
 model User {
@@ -113,6 +119,9 @@ model User {
   posts                   Post[]
   events                  Event[]
   mediaItems              MediaItem[]
+  books                   Book[]
+  podcasts                Podcast[]
+  eventRSVPs              EventRSVP[]
   messages                ChatMessage[]
   conversations           ConversationParticipant[]
   auditLogsAsActor        AuditLog[]              @relation("Actor")
@@ -176,6 +185,8 @@ model Tenant {
   posts            Post[]
   events           Event[]
   mediaItems       MediaItem[]
+  books            Book[]
+  podcasts         Podcast[]
   conversations    Conversation[]
   donationRecords  DonationRecord[]
   volunteerNeeds   VolunteerNeed[]
@@ -247,33 +258,49 @@ model UserTenantRole {
 // --- CONTENT & MESSAGING ---
 
 model Post {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   tenantId      String
-  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   authorUserId  String
-  author        User     @relation(fields: [authorUserId], references: [id])
-  type          String // 'BLOG' | 'ANNOUNCEMENT' | 'BOOK'
+  author        User      @relation(fields: [authorUserId], references: [id])
+  type          String    // 'BLOG' | 'ANNOUNCEMENT' | 'BOOK'
   title         String
   body          String
-  isPublished   Boolean  @default(false)
-  publishedAt   DateTime @default(now())
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime  @default(now())
   deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Event {
-  id              String    @id @default(cuid())
+  id              String      @id @default(cuid())
   tenantId        String
-  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdByUserId String
-  creator         User      @relation(fields: [createdByUserId], references: [id])
+  creator         User        @relation(fields: [createdByUserId], references: [id])
   title           String
   description     String
   startDateTime   DateTime
   endDateTime     DateTime
   locationText    String
-  isOnline        Boolean   @default(false)
+  isOnline        Boolean     @default(false)
   onlineUrl       String?
   deletedAt       DateTime?
+  rsvps           EventRSVP[]
+}
+
+model EventRSVP {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId   String
+  event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  status    RSVPStatus @default(GOING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([userId, eventId])
 }
 
 model MediaItem {
@@ -288,6 +315,43 @@ model MediaItem {
   embedUrl      String
   publishedAt   DateTime @default(now())
   deletedAt     DateTime?
+}
+
+model Book {
+  id            String    @id @default(cuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  authorUserId  String
+  author        User      @relation(fields: [authorUserId], references: [id])
+  title         String
+  authorName    String    // Book author name (not platform user)
+  description   String?
+  imageUrl      String?
+  pdfUrl        String?   // Optional PDF link
+  externalUrl   String?   // Link to purchase or external resource
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime?
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Podcast {
+  id            String    @id @default(cuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  authorUserId  String
+  author        User      @relation(fields: [authorUserId], references: [id])
+  title         String
+  description   String?
+  audioUrl      String
+  imageUrl      String?
+  duration      Int?      // Duration in seconds
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime?
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model ChatMessage {
@@ -399,15 +463,16 @@ model VolunteerSignup {
 // --- SMALL GROUP MODELS ---
 
 model SmallGroup {
-  id            String                 @id @default(cuid())
-  tenantId      String
-  tenant        Tenant                 @relation(fields: [tenantId], references: [id])
-  name          String
-  description   String
-  leaderUserId  String
+  id              String                 @id @default(cuid())
+  tenantId        String
+  tenant          Tenant                 @relation(fields: [tenantId], references: [id])
+  name            String
+  description     String
+  leaderUserId    String
   meetingSchedule String
-  isActive      Boolean                @default(true)
-  members       SmallGroupMembership[]
+  isActive        Boolean                @default(true)
+  isPublic        Boolean                @default(false)
+  members         SmallGroupMembership[]
 }
 
 model SmallGroupMembership {

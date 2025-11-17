@@ -16,7 +16,7 @@ export enum TenantRoleType {
 }
 
 export enum MembershipStatus {
-  REQUESTED = 'REQUESTED',
+  PENDING = 'PENDING',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
   BANNED = 'BANNED',
@@ -66,6 +66,13 @@ export enum ContactSubmissionStatus {
     UNREAD = 'UNREAD',
     READ = 'READ',
     ARCHIVED = 'ARCHIVED',
+}
+
+export enum NotificationType {
+    NEW_DIRECT_MESSAGE = 'NEW_DIRECT_MESSAGE',
+    NEW_ANNOUNCEMENT = 'NEW_ANNOUNCEMENT',
+    MEMBERSHIP_APPROVED = 'MEMBERSHIP_APPROVED',
+    NEW_CONTACT_SUBMISSION = 'NEW_CONTACT_SUBMISSION',
 }
 
 

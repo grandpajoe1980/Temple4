@@ -54,7 +54,7 @@ export async function POST(
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const tenant = await prisma.tenant.findUnique({ 
         where: { id: params.tenantId },
-        select: { id: true, name: true, permissions: true }
+        select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true }
     });
 
     if (!user || !tenant) {

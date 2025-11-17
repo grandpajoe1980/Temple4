@@ -1,18 +1,19 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { Tenant, User } from '@/types';
-import { getSmallGroupsForTenant } from '@/lib/data';
+import { SmallGroup } from '@prisma/client';
 import SmallGroupCard from './SmallGroupCard';
 
 interface SmallGroupsPageProps {
   tenant: Tenant;
   user: User;
+  groups: SmallGroup[];
   onRefresh: () => void;
 }
 
-const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, onRefresh }) => {
-  const groups = useMemo(() => getSmallGroupsForTenant(tenant.id).filter(g => g.isActive), [tenant.id, onRefresh]);
+const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, groups, onRefresh }) => {
+  const activeGroups = groups.filter(g => g.isActive);
 
   return (
     <div className="space-y-8">
@@ -23,9 +24,9 @@ const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, onRefre
         </p>
       </div>
 
-      {groups.length > 0 ? (
+      {activeGroups.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {groups.map((group) => (
+          {activeGroups.map((group) => (
             <SmallGroupCard key={group.id} group={group} currentUser={user} onUpdate={onRefresh} />
           ))}
         </div>

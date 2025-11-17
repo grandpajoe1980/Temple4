@@ -1,23 +1,19 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { Tenant, User } from '@/types';
-import { getMembershipForUserInTenant } from '@/lib/data';
 import { MembershipStatus, MembershipApprovalMode } from '@/types';
+import { UserTenantMembership } from '@prisma/client';
 import Button from '../ui/Button';
 
 interface PublicHeaderProps {
   tenant: Tenant;
   currentUser: User | null;
+  membership: UserTenantMembership | null;
   onJoin: (tenantId: string) => void;
   onNavigateToLogin: () => void;
   onGoToDashboard: () => void;
 }
 
-const PublicHeader: React.FC<PublicHeaderProps> = ({ tenant, currentUser, onJoin, onNavigateToLogin, onGoToDashboard }) => {
-  const membership = useMemo(() => {
-    if (!currentUser) return null;
-    return getMembershipForUserInTenant(currentUser.id, tenant.id);
-  }, [currentUser, tenant.id]);
-
+const PublicHeader: React.FC<PublicHeaderProps> = ({ tenant, currentUser, membership, onJoin, onNavigateToLogin, onGoToDashboard }) => {
   const JoinButton = () => {
     if (!currentUser) {
       return <Button onClick={onNavigateToLogin}>Login to Join</Button>;

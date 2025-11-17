@@ -1,19 +1,18 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import type { Tenant, User } from '@/types';
-import { getVolunteerNeedsForTenant } from '@/lib/data';
+import { VolunteerNeed } from '@prisma/client';
 import VolunteerNeedCard from './VolunteerNeedCard';
 
 interface VolunteeringPageProps {
   tenant: Tenant;
   user: User;
+  needs: VolunteerNeed[];
   onRefresh: () => void;
 }
 
-const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, onRefresh }) => {
-  const needs = useMemo(() => getVolunteerNeedsForTenant(tenant.id), [tenant.id, onRefresh]);
-
+const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs, onRefresh }) => {
   return (
     <div className="space-y-8">
       <div>

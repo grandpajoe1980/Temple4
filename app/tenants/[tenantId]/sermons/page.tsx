@@ -1,7 +1,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
-import { getTenantById, getUserById } from '@/lib/data';
+import { getTenantById, getUserById, getSermonsForTenant } from '@/lib/data';
+import { can } from '@/lib/permissions';
 import SermonsPage from '@/app/components/tenant/SermonsPage';
 
 export default async function TenantSermonsPage({ params }: { params: Promise<{ tenantId: string }> }) {
@@ -19,5 +20,8 @@ export default async function TenantSermonsPage({ params }: { params: Promise<{ 
     redirect('/');
   }
 
-  return <SermonsPage tenant={tenant} user={user} />;
+  const sermons = await getSermonsForTenant(tenant.id);
+  const canCreate = await can(user as any, tenant as any, 'canCreateSermons');
+
+  return <SermonsPage tenant={tenant} user={user} sermons={sermons} canCreate={canCreate} />;
 }

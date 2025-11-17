@@ -1,7 +1,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
-import { getTenantById, getUserById } from '@/lib/data';
+import { getTenantById, getUserById, getPostsForTenant } from '@/lib/data';
+import { can } from '@/lib/permissions';
 import PostsPage from '@/app/components/tenant/PostsPage';
 
 export default async function TenantPostsPage({ params }: { params: Promise<{ tenantId: string }> }) {
@@ -19,5 +20,8 @@ export default async function TenantPostsPage({ params }: { params: Promise<{ te
     redirect('/');
   }
 
-  return <PostsPage tenant={tenant} user={user} />;
+  const posts = await getPostsForTenant(tenant.id);
+  const canCreate = await can(user as any, tenant as any, 'canCreatePosts');
+
+  return <PostsPage tenant={tenant} user={user} posts={posts} canCreate={canCreate} />;
 }

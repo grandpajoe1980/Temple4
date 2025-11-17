@@ -129,8 +129,8 @@ export async function getEventsForTenant(tenantId: string) {
   }));
 }
 
-export async function getPostsForTenant(tenantId: string): Promise<Post[]> {
-  return await prisma.post.findMany({
+export async function getPostsForTenant(tenantId: string) {
+  const posts = await prisma.post.findMany({
     where: { tenantId, isPublished: true },
     orderBy: { publishedAt: 'desc' },
     include: {
@@ -141,6 +141,13 @@ export async function getPostsForTenant(tenantId: string): Promise<Post[]> {
       }
     }
   });
+  
+  return posts.map(post => ({
+    ...post,
+    type: post.type as 'BLOG' | 'ANNOUNCEMENT' | 'BOOK',
+    authorDisplayName: post.author.profile?.displayName || 'Unknown',
+    authorAvatarUrl: post.author.profile?.avatarUrl || undefined,
+  }));
 }
 
 export async function getMembershipForUserInTenant(userId: string, tenantId: string): Promise<UserTenantMembership | null> {
@@ -154,11 +161,18 @@ export async function getMembershipForUserInTenant(userId: string, tenantId: str
   });
 }
 
-export async function getNotificationsForUser(userId: string): Promise<Notification[]> {
-    return await prisma.notification.findMany({
+export async function getNotificationsForUser(userId: string) {
+    const notifications = await prisma.notification.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
     });
+    
+    return notifications.map(notif => ({
+        ...notif,
+        type: notif.type as any,
+        actorUserId: notif.actorUserId ?? undefined,
+        link: notif.link ?? undefined,
+    }));
 }
 
 export async function markNotificationAsRead(notificationId: string): Promise<Notification> {
@@ -560,8 +574,21 @@ export async function updateMemberRolesAndTitle(userId: string, tenantId: string
 }
 
 export async function getSmallGroupsForTenant(tenantId: string) {
-    // TODO: Implement small groups fetching
-    return [];
+    return await prisma.smallGroup.findMany({
+        where: { tenantId },
+        include: {
+            members: {
+                include: {
+                    user: {
+                        include: {
+                            profile: true,
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: { name: 'asc' },
+    });
 }
 
 export async function createSmallGroup(tenantId: string, groupData: any) {
@@ -570,8 +597,21 @@ export async function createSmallGroup(tenantId: string, groupData: any) {
 }
 
 export async function getVolunteerNeedsForTenant(tenantId: string) {
-    // TODO: Implement volunteer needs fetching
-    return [];
+    return await prisma.volunteerNeed.findMany({
+        where: { tenantId },
+        include: {
+            signups: {
+                include: {
+                    user: {
+                        include: {
+                            profile: true,
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: { date: 'asc' },
+    });
 }
 
 export async function addVolunteerNeed(tenantId: string, needData: any) {
@@ -635,18 +675,64 @@ export async function addEvent(tenantId: string, eventData: any) {
 }
 
 export async function getSermonsForTenant(tenantId: string) {
-    // TODO: Implement sermons fetching
-    return [];
+    return await prisma.mediaItem.findMany({
+        where: { 
+            tenantId, 
+            type: 'SERMON_VIDEO',
+            deletedAt: null,
+        },
+        orderBy: { publishedAt: 'desc' },
+        include: {
+            author: {
+                include: {
+                    profile: true,
+                }
+            }
+        }
+    });
 }
 
 export async function getPodcastsForTenant(tenantId: string) {
-    // TODO: Implement podcasts fetching
-    return [];
+    return await prisma.mediaItem.findMany({
+        where: { 
+            tenantId, 
+            type: 'PODCAST_AUDIO',
+            deletedAt: null,
+        },
+        orderBy: { publishedAt: 'desc' },
+        include: {
+            author: {
+                include: {
+                    profile: true,
+                }
+            }
+        }
+    });
 }
 
 export async function getBooksForTenant(tenantId: string) {
-    // TODO: Implement books fetching
-    return [];
+    const books = await prisma.post.findMany({
+        where: { 
+            tenantId, 
+            type: 'BOOK',
+            isPublished: true,
+        },
+        orderBy: { publishedAt: 'desc' },
+        include: {
+            author: {
+                include: {
+                    profile: true,
+                }
+            }
+        }
+    });
+    
+    return books.map(book => ({
+        ...book,
+        type: book.type as 'BLOG' | 'ANNOUNCEMENT' | 'BOOK',
+        authorDisplayName: book.author.profile?.displayName || 'Unknown',
+        authorAvatarUrl: book.author.profile?.avatarUrl || undefined,
+    }));
 }
 
 export async function getDonationsForTenant(tenantId: string) {

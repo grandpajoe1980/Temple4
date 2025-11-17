@@ -23,12 +23,9 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
     setFormState(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addContactSubmission({
-        tenantId: tenant.id,
-        ...formState,
-    });
+    await addContactSubmission(tenant.id, formState);
     setIsSubmitted(true);
     setFormState({ name: '', email: '', message: '' });
   };

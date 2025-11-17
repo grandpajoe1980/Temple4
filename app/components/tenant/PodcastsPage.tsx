@@ -2,20 +2,18 @@
 
 import React from 'react';
 import type { Tenant, User } from '@/types';
-import { getPodcastsForTenant } from '@/lib/data';
+import { MediaItem } from '@prisma/client';
 import Button from '../ui/Button';
 import PodcastCard from './PodcastCard';
-import { can } from '@/lib/permissions';
 
 interface PodcastsPageProps {
   tenant: Tenant;
   user: User;
+  podcasts: MediaItem[];
+  canCreate: boolean;
 }
 
-const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user }) => {
-  const podcasts = getPodcastsForTenant(tenant.id);
-  const canCreate = can(user, tenant, 'canCreatePodcasts');
-
+const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts, canCreate }) => {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">

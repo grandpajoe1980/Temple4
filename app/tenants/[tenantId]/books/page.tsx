@@ -1,7 +1,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
-import { getTenantById, getUserById } from '@/lib/data';
+import { getTenantById, getUserById, getBooksForTenant } from '@/lib/data';
+import { can } from '@/lib/permissions';
 import BooksPage from '@/app/components/tenant/BooksPage';
 
 export default async function TenantBooksPage({ params }: { params: Promise<{ tenantId: string }> }) {
@@ -19,5 +20,8 @@ export default async function TenantBooksPage({ params }: { params: Promise<{ te
     redirect('/');
   }
 
-  return <BooksPage tenant={tenant} user={user} />;
+  const books = await getBooksForTenant(tenant.id);
+  const canCreate = await can(user as any, tenant as any, 'canCreateBooks');
+
+  return <BooksPage tenant={tenant} user={user} books={books} canCreate={canCreate} />;
 }

@@ -1,7 +1,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
-import { getTenantById, getUserById } from '@/lib/data';
+import { getTenantById, getUserById, getPodcastsForTenant } from '@/lib/data';
+import { can } from '@/lib/permissions';
 import PodcastsPage from '@/app/components/tenant/PodcastsPage';
 
 export default async function TenantPodcastsPage({ params }: { params: Promise<{ tenantId: string }> }) {
@@ -19,5 +20,8 @@ export default async function TenantPodcastsPage({ params }: { params: Promise<{
     redirect('/');
   }
 
-  return <PodcastsPage tenant={tenant} user={user} />;
+  const podcasts = await getPodcastsForTenant(tenant.id);
+  const canCreate = await can(user as any, tenant as any, 'canCreatePodcasts');
+
+  return <PodcastsPage tenant={tenant} user={user} podcasts={podcasts} canCreate={canCreate} />;
 }

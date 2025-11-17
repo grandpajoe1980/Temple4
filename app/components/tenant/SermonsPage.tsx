@@ -2,20 +2,18 @@
 
 import React from 'react';
 import type { Tenant, User } from '@/types';
-import { getSermonsForTenant } from '@/lib/data';
+import { MediaItem } from '@prisma/client';
 import Button from '../ui/Button';
 import SermonCard from './SermonCard';
-import { can } from '@/lib/permissions';
 
 interface SermonsPageProps {
   tenant: Tenant;
   user: User;
+  sermons: MediaItem[];
+  canCreate: boolean;
 }
 
-const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user }) => {
-  const sermons = getSermonsForTenant(tenant.id);
-  const canCreate = can(user, tenant, 'canCreateSermons');
-
+const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons, canCreate }) => {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">

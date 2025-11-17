@@ -7,8 +7,8 @@ interface PublicPostsViewProps {
   tenant: Tenant;
 }
 
-const PublicPostsView: React.FC<PublicPostsViewProps> = ({ tenant }) => {
-  const posts = getPostsForTenant(tenant.id);
+const PublicPostsView: React.FC<PublicPostsViewProps> = async ({ tenant }) => {
+  const posts = await getPostsForTenant(tenant.id);
 
   return (
     <div className="space-y-6">

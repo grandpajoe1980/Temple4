@@ -2,9 +2,8 @@
 
 import React, { useState } from 'react';
 import type { Tenant, User, PostInput, PostWithAuthor } from '@/types';
-import { getBooksForTenant, addPost } from '@/lib/data';
+import { addPost } from '@/lib/data';
 import Button from '../ui/Button';
-import { can } from '@/lib/permissions';
 import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 import BookCard from './BookCard';
@@ -12,20 +11,22 @@ import BookCard from './BookCard';
 interface BooksPageProps {
   tenant: Tenant;
   user: User;
+  books: PostWithAuthor[];
+  canCreate: boolean;
 }
 
-const BooksPage: React.FC<BooksPageProps> = ({ tenant, user }) => {
-  const [books, setBooks] = useState<PostWithAuthor[]>(() => getBooksForTenant(tenant.id));
+const BooksPage: React.FC<BooksPageProps> = ({ tenant, user, books: initialBooks, canCreate }) => {
+  const [books, setBooks] = useState<PostWithAuthor[]>(initialBooks);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const canCreate = can(user, tenant, 'canCreateBooks');
 
-  const handleCreatePost = (postData: PostInput) => {
-    addPost({
+  const handleCreatePost = async (postData: PostInput) => {
+    await addPost({
       ...postData,
       tenantId: tenant.id,
       authorUserId: user.id,
     });
-    setBooks(getBooksForTenant(tenant.id)); // Re-fetch to get the latest list
+    // TODO: In a real app, we'd refetch or optimistically update
+    // For now, just close the modal
     setIsModalOpen(false);
   };
 

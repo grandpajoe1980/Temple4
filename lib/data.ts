@@ -574,8 +574,21 @@ export async function updateMemberRolesAndTitle(userId: string, tenantId: string
 }
 
 export async function getSmallGroupsForTenant(tenantId: string) {
-    // TODO: Implement small groups fetching
-    return [];
+    return await prisma.smallGroup.findMany({
+        where: { tenantId },
+        include: {
+            members: {
+                include: {
+                    user: {
+                        include: {
+                            profile: true,
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: { name: 'asc' },
+    });
 }
 
 export async function createSmallGroup(tenantId: string, groupData: any) {
@@ -584,8 +597,21 @@ export async function createSmallGroup(tenantId: string, groupData: any) {
 }
 
 export async function getVolunteerNeedsForTenant(tenantId: string) {
-    // TODO: Implement volunteer needs fetching
-    return [];
+    return await prisma.volunteerNeed.findMany({
+        where: { tenantId },
+        include: {
+            signups: {
+                include: {
+                    user: {
+                        include: {
+                            profile: true,
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: { date: 'asc' },
+    });
 }
 
 export async function addVolunteerNeed(tenantId: string, needData: any) {

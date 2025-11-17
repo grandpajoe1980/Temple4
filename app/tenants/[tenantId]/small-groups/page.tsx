@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
-import { getTenantById, getUserById } from '@/lib/data';
+import { getTenantById, getUserById, getSmallGroupsForTenant } from '@/lib/data';
 import SmallGroupsPage from '@/app/components/tenant/SmallGroupsPage';
 
 export default async function TenantSmallGroupsPage({ params }: { params: Promise<{ tenantId: string }> }) {
@@ -19,5 +19,7 @@ export default async function TenantSmallGroupsPage({ params }: { params: Promis
     redirect('/');
   }
 
-  return <SmallGroupsPage tenant={tenant} user={user} />;
+  const groups = await getSmallGroupsForTenant(tenant.id);
+
+  return <SmallGroupsPage tenant={tenant} user={user} groups={groups} onRefresh={() => {}} />;
 }

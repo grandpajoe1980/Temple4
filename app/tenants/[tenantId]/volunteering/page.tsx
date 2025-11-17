@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
-import { getTenantById, getUserById } from '@/lib/data';
+import { getTenantById, getUserById, getVolunteerNeedsForTenant } from '@/lib/data';
 import VolunteeringPage from '@/app/components/tenant/VolunteeringPage';
 
 export default async function TenantVolunteeringPage({ params }: { params: Promise<{ tenantId: string }> }) {
@@ -19,5 +19,7 @@ export default async function TenantVolunteeringPage({ params }: { params: Promi
     redirect('/');
   }
 
-  return <VolunteeringPage tenant={tenant} user={user} />;
+  const needs = await getVolunteerNeedsForTenant(tenant.id);
+
+  return <VolunteeringPage tenant={tenant} user={user} needs={needs} onRefresh={() => {}} />;
 }

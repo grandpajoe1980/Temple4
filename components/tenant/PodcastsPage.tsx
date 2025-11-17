@@ -1,0 +1,51 @@
+import React from 'react';
+import type { Tenant, User } from '../../types';
+import { getPodcastsForTenant } from '../../seed-data';
+import Button from '../ui/Button';
+import PodcastCard from './PodcastCard';
+import { can } from '../../lib/permissions';
+
+interface PodcastsPageProps {
+  tenant: Tenant;
+  user: User;
+}
+
+const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user }) => {
+  const podcasts = getPodcastsForTenant(tenant.id);
+  const canCreate = can(user, tenant, 'canCreatePodcasts');
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Podcasts</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Listen to the latest episodes from {tenant.name}.
+          </p>
+        </div>
+        {canCreate && (
+            <Button onClick={() => alert('Open "New Podcast" form (not implemented).')}>
+            + New Podcast
+            </Button>
+        )}
+      </div>
+
+      {podcasts.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {podcasts.map((podcast) => (
+            <PodcastCard key={podcast.id} podcast={podcast} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center bg-white p-12 rounded-lg shadow-sm">
+          <h3 className="text-lg font-medium text-gray-900">No Podcasts Available</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            There are no podcasts here yet. {canCreate ? 'Why not add one?' : ''}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PodcastsPage;

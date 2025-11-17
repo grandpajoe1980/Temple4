@@ -1,0 +1,509 @@
+// --- ENUMS ---
+
+export enum TenantRole {
+  MEMBER = 'MEMBER',
+  STAFF = 'STAFF',
+  CLERGY = 'CLERGY',
+  MODERATOR = 'MODERATOR',
+  ADMIN = 'ADMIN',
+}
+
+// Role types for permission mapping
+export enum TenantRoleType {
+  MEMBER = 'MEMBER',
+  STAFF = 'STAFF',
+  MODERATOR = 'MODERATOR',
+}
+
+export enum MembershipStatus {
+  REQUESTED = 'REQUESTED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  BANNED = 'BANNED',
+}
+
+export enum MembershipApprovalMode {
+  OPEN = 'OPEN',
+  APPROVAL_REQUIRED = 'APPROVAL_REQUIRED',
+}
+
+export enum VolunteerStatus {
+  CONFIRMED = 'CONFIRMED',
+  CANCELED = 'CANCELED',
+}
+
+export enum SmallGroupRole {
+  LEADER = 'LEADER',
+  MEMBER = 'MEMBER',
+}
+
+export enum CommunityPostType {
+    PRAYER_REQUEST = 'PRAYER_REQUEST',
+    TANGIBLE_NEED = 'TANGIBLE_NEED',
+}
+
+export enum CommunityPostStatus {
+    PENDING_APPROVAL = 'PENDING_APPROVAL',
+    PUBLISHED = 'PUBLISHED',
+    FULFILLED = 'FULFILLED',
+}
+
+export enum ResourceVisibility {
+    PUBLIC = 'PUBLIC',
+    MEMBERS_ONLY = 'MEMBERS_ONLY',
+}
+
+export enum FileType {
+    PDF = 'PDF',
+    DOCX = 'DOCX',
+    MP3 = 'MP3',
+    JPG = 'JPG',
+    PNG = 'PNG',
+    OTHER = 'OTHER',
+}
+
+export enum ContactSubmissionStatus {
+    UNREAD = 'UNREAD',
+    READ = 'READ',
+    ARCHIVED = 'ARCHIVED',
+}
+
+
+// --- USER-RELATED MODELS ---
+export interface NotificationPreferences {
+  email: {
+    newAnnouncement: boolean;
+    newEvent: boolean;
+    directMessage: boolean;
+    groupChatMessage: boolean;
+    membershipUpdate: boolean;
+  };
+}
+
+export interface User {
+  id: string;
+  email: string;
+  password?: string; // NOTE: For mock login simulation.
+  isSuperAdmin: boolean;
+  profile: UserProfile;
+  privacySettings: UserPrivacySettings;
+  accountSettings: AccountSettings;
+  notificationPreferences: NotificationPreferences;
+}
+
+export interface UserProfile {
+  displayName: string;
+  avatarUrl?: string;
+  bio?: string;
+  locationCity?: string;
+  locationCountry?: string;
+  languages?: string[];
+}
+
+export interface UserPrivacySettings {
+  showAffiliations: boolean;
+}
+
+export interface AccountSettings {
+  timezonePreference?: string;
+  dateFormat?: string;
+  timeFormat?: string;
+  languagePreference?: string;
+}
+
+
+// --- TENANT-RELATED MODELS ---
+
+export interface Tenant {
+  id: string;
+  name: string;
+  slug: string;
+  creed: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+  };
+  contactEmail?: string;
+  phoneNumber?: string;
+  description: string;
+  settings: TenantSettings;
+  branding: TenantBranding;
+  permissions: TenantFeaturePermissions;
+}
+
+export interface TenantBranding {
+  logoUrl: string;
+  bannerImageUrl: string;
+  primaryColor: string;
+  accentColor: string;
+  customLinks: Array<{ label: string; url: string }>;
+}
+
+export interface LiveStreamSettings {
+  provider: 'YOUTUBE' | 'FACEBOOK' | 'VIMEO' | 'OTHER';
+  embedUrl: string;
+  isLive: boolean; // Manual toggle by admin
+}
+
+export interface TenantSettings {
+  isPublic: boolean;
+  membershipApprovalMode: MembershipApprovalMode;
+  // Features
+  enableCalendar: boolean;
+  enablePosts: boolean;
+  enableSermons: boolean;
+  enablePodcasts: boolean;
+  enableBooks: boolean;
+  enableMemberDirectory: boolean;
+  enableGroupChat: boolean;
+  enableComments: boolean;
+  enableReactions: boolean;
+  enableDonations: boolean;
+  enableVolunteering: boolean;
+  enableSmallGroups: boolean;
+  enableLiveStream: boolean;
+  enablePrayerWall: boolean;
+  enableResourceCenter: boolean;
+  donationSettings: DonationSettings;
+  liveStreamSettings: LiveStreamSettings;
+  // Visibility (simplified for mock)
+  visitorVisibility: {
+    calendar: boolean;
+    posts: boolean;
+    sermons: boolean;
+    podcasts: boolean;
+    books: boolean;
+    prayerWall: boolean;
+  };
+}
+
+
+export interface RolePermissions {
+  canCreatePosts: boolean;
+  canCreateEvents: boolean;
+  canCreateSermons: boolean;
+  canCreatePodcasts: boolean;
+  canCreateBooks: boolean;
+  canCreateGroupChats: boolean;
+  canInviteMembers: boolean;
+  canApproveMembership: boolean;
+  canBanMembers: boolean;
+  canModeratePosts: boolean;
+  canModerateChats: boolean;
+  canPostInAnnouncementChannels?: boolean;
+  canManagePrayerWall: boolean;
+  canUploadResources: boolean;
+  canManageResources: boolean;
+  canManageContactSubmissions: boolean;
+}
+
+// Sticking with a map for easier frontend access
+export type TenantFeaturePermissions = {
+  [key in TenantRoleType]?: RolePermissions;
+} & { ADMIN: RolePermissions };
+
+
+export interface UserTenantMembership {
+  id: string;
+  userId: string;
+  tenantId: string;
+  status: MembershipStatus;
+  roles: UserTenantRole[];
+  displayName?: string; // Tenant-specific display name override
+}
+
+export interface UserTenantRole {
+    id: string;
+    role: TenantRole;
+    displayTitle?: string;
+    isPrimary: boolean;
+}
+
+// Enriched type for displaying members in the UI
+export interface EnrichedMember extends User {
+  membership: UserTenantMembership;
+}
+
+
+// --- CONTENT & MESSAGING (Largely Unchanged) ---
+
+export interface Post {
+  id: string;
+  tenantId: string;
+  authorUserId: string;
+  type: 'BLOG' | 'ANNOUNCEMENT' | 'BOOK';
+  title: string;
+  body: string;
+  isPublished: boolean;
+  publishedAt: Date;
+}
+export interface PostInput {
+  title: string;
+  body: string;
+  type: 'BLOG' | 'ANNOUNCEMENT' | 'BOOK';
+  isPublished: boolean;
+}
+export interface PostWithAuthor extends Post {
+    authorDisplayName: string;
+    authorAvatarUrl?: string;
+}
+
+export interface Event {
+  id:string;
+  tenantId: string;
+  createdByUserId: string;
+  title: string;
+  description: string;
+  startDateTime: Date;
+  endDateTime: Date;
+  locationText: string;
+  isOnline: boolean;
+  onlineUrl?: string;
+}
+export interface EventWithCreator extends Event {
+    creatorDisplayName: string;
+    creatorAvatarUrl?: string;
+}
+
+export interface MediaItem {
+  id: string;
+  tenantId: string;
+  authorUserId: string;
+  type: 'SERMON_VIDEO' | 'PODCAST_AUDIO';
+  title: string;
+  description: string;
+  embedUrl: string;
+  publishedAt: Date;
+}
+export interface EnrichedMediaItem extends MediaItem {
+    authorDisplayName: string;
+    authorAvatarUrl?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  userId: string;
+  text: string;
+  createdAt: Date;
+  isDeleted?: boolean;
+}
+
+export interface EnrichedChatMessage extends ChatMessage {
+  userDisplayName: string;
+  userAvatarUrl?: string;
+}
+
+export interface Conversation {
+  id: string;
+  isDirect: boolean;
+  tenantId: string | null;
+  isPrivateGroup: boolean;
+  name?: string; // For group channels
+  description?: string; // Description for channels
+  createdByUserId: string;
+  isDefaultChannel: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ConversationParticipant {
+  id: string;
+  conversationId: string;
+  userId: string;
+  lastReadMessageId?: string | null;
+}
+
+export interface EnrichedConversation extends Conversation {
+    participants: User[];
+    unreadCount: number;
+    lastMessage?: EnrichedChatMessage;
+    displayName: string;
+}
+
+
+// --- ADMIN & AUDIT TYPES ---
+
+export enum ActionType {
+  IMPERSONATE_START = 'IMPERSONATE_START',
+  IMPERSONATE_END = 'IMPERSONATE_END',
+  CREATE_POST = 'CREATE_POST',
+  DELETE_POST = 'DELETE_POST',
+  BAN_USER = 'BAN_USER',
+  UNBAN_USER = 'UNBAN_USER',
+  DELETE_MESSAGE = 'DELETE_MESSAGE',
+  USER_JOINED_TENANT = 'USER_JOINED_TENANT',
+  MEMBERSHIP_STATUS_UPDATED = 'MEMBERSHIP_STATUS_UPDATED',
+  MEMBER_ROLES_UPDATED = 'MEMBER_ROLES_UPDATED',
+  MEMBERSHIP_PROFILE_UPDATED = 'MEMBERSHIP_PROFILE_UPDATED',
+  USER_REGISTERED = 'USER_REGISTERED',
+  USER_PROFILE_UPDATED = 'USER_PROFILE_UPDATED',
+  ADMIN_UPDATED_USER_PROFILE = 'ADMIN_UPDATED_USER_PROFILE',
+  TENANT_PERMISSIONS_UPDATED = 'TENANT_PERMISSIONS_UPDATED',
+}
+
+export interface AuditLog {
+  id: string;
+  actorUserId: string;
+  effectiveUserId?: string;
+  actionType: ActionType;
+  entityType?: string;
+  entityId?: string;
+  metadata?: Record<string, any>;
+  createdAt: Date;
+}
+
+// --- NOTIFICATION MODELS ---
+export type NotificationType =
+  | 'NEW_DIRECT_MESSAGE'
+  | 'NEW_ANNOUNCEMENT'
+  | 'MEMBERSHIP_APPROVED'
+  | 'NEW_CONTACT_SUBMISSION';
+
+export interface Notification {
+  id: string;
+  userId: string; // The recipient
+  actorUserId?: string; // The user who caused the notification
+  type: NotificationType;
+  message: string;
+  link?: string; // e.g., messages, tenant/tenant-1
+  isRead: boolean;
+  createdAt: Date;
+}
+
+// --- DONATION MODELS ---
+export interface DonationSettings {
+  mode: 'EXTERNAL' | 'INTEGRATED';
+  externalUrl?: string;
+  integratedProvider?: 'STRIPE' | 'PAYPAL';
+  currency: string;
+  suggestedAmounts: number[];
+  allowCustomAmounts: boolean;
+  leaderboardEnabled: boolean;
+  leaderboardVisibility: 'PUBLIC' | 'MEMBERS_ONLY';
+  leaderboardTimeframe: 'ALL_TIME' | 'YEARLY' | 'MONTHLY';
+}
+
+export interface DonationRecord {
+  id: string;
+  tenantId: string;
+  userId: string | null; // null for anonymous from public page
+  displayName: string; // denormalized for anonymous/guest donations
+  amount: number;
+  currency: string;
+  donatedAt: Date;
+  isAnonymousOnLeaderboard: boolean;
+  message?: string;
+}
+
+export interface EnrichedDonationRecord extends DonationRecord {
+    userAvatarUrl?: string;
+}
+
+// --- VOLUNTEER MODELS ---
+export interface VolunteerNeed {
+  id: string;
+  tenantId: string;
+  eventId?: string; // Optional link to an Event
+  title: string;
+  description: string;
+  date: Date;
+  slotsNeeded: number;
+}
+
+export interface VolunteerSignup {
+  id: string;
+  needId: string;
+  userId: string;
+  signedUpAt: Date;
+  status: VolunteerStatus;
+}
+
+// Enriched types for UI
+export interface EnrichedSignup {
+  signup: VolunteerSignup;
+  user: User;
+}
+
+export interface EnrichedVolunteerNeed extends VolunteerNeed {
+  signups: EnrichedSignup[];
+}
+
+// --- SMALL GROUP MODELS ---
+export interface SmallGroup {
+  id: string;
+  tenantId: string;
+  name: string;
+  description: string;
+  leaderUserId: string;
+  meetingSchedule: string; // e.g., "Tuesdays at 7 PM"
+  isActive: boolean;
+}
+
+export interface SmallGroupMembership {
+  id: string;
+  groupId: string;
+  userId: string;
+  role: SmallGroupRole;
+  joinedAt: Date;
+}
+
+// Enriched types for UI
+export interface EnrichedGroupMember {
+    membership: SmallGroupMembership;
+    user: User;
+}
+
+export interface EnrichedSmallGroup extends SmallGroup {
+    leader: User;
+    members: EnrichedGroupMember[];
+}
+
+// --- COMMUNITY BOARD / PRAYER WALL MODELS ---
+export interface CommunityPost {
+    id: string;
+    tenantId: string;
+    authorUserId: string | null; // Null for anonymous
+    type: CommunityPostType;
+    body: string;
+    isAnonymous: boolean;
+    status: CommunityPostStatus;
+    createdAt: Date;
+}
+
+export interface EnrichedCommunityPost extends CommunityPost {
+    authorDisplayName: string;
+    authorAvatarUrl?: string;
+}
+
+// --- RESOURCE CENTER MODELS ---
+export interface ResourceItem {
+    id: string;
+    tenantId: string;
+    uploaderUserId: string;
+    title: string;
+    description: string;
+    fileUrl: string; // For mock, this is just a string. In real app, it would be a URL to a file.
+    fileType: FileType;
+    visibility: ResourceVisibility;
+    createdAt: Date;
+}
+
+export interface EnrichedResourceItem extends ResourceItem {
+    uploaderDisplayName: string;
+    uploaderAvatarUrl?: string;
+}
+
+// --- CONTACT & SUBMISSIONS ---
+export interface ContactSubmission {
+    id: string;
+    tenantId: string;
+    name: string;
+    email: string;
+    message: string;
+    status: ContactSubmissionStatus;
+    createdAt: Date;
+}

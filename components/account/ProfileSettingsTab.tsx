@@ -1,0 +1,101 @@
+import React, { useState } from 'react';
+import type { User, UserProfile } from '../../types';
+import { updateUserProfile } from '../../seed-data';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+
+interface ProfileSettingsTabProps {
+  user: User;
+  onRefresh: () => void;
+}
+
+const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ user, onRefresh }) => {
+  const [profile, setProfile] = useState<UserProfile>(user.profile);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setProfile(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleLanguagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const languages = e.target.value.split(',').map(lang => lang.trim());
+    setProfile(prev => ({ ...prev, languages }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateUserProfile(user.id, profile);
+    onRefresh();
+    alert('Profile updated successfully!');
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <div>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">Personal Information</h3>
+        <p className="mt-1 text-sm text-gray-500">This information will be displayed on your public profile.</p>
+      </div>
+      <div className="space-y-6">
+        <Input 
+          label="Display Name" 
+          id="displayName" 
+          name="displayName" 
+          value={profile.displayName} 
+          onChange={handleInputChange} 
+          required 
+        />
+        <Input 
+          label="Avatar URL" 
+          id="avatarUrl" 
+          name="avatarUrl" 
+          type="url"
+          value={profile.avatarUrl} 
+          onChange={handleInputChange} 
+        />
+        <div>
+          <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
+            Bio
+          </label>
+          <textarea
+            id="bio"
+            name="bio"
+            rows={4}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+            value={profile.bio || ''}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input 
+            label="City" 
+            id="locationCity" 
+            name="locationCity" 
+            value={profile.locationCity || ''} 
+            onChange={handleInputChange} 
+          />
+          <Input 
+            label="Country" 
+            id="locationCountry" 
+            name="locationCountry" 
+            value={profile.locationCountry || ''} 
+            onChange={handleInputChange} 
+          />
+        </div>
+        <Input 
+          label="Languages" 
+          id="languages" 
+          name="languages" 
+          value={(profile.languages || []).join(', ')} 
+          onChange={handleLanguagesChange} 
+          placeholder="e.g., English, Spanish, German"
+        />
+      </div>
+
+      <div className="text-right border-t border-gray-200 pt-6">
+        <Button type="submit">Save Changes</Button>
+      </div>
+    </form>
+  );
+};
+
+export default ProfileSettingsTab;

@@ -1,8 +1,52 @@
-// FIX: Changed 'import type' for TenantRole to a value import.
-// FIX: Changed EnrichedConversation to Conversation to fix a type mismatch in seed-data.ts.
-import { TenantRole, type User, type Tenant, type RolePermissions, type EnrichedChatMessage, type Conversation } from '../types';
-import { TenantRoleType } from '../types';
-import { getMembershipForUserInTenant } from '../seed-data';
+import { TenantRole, User, Tenant, ChatMessage, Conversation, UserTenantMembership } from '@prisma/client';
+import { prisma } from './db';
+
+// Define RolePermissions based on your application's logic, as it's not in Prisma schema
+export interface RolePermissions {
+  canCreatePosts: boolean;
+  canCreateEvents: boolean;
+  canCreateSermons: boolean;
+  canCreatePodcasts: boolean;
+  canCreateBooks: boolean;
+  canCreateGroupChats: boolean;
+  canInviteMembers: boolean;
+  canApproveMembership: boolean;
+  canBanMembers: boolean;
+  canModeratePosts: boolean;
+  canModerateChats: boolean;
+  canPostInAnnouncementChannels?: boolean;
+  canManagePrayerWall: boolean;
+  canUploadResources: boolean;
+  canManageResources: boolean;
+  canManageContactSubmissions: boolean;
+}
+
+// This can be a simple enum if you don't need the string values
+export enum TenantRoleType {
+    MEMBER = 'MEMBER',
+    STAFF = 'STAFF',
+    MODERATOR = 'MODERATOR',
+}
+
+async function getMembershipForUserInTenant(userId: string, tenantId: string): Promise<(UserTenantMembership & { roles: { role: TenantRole }[] }) | null> {
+    return prisma.userTenantMembership.findUnique({
+        where: {
+            userId_tenantId: {
+                userId,
+                tenantId,
+            },
+        },
+        include: {
+            roles: {
+                select: {
+                    role: true
+                }
+            },
+        }
+    });
+}
+
+
 
 /**
  * Maps a specific TenantRole to a more general TenantRoleType for permission lookups.
@@ -33,14 +77,14 @@ function getRoleType(role: TenantRole): TenantRoleType | 'ADMIN' {
  * @param permission The permission to check for (e.g., 'canCreatePosts').
  * @returns {boolean} True if the user has the permission, false otherwise.
  */
-export function can(user: User, tenant: Tenant, permission: keyof RolePermissions): boolean {
+export async function can(user: User, tenant: Tenant, permission: keyof RolePermissions): Promise<boolean> {
   // Super Admins can do anything.
   if (user.isSuperAdmin) {
     return true;
   }
 
   // Find the user's membership for this specific tenant.
-  const membership = getMembershipForUserInTenant(user.id, tenant.id);
+  const membership = await getMembershipForUserInTenant(user.id, tenant.id);
 
   // If the user is not a member or not approved, they have no permissions.
   if (!membership || membership.status !== 'APPROVED') {
@@ -50,15 +94,16 @@ export function can(user: User, tenant: Tenant, permission: keyof RolePermission
   // Check if any of the user's roles grant the required permission.
   for (const roleInfo of membership.roles) {
     const roleType = getRoleType(roleInfo.role);
+    const permissions = tenant.permissions as any;
 
     if (roleType === 'ADMIN') {
         // Admins have all permissions defined under the ADMIN key.
-        if (tenant.permissions.ADMIN[permission]) {
+        if (permissions.ADMIN[permission]) {
             return true;
         }
     } else {
         // For other roles, check against their TenantRoleType.
-        const rolePerms = tenant.permissions[roleType];
+        const rolePerms = permissions[roleType];
         if (rolePerms && rolePerms[permission]) {
             return true; // Permission granted by at least one role.
         }
@@ -76,48 +121,94 @@ export function can(user: User, tenant: Tenant, permission: keyof RolePermission
  * @param role The role to check for.
  * @returns {boolean} True if the user has the role, false otherwise.
  */
-export function hasRole(user: User, tenantId: string, role: TenantRole): boolean {
-  // Super admin implicitly has ADMIN role for any tenant
-  if (user.isSuperAdmin && role === TenantRole.ADMIN) {
-    return true;
-  }
+export async function hasRole(userId: string, tenantId: string, requiredRoles: TenantRole[]): Promise<boolean> {
+  const membership = await getMembershipForUserInTenant(userId, tenantId);
 
-  const membership = getMembershipForUserInTenant(user.id, tenantId);
-  
   if (!membership || membership.status !== 'APPROVED') {
     return false;
   }
 
-  return membership.roles.some(r => r.role === role);
+  return membership.roles.some(roleInfo => requiredRoles.includes(roleInfo.role));
+}
+
+/**
+ * Checks if a user can view a certain type of content (e.g., posts, events).
+ * It checks tenant settings for public visibility and feature enablement.
+ *
+ * @param userId The ID of the user attempting to view. Can be null for anonymous users.
+ * @param tenantId The ID of the tenant where the content resides.
+ * @param contentType The key for the content type in tenant settings (e.g., 'posts', 'calendar').
+ * @returns {Promise<boolean>} True if the user can view the content.
+ */
+export async function canUserViewContent(userId: string | null, tenantId: string, contentType: 'posts' | 'calendar' | 'sermons' | 'podcasts' | 'books' | 'prayerWall'): Promise<boolean> {
+    const tenant = await prisma.tenant.findUnique({
+        where: { id: tenantId },
+        include: { settings: true }
+    });
+
+    if (!tenant || !tenant.settings) return false;
+
+    const settings = tenant.settings as any;
+
+    // Check if the entire feature is disabled
+    const featureFlag = `enable${contentType.charAt(0).toUpperCase() + contentType.slice(1)}`;
+    if (!settings[featureFlag]) {
+        return false;
+    }
+
+    const membership = userId ? await getMembershipForUserInTenant(userId, tenantId) : null;
+
+    // If user is not a member, check public visibility settings
+    if (!membership || membership.status !== 'APPROVED') {
+        return settings.visitorVisibility[contentType];
+    }
+
+    // If they are an approved member, they can view it as long as the feature is enabled.
+    return true;
+}
+
+/**
+ * Checks if a user has permission to create a post in a tenant.
+ *
+ * @param userId The ID of the user.
+ * @param tenantId The ID of the tenant.
+ * @param isAnnouncement Whether the post is an announcement.
+ * @returns {Promise<boolean>} True if the user can create the post.
+ */
+export async function canUserPost(userId: string, tenantId: string, isAnnouncement: boolean): Promise<boolean> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, include: { permissions: true } });
+
+    if (!user || !tenant) return false;
+
+    if (isAnnouncement) {
+        return can(user, tenant, 'canPostInAnnouncementChannels');
+    }
+    return can(user, tenant, 'canCreatePosts');
 }
 
 
 /**
  * Checks if a user can delete a specific message.
  */
-export function canDeleteMessage(
+export async function canDeleteMessage(
   user: User,
-  message: EnrichedChatMessage,
+  message: ChatMessage,
   conversation: Conversation,
-  tenant?: Tenant
-): boolean {
-  // Super Admins can do anything.
+  tenant: Tenant
+): Promise<boolean> {
   if (user.isSuperAdmin) {
     return true;
   }
-  
-  // The user who sent the message can delete it.
-  if (user.id === message.userId) {
+  // User can delete their own message
+  if (message.userId === user.id) {
     return true;
   }
-
-  // If it's a tenant conversation, check for moderation permissions.
-  if (tenant && conversation.tenantId === tenant.id) {
-    if (can(user, tenant, 'canModerateChats')) {
+  // Check for moderation permissions
+  if (!conversation.isDirectMessage) { // isGroupChat
+    if (await can(user, tenant, 'canModerateChats')) {
       return true;
     }
   }
-
-  // Otherwise, no permission.
   return false;
 }

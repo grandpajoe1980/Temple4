@@ -1,0 +1,466 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// --- ENUMS ---
+
+enum TenantRole {
+  MEMBER
+  STAFF
+  CLERGY
+  MODERATOR
+  ADMIN
+}
+
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  BANNED
+}
+
+enum MembershipApprovalMode {
+  OPEN
+  APPROVAL_REQUIRED
+}
+
+enum CommunityPostType {
+  PRAYER_REQUEST
+  TANGIBLE_NEED
+}
+
+enum CommunityPostStatus {
+  PENDING_APPROVAL
+  PUBLISHED
+  FULFILLED
+}
+
+enum ResourceVisibility {
+  PUBLIC
+  MEMBERS_ONLY
+}
+
+enum FileType {
+  PDF
+  DOCX
+  MP3
+  JPG
+  PNG
+  OTHER
+}
+
+enum ContactSubmissionStatus {
+  UNREAD
+  READ
+  ARCHIVED
+}
+
+enum ActionType {
+  IMPERSONATE_START
+  IMPERSONATE_END
+  CREATE_POST
+  DELETE_POST
+  BAN_USER
+  UNBAN_USER
+  DELETE_MESSAGE
+  USER_JOINED_TENANT
+  MEMBERSHIP_STATUS_UPDATED
+  MEMBER_ROLES_UPDATED
+  MEMBERSHIP_PROFILE_UPDATED
+  USER_REGISTERED
+  USER_PROFILE_UPDATED
+  ADMIN_UPDATED_USER_PROFILE
+  TENANT_PERMISSIONS_UPDATED
+}
+
+enum NotificationType {
+  NEW_DIRECT_MESSAGE
+  NEW_ANNOUNCEMENT
+  MEMBERSHIP_APPROVED
+  NEW_CONTACT_SUBMISSION
+}
+
+enum VolunteerStatus {
+  CONFIRMED
+  CANCELED
+}
+
+enum SmallGroupRole {
+  LEADER
+  MEMBER
+}
+
+// --- USER-RELATED MODELS ---
+
+model User {
+  id                      String                  @id @default(cuid())
+  email                   String                  @unique
+  password                String?
+  isSuperAdmin            Boolean                 @default(false)
+  profile                 UserProfile?
+  privacySettings         UserPrivacySettings?
+  accountSettings         AccountSettings?
+  notificationPreferences Json?
+  memberships             UserTenantMembership[]
+  posts                   Post[]
+  events                  Event[]
+  mediaItems              MediaItem[]
+  messages                ChatMessage[]
+  conversations           ConversationParticipant[]
+  auditLogsAsActor        AuditLog[]              @relation("Actor")
+  auditLogsAsEffective    AuditLog[]              @relation("Effective")
+  notifications           Notification[]          @relation("Recipient")
+  notificationsAsActor    Notification[]          @relation("Actor")
+  donations               DonationRecord[]
+  volunteerSignups        VolunteerSignup[]
+  smallGroupMemberships   SmallGroupMembership[]
+  uploadedResources       ResourceItem[]
+}
+
+model UserProfile {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName     String
+  avatarUrl       String?
+  bio             String?
+  locationCity    String?
+  locationCountry String?
+  languages       String?
+}
+
+model UserPrivacySettings {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  showAffiliations Boolean @default(true)
+}
+
+model AccountSettings {
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timezonePreference String?
+  dateFormat         String?
+  timeFormat         String?
+  languagePreference String?
+}
+
+// --- TENANT-RELATED MODELS ---
+
+model Tenant {
+  id               String                 @id @default(cuid())
+  name             String
+  slug             String                 @unique
+  creed            String
+  street           String
+  city             String
+  state            String
+  country          String
+  postalCode       String
+  contactEmail     String?
+  phoneNumber      String?
+  description      String
+  settings         TenantSettings?
+  branding         TenantBranding?
+  permissions      Json? // TenantFeaturePermissions
+  memberships      UserTenantMembership[]
+  posts            Post[]
+  events           Event[]
+  mediaItems       MediaItem[]
+  conversations    Conversation[]
+  donationRecords  DonationRecord[]
+  volunteerNeeds   VolunteerNeed[]
+  smallGroups      SmallGroup[]
+  communityPosts   CommunityPost[]
+  resourceItems    ResourceItem[]
+  contactSubmissions ContactSubmission[]
+}
+
+model TenantBranding {
+  id             String   @id @default(cuid())
+  tenantId       String   @unique
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  logoUrl        String?
+  bannerImageUrl String?
+  primaryColor   String?
+  accentColor    String?
+  customLinks    Json? // Array<{ label: string; url: string }>
+}
+
+model TenantSettings {
+  id                       String                 @id @default(cuid())
+  tenantId                 String                 @unique
+  tenant                   Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  isPublic                 Boolean                @default(false)
+  membershipApprovalMode   MembershipApprovalMode @default(APPROVAL_REQUIRED)
+  enableCalendar           Boolean                @default(true)
+  enablePosts              Boolean                @default(true)
+  enableSermons            Boolean                @default(true)
+  enablePodcasts           Boolean                @default(true)
+  enableBooks              Boolean                @default(true)
+  enableMemberDirectory    Boolean                @default(true)
+  enableGroupChat          Boolean                @default(true)
+  enableComments           Boolean                @default(true)
+  enableReactions          Boolean                @default(true)
+  enableDonations          Boolean                @default(false)
+  enableVolunteering       Boolean                @default(false)
+  enableSmallGroups        Boolean                @default(false)
+  enableLiveStream         Boolean                @default(false)
+  enablePrayerWall         Boolean                @default(false)
+  enableResourceCenter     Boolean                @default(false)
+  donationSettings         Json // DonationSettings
+  liveStreamSettings       Json // LiveStreamSettings
+  visitorVisibility        Json // visitorVisibility
+}
+
+model UserTenantMembership {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenantId    String
+  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  status      MembershipStatus
+  roles       UserTenantRole[]
+  displayName String?
+
+  @@unique([userId, tenantId])
+}
+
+model UserTenantRole {
+  id           String               @id @default(cuid())
+  membershipId String
+  membership   UserTenantMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  role         TenantRole
+  displayTitle String?
+  isPrimary    Boolean              @default(false)
+}
+
+// --- CONTENT & MESSAGING ---
+
+model Post {
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  authorUserId  String
+  author        User     @relation(fields: [authorUserId], references: [id])
+  type          String // 'BLOG' | 'ANNOUNCEMENT' | 'BOOK'
+  title         String
+  body          String
+  isPublished   Boolean  @default(false)
+  publishedAt   DateTime @default(now())
+  deletedAt     DateTime?
+}
+
+model Event {
+  id              String    @id @default(cuid())
+  tenantId        String
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdByUserId String
+  creator         User      @relation(fields: [createdByUserId], references: [id])
+  title           String
+  description     String
+  startDateTime   DateTime
+  endDateTime     DateTime
+  locationText    String
+  isOnline        Boolean   @default(false)
+  onlineUrl       String?
+  deletedAt       DateTime?
+}
+
+model MediaItem {
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  authorUserId  String
+  author        User     @relation(fields: [authorUserId], references: [id])
+  type          String // 'SERMON_VIDEO' | 'PODCAST_AUDIO'
+  title         String
+  description   String
+  embedUrl      String
+  publishedAt   DateTime @default(now())
+  deletedAt     DateTime?
+}
+
+model ChatMessage {
+  id              String                  @id @default(cuid())
+  conversationId  String
+  conversation    Conversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User                    @relation(fields: [userId], references: [id])
+  text            String
+  createdAt       DateTime                @default(now())
+  isDeleted       Boolean                 @default(false)
+  readBy          ConversationParticipant[] @relation("LastReadMessage")
+}
+
+model Conversation {
+  id              String                    @id @default(cuid())
+  tenantId        String?
+  tenant          Tenant?                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name            String?
+  isDirectMessage Boolean                 @default(false)
+  participants    ConversationParticipant[]
+  messages        ChatMessage[]
+}
+
+model ConversationParticipant {
+  id              String       @id @default(cuid())
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadMessageId String?
+  lastReadMessage   ChatMessage? @relation("LastReadMessage", fields: [lastReadMessageId], references: [id])
+
+  @@unique([conversationId, userId])
+}
+
+// --- ADMIN & AUDIT TYPES ---
+
+model AuditLog {
+  id              String     @id @default(cuid())
+  actorUserId     String
+  actorUser       User       @relation("Actor", fields: [actorUserId], references: [id])
+  effectiveUserId String?
+  effectiveUser   User?      @relation("Effective", fields: [effectiveUserId], references: [id])
+  actionType      ActionType
+  entityType      String?
+  entityId        String?
+  metadata        Json?
+  createdAt       DateTime   @default(now())
+}
+
+// --- NOTIFICATION MODELS ---
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation("Recipient", fields: [userId], references: [id])
+  actorUserId String?
+  actor       User?            @relation("Actor", fields: [actorUserId], references: [id])
+  type        NotificationType
+  message     String
+  link        String?
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+}
+
+// --- DONATION MODELS ---
+
+model DonationRecord {
+  id                      String   @id @default(cuid())
+  tenantId                String
+  tenant                  Tenant   @relation(fields: [tenantId], references: [id])
+  userId                  String?
+  user                    User?    @relation(fields: [userId], references: [id])
+  displayName             String
+  amount                  Float
+  currency                String
+  donatedAt               DateTime @default(now())
+  isAnonymousOnLeaderboard Boolean  @default(false)
+  message                 String?
+}
+
+// --- VOLUNTEER MODELS ---
+
+model VolunteerNeed {
+  id          String            @id @default(cuid())
+  tenantId    String
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+  eventId     String?
+  title       String
+  description String
+  date        DateTime
+  slotsNeeded Int
+  signups     VolunteerSignup[]
+}
+
+model VolunteerSignup {
+  id        String        @id @default(cuid())
+  needId    String
+  need      VolunteerNeed @relation(fields: [needId], references: [id])
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  signedUpAt DateTime      @default(now())
+  status    VolunteerStatus
+
+  @@unique([needId, userId])
+}
+
+// --- SMALL GROUP MODELS ---
+
+model SmallGroup {
+  id            String                 @id @default(cuid())
+  tenantId      String
+  tenant        Tenant                 @relation(fields: [tenantId], references: [id])
+  name          String
+  description   String
+  leaderUserId  String
+  meetingSchedule String
+  isActive      Boolean                @default(true)
+  members       SmallGroupMembership[]
+}
+
+model SmallGroupMembership {
+  id        String       @id @default(cuid())
+  groupId   String
+  group     SmallGroup   @relation(fields: [groupId], references: [id])
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+  role      SmallGroupRole
+  joinedAt  DateTime     @default(now())
+
+  @@unique([groupId, userId])
+}
+
+// --- COMMUNITY BOARD / PRAYER WALL MODELS ---
+
+model CommunityPost {
+  id           String              @id @default(cuid())
+  tenantId     String
+  tenant       Tenant              @relation(fields: [tenantId], references: [id])
+  authorUserId String?
+  type         CommunityPostType
+  body         String
+  isAnonymous  Boolean
+  status       CommunityPostStatus @default(PENDING_APPROVAL)
+  createdAt    DateTime            @default(now())
+}
+
+// --- RESOURCE CENTER MODELS ---
+
+model ResourceItem {
+  id             String             @id @default(cuid())
+  tenantId       String
+  tenant         Tenant             @relation(fields: [tenantId], references: [id])
+  uploaderUserId String
+  uploader       User               @relation(fields: [uploaderUserId], references: [id])
+  title          String
+  description    String
+  fileUrl        String
+  fileType       FileType
+  visibility     ResourceVisibility @default(MEMBERS_ONLY)
+  createdAt      DateTime           @default(now())
+}
+
+// --- CONTACT & SUBMISSIONS ---
+
+model ContactSubmission {
+  id        String                  @id @default(cuid())
+  tenantId  String
+  tenant    Tenant                  @relation(fields: [tenantId], references: [id])
+  name      String
+  email     String
+  message   String
+  status    ContactSubmissionStatus @default(UNREAD)
+  createdAt DateTime                @default(now())
+}

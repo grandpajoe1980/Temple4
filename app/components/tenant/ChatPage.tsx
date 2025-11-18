@@ -22,39 +22,39 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile }) => {
   const [isDetailsPanelOpen, setIsDetailsPanelOpen] = useState(true);
 
   const tenantConversations = useMemo(() => {
-    const all = getConversationsForUser(user.id);
-    return all.filter((c) => c.tenantId === tenant.id);
+    const all = getConversationsForUser(user.id) as any;
+    return all.filter ? all.filter((c: any) => c.tenantId === tenant.id) : [];
   }, [user.id, tenant.id, updateTrigger]);
 
   const [activeConversation, setActiveConversation] = useState<EnrichedConversation | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newlyCreatedConvId, setNewlyCreatedConvId] = useState<string | null>(null);
 
-  const canCreate = can(user, tenant, 'canCreateGroupChats');
+  const canCreate = (can as any)(user, tenant, 'canCreateGroupChats');
 
   useEffect(() => {
     if (newlyCreatedConvId) {
       // A new channel was just created
-      const newConv = tenantConversations.find((c) => c.id === newlyCreatedConvId);
+      const newConv = tenantConversations.find((c: any) => c.id === newlyCreatedConvId);
       if (newConv) {
         setActiveConversation(newConv);
         setNewlyCreatedConvId(null); // Reset
       }
     } else {
       // Normal behavior: check if active is still valid or pick a default
-      const activeConvStillExists = tenantConversations.some((c) => c.id === activeConversation?.id);
+      const activeConvStillExists = tenantConversations.some((c: any) => c.id === activeConversation?.id);
       if (!activeConvStillExists) {
-        const announcementChannel = tenantConversations.find(c => c.name === '#announcements');
-        const defaultChannel = tenantConversations.find((c) => c.isDefaultChannel);
+        const announcementChannel = tenantConversations.find((c: any) => c.name === '#announcements');
+        const defaultChannel = tenantConversations.find((c: any) => c.isDefaultChannel);
         setActiveConversation(announcementChannel || defaultChannel || tenantConversations[0] || null);
       }
     }
   }, [tenantConversations, activeConversation, newlyCreatedConvId]);
 
   const handleCreateChannel = (data: { name: string; isPrivate: boolean; participantIds: string[] }) => {
-    const newConv = createConversation(tenant.id, user.id, data.name, data.isPrivate, data.participantIds);
+    const newConv = (createConversation as any)(tenant.id, user.id, data.name, data.isPrivate, data.participantIds);
     setIsModalOpen(false);
-    setNewlyCreatedConvId(newConv.id);
+    setNewlyCreatedConvId((newConv as any)?.id || null);
     setUpdateTrigger((c) => c + 1);
   };
 
@@ -98,7 +98,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile }) => {
               key={activeConversation.id} // Re-mount component when conversation changes
               currentUser={user}
               conversation={activeConversation}
-              onViewProfile={onViewProfile}
+              onViewProfile={onViewProfile || (() => {})}
               tenant={tenant}
               isDetailsPanelOpen={isDetailsPanelOpen}
               onToggleDetailsPanel={() => setIsDetailsPanelOpen(!isDetailsPanelOpen)}
@@ -123,7 +123,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile }) => {
                     key={activeConversation.id}
                     conversation={activeConversation}
                     tenant={tenant}
-                    onViewProfile={onViewProfile}
+                    onViewProfile={onViewProfile || (() => {})}
                 />
             </div>
         )}

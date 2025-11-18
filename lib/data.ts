@@ -113,7 +113,7 @@ export async function getEventsForTenant(tenantId: string) {
     where: { tenantId },
     orderBy: { startDateTime: 'asc' },
     include: {
-      createdBy: {
+      creator: {
         include: {
           profile: true,
         }
@@ -123,9 +123,9 @@ export async function getEventsForTenant(tenantId: string) {
   
   return events.map(event => ({
     ...event,
-    onlineUrl: event.onlineUrl || undefined,
-    creatorDisplayName: event.createdBy.profile?.displayName || event.createdBy.email,
-    creatorAvatarUrl: event.createdBy.profile?.avatarUrl || undefined,
+    onlineUrl: event.onlineUrl,
+    creatorDisplayName: event.creator.profile?.displayName || event.creator.email,
+    creatorAvatarUrl: event.creator.profile?.avatarUrl || null,
   }));
 }
 

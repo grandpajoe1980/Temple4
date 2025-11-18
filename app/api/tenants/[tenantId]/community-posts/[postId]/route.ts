@@ -10,7 +10,7 @@ const updateStatusSchema = z.object({
     status: z.nativeEnum(CommunityPostStatus),
 });
 
-// 15.3 Update Community Post Status
+// 15.3 Update Community Post Status (PUT - existing functionality)
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; postId: string }> }
@@ -54,4 +54,12 @@ export async function PUT(
         console.error(`Failed to update community post ${postId}:`, error);
         return NextResponse.json({ message: 'Failed to update community post' }, { status: 500 });
     }
+}
+
+// PATCH - Update Community Post Status (moderation) - same as PUT for consistency
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ tenantId: string; postId: string }> }
+) {
+    return PUT(request, { params });
 }

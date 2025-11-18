@@ -235,6 +235,7 @@ model TenantSettings {
   donationSettings         Json // DonationSettings
   liveStreamSettings       Json // LiveStreamSettings
   visitorVisibility        Json // visitorVisibility
+  maxStorageMB             Int                    @default(1000) // Phase F2: Storage quota per tenant
 }
 
 model UserTenantMembership {
@@ -319,6 +320,11 @@ model MediaItem {
   embedUrl      String
   publishedAt   DateTime @default(now())
   deletedAt     DateTime?
+  // File upload fields (Phase F2)
+  storageKey    String?  // e.g., "tenants/abc123/media/xyz.jpg"
+  mimeType      String?  // e.g., "image/jpeg"
+  fileSize      Int?     // bytes
+  uploadedAt    DateTime @default(now())
 }
 
 model Book {
@@ -519,6 +525,11 @@ model ResourceItem {
   fileType       FileType
   visibility     ResourceVisibility @default(MEMBERS_ONLY)
   createdAt      DateTime           @default(now())
+  // File upload fields (Phase F2)
+  storageKey     String?            // e.g., "tenants/abc123/resources/xyz.pdf"
+  mimeType       String?            // e.g., "application/pdf"
+  fileSize       Int?               // bytes
+  uploadedAt     DateTime?
 }
 
 // --- CONTACT & SUBMISSIONS ---

@@ -1,0 +1,1 @@
+# Upload Directory\n\nThis directory stores uploaded files organized by tenant.\n\nStructure:\n- public/uploads/[tenantId]/media/ - Media items (videos, audio)\n- public/uploads/[tenantId]/resources/ - Resource files (PDFs, docs)\n- public/uploads/[tenantId]/photos/ - Photo gallery images\n- public/uploads/[tenantId]/avatars/ - User/tenant avatars\n

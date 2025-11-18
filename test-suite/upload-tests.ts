@@ -1,0 +1,394 @@
+/**
+ * File Upload Test Suite (Phase F2)
+ * Tests file upload, storage, deletion, and quota enforcement
+ */
+
+import TEST_CONFIG from './test-config';
+import { TestLogger } from './test-logger';
+import * as fs from 'fs';
+import * as path from 'path';
+
+export class UploadTestSuite {
+  private logger: TestLogger;
+  private authToken: string | null = null;
+  private testTenantId: string | null = null;
+  private uploadedFiles: string[] = [];
+
+  constructor(logger: TestLogger) {
+    this.logger = logger;
+  }
+
+  async runAllTests() {
+    console.log('\n' + '='.repeat(60));
+    console.log('STARTING FILE UPLOAD TESTS (Phase F2)');
+    console.log('='.repeat(60));
+
+    await this.setupAuth();
+    await this.testImageUpload();
+    await this.testDocumentUpload();
+    await this.testInvalidFileType();
+    await this.testFileTooLarge();
+    await this.testUnauthorizedUpload();
+    await this.testStorageInfo();
+    await this.testFileDelete();
+    await this.testDeleteUnauthorized();
+    await this.cleanupFiles();
+  }
+
+  private async setupAuth() {
+    const category = 'Upload - Setup';
+
+    // Login to get auth token and tenant
+    await this.testEndpoint(
+      category,
+      'Setup: Login and get tenant',
+      async () => {
+        // Login
+        const loginResponse = await fetch(`${TEST_CONFIG.apiBaseUrl}/auth/callback/credentials`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            email: TEST_CONFIG.testUsers.admin.email,
+            password: TEST_CONFIG.testUsers.admin.password,
+            callbackUrl: `${TEST_CONFIG.baseUrl}/`,
+            json: 'true',
+          }),
+          redirect: 'manual',
+        });
+
+        if (loginResponse.ok || loginResponse.status === 302) {
+          const setCookie = loginResponse.headers.get('set-cookie');
+          if (setCookie) {
+            this.authToken = setCookie;
+          }
+        }
+
+        // Get tenant list
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        if (this.authToken) {
+          headers['Cookie'] = this.authToken;
+        }
+
+        const tenantsResponse = await fetch(`${TEST_CONFIG.apiBaseUrl}/tenants`, {
+          method: 'GET',
+          headers,
+        });
+
+        if (tenantsResponse.ok) {
+          const tenants = await tenantsResponse.json();
+          if (tenants && tenants.length > 0) {
+            this.testTenantId = tenants[0].id;
+          }
+        }
+
+        return { response: loginResponse, expectedStatus: [200, 302] };
+      }
+    );
+  }
+
+  private async testImageUpload() {
+    const category = 'Upload - Image';
+
+    await this.testEndpoint(
+      category,
+      'POST /api/upload (valid image)',
+      async () => {
+        if (!this.authToken || !this.testTenantId) {
+          throw new Error('Not authenticated or no tenant');
+        }
+
+        // Create a small test image (1x1 PNG)
+        const testImage = Buffer.from(
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+          'base64'
+        );
+
+        const formData = new FormData();
+        formData.append('file', new Blob([testImage], { type: 'image/png' }), 'test.png');
+        formData.append('tenantId', this.testTenantId);
+        formData.append('category', 'photos');
+
+        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/upload`, {
+          method: 'POST',
+          headers: {
+            'Cookie': this.authToken,
+          },
+          body: formData,
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.storageKey) {
+            this.uploadedFiles.push(result.storageKey);
+          }
+        }
+
+        return { response, expectedStatus: [201] };
+      }
+    );
+  }
+
+  private async testDocumentUpload() {
+    const category = 'Upload - Document';
+
+    await this.testEndpoint(
+      category,
+      'POST /api/upload (PDF document)',
+      async () => {
+        if (!this.authToken || !this.testTenantId) {
+          throw new Error('Not authenticated or no tenant');
+        }
+
+        // Create a minimal PDF
+        const testPdf = Buffer.from('%PDF-1.4\n%EOF');
+
+        const formData = new FormData();
+        formData.append('file', new Blob([testPdf], { type: 'application/pdf' }), 'test.pdf');
+        formData.append('tenantId', this.testTenantId);
+        formData.append('category', 'resources');
+
+        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/upload`, {
+          method: 'POST',
+          headers: {
+            'Cookie': this.authToken,
+          },
+          body: formData,
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.storageKey) {
+            this.uploadedFiles.push(result.storageKey);
+          }
+        }
+
+        return { response, expectedStatus: [201] };
+      }
+    );
+  }
+
+  private async testInvalidFileType() {
+    const category = 'Upload - Validation';
+
+    await this.testEndpoint(
+      category,
+      'POST /api/upload (invalid file type)',
+      async () => {
+        if (!this.authToken || !this.testTenantId) {
+          throw new Error('Not authenticated or no tenant');
+        }
+
+        // Try to upload an executable file
+        const testFile = Buffer.from('fake executable');
+
+        const formData = new FormData();
+        formData.append('file', new Blob([testFile], { type: 'application/x-msdownload' }), 'test.exe');
+        formData.append('tenantId', this.testTenantId);
+        formData.append('category', 'photos');
+
+        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/upload`, {
+          method: 'POST',
+          headers: {
+            'Cookie': this.authToken,
+          },
+          body: formData,
+        });
+
+        return { response, expectedStatus: [400] };
+      }
+    );
+  }
+
+  private async testFileTooLarge() {
+    const category = 'Upload - Validation';
+
+    await this.testEndpoint(
+      category,
+      'POST /api/upload (file too large)',
+      async () => {
+        if (!this.authToken || !this.testTenantId) {
+          throw new Error('Not authenticated or no tenant');
+        }
+
+        // Create a fake large file (11 MB for photos, which have 10 MB limit)
+        const largeFile = Buffer.alloc(11 * 1024 * 1024);
+
+        const formData = new FormData();
+        formData.append('file', new Blob([largeFile], { type: 'image/jpeg' }), 'large.jpg');
+        formData.append('tenantId', this.testTenantId);
+        formData.append('category', 'photos');
+
+        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/upload`, {
+          method: 'POST',
+          headers: {
+            'Cookie': this.authToken,
+          },
+          body: formData,
+        });
+
+        return { response, expectedStatus: [400] };
+      }
+    );
+  }
+
+  private async testUnauthorizedUpload() {
+    const category = 'Upload - Security';
+
+    await this.testEndpoint(
+      category,
+      'POST /api/upload (no auth)',
+      async () => {
+        const testImage = Buffer.from(
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+          'base64'
+        );
+
+        const formData = new FormData();
+        formData.append('file', new Blob([testImage], { type: 'image/png' }), 'test.png');
+        formData.append('tenantId', this.testTenantId || 'fake-tenant');
+        formData.append('category', 'photos');
+
+        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        return { response, expectedStatus: [401] };
+      }
+    );
+  }
+
+  private async testStorageInfo() {
+    const category = 'Upload - Storage Info';
+
+    await this.testEndpoint(
+      category,
+      'GET /api/upload/storage-info',
+      async () => {
+        if (!this.authToken || !this.testTenantId) {
+          throw new Error('Not authenticated or no tenant');
+        }
+
+        const response = await fetch(
+          `${TEST_CONFIG.apiBaseUrl}/upload/storage-info?tenantId=${this.testTenantId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Cookie': this.authToken,
+            },
+          }
+        );
+
+        return { response, expectedStatus: [200] };
+      }
+    );
+  }
+
+  private async testFileDelete() {
+    const category = 'Upload - Delete';
+
+    await this.testEndpoint(
+      category,
+      'DELETE /api/upload/delete (authorized)',
+      async () => {
+        if (!this.authToken || !this.testTenantId || this.uploadedFiles.length === 0) {
+          throw new Error('No files to delete');
+        }
+
+        const storageKey = this.uploadedFiles[0];
+
+        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/upload/delete`, {
+          method: 'DELETE',
+          headers: {
+            'Cookie': this.authToken,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            storageKey,
+            tenantId: this.testTenantId,
+          }),
+        });
+
+        // Remove from our tracking list if successful
+        if (response.ok) {
+          this.uploadedFiles = this.uploadedFiles.filter(key => key !== storageKey);
+        }
+
+        return { response, expectedStatus: [200] };
+      }
+    );
+  }
+
+  private async testDeleteUnauthorized() {
+    const category = 'Upload - Security';
+
+    await this.testEndpoint(
+      category,
+      'DELETE /api/upload/delete (no auth)',
+      async () => {
+        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/upload/delete`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            storageKey: 'fake-key',
+            tenantId: this.testTenantId || 'fake-tenant',
+          }),
+        });
+
+        return { response, expectedStatus: [401] };
+      }
+    );
+  }
+
+  private async cleanupFiles() {
+    const category = 'Upload - Cleanup';
+
+    for (const storageKey of this.uploadedFiles) {
+      await this.testEndpoint(
+        category,
+        `Cleanup: Delete ${storageKey}`,
+        async () => {
+          const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/upload/delete`, {
+            method: 'DELETE',
+            headers: {
+              'Cookie': this.authToken!,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              storageKey,
+              tenantId: this.testTenantId,
+            }),
+          });
+
+          return { response, expectedStatus: [200, 404] };
+        }
+      );
+    }
+  }
+
+  private async testEndpoint(
+    category: string,
+    testName: string,
+    testFn: () => Promise<{ response: Response; expectedStatus: number[] }>
+  ) {
+    this.logger.startTest(category, testName);
+    
+    try {
+      const { response, expectedStatus } = await testFn();
+      const status = response.status;
+      const passed = expectedStatus.includes(status);
+
+      if (passed) {
+        this.logger.logPass(category, testName);
+      } else {
+        const body = await response.text();
+        const errorMsg = `Expected status: ${expectedStatus.join(' or ')}, got: ${status}. Response: ${body.substring(0, 200)}`;
+        this.logger.logFail(category, testName, errorMsg);
+      }
+    } catch (error: any) {
+      this.logger.logError(category, testName, error);
+    }
+  }
+}

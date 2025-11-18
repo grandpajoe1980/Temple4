@@ -1,0 +1,758 @@
+[
+  {
+    "timestamp": "2025-11-18T09:26:48.787Z",
+    "category": "Feature - Authentication",
+    "testName": "User Registration Flow",
+    "status": "PASS",
+    "duration": 264,
+    "details": {
+      "status": 200,
+      "email": "test-1763458008524@example.com"
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:48.813Z",
+    "category": "Feature - Authentication",
+    "testName": "User Login Flow",
+    "status": "PASS",
+    "duration": 26,
+    "details": {
+      "hasSession": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:49.013Z",
+    "category": "Feature - Authentication",
+    "testName": "Session Persistence",
+    "status": "PASS",
+    "duration": 200,
+    "details": {
+      "status": 401,
+      "note": "Endpoint responds correctly (401 expected without proper session cookie)"
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:49.025Z",
+    "category": "Feature - Tenant Creation",
+    "testName": "Create New Tenant",
+    "status": "PASS",
+    "duration": 12,
+    "details": {
+      "status": 401,
+      "note": "Endpoint requires authentication (401 expected without proper session)"
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:49.813Z",
+    "category": "Feature - Membership",
+    "testName": "Join Tenant",
+    "status": "FAIL",
+    "duration": 788,
+    "error": "Failed to join tenant: 401",
+    "details": {
+      "tenantId": "cmi3atear0014ums4fuftaa9r"
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:49.834Z",
+    "category": "Feature - Membership",
+    "testName": "View Tenant Members",
+    "status": "FAIL",
+    "duration": 21,
+    "error": "Failed to view members: 401",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-18T09:26:50.671Z",
+    "category": "Feature - Content Creation",
+    "testName": "Create Post",
+    "status": "FAIL",
+    "duration": 836,
+    "error": "Failed to create post: 401",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-18T09:26:51.488Z",
+    "category": "Feature - Content Creation",
+    "testName": "Create Event",
+    "status": "FAIL",
+    "duration": 817,
+    "error": "Failed to create event: 401",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-18T09:26:52.277Z",
+    "category": "Feature - Content Creation",
+    "testName": "Create Sermon",
+    "status": "FAIL",
+    "duration": 789,
+    "error": "Failed to create sermon: 401",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-11-18T09:26:53.063Z",
+    "category": "Feature - Permissions",
+    "testName": "Admin Access Control",
+    "status": "PASS",
+    "duration": 786,
+    "details": {
+      "status": 401,
+      "message": "Access correctly denied"
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:53.175Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/register",
+    "status": "PASS",
+    "duration": 111,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:53.195Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/callback/credentials",
+    "status": "PASS",
+    "duration": 20,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:53.206Z",
+    "category": "API - Authentication",
+    "testName": "GET /api/auth/me",
+    "status": "PASS",
+    "duration": 10,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:53.363Z",
+    "category": "API - Authentication",
+    "testName": "POST /api/auth/forgot-password",
+    "status": "PASS",
+    "duration": 157,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:53.375Z",
+    "category": "API - Tenants",
+    "testName": "GET /api/tenants",
+    "status": "PASS",
+    "duration": 12,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:53.387Z",
+    "category": "API - Tenants",
+    "testName": "POST /api/tenants",
+    "status": "PASS",
+    "duration": 12,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:54.223Z",
+    "category": "API - Tenants",
+    "testName": "GET /api/tenants/[tenantId]",
+    "status": "PASS",
+    "duration": 836,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:54.250Z",
+    "category": "API - Members",
+    "testName": "GET /api/tenants/[tenantId]/members",
+    "status": "PASS",
+    "duration": 27,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:54.274Z",
+    "category": "API - Members",
+    "testName": "POST /api/tenants/[tenantId]/join",
+    "status": "PASS",
+    "duration": 24,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:54.308Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/posts",
+    "status": "PASS",
+    "duration": 34,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:54.325Z",
+    "category": "API - Content",
+    "testName": "POST /api/tenants/[tenantId]/posts",
+    "status": "PASS",
+    "duration": 17,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:54.371Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/events",
+    "status": "PASS",
+    "duration": 45,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:54.419Z",
+    "category": "API - Content",
+    "testName": "POST /api/tenants/[tenantId]/events",
+    "status": "PASS",
+    "duration": 48,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:54.491Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/sermons",
+    "status": "PASS",
+    "duration": 72,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:55.678Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/books",
+    "status": "PASS",
+    "duration": 1185,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:56.473Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/small-groups",
+    "status": "PASS",
+    "duration": 795,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:57.278Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/resources",
+    "status": "PASS",
+    "duration": 805,
+    "details": {
+      "status": 200,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:58.094Z",
+    "category": "API - Content",
+    "testName": "GET /api/tenants/[tenantId]/community-posts",
+    "status": "FAIL",
+    "duration": 816,
+    "error": "Unexpected status code: 401 (expected: 200)",
+    "details": {
+      "body": {
+        "message": "Not authenticated"
+      },
+      "contentType": "application/json"
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:58.208Z",
+    "category": "API - Conversations",
+    "testName": "GET /api/conversations",
+    "status": "PASS",
+    "duration": 114,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:58.228Z",
+    "category": "API - Admin",
+    "testName": "GET /api/tenants/[tenantId]/admin/settings",
+    "status": "PASS",
+    "duration": 19,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:59.058Z",
+    "category": "API - Admin",
+    "testName": "GET /api/tenants/[tenantId]/admin/branding",
+    "status": "PASS",
+    "duration": 830,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:26:59.863Z",
+    "category": "API - Admin",
+    "testName": "GET /api/tenants/[tenantId]/admin/audit-logs",
+    "status": "PASS",
+    "duration": 805,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:00.624Z",
+    "category": "API - Admin",
+    "testName": "GET /api/tenants/[tenantId]/admin/contact-submissions",
+    "status": "PASS",
+    "duration": 761,
+    "details": {
+      "status": 401,
+      "contentType": "application/json",
+      "hasBody": true
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:00.668Z",
+    "category": "Pages - Public",
+    "testName": "Landing Page",
+    "status": "PASS",
+    "duration": 43,
+    "details": {
+      "status": 200,
+      "url": "/",
+      "redirected": false,
+      "contentLength": 20456
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:01.105Z",
+    "category": "Pages - Public",
+    "testName": "Login Page",
+    "status": "PASS",
+    "duration": 437,
+    "details": {
+      "status": 200,
+      "url": "/auth/login",
+      "redirected": false,
+      "contentLength": 21215
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:01.405Z",
+    "category": "Pages - Public",
+    "testName": "Register Page",
+    "status": "PASS",
+    "duration": 300,
+    "details": {
+      "status": 200,
+      "url": "/auth/register",
+      "redirected": false,
+      "contentLength": 21056
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:01.735Z",
+    "category": "Pages - Public",
+    "testName": "Forgot Password Page",
+    "status": "PASS",
+    "duration": 330,
+    "details": {
+      "status": 200,
+      "url": "/auth/forgot-password",
+      "redirected": false,
+      "contentLength": 20445
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:02.016Z",
+    "category": "Pages - Public",
+    "testName": "Reset Password Page",
+    "status": "PASS",
+    "duration": 279,
+    "details": {
+      "status": 200,
+      "url": "/auth/reset-password",
+      "redirected": false,
+      "contentLength": 20663
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:02.357Z",
+    "category": "Pages - Authenticated",
+    "testName": "Explore Page",
+    "status": "PASS",
+    "duration": 341,
+    "details": {
+      "status": 200,
+      "url": "/explore",
+      "redirected": false,
+      "contentLength": 25337
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:02.864Z",
+    "category": "Pages - Authenticated",
+    "testName": "Messages Page",
+    "status": "PASS",
+    "duration": 507,
+    "details": {
+      "status": 200,
+      "url": "/messages",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21218
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:03.215Z",
+    "category": "Pages - Authenticated",
+    "testName": "Notifications Page",
+    "status": "PASS",
+    "duration": 351,
+    "details": {
+      "status": 200,
+      "url": "/notifications",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21222
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:03.636Z",
+    "category": "Pages - Authenticated",
+    "testName": "Account Settings Page",
+    "status": "PASS",
+    "duration": 421,
+    "details": {
+      "status": 200,
+      "url": "/account",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21213
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:03.636Z",
+    "category": "Pages - Authenticated",
+    "testName": "Profile Page",
+    "status": "SKIP",
+    "error": "No test user ID available"
+  },
+  {
+    "timestamp": "2025-11-18T09:27:03.892Z",
+    "category": "Pages - Authenticated",
+    "testName": "Create Tenant Page",
+    "status": "PASS",
+    "duration": 256,
+    "details": {
+      "status": 200,
+      "url": "/tenants/new",
+      "redirected": false,
+      "contentLength": 23424
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:04.893Z",
+    "category": "Pages - Tenant",
+    "testName": "Tenant Home Page",
+    "status": "PASS",
+    "duration": 1001,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21217
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:05.808Z",
+    "category": "Pages - Tenant",
+    "testName": "Posts Page",
+    "status": "PASS",
+    "duration": 915,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/posts",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21218
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:06.716Z",
+    "category": "Pages - Tenant",
+    "testName": "Calendar Page",
+    "status": "PASS",
+    "duration": 908,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/calendar",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21219
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:07.621Z",
+    "category": "Pages - Tenant",
+    "testName": "Sermons Page",
+    "status": "PASS",
+    "duration": 904,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/sermons",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21220
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:08.496Z",
+    "category": "Pages - Tenant",
+    "testName": "Podcasts Page",
+    "status": "PASS",
+    "duration": 875,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/podcasts",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21219
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:09.401Z",
+    "category": "Pages - Tenant",
+    "testName": "Books Page",
+    "status": "PASS",
+    "duration": 905,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/books",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21223
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:10.265Z",
+    "category": "Pages - Tenant",
+    "testName": "Members Page",
+    "status": "PASS",
+    "duration": 864,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/members",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21227
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:11.256Z",
+    "category": "Pages - Tenant",
+    "testName": "Chat Page",
+    "status": "PASS",
+    "duration": 991,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/chat",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21215
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:12.142Z",
+    "category": "Pages - Tenant",
+    "testName": "Donations Page",
+    "status": "PASS",
+    "duration": 886,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/donations",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21220
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:13.001Z",
+    "category": "Pages - Tenant",
+    "testName": "Contact Page",
+    "status": "PASS",
+    "duration": 859,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/contact",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21220
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:13.882Z",
+    "category": "Pages - Tenant",
+    "testName": "Volunteering Page",
+    "status": "PASS",
+    "duration": 881,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/volunteering",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21217
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:14.746Z",
+    "category": "Pages - Tenant",
+    "testName": "Small Groups Page",
+    "status": "PASS",
+    "duration": 864,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/small-groups",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21224
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:15.579Z",
+    "category": "Pages - Tenant",
+    "testName": "Live Stream Page",
+    "status": "PASS",
+    "duration": 833,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/livestream",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21222
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:16.464Z",
+    "category": "Pages - Tenant",
+    "testName": "Prayer Wall Page",
+    "status": "PASS",
+    "duration": 885,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/prayer-wall",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21221
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:17.346Z",
+    "category": "Pages - Tenant",
+    "testName": "Resource Center Page",
+    "status": "PASS",
+    "duration": 881,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/resources",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21221
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:18.353Z",
+    "category": "Pages - Tenant",
+    "testName": "Settings Page",
+    "status": "PASS",
+    "duration": 1007,
+    "details": {
+      "status": 200,
+      "url": "/tenants/cmi3atear0014ums4fuftaa9r/settings",
+      "redirected": true,
+      "finalUrl": "http://localhost:3000/auth/login",
+      "contentLength": 21221
+    }
+  },
+  {
+    "timestamp": "2025-11-18T09:27:18.663Z",
+    "category": "Pages - Admin",
+    "testName": "Admin Console",
+    "status": "PASS",
+    "duration": 310,
+    "details": {
+      "status": 200,
+      "url": "/admin",
+      "redirected": false,
+      "contentLength": 18021
+    }
+  }
+]

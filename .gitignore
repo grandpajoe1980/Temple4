@@ -16,6 +16,9 @@ dist-ssr
 .next
 out
 
+# Test results
+test-results
+
 # Legacy files (moved from old implementation)
 legacy
 

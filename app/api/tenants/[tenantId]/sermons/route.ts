@@ -23,7 +23,8 @@ export async function GET(
     const sermons = await prisma.mediaItem.findMany({
       where: { 
         tenantId: resolvedParams.tenantId,
-        type: 'SERMON_VIDEO'
+        type: 'SERMON_VIDEO',
+        deletedAt: null, // Filter out soft-deleted sermons
       },
       orderBy: { publishedAt: 'desc' },
     });

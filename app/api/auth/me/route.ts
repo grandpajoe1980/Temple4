@@ -19,6 +19,22 @@ export async function GET(request: Request) {
         profile: true,
         privacySettings: true,
         accountSettings: true,
+        memberships: {
+          include: {
+            tenant: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+            roles: {
+              select: {
+                role: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -26,8 +42,22 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
+    // Remove password from response
     const { password, ...userWithoutPassword } = user;
-    return NextResponse.json(userWithoutPassword);
+    
+    // Format memberships for easier consumption
+    const tenantMemberships = user.memberships.map((membership) => ({
+      tenantId: membership.tenant.id,
+      tenantName: membership.tenant.name,
+      tenantSlug: membership.tenant.slug,
+      status: membership.status,
+      roles: membership.roles.map((r) => r.role),
+    }));
+
+    return NextResponse.json({
+      ...userWithoutPassword,
+      tenantMemberships,
+    });
   } catch (error) {
     console.error('Failed to fetch user:', error);
     return NextResponse.json({ message: 'Failed to fetch user' }, { status: 500 });

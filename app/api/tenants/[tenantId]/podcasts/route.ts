@@ -21,7 +21,10 @@ export async function GET(
     }
 
     const podcasts = await prisma.podcast.findMany({
-      where: { tenantId: tenantId },
+      where: { 
+        tenantId: tenantId,
+        deletedAt: null, // Filter out soft-deleted podcasts
+      },
       orderBy: { publishedAt: 'desc' },
     });
 

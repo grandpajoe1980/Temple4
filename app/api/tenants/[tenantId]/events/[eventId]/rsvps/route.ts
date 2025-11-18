@@ -3,6 +3,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { can, canUserViewContent } from '@/lib/permissions';
+import { z } from 'zod';
+import { RSVPStatus } from '@prisma/client';
 
 // 10.6 List Event RSVPs
 export async function GET(
@@ -52,6 +54,10 @@ export async function GET(
   }
 }
 
+const rsvpCreateSchema = z.object({
+    status: z.enum(['GOING', 'INTERESTED', 'NOT_GOING']).optional().default('GOING'),
+});
+
 // 10.7 RSVP to an Event
 export async function POST(
   request: Request,
@@ -72,19 +78,31 @@ export async function POST(
             return NextResponse.json({ message: 'Cannot RSVP to an event you cannot see.' }, { status: 403 });
         }
 
+        const body = await request.json();
+        const result = rsvpCreateSchema.safeParse(body);
+        if (!result.success) {
+            return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        }
+
         // Check if user is already RSVP'd
         const existingRsvp = await prisma.eventRSVP.findUnique({
             where: { userId_eventId: { userId, eventId: eventId } }
         });
 
         if (existingRsvp) {
-            return NextResponse.json({ message: 'You have already RSVP\'d to this event.' }, { status: 409 });
+            // Update existing RSVP instead of returning error
+            const updatedRsvp = await prisma.eventRSVP.update({
+                where: { userId_eventId: { userId, eventId: eventId } },
+                data: { status: result.data.status as RSVPStatus },
+            });
+            return NextResponse.json(updatedRsvp);
         }
 
         const newRsvp = await prisma.eventRSVP.create({
             data: {
                 userId,
                 eventId: eventId,
+                status: result.data.status as RSVPStatus,
             },
         });
 

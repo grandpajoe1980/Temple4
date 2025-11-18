@@ -26,7 +26,10 @@ export async function GET(
     }
 
     const posts = await prisma.post.findMany({
-      where: { tenantId: resolvedParams.tenantId },
+      where: { 
+        tenantId: resolvedParams.tenantId,
+        deletedAt: null, // Filter out soft-deleted posts
+      },
       include: {
         author: {
           select: {
@@ -40,7 +43,12 @@ export async function GET(
       orderBy: { createdAt: 'desc' },
     });
 
-    const totalPosts = await prisma.post.count({ where: { tenantId: resolvedParams.tenantId } });
+    const totalPosts = await prisma.post.count({ 
+      where: { 
+        tenantId: resolvedParams.tenantId,
+        deletedAt: null, // Filter out soft-deleted posts
+      } 
+    });
 
     return NextResponse.json({
         posts,

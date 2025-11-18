@@ -22,13 +22,31 @@ export async function GET(
 
     const event = await prisma.event.findUnique({
       where: { id: eventId, tenantId: tenantId },
+      include: {
+        _count: {
+          select: {
+            rsvps: {
+              where: {
+                status: { in: ['GOING', 'INTERESTED'] }
+              }
+            }
+          }
+        }
+      },
     });
 
-    if (!event) {
+    if (!event || event.deletedAt) {
       return NextResponse.json({ message: 'Event not found' }, { status: 404 });
     }
 
-    return NextResponse.json(event);
+    // Transform to include RSVP count
+    const eventWithCount = {
+      ...event,
+      rsvpCount: event._count.rsvps,
+      _count: undefined,
+    };
+
+    return NextResponse.json(eventWithCount);
   } catch (error) {
     console.error(`Failed to fetch event ${eventId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch event' }, { status: 500 });
@@ -38,14 +56,15 @@ export async function GET(
 const eventUpdateSchema = z.object({
     title: z.string().min(1).optional(),
     description: z.string().optional(),
-    startTime: z.string().datetime().optional(),
-    endTime: z.string().datetime().optional(),
-    location: z.string().optional(),
-    isAllDay: z.boolean().optional(),
+    startDateTime: z.string().datetime().optional(),
+    endDateTime: z.string().datetime().optional(),
+    locationText: z.string().optional(),
+    isOnline: z.boolean().optional(),
+    onlineUrl: z.string().url().optional(),
 });
 
 // 10.4 Update Event
-export async function PUT(
+export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; eventId: string }> }
 ) {
@@ -75,9 +94,23 @@ export async function PUT(
     }
 
     try {
+        const event = await prisma.event.findUnique({ where: { id: eventId, tenantId: tenantId } });
+        if (!event || event.deletedAt) {
+            return NextResponse.json({ message: 'Event not found' }, { status: 404 });
+        }
+
+        // Convert date strings to Date objects
+        const updateData: any = { ...result.data };
+        if (updateData.startDateTime) {
+            updateData.startDateTime = new Date(updateData.startDateTime);
+        }
+        if (updateData.endDateTime) {
+            updateData.endDateTime = new Date(updateData.endDateTime);
+        }
+
         const updatedEvent = await prisma.event.update({
-            where: { id: eventId, tenantId: tenantId },
-            data: result.data,
+            where: { id: eventId },
+            data: updateData,
         });
 
         return NextResponse.json(updatedEvent);
@@ -87,7 +120,7 @@ export async function PUT(
     }
 }
 
-// 10.5 Delete Event
+// 10.5 Delete Event (Soft Delete)
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; eventId: string }> }
@@ -113,8 +146,15 @@ export async function DELETE(
     }
 
     try {
-        await prisma.event.delete({
-            where: { id: eventId, tenantId: tenantId },
+        const event = await prisma.event.findUnique({ where: { id: eventId, tenantId: tenantId } });
+        if (!event || event.deletedAt) {
+            return NextResponse.json({ message: 'Event not found' }, { status: 404 });
+        }
+
+        // Soft delete by setting deletedAt timestamp
+        await prisma.event.update({
+            where: { id: eventId },
+            data: { deletedAt: new Date() },
         });
 
         return new NextResponse(null, { status: 204 });

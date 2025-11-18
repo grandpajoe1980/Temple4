@@ -2,14 +2,26 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Tenant } from '@/types';
+import type { Tenant, TenantSettings, TenantBranding } from '@prisma/client';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import TenantCard from './TenantCard';
 
+type TenantWithRelations = Tenant & {
+  settings: TenantSettings | null;
+  branding: TenantBranding | null;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+  };
+};
+
 interface ExplorePageProps {
   initialSearchTerm: string;
-  tenants: Tenant[];
+  tenants: TenantWithRelations[];
   onBack?: () => void;
   onViewTenant?: (tenantId: string) => void;
 }

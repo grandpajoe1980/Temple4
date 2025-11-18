@@ -1,19 +1,36 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { getMembersForTenant } from '@/lib/data';
 import Input from '../ui/Input';
 import MemberCard from './MemberCard';
 
+// Enriched member type from getMembersForTenant
+type EnrichedMember = {
+  id: string;
+  email: string;
+  password: string | null;
+  isSuperAdmin: boolean;
+  notificationPreferences: any;
+  profile: any;
+  privacySettings: any;
+  accountSettings: any;
+  membership: {
+    id: string;
+    status: any;
+    displayName: string | null;
+    roles: any[];
+  };
+};
+
 interface MembersPageProps {
-  tenant: any; // Has architectural issues, needs refactoring
+  tenant: any;
   user: any;
+  members: EnrichedMember[];
   onViewProfile?: (userId: string) => void;
 }
 
-const MembersPage: React.FC<MembersPageProps> = ({ tenant, user, onViewProfile }) => {
+const MembersPage: React.FC<MembersPageProps> = ({ tenant, user, members, onViewProfile }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const members = useMemo(() => getMembersForTenant(tenant.id), [tenant.id]);
 
   const filteredMembers = useMemo(() => {
     if (!searchTerm) {
@@ -21,7 +38,7 @@ const MembersPage: React.FC<MembersPageProps> = ({ tenant, user, onViewProfile }
     }
     return members.filter(
       (member) =>
-        (member.membership.displayName || member.profile.displayName).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (member.membership.displayName || member.profile?.displayName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         member.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [members, searchTerm]);
@@ -48,7 +65,7 @@ const MembersPage: React.FC<MembersPageProps> = ({ tenant, user, onViewProfile }
       {filteredMembers.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredMembers.map((member) => (
-            <MemberCard key={member.id} member={member} onViewProfile={() => onViewProfile(member.id)} />
+            <MemberCard key={member.id} member={member as any} onViewProfile={() => onViewProfile?.(member.id)} />
           ))}
         </div>
       ) : (

@@ -524,17 +524,16 @@ export async function getEnrichedMembershipsForUser(userId: string) {
     }));
 }
 
-// Update membership profile (display name and title within a tenant)
+// Update membership profile (display name within a tenant)
 export async function updateMembershipProfile(
     userId: string, 
     membershipId: string, 
-    data: { displayName?: string; displayTitle?: string }
+    data: { displayName?: string }
 ) {
     return await prisma.userTenantMembership.update({
         where: { id: membershipId, userId },
         data: {
             displayName: data.displayName,
-            displayTitle: data.displayTitle
         }
     });
 }
@@ -559,8 +558,30 @@ export async function updateUserNotificationPreferences(
 // These functions are called by components but not yet fully implemented
 
 export async function getMembersForTenant(tenantId: string) {
-    // TODO: Implement member fetching with enriched data
-    return [];
+    const memberships = await prisma.userTenantMembership.findMany({
+        where: { tenantId },
+        include: {
+            user: {
+                include: {
+                    profile: true,
+                }
+            },
+            roles: true,
+        },
+        orderBy: [
+            { user: { profile: { displayName: 'asc' } } }
+        ]
+    });
+    
+    return memberships.map(membership => ({
+        ...membership.user,
+        membership: {
+            id: membership.id,
+            status: membership.status,
+            displayName: membership.displayName,
+            roles: membership.roles,
+        }
+    }));
 }
 
 export async function updateMembershipStatus(userId: string, tenantId: string, status: string) {
@@ -568,13 +589,16 @@ export async function updateMembershipStatus(userId: string, tenantId: string, s
     return null;
 }
 
-export async function updateMemberRolesAndTitle(userId: string, tenantId: string, roles: any[], title: string) {
+export async function updateMemberRolesAndTitle(membershipId: string, roles: any[], userId?: string) {
     // TODO: Implement member roles and title update
+    // membershipId: UserTenantMembership.id
+    // roles: array of UserTenantRole
+    // userId: for audit logging when implemented
     return null;
 }
 
 export async function getSmallGroupsForTenant(tenantId: string) {
-    return await prisma.smallGroup.findMany({
+    const groups = await prisma.smallGroup.findMany({
         where: { tenantId },
         include: {
             members: {
@@ -589,6 +613,30 @@ export async function getSmallGroupsForTenant(tenantId: string) {
         },
         orderBy: { name: 'asc' },
     });
+    
+    // Fetch leaders separately for enrichment
+    const enrichedGroups = await Promise.all(groups.map(async (group) => {
+        const leader = await prisma.user.findUnique({
+            where: { id: group.leaderUserId },
+            include: {
+                profile: true,
+                privacySettings: true,
+                accountSettings: true,
+            }
+        });
+        
+        return {
+            ...group,
+            leader: leader!,
+            members: group.members.map(m => ({
+                ...m.user,
+                groupRole: m.role,
+                joinedAt: m.joinedAt,
+            }))
+        };
+    }));
+    
+    return enrichedGroups;
 }
 
 export async function createSmallGroup(tenantId: string, groupData: any) {
@@ -619,23 +667,27 @@ export async function addVolunteerNeed(tenantId: string, needData: any) {
     return null;
 }
 
-export async function getResourceItemsForTenant(tenantId: string) {
+export async function getResourceItemsForTenant(tenantId: string, isMember?: boolean) {
     // TODO: Implement resource items fetching
+    // isMember parameter to filter based on visibility (members-only vs public)
     return [];
 }
 
-export async function addResourceItem(tenantId: string, itemData: any) {
+export async function addResourceItem(itemData: any) {
     // TODO: Implement resource item creation
+    // Expected fields: tenantId, uploaderUserId, title, description, fileUrl, fileType, visibility
     return null;
 }
 
-export async function deleteResourceItem(itemId: string) {
+export async function deleteResourceItem(itemId: string, userId?: string) {
     // TODO: Implement resource item deletion
+    // userId parameter for audit logging when implemented
     return null;
 }
 
-export async function getCommunityPostsForTenant(tenantId: string) {
+export async function getCommunityPostsForTenant(tenantId: string, includePrivate?: boolean) {
     // TODO: Implement community posts fetching
+    // includePrivate parameter to filter based on status (for moderation)
     return [];
 }
 
@@ -649,18 +701,21 @@ export async function getContactSubmissionsForTenant(tenantId: string) {
     return [];
 }
 
-export async function updateContactSubmissionStatus(submissionId: string, status: string) {
+export async function updateContactSubmissionStatus(submissionId: string, status: string, userId?: string) {
     // TODO: Implement contact submission status update
+    // userId parameter for audit logging when implemented
     return null;
 }
 
-export async function respondToContactSubmission(submissionId: string, response: string) {
+export async function respondToContactSubmission(submissionId: string, response: string, userId?: string, tenantName?: string) {
     // TODO: Implement contact submission response
+    // userId and tenantName parameters for sending response email when implemented
     return null;
 }
 
-export async function updateTenantPermissions(tenantId: string, permissions: any) {
+export async function updateTenantPermissions(tenantId: string, permissions: any, userId?: string) {
     // TODO: Implement tenant permissions update
+    // userId parameter for audit logging when implemented
     return null;
 }
 
@@ -669,13 +724,14 @@ export async function addPost(tenantId: string, postData: any) {
     return null;
 }
 
-export async function addEvent(tenantId: string, eventData: any) {
+export async function addEvent(eventData: any) {
     // TODO: Implement event creation
+    // Expected fields: tenantId, createdByUserId, title, description, startDateTime, endDateTime, location, onlineUrl
     return null;
 }
 
 export async function getSermonsForTenant(tenantId: string) {
-    return await prisma.mediaItem.findMany({
+    const sermons = await prisma.mediaItem.findMany({
         where: { 
             tenantId, 
             type: 'SERMON_VIDEO',
@@ -690,10 +746,16 @@ export async function getSermonsForTenant(tenantId: string) {
             }
         }
     });
+    
+    return sermons.map(sermon => ({
+        ...sermon,
+        authorDisplayName: sermon.author.profile?.displayName || 'Unknown',
+        authorAvatarUrl: sermon.author.profile?.avatarUrl || undefined,
+    }));
 }
 
 export async function getPodcastsForTenant(tenantId: string) {
-    return await prisma.mediaItem.findMany({
+    const podcasts = await prisma.mediaItem.findMany({
         where: { 
             tenantId, 
             type: 'PODCAST_AUDIO',
@@ -708,6 +770,12 @@ export async function getPodcastsForTenant(tenantId: string) {
             }
         }
     });
+    
+    return podcasts.map(podcast => ({
+        ...podcast,
+        authorDisplayName: podcast.author.profile?.displayName || 'Unknown',
+        authorAvatarUrl: podcast.author.profile?.avatarUrl || undefined,
+    }));
 }
 
 export async function getBooksForTenant(tenantId: string) {
@@ -750,8 +818,9 @@ export async function addContactSubmission(tenantId: string, submissionData: any
     return null;
 }
 
-export async function addCommunityPost(tenantId: string, postData: any) {
+export async function addCommunityPost(postData: any) {
     // TODO: Implement community post creation
+    // Expected fields: tenantId, authorUserId (can be null for anonymous), type, body, isAnonymous
     return null;
 }
 

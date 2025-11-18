@@ -7,7 +7,11 @@ This directory contains issue tickets for tracking work items across all phases 
 ### Phase A - Foundation & Data Model
 
 - **[#0001](0001-complete-async-params-migration.md)** - Complete Next.js 16 Async Params Migration - **RESOLVED** - HIGH
-- **[#0002](0002-type-system-alignment.md)** - Align Type System - Prisma vs Custom Types - **OPEN** - CRITICAL
+- **[#0002](0002-type-system-alignment.md)** - Align Type System - Prisma vs Custom Types - **OPEN** (Deferred) - CRITICAL
+
+### Phase B - Auth, Sessions, Permissions
+
+- **[#0003](0003-phase-b-auth-permissions.md)** - Phase B Implementation - **OPEN** (ACTIVE) - HIGH
 
 ## Ticket Status
 

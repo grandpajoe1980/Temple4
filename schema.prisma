@@ -235,6 +235,7 @@ model TenantSettings {
   donationSettings         Json // DonationSettings
   liveStreamSettings       Json // LiveStreamSettings
   visitorVisibility        Json // visitorVisibility
+  maxStorageMB             Int                    @default(1000) // Storage quota in MB
 }
 
 model UserTenantMembership {
@@ -317,6 +318,10 @@ model MediaItem {
   title         String
   description   String
   embedUrl      String
+  storageKey    String?  // Storage key for uploaded files
+  mimeType      String?  // File MIME type
+  fileSize      Int?     // File size in bytes
+  uploadedAt    DateTime @default(now())
   publishedAt   DateTime @default(now())
   deletedAt     DateTime?
 }

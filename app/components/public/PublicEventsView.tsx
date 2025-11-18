@@ -13,7 +13,7 @@ const PublicEventsView: React.FC<PublicEventsViewProps> = async ({ tenant }) => 
   return (
     <div className="space-y-6">
       {events.length > 0 ? (
-        events.map((event) => (
+        events.map((event: any) => (
           <EventCard key={event.id} event={event} />
         ))
       ) : (

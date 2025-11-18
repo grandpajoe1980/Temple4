@@ -1,5 +1,6 @@
 import { prisma } from './db';
-import { Tenant, User, Post, Event, UserTenantMembership, Notification, AuditLog, Conversation, TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost } from '@prisma/client';
+import { Tenant, User, Post, Event, UserTenantMembership, Notification, AuditLog, Conversation, TenantSettings as PrismaTenantSettings, TenantBranding as PrismaTenantBranding, CommunityPost as PrismaCommunityPost } from '@prisma/client';
+import { TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost } from '@/types';
 import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
 
@@ -73,7 +74,7 @@ export async function getTenants(): Promise<TenantWithRelations[]> {
     });
     
     // Transform Prisma data to include nested address
-    return tenants.map(tenant => ({
+    return tenants.map((tenant: any) => ({
         ...tenant,
         address: {
             street: tenant.street,
@@ -98,7 +99,7 @@ export async function getEventsForTenant(tenantId: string) {
     }
   });
   
-  return events.map(event => ({
+  return events.map((event: any) => ({
     ...event,
     onlineUrl: event.onlineUrl,
     creatorDisplayName: event.creator.profile?.displayName || event.creator.email,
@@ -119,7 +120,7 @@ export async function getPostsForTenant(tenantId: string) {
     }
   });
   
-  return posts.map(post => ({
+  return posts.map((post: any) => ({
     ...post,
     type: post.type as 'BLOG' | 'ANNOUNCEMENT' | 'BOOK',
     authorDisplayName: post.author.profile?.displayName || 'Unknown',
@@ -144,7 +145,7 @@ export async function getNotificationsForUser(userId: string) {
         orderBy: { createdAt: 'desc' },
     });
     
-    return notifications.map(notif => ({
+    return notifications.map((notif: any) => ({
         ...notif,
         actorUserId: notif.actorUserId ?? undefined,
         link: notif.link ?? undefined,
@@ -494,7 +495,7 @@ export async function getEnrichedMembershipsForUser(userId: string) {
         }
     });
     
-    return memberships.map(m => ({
+    return memberships.map((m: any) => ({
         membership: m,
         tenant: m.tenant
     }));
@@ -549,7 +550,7 @@ export async function getMembersForTenant(tenantId: string) {
         ]
     });
     
-    return memberships.map(membership => ({
+    return memberships.map((membership: any) => ({
         ...membership.user,
         membership: {
             id: membership.id,
@@ -591,7 +592,7 @@ export async function getSmallGroupsForTenant(tenantId: string) {
     });
     
     // Fetch leaders separately for enrichment
-    const enrichedGroups = await Promise.all(groups.map(async (group) => {
+    const enrichedGroups = await Promise.all(groups.map(async (group: any) => {
         const leader = await prisma.user.findUnique({
             where: { id: group.leaderUserId },
             include: {
@@ -604,7 +605,7 @@ export async function getSmallGroupsForTenant(tenantId: string) {
         return {
             ...group,
             leader: leader!,
-            members: group.members.map(m => ({
+            members: group.members.map((m: any) => ({
                 ...m.user,
                 groupRole: m.role,
                 joinedAt: m.joinedAt,
@@ -723,7 +724,7 @@ export async function getSermonsForTenant(tenantId: string) {
         }
     });
     
-    return sermons.map(sermon => ({
+    return sermons.map((sermon: any) => ({
         ...sermon,
         authorDisplayName: sermon.author.profile?.displayName || 'Unknown',
         authorAvatarUrl: sermon.author.profile?.avatarUrl || undefined,
@@ -747,7 +748,7 @@ export async function getPodcastsForTenant(tenantId: string) {
         }
     });
     
-    return podcasts.map(podcast => ({
+    return podcasts.map((podcast: any) => ({
         ...podcast,
         authorDisplayName: podcast.author.profile?.displayName || 'Unknown',
         authorAvatarUrl: podcast.author.profile?.avatarUrl || undefined,
@@ -771,7 +772,7 @@ export async function getBooksForTenant(tenantId: string) {
         }
     });
     
-    return books.map(book => ({
+    return books.map((book: any) => ({
         ...book,
         type: book.type as 'BLOG' | 'ANNOUNCEMENT' | 'BOOK',
         authorDisplayName: book.author.profile?.displayName || 'Unknown',

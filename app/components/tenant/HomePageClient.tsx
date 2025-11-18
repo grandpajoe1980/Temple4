@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Tenant, User, Event, Post, UserTenantMembership, MembershipStatus, MembershipApprovalMode, TenantSettings, TenantBranding, UserProfile } from '@prisma/client';
+import { Tenant, User, Event, Post, UserTenantMembership, TenantSettings, TenantBranding, UserProfile } from '@prisma/client';
+import { MembershipStatus, MembershipApprovalMode } from '@/types';
 import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';
 import { useRouter } from 'next/navigation';
@@ -66,7 +67,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
 
   const tenantDisplayName = membership?.displayName || user.profile?.displayName;
   const customLinks = tenant.branding?.customLinks as { label: string, url: string }[] | undefined;
-  const donationLink = customLinks?.find(link => link.label.toLowerCase() === 'donate');
+  const donationLink = customLinks?.find((link: any) => link.label.toLowerCase() === 'donate');
   const liveStreamSettings = tenant.settings?.liveStreamSettings as { isLive: boolean } | undefined;
   const isLive = tenant.settings?.enableLiveStream && liveStreamSettings?.isLive;
 
@@ -144,7 +145,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
                     <Button variant="secondary" size="sm" onClick={() => onNavigate('posts')}>View All</Button>
                 </div>
                 <ul className="divide-y divide-gray-200">
-                    {recentPosts.length > 0 ? recentPosts.map(post => (
+                    {recentPosts.length > 0 ? recentPosts.map((post: any) => (
                         <li key={post.id} className="p-4 hover:bg-gray-50 cursor-pointer" onClick={() => onNavigate(`posts/${post.id}`)}>
                             <div className="text-sm font-semibold text-gray-800">{post.title}</div>
                             <div className="text-xs text-gray-500 mt-1">
@@ -169,7 +170,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
                     <Button variant="secondary" size="sm" onClick={() => onNavigate('calendar')}>View Calendar</Button>
                 </div>
                 <ul className="divide-y divide-gray-200">
-                   {upcomingEvents.length > 0 ? upcomingEvents.map(event => (
+                   {upcomingEvents.length > 0 ? upcomingEvents.map((event: any) => (
                         <li key={event.id} className="p-4 hover:bg-gray-50 cursor-pointer" onClick={() => onNavigate(`calendar/${event.id}`)}>
                             <div className="font-semibold text-sm text-gray-800">{event.title}</div>
                             <div className="text-xs text-amber-700 mt-1">

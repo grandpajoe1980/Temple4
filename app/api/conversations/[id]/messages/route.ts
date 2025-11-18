@@ -170,7 +170,7 @@ export async function POST(
 
     // Create notifications for other participants
     if (conversation) {
-      const notifications = conversation.participants.map(p => ({
+      const notifications = conversation.participants.map((p: any) => ({
         userId: p.userId,
         actorUserId: userId,
         type: 'NEW_DIRECT_MESSAGE' as const,

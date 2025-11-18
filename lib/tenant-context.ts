@@ -1,5 +1,6 @@
 import { prisma } from './db';
-import { Tenant, TenantSettings, TenantBranding, UserTenantMembership, MembershipStatus } from '@prisma/client';
+import { Tenant, TenantSettings, TenantBranding, UserTenantMembership } from '@prisma/client';
+import { MembershipStatus } from '@/types';
 
 /**
  * Enriched tenant context with user membership info

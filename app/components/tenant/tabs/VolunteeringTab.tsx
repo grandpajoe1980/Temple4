@@ -52,7 +52,7 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
 
       <div className="space-y-4">
         {needs.length > 0 ? (
-          needs.map(need => (
+          needs.map((need: any) => (
             <div key={need.id} className="bg-white shadow-sm rounded-lg border border-gray-200">
               <div className="p-4 flex justify-between items-center">
                 <div>
@@ -70,7 +70,7 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
                   <h4 className="text-sm font-medium text-gray-700 mb-2">Signed Up Volunteers:</h4>
                   {need.signups.length > 0 ? (
                     <ul className="divide-y divide-gray-200">
-                      {need.signups.map(({ user, signup }) => (
+                      {need.signups.map(({ user, signup }: any) => (
                         <li key={signup.id} className="py-2 flex items-center space-x-3">
                           <img src={user.profile.avatarUrl} alt={user.profile.displayName} className="w-8 h-8 rounded-full" />
                           <div>

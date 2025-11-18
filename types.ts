@@ -68,6 +68,12 @@ export enum ContactSubmissionStatus {
     ARCHIVED = 'ARCHIVED',
 }
 
+export enum RSVPStatus {
+    GOING = 'GOING',
+    INTERESTED = 'INTERESTED',
+    NOT_GOING = 'NOT_GOING',
+}
+
 // NotificationType is defined in schema.prisma and exported from @prisma/client
 
 

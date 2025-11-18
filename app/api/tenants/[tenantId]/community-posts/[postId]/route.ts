@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
-import { CommunityPostStatus } from '@prisma/client';
+import { CommunityPostStatus } from '@/types';
 
 const updateStatusSchema = z.object({
     status: z.nativeEnum(CommunityPostStatus),

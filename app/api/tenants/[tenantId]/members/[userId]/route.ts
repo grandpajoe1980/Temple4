@@ -2,7 +2,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { TenantRole } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole } from '@/types';
 import { z } from 'zod';
 
 const roleUpdateSchema = z.object({
@@ -28,7 +29,7 @@ export async function PUT(
         include: { roles: true },
     });
 
-    const hasPermission = currentUserMembership?.roles.some(role => role.role === TenantRole.ADMIN);
+    const hasPermission = currentUserMembership?.roles.some((role: any) => role.role === TenantRole.ADMIN);
 
     if (!hasPermission) {
         return NextResponse.json({ message: 'Forbidden: You must be an admin to change roles.' }, { status: 403 });
@@ -64,7 +65,7 @@ export async function PUT(
             where: { userId_tenantId: { userId: userId, tenantId: tenantId } },
             data: {
                 roles: {
-                    create: result.data.roles.map(role => ({
+                    create: result.data.roles.map((role: any) => ({
                         role: role,
                     })),
                 },
@@ -100,7 +101,7 @@ export async function DELETE(
         include: { roles: true },
     });
 
-    const hasPermission = currentUserMembership?.roles.some(role => role.role === TenantRole.ADMIN);
+    const hasPermission = currentUserMembership?.roles.some((role: any) => role.role === TenantRole.ADMIN);
 
     if (!hasPermission) {
         return NextResponse.json({ message: 'Forbidden: You must be an admin to remove members.' }, { status: 403 });

@@ -3,7 +3,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { getTenantById, getUserById } from '@/lib/data';
 import { hasRole } from '@/lib/permissions';
-import { TenantRole } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole } from '@/types';
 import ControlPanel from '@/app/components/tenant/ControlPanel';
 
 export default async function TenantSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {

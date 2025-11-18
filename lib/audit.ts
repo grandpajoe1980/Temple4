@@ -1,5 +1,5 @@
 import { prisma } from './db';
-import { ActionType } from '@prisma/client';
+import { ActionType } from '@/types';
 
 /**
  * Logs an audit event to the AuditLog table

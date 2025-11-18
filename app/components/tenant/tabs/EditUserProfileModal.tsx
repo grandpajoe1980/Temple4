@@ -24,12 +24,12 @@ const EditUserProfileModal: React.FC<EditUserProfileModalProps> = ({ isOpen, onC
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    setProfile((prev: any) => ({ ...prev, [name]: value }));
   };
 
   const handleLanguagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const languages = e.target.value.split(',').map(lang => lang.trim()).filter(Boolean);
-    setProfile(prev => ({ ...prev, languages }));
+    setProfile((prev: any) => ({ ...prev, languages }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {

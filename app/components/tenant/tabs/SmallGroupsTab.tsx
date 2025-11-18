@@ -86,7 +86,7 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {groups.map((group) => (
+                {groups.map((group: any) => (
                   <tr key={group.id}>
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                       <div className="font-medium text-gray-900">{group.name}</div>

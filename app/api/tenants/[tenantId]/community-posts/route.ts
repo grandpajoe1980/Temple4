@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 import { getMembershipForUserInTenant } from '@/lib/data';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
-import { CommunityPostType, CommunityPostStatus } from '@prisma/client';
+import { CommunityPostType, CommunityPostStatus } from '@/types';
 
 // 15.1 List Community Posts
 export async function GET(

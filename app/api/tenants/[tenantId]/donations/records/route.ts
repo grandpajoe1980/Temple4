@@ -94,7 +94,7 @@ export async function GET(
     });
 
     // Filter out names for anonymous donations
-    const leaderboard = donations.map(donation => ({
+    const leaderboard = donations.map((donation: any) => ({
       ...donation,
       displayName: donation.isAnonymousOnLeaderboard ? 'Anonymous' : donation.displayName
     }));
@@ -198,7 +198,7 @@ export async function POST(
 
     if (adminMemberships.length > 0) {
       await prisma.notification.createMany({
-        data: adminMemberships.map(membership => ({
+        data: adminMemberships.map((membership: any) => ({
           userId: membership.userId,
           actorUserId: userId,
           type: 'NEW_ANNOUNCEMENT' as const, // Using announcement type for donations

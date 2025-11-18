@@ -4,7 +4,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserViewContent, hasRole } from '@/lib/permissions';
 import { z } from 'zod';
-import { TenantRole } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole } from '@/types';
 
 const volunteerNeedSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
@@ -87,10 +88,10 @@ export async function GET(
     ]);
 
     // Add filled slots count
-    const needsWithCounts = needs.map(need => ({
+    const needsWithCounts = needs.map((need: any) => ({
       ...need,
       filledSlots: need.signups.length,
-      isUserSignedUp: userId ? need.signups.some(s => s.userId === userId) : false,
+      isUserSignedUp: userId ? need.signups.some((s: any) => s.userId === userId) : false,
     }));
 
     return NextResponse.json({

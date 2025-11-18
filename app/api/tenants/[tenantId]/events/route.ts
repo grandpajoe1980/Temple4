@@ -50,7 +50,7 @@ export async function GET(
     });
 
     // Transform to include RSVP counts
-    const eventsWithCounts = events.map(event => ({
+    const eventsWithCounts = events.map((event: any) => ({
       ...event,
       rsvpCount: event._count.rsvps,
       _count: undefined, // Remove the _count field from response

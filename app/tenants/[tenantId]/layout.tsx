@@ -3,7 +3,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { getTenantById, getUserById } from '@/lib/data';
 import { hasRole, can } from '@/lib/permissions';
-import { TenantRole } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole } from '@/types';
 import Link from 'next/link';
 import TenantNav from './TenantNav'; // This will be the client component for navigation
 

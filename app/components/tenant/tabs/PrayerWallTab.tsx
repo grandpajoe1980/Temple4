@@ -107,7 +107,7 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {filteredPosts.map(post => (
+                {filteredPosts.map((post: any) => (
                   <tr key={post.id}>
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                         <div className="flex items-center">

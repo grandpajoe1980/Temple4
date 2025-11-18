@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { ActionType, Prisma } from '@prisma/client';
+import { ActionType } from '@/types';
 
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: Prisma.AuditLogWhereInput = {};
+    const where: any = {};
 
     if (actionType && actionType in ActionType) {
       where.actionType = actionType as ActionType;

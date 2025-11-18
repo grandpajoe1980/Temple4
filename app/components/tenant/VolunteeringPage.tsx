@@ -24,7 +24,7 @@ const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs
 
       {needs.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {needs.map((need) => (
+          {needs.map((need: any) => (
             <VolunteerNeedCard key={need.id} need={need} currentUser={user as any} onUpdate={() => onRefresh?.()} />
           ))}
         </div>

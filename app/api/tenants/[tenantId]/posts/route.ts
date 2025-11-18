@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserPost, canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
+import { handleApiError, forbidden, unauthorized } from '@/lib/api-response';
+import { createRouteLogger } from '@/lib/logger';
+import { withTenantScope } from '@/lib/tenant-isolation';
 
 // 9.1 List Posts
 export async function GET(
@@ -11,25 +14,36 @@ export async function GET(
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
   const resolvedParams = await params;
-  const session = await getServerSession(authOptions);
-  const userId = (session?.user as any)?.id;
-
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '10', 10);
-  const offset = (page - 1) * limit;
-
+  const logger = createRouteLogger('GET /api/tenants/[tenantId]/posts', { 
+    tenantId: resolvedParams.tenantId 
+  });
+  
   try {
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as any)?.id;
+
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const offset = (page - 1) * limit;
+
+    logger.info('Fetching posts', { userId, page, limit });
+
     const canView = await canUserViewContent(userId, resolvedParams.tenantId, 'posts');
     if (!canView) {
-        return NextResponse.json({ message: 'You do not have permission to view posts.' }, { status: 403 });
+      logger.warn('Permission denied', { userId });
+      return forbidden('You do not have permission to view posts.');
     }
 
+    // Use tenant isolation helper to ensure tenantId is always included
+    const whereClause = withTenantScope(
+      { deletedAt: null },
+      resolvedParams.tenantId,
+      'Post'
+    );
+
     const posts = await prisma.post.findMany({
-      where: { 
-        tenantId: resolvedParams.tenantId,
-        deletedAt: null, // Filter out soft-deleted posts
-      },
+      where: whereClause,
       include: {
         author: {
           select: {
@@ -43,36 +57,24 @@ export async function GET(
       orderBy: { createdAt: 'desc' },
     });
 
-    const totalPosts = await prisma.post.count({ 
-      where: { 
-        tenantId: resolvedParams.tenantId,
-        deletedAt: null, // Filter out soft-deleted posts
-      } 
-    });
+    const totalPosts = await prisma.post.count({ where: whereClause });
+
+    logger.info('Posts fetched successfully', { count: posts.length, totalPosts });
 
     return NextResponse.json({
-        posts,
-        pagination: {
-            page,
-            limit,
-            totalPages: Math.ceil(totalPosts / limit),
-            totalResults: totalPosts,
-        }
+      posts,
+      pagination: {
+        page,
+        limit,
+        totalPages: Math.ceil(totalPosts / limit),
+        totalResults: totalPosts,
+      }
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : '';
-    console.error(`Failed to fetch posts for tenant ${resolvedParams.tenantId}:`, error);
-    
-    // Write error to file for debugging
-    try {
-      const fs = require('fs');
-      fs.appendFileSync('error-log.txt', `\n[${new Date().toISOString()}] GET /posts error:\n${errorMessage}\n${errorStack}\n\n`);
-    } catch (e) {
-      // Ignore file write errors
-    }
-    
-    return NextResponse.json({ message: 'Failed to fetch posts' }, { status: 500 });
+    return handleApiError(error, { 
+      route: 'GET /api/tenants/[tenantId]/posts',
+      tenantId: resolvedParams.tenantId 
+    });
   }
 }
 
@@ -87,45 +89,60 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
-    const resolvedParams = await params;
+  const resolvedParams = await params;
+  const logger = createRouteLogger('POST /api/tenants/[tenantId]/posts', { 
+    tenantId: resolvedParams.tenantId 
+  });
+
+  try {
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      logger.warn('Unauthenticated request');
+      return unauthorized();
     }
 
     const result = postCreateSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+      logger.warn('Validation failed', { userId, errors: result.error.issues });
+      return handleApiError(result.error, { 
+        route: 'POST /api/tenants/[tenantId]/posts',
+        tenantId: resolvedParams.tenantId,
+        userId 
+      });
     }
 
     const { title, body, type } = result.data;
 
-    try {
-        const isAnnouncement = type === 'ANNOUNCEMENT';
-        const canPost = await canUserPost(userId, resolvedParams.tenantId, isAnnouncement);
-        if (!canPost) {
-            return NextResponse.json({ message: 'You do not have permission to create this type of post.' }, { status: 403 });
-        }
-
-        const newPost = await prisma.post.create({
-            data: {
-                title,
-                body,
-                type: type || 'BLOG',
-                tenantId: resolvedParams.tenantId,
-                authorUserId: userId,
-                isPublished: true,
-            },
-        });
-
-        // Here you would trigger notifications for announcements
-        // if (newPost.isAnnouncement) { ... }
-
-        return NextResponse.json(newPost, { status: 201 });
-    } catch (error) {
-        console.error(`Failed to create post in tenant ${resolvedParams.tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to create post' }, { status: 500 });
+    const isAnnouncement = type === 'ANNOUNCEMENT';
+    const canPost = await canUserPost(userId, resolvedParams.tenantId, isAnnouncement);
+    if (!canPost) {
+      logger.warn('Permission denied', { userId, type });
+      return forbidden('You do not have permission to create this type of post.');
     }
+
+    const newPost = await prisma.post.create({
+      data: {
+        title,
+        body,
+        type: type || 'BLOG',
+        tenantId: resolvedParams.tenantId,
+        authorUserId: userId,
+        isPublished: true,
+      },
+    });
+
+    logger.info('Post created successfully', { userId, postId: newPost.id, type: newPost.type });
+
+    // TODO: Trigger notifications for announcements
+    // if (type === 'ANNOUNCEMENT') { ... }
+
+    return NextResponse.json(newPost, { status: 201 });
+  } catch (error) {
+    return handleApiError(error, { 
+      route: 'POST /api/tenants/[tenantId]/posts',
+      tenantId: resolvedParams.tenantId 
+    });
+  }
 }

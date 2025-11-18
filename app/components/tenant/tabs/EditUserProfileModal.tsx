@@ -34,7 +34,7 @@ const EditUserProfileModal: React.FC<EditUserProfileModalProps> = ({ isOpen, onC
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    adminUpdateUserProfile(adminUser.id, member.id, profile);
+    adminUpdateUserProfile(member.id, profile);
     onSave();
     alert('Profile updated by admin.');
   };

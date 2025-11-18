@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, ContactSubmission } from '@/types';
 import { ContactSubmissionStatus } from '@/types';
 import { getContactSubmissionsForTenant, updateContactSubmissionStatus, respondToContactSubmission } from '@/lib/data';
@@ -12,18 +12,34 @@ interface ContactSubmissionsTabProps {
 }
 
 const ContactSubmissionsTab: React.FC<ContactSubmissionsTabProps> = ({ tenant, currentUser, onRefresh }) => {
-  const allSubmissions = useMemo(() => getContactSubmissionsForTenant(tenant.id), [tenant.id, onRefresh]);
+  const [allSubmissions, setAllSubmissions] = useState<ContactSubmission[]>([]);
   const [statusFilter, setStatusFilter] = useState<ContactSubmissionStatus | 'ALL'>('ALL');
   const [respondingTo, setRespondingTo] = useState<ContactSubmission | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleStatusChange = (submissionId: string, newStatus: ContactSubmissionStatus) => {
-    updateContactSubmissionStatus(submissionId, newStatus, currentUser.id);
+  useEffect(() => {
+    const loadSubmissions = async () => {
+      setIsLoading(true);
+      try {
+        const submissions = await getContactSubmissionsForTenant(tenant.id);
+        setAllSubmissions(submissions);
+      } catch (error) {
+        console.error('Failed to load contact submissions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadSubmissions();
+  }, [tenant.id, onRefresh]);
+
+  const handleStatusChange = async (submissionId: string, newStatus: ContactSubmissionStatus) => {
+    await updateContactSubmissionStatus(submissionId, newStatus, currentUser.id);
     onRefresh();
   };
   
-  const handleRespond = (responseText: string) => {
+  const handleRespond = async (responseText: string) => {
     if (!respondingTo) return;
-    respondToContactSubmission(respondingTo.id, responseText, currentUser.id, tenant.name);
+    await respondToContactSubmission(respondingTo.id, responseText, currentUser.id, tenant.name);
     setRespondingTo(null);
     onRefresh();
     alert('Response sent!');
@@ -43,6 +59,20 @@ const ContactSubmissionsTab: React.FC<ContactSubmissionsTabProps> = ({ tenant, c
     [ContactSubmissionStatus.READ]: 'bg-blue-100 text-blue-800',
     [ContactSubmissionStatus.ARCHIVED]: 'bg-gray-100 text-gray-800',
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">Contact Form Submissions</h3>
+          <p className="mt-1 text-sm text-gray-500">View and manage messages sent through your public contact page.</p>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-gray-500">Loading submissions...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Tenant, User, Event, EventWithCreator } from '@/types';
 import { getEventsForTenant, addEvent as saveEvent } from '@/lib/data';
 import Button from '../ui/Button';
@@ -17,21 +17,40 @@ interface EventsPageProps {
 type ViewMode = 'list' | 'calendar';
 
 const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
-  const [events, setEvents] = useState<EventWithCreator[]>(() => (getEventsForTenant as any)(tenant.id));
+  const [events, setEvents] = useState<EventWithCreator[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [dayModalOpen, setDayModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load events on mount
+  useEffect(() => {
+    const loadEvents = async () => {
+      setIsLoading(true);
+      try {
+        const eventData = await getEventsForTenant(tenant.id);
+        setEvents(eventData);
+      } catch (error) {
+        console.error('Failed to load events:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadEvents();
+  }, [tenant.id]);
   
   const canCreate = (can as any)(user, tenant, 'canCreateEvents');
 
-  const handleCreateEvent = (eventData: Omit<Event, 'id' | 'tenantId' | 'createdByUserId'>) => {
-    saveEvent({
+  const handleCreateEvent = async (eventData: Omit<Event, 'id' | 'tenantId' | 'createdByUserId'>) => {
+    await saveEvent({
       ...eventData,
       tenantId: tenant.id,
       createdByUserId: user.id,
     });
-    setEvents(getEventsForTenant(tenant.id));
+    // Reload events after creating
+    const updatedEvents = await getEventsForTenant(tenant.id);
+    setEvents(updatedEvents);
     setIsModalOpen(false);
   };
   
@@ -47,6 +66,24 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
            eventDate.getMonth() === selectedDate.getMonth() &&
            eventDate.getDate() === selectedDate.getDate();
   });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Calendar & Events</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              See what's happening at {tenant.name}.
+            </p>
+          </div>
+        </div>
+        <div className="text-center bg-white p-12 rounded-lg shadow-sm">
+          <p className="text-gray-500">Loading events...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

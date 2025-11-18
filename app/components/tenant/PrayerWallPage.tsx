@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getCommunityPostsForTenant, addCommunityPost } from '@/lib/data';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
@@ -16,21 +16,57 @@ interface PrayerWallPageProps {
 
 const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const posts = useMemo(() => {
-    const allPosts = getCommunityPostsForTenant(tenant.id, false);
-    return allPosts.filter(p => p.status === CommunityPostStatus.PUBLISHED);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      setIsLoading(true);
+      try {
+        const allPosts = await getCommunityPostsForTenant(tenant.id, false);
+        const publishedPosts = allPosts.filter(p => p.status === CommunityPostStatus.PUBLISHED);
+        setPosts(publishedPosts);
+      } catch (error) {
+        console.error('Failed to load prayer wall posts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadPosts();
   }, [tenant.id, onRefresh]);
 
-  const handleCreatePost = (data: { type: CommunityPostType; body: string; isAnonymous: boolean }) => {
-    addCommunityPost({
+  const handleCreatePost = async (data: { type: CommunityPostType; body: string; isAnonymous: boolean }) => {
+    await addCommunityPost({
       tenantId: tenant.id,
       authorUserId: data.isAnonymous ? null : user.id,
       ...data,
     });
-    onRefresh();
+    onRefresh?.();
     setIsModalOpen(false);
     alert('Your request has been submitted for review.');
+    // Reload posts
+    const allPosts = await getCommunityPostsForTenant(tenant.id, false);
+    const publishedPosts = allPosts.filter(p => p.status === CommunityPostStatus.PUBLISHED);
+    setPosts(publishedPosts);
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Community Prayer Wall</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Share prayer requests and tangible needs with the {tenant.name} community.
+            </p>
+          </div>
+        </div>
+        <div className="text-center bg-white p-12 rounded-lg shadow-sm">
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

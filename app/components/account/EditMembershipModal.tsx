@@ -34,7 +34,7 @@ const EditMembershipModal: React.FC<EditMembershipModalProps> = ({ isOpen, onClo
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateMembershipProfile(user.id, membership.id, { displayName, displayTitle });
+    updateMembershipProfile(user.id, membership.id, { displayName });
     onSave();
     alert('Membership profile updated!');
   };

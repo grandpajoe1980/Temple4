@@ -667,8 +667,9 @@ export async function addVolunteerNeed(tenantId: string, needData: any) {
     return null;
 }
 
-export async function getResourceItemsForTenant(tenantId: string) {
+export async function getResourceItemsForTenant(tenantId: string, isMember?: boolean) {
     // TODO: Implement resource items fetching
+    // isMember parameter to filter based on visibility (members-only vs public)
     return [];
 }
 
@@ -684,8 +685,9 @@ export async function deleteResourceItem(itemId: string, userId?: string) {
     return null;
 }
 
-export async function getCommunityPostsForTenant(tenantId: string) {
+export async function getCommunityPostsForTenant(tenantId: string, includePrivate?: boolean) {
     // TODO: Implement community posts fetching
+    // includePrivate parameter to filter based on status (for moderation)
     return [];
 }
 

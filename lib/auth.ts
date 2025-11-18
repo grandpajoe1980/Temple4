@@ -1,12 +1,7 @@
 import { prisma } from './db';
-import { User } from '@prisma/client';
+import { User, ActionType } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-
-// This is a placeholder for the real audit log function
-const logAuditEvent = async (event: any) => {
-    console.log('Audit Event Logged:', event);
-    // In a real implementation, this would write to the AuditLog table
-};
+import { logAuditEvent } from './audit';
 
 const defaultNotificationPreferences = {
   email: {
@@ -72,7 +67,7 @@ export async function registerUser(displayName: string, email: string, pass: str
 
   await logAuditEvent({
     actorUserId: newUser.id,
-    actionType: 'USER_REGISTERED', // This should be part of an enum
+    actionType: ActionType.USER_REGISTERED,
     entityType: 'USER',
     entityId: newUser.id,
   });

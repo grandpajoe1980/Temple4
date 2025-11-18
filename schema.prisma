@@ -132,6 +132,9 @@ model User {
   volunteerSignups        VolunteerSignup[]
   smallGroupMemberships   SmallGroupMembership[]
   uploadedResources       ResourceItem[]
+  passwordResetTokens     PasswordResetToken[]
+  impersonationsAsReal    ImpersonationSession[]  @relation("RealUser")
+  impersonationsAsEffective ImpersonationSession[] @relation("EffectiveUser")
 }
 
 model UserProfile {
@@ -194,6 +197,7 @@ model Tenant {
   communityPosts   CommunityPost[]
   resourceItems    ResourceItem[]
   contactSubmissions ContactSubmission[]
+  impersonationSessions ImpersonationSession[]
 }
 
 model TenantBranding {
@@ -528,4 +532,29 @@ model ContactSubmission {
   message   String
   status    ContactSubmissionStatus @default(UNREAD)
   createdAt DateTime                @default(now())
+}
+
+// --- AUTH & SECURITY ---
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ImpersonationSession {
+  id              String    @id @default(cuid())
+  realUserId      String
+  realUser        User      @relation("RealUser", fields: [realUserId], references: [id])
+  effectiveUserId String
+  effectiveUser   User      @relation("EffectiveUser", fields: [effectiveUserId], references: [id])
+  tenantId        String?
+  tenant          Tenant?   @relation(fields: [tenantId], references: [id])
+  reason          String?
+  startedAt       DateTime  @default(now())
+  endedAt         DateTime?
 }

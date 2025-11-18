@@ -21,22 +21,22 @@ export async function GET(
     }
 
     try {
-        const membership = await getMembershipForUserInTenant(userId, resolvedParams.tenantId);
-        if (!membership) {
-            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
-        }
-
-        const user = await prisma.user.findUnique({ where: { id: userId } });
-        const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
-        if (!tenant || !user) {
+        // Allow authenticated users to view - membership check removed
+        // Members get full view, non-members might get limited view based on tenant settings
+        const tenant = await prisma.tenant.findUnique({ 
+            where: { id: resolvedParams.tenantId },
+            include: { settings: true }
+        });
+        if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
 
-        const canView = await can(user, tenant, 'canManagePrayerWall');
-        if (!canView) {
-            return NextResponse.json({ message: 'You do not have permission to view the prayer wall.' }, { status: 403 });
+        // Check if prayer wall is enabled
+        if (!tenant.settings?.enablePrayerWall) {
+            return NextResponse.json({ message: 'Prayer wall is not enabled for this tenant' }, { status: 403 });
         }
 
+        // Return published community posts
         const posts = await prisma.communityPost.findMany({
             where: {
                 tenantId: resolvedParams.tenantId,
@@ -84,12 +84,25 @@ export async function POST(
             return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
-        const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId } });
+        const tenant = await prisma.tenant.findUnique({ 
+            where: { id: resolvedParams.tenantId },
+            include: { settings: true }
+        });
         if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
 
-        const canCreate = await can(userId, tenant, 'canManagePrayerWall');
+        // Check if prayer wall is enabled
+        if (!tenant.settings?.enablePrayerWall) {
+            return NextResponse.json({ message: 'Prayer wall is not enabled for this tenant' }, { status: 403 });
+        }
+
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return NextResponse.json({ message: 'User not found' }, { status: 404 });
+        }
+
+        const canCreate = await can(user, tenant, 'canManagePrayerWall');
         if (!canCreate) {
             return NextResponse.json({ message: 'You do not have permission to create a prayer request.' }, { status: 403 });
         }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TenantRole, type Tenant, type User, type Notification } from '@/types';
+import { TenantRole as TenantRoleType, type Tenant, type User, type Notification } from '@/types';
+import { TenantRole } from '@prisma/client';
 import Button from '../ui/Button';
 import ControlPanel from './ControlPanel';
 import PostsPage from './PostsPage';
@@ -42,6 +43,9 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
   const [currentPage, setCurrentPage] = useState<TenantPage>('home');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
+  const [canViewSettings, setCanViewSettings] = useState(false);
+  const [membership, setMembership] = useState<any>(null);
+  const [canCreatePosts, setCanCreatePosts] = useState(false);
 
   useEffect(() => {
     const loadNotifications = async () => {
@@ -52,6 +56,35 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
     };
     loadNotifications();
   }, [user, onRefresh]);
+
+  useEffect(() => {
+    const checkPermissions = async () => {
+      try {
+        const membershipData = await getMembershipForUserInTenant(user.id, tenant.id);
+        setMembership(membershipData);
+
+        // Check if user can view settings (admin or has management permissions)
+        const isAdmin = user.isSuperAdmin || await hasRole(user.id, tenant.id, [TenantRole.ADMIN]);
+        const canApprove = await can(user as any, tenant as any, 'canApproveMembership');
+        const canBan = await can(user as any, tenant as any, 'canBanMembers');
+        const canManagePrayer = await can(user as any, tenant as any, 'canManagePrayerWall');
+        const canManageResources = await can(user as any, tenant as any, 'canManageResources');
+        const canManageContact = await can(user as any, tenant as any, 'canManageContactSubmissions');
+        
+        setCanViewSettings(isAdmin || canApprove || canBan || canManagePrayer || canManageResources || canManageContact);
+        
+        // Check content creation permissions
+        const canCreatePostsPerm = await can(user as any, tenant as any, 'canCreatePosts');
+        setCanCreatePosts(canCreatePostsPerm);
+      } catch (error) {
+        console.error('Error checking permissions:', error);
+        setCanViewSettings(false);
+        setCanCreatePosts(false);
+      }
+    };
+    
+    checkPermissions();
+  }, [user, tenant]);
 
   const handleMarkNotificationAsRead = async (notificationId: string) => {
     await markNotificationAsRead(notificationId);
@@ -72,17 +105,8 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
     }
     // Tenant navigation is already handled by being in the layout
   };
-
-  const canViewSettings = user.isSuperAdmin || 
-                          (hasRole as any)(user, tenant.id, TenantRole.ADMIN) ||
-                          (can as any)(user, tenant, 'canApproveMembership') ||
-                          (can as any)(user, tenant, 'canBanMembers') ||
-                          (can as any)(user, tenant, 'canManagePrayerWall') ||
-                          (can as any)(user, tenant, 'canManageResources') ||
-                          (can as any)(user, tenant, 'canManageContactSubmissions');
-
-  const membershipData = (getMembershipForUserInTenant as any)(user.id, tenant.id);
-  const tenantDisplayName = membershipData?.displayName || user.profile.displayName;
+  
+  const tenantDisplayName = membership?.displayName || user.profile.displayName;
   const unreadNotificationCount = notifications.filter(n => !n.isRead).length;
 
   // If the user lands on the settings page without permission (e.g., from a stale URL), redirect them.
@@ -126,7 +150,7 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
         }
         return <ControlPanel tenant={tenant} onUpdate={onUpdateTenant} currentUser={user} onImpersonate={onImpersonate} onRefresh={onRefresh} />;
       case 'posts':
-        return <PostsPage tenant={tenant as any} user={user as any} posts={[]} canCreate={(can as any)(user, tenant, 'canCreatePosts')} />;
+        return <PostsPage tenant={tenant as any} user={user as any} posts={[]} canCreate={canCreatePosts} />;
       case 'calendar':
         return <EventsPage tenant={tenant} user={user} />;
       case 'members':

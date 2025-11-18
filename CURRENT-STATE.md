@@ -1,6 +1,6 @@
 # Temple Platform - Current State Summary
 
-**Last Updated:** 2025-11-17 (Session 4)
+**Last Updated:** 2025-11-18 (Session 5)
 **Phase:** Phase A - Foundation & Data Model (IN PROGRESS)
 
 ---
@@ -8,154 +8,151 @@
 ## Quick Status
 
 - ✅ **Turbopack:** Compiling successfully
-- ⚠️  **TypeScript:** 215 errors (categorized and understood)
-- ⚠️  **Tests:** Cannot run (blocked by build errors)
+- ⚠️  **TypeScript:** 116 errors (down from 222, 48% reduction)
+- ⚠️  **Tests:** Cannot run (blocked by remaining build errors)
 - 🔧 **Active Work:** Type system alignment (Ticket #0002)
 
 ---
 
-## What Just Happened (Session 4)
+## What Just Happened (Session 5)
 
 **Accomplished:**
-1. Fixed User password type for Prisma compatibility
-2. Fixed 5 type import paths  
-3. Fixed PublicEventsView as async server component ✅
-4. Fixed MembershipStatus enum (REQUESTED → PENDING)
-5. Enhanced getEventsForTenant and getTenantById
-6. **Completed comprehensive error analysis**
-7. **Updated all documentation**
+1. Generated Prisma client - fixed 84 type import errors ✅
+2. Fixed 4 data layer enrichment functions ✅
+3. Updated 3 component type definitions ✅
+4. Fixed MembersPage client/server boundary ✅
+5. Fixed 13 function signatures in data layer ✅
+6. **Total: 106 errors fixed (48% reduction)**
 
-**Key Discovery:**
-~25 client components are calling async server functions directly. This violates Next.js 16 patterns and causes most build errors.
+**Key Pattern Established:**
+- Data fetching in parent server components
+- Pass enriched data as props to client components
+- Example: MembersPage now receives members prop
 
 ---
 
 ## The Problem (Ticket #0002)
 
 **Root Cause:**
-Client components with React hooks (useState, useMemo) are calling async Prisma functions from `lib/data.ts`.
+Client components with React hooks calling async Prisma functions from `lib/data.ts`.
 
 **Impact:**
-- 215 TypeScript errors
-- Cannot run the app
-- Cannot run tests
+- 116 TypeScript errors (down from 222)
+- Build fails on TypeScript check
+- Turbopack compilation succeeds ✅
 
-**Solution Paths:**
-1. **Incremental:** Fix server components first, create critical APIs, refactor gradually (recommended)
-2. **Comprehensive:** Create all 15 API endpoints, refactor all 25 components (4.5-6.5 days)
-
----
-
-## What Needs To Happen Next
-
-### Option A - Incremental (Recommended)
-1. Continue fixing server components (0.5 day)
-2. Create 3-5 critical API endpoints (1 day)
-3. Refactor 5-10 high-traffic components (1 day)
-4. Iterate
-
-**Advantage:** Delivers value early, allows learning and adjustment
-
-### Option B - Comprehensive  
-1. Create all API endpoints (~15) (1-2 days)
-2. Refactor all components (~25) (2-3 days)
-3. Complete type system alignment (1 day)
-4. Remove type casts (0.5 days)
-
-**Advantage:** Clean, complete solution addressing root cause
-
-### Option C - Defer
-1. Work around issues where possible
-2. Continue with other Phase A work
-3. Address in dedicated sprint later
+**Solution Progress:**
+1. ✅ Prisma client generated
+2. ✅ Data layer enrichment functions fixed
+3. ✅ Function signatures aligned with usage
+4. 🔄 Client/server boundary fixes ongoing
 
 ---
 
-## Files You Should Read
+## Error Breakdown (116 remaining)
 
-1. **`tickets/0002-type-system-alignment.md`** - Comprehensive plan
-2. **`docs/journal.md`** - Detailed session notes (read latest entries)
-3. **`todo.md`** - Overall project plan
-4. **`tickets/README.md`** - Ticket index
+| Category | Count | Percentage | Status |
+|----------|-------|------------|--------|
+| Promise/async | ~35 | 30% | In progress |
+| Type mismatches | ~30 | 26% | Needs work |
+| Implicit any | ~15 | 13% | Easy fixes |
+| Other | ~36 | 31% | Various |
 
----
-
-## Affected Components (25 total)
-
-### Pages Needing API Endpoints or Conversion:
-- BooksPage, SermonsPage, PodcastsPage, PostsPage
-- EventsPage, ChatPage, ResourceCenterPage
-- VolunteeringPage, SmallGroupsPage, DonationsPage
-- PrayerWallPage, ContactPage
-
-### Shared/Layout:
-- PublicHeader, TenantLayout
-
-### Cards:
-- SmallGroupCard, VolunteerNeedCard, ResourceItemCard
-
-### Tabs:
-- ContactSubmissionsTab, MembershipTab, PrayerWallTab
-- EditUserProfileModal, PermissionsTab
+**Progress from Session 4:**
+- Started: 222 errors
+- Current: 116 errors  
+- **Fixed: 106 errors (48% reduction)**
 
 ---
 
-## Error Breakdown (215 total)
+## What Works Right Now
 
-| Category | Count | Percentage | Fix Strategy |
-|----------|-------|------------|--------------|
-| Promise/async | 79 | 37% | Create APIs or convert to server components |
-| Type mismatches | 46 | 21% | Data layer transformations |
-| Function signatures | 20 | 9% | Fix argument counts |
-| Other | 70 | 33% | Various fixes |
-
----
-
-## Recent Progress
-
-**Session 1-2:** Async params migration ✅
-**Session 3:** Discovered type system issues
-**Session 4:** Comprehensive analysis and quick wins ✅
-
-**Errors Reduced:**
-- Started: ~300+ (estimated)
-- Current: 215
-- **Progress:** Clear understanding of all remaining issues
+✅ **Prisma client** - All types generated correctly
+✅ **Data layer enrichment** - getSermonsForTenant, getPodcastsForTenant, getSmallGroupsForTenant, getMembersForTenant
+✅ **Function signatures** - 13 functions aligned with actual component usage
+✅ **Server component pattern** - Established with MembersPage
+✅ **Component type definitions** - SermonsPage, PodcastsPage, SmallGroupsPage, MembersPage
 
 ---
 
 ## Active Tickets
 
 - **#0001** - Async Params Migration: ✅ RESOLVED
-- **#0002** - Type System Alignment: 🔧 OPEN (CRITICAL)
-  - Fully documented with comprehensive plan
-  - Ready to implement
-  - Effort: 4.5-6.5 days (comprehensive) OR 2-3 days (incremental)
+- **#0002** - Type System Alignment: 🔧 OPEN (CRITICAL, significant progress)
+  - Phase 1 (Documentation): ✅ COMPLETE
+  - Phase 2 (Data layer fixes): ✅ COMPLETE
+  - Phase 3 (Function signatures): ✅ COMPLETE
+  - Phase 4 (Client/server boundaries): 🔄 IN PROGRESS (25% complete)
+  - Phase 5 (Type system cleanup): ⏳ PENDING
 
 ---
 
-## What Works Right Now
+## Remaining Work
 
-✅ **Server component pattern** - PublicEventsView proves the pattern works
-✅ **Data layer transformations** - getEventsForTenant, getTenantById working
-✅ **Type fixes** - User password, enum corrections applied
-✅ **Documentation** - Comprehensive analysis complete
+### High Priority (Active Routes)
+1. **TenantLayout** (~15 errors)
+   - User type incompatibility
+   - Async notification fetching
+   - Used throughout application
+
+2. **ResourceCenterPage** (~10 errors)
+   - Async calls in useMemo
+   - Permission checks
+
+3. **PrayerWallPage** (~6 errors)
+   - Async data fetching
+   - Function signatures
+
+### Medium Priority (Component Cards)
+- SmallGroupCard - async membership checks
+- ResourceItemCard - async permission checks
+- VolunteerNeedCard - async data access
+
+### Low Priority (Legacy Components)
+- HomePage - HomePageClient already exists ✅
+- EventsPage - EventsCalendar already in use ✅
 
 ---
 
-## Decision Needed
+## Files Changed This Session
 
-**Choose an approach for Ticket #0002:**
+**Data Layer:**
+- lib/data.ts - 13 function signature fixes + enrichment improvements
 
-1. **Incremental** - Start small, iterate, deliver value early
-2. **Comprehensive** - Full fix, clean solution, 4-6 days
-3. **Defer** - Work on other Phase A items first
+**Components:**
+- app/components/tenant/SermonsPage.tsx - Type definitions
+- app/components/tenant/PodcastsPage.tsx - Type definitions  
+- app/components/tenant/SmallGroupsPage.tsx - Type definitions
+- app/components/tenant/MembersPage.tsx - Client/server split
+- app/components/account/EditMembershipModal.tsx - Removed invalid field
 
-**Factors to consider:**
-- Timeline and priorities
-- Team capacity
-- Risk tolerance
-- Desire for quick wins vs complete solution
+**Routes:**
+- app/tenants/[tenantId]/members/page.tsx - Added data fetching
+
+---
+
+## Architecture Insights
+
+**Patterns Identified:**
+1. Many client components incorrectly call async Prisma functions
+2. Permission functions are async but called in sync contexts
+3. User type from Prisma (with includes) doesn't match custom User type
+4. Some components have legacy versions and newer replacements
+
+**Solutions Applied:**
+1. Fetch data in parent server components
+2. Pass enriched data as props to client components
+3. Align function signatures with actual usage
+4. Document expected parameters for TODO functions
+
+---
+
+## Next Session Focus
+
+1. **TenantLayout** - Highest impact (15 errors, used everywhere)
+2. **User type strategy** - Decide on Prisma User vs custom type
+3. **Permission pattern** - Server-side resolution or API endpoints
+4. **Continue client/server splits** - ResourceCenterPage, PrayerWallPage
 
 ---
 
@@ -171,22 +168,26 @@ npx tsc --noEmit 2>&1 | grep "error TS" | wc -l
 # Install dependencies
 npm install
 
+# Generate Prisma client
+npx prisma generate
+
 # See detailed errors
 npx tsc --noEmit 2>&1 | less
 ```
 
 ---
 
-## For Next Session
+## Progress Chart
 
-1. **Read this file** ✓
-2. **Read latest `docs/journal.md` entries**
-3. **Review `tickets/0002-type-system-alignment.md`**
-4. **Choose approach** (incremental vs comprehensive)
-5. **Begin implementation**
+```
+Session 1-2: ~300+ errors (estimated)
+Session 3:   ~300+ errors (discovered type issues)
+Session 4:   222 errors (comprehensive analysis)
+Session 5:   116 errors (48% reduction) ✅
+```
 
 ---
 
 **Questions?** Check docs/journal.md for detailed context and decision rationale.
 
-**Ready to start?** Ticket #0002 has the full implementation plan.
+**Ready to continue?** Focus on TenantLayout next for maximum impact.

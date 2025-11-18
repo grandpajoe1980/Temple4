@@ -7,6 +7,8 @@ import { TestLogger } from './test-logger';
 import { APITestSuite } from './api-tests';
 import { PageTestSuite } from './page-tests';
 import { FeatureTestSuite } from './feature-tests';
+import { UploadTestSuite } from './upload-tests';
+import { EmailTestSuite } from './email-tests';
 import TEST_CONFIG from './test-config';
 
 async function checkServerAvailability(): Promise<boolean> {
@@ -109,6 +111,8 @@ async function main() {
   const apiTests = new APITestSuite(logger);
   const featureTests = new FeatureTestSuite(logger);
   const pageTests = new PageTestSuite(logger);
+  const uploadTests = new UploadTestSuite(logger);
+  const emailTests = new EmailTestSuite(logger);
 
   // Set the test tenant ID if we found it
   if (springfieldTenantId) {
@@ -137,6 +141,12 @@ async function main() {
 
     // Run API tests
     await apiTests.runAllTests();
+
+    // Run upload tests (Phase F2)
+    await uploadTests.runAllTests();
+
+    // Run email tests (Phase F3)
+    await emailTests.runAllTests();
 
     // Run page tests
     await pageTests.runAllTests();

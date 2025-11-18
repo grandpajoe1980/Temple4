@@ -1,13 +1,12 @@
 "use client";
 
 import React from 'react';
-import type { Tenant, User } from '@/types';
-import { MediaItem } from '@prisma/client';
+import type { Tenant, User, MediaItem } from '@prisma/client';
 import Button from '../ui/Button';
 import PodcastCard from './PodcastCard';
 
 interface PodcastsPageProps {
-  tenant: Tenant;
+  tenant: Pick<Tenant, 'name'>;
   user: User;
   podcasts: MediaItem[];
   canCreate: boolean;

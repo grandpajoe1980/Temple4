@@ -1,12 +1,11 @@
 "use client";
 
 import React from 'react';
-import type { Tenant, User } from '@/types';
-import { SmallGroup } from '@prisma/client';
+import type { Tenant, User, SmallGroup } from '@prisma/client';
 import SmallGroupCard from './SmallGroupCard';
 
 interface SmallGroupsPageProps {
-  tenant: Tenant;
+  tenant: Pick<Tenant, 'name'>;
   user: User;
   groups: SmallGroup[];
   onRefresh: () => void;

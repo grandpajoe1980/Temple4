@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { Tenant, User, PostInput, PostWithAuthor } from '@/types';
+import type { PostInput, PostWithAuthor } from '@/types';
+import type { Tenant, User } from '@prisma/client';
 import Button from '../ui/Button';
 import PostCard from './PostCard';
 import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 
 interface PostsPageProps {
-  tenant: Tenant;
+  tenant: Pick<Tenant, 'id' | 'name'>;
   user: User;
   posts: PostWithAuthor[];
   canCreate: boolean;

@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { Tenant, User, PostInput, PostWithAuthor } from '@/types';
-import { addPost } from '@/lib/data';
+import type { PostInput, PostWithAuthor } from '@/types';
+import type { Tenant, User } from '@prisma/client';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 import BookCard from './BookCard';
 
 interface BooksPageProps {
-  tenant: Tenant;
+  tenant: Pick<Tenant, 'id' | 'name'>;
   user: User;
   books: PostWithAuthor[];
   canCreate: boolean;
@@ -20,12 +20,16 @@ const BooksPage: React.FC<BooksPageProps> = ({ tenant, user, books: initialBooks
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCreatePost = async (postData: PostInput) => {
-    await addPost(tenant.id, {
-      ...postData,
-      authorUserId: user.id,
+    const response = await fetch(`/api/tenants/${tenant.id}/books`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(postData),
     });
-    // TODO: In a real app, we'd refetch or optimistically update
-    // For now, just close the modal
+    
+    if (response.ok) {
+      const newBook = await response.json();
+      setBooks([newBook, ...books]);
+    }
     setIsModalOpen(false);
   };
 

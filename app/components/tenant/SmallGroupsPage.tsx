@@ -1,13 +1,35 @@
 "use client";
 
 import React from 'react';
-import type { Tenant, User, SmallGroup } from '@prisma/client';
+import type { Tenant, User } from '@prisma/client';
 import SmallGroupCard from './SmallGroupCard';
+
+// Match the enriched type returned by getSmallGroupsForTenant
+type EnrichedSmallGroup = {
+  id: string;
+  name: string;
+  description: string;
+  tenantId: string;
+  isPublic: boolean;
+  leaderUserId: string;
+  meetingSchedule: string;
+  isActive: boolean;
+  leader: User & {
+    profile: any;
+    privacySettings: any;
+    accountSettings: any;
+  };
+  members: any[];
+};
 
 interface SmallGroupsPageProps {
   tenant: Pick<Tenant, 'name'>;
-  user: User;
-  groups: SmallGroup[];
+  user: User & {
+    profile: any;
+    privacySettings: any;
+    accountSettings: any;
+  };
+  groups: EnrichedSmallGroup[];
   onRefresh?: () => void;
 }
 
@@ -26,7 +48,7 @@ const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, groups,
       {activeGroups.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {activeGroups.map((group) => (
-            <SmallGroupCard key={group.id} group={group} currentUser={user} onUpdate={onRefresh} />
+            <SmallGroupCard key={group.id} group={group as any} currentUser={user as any} onUpdate={onRefresh || (() => {})} />
           ))}
         </div>
       ) : (

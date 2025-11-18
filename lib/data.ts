@@ -524,17 +524,16 @@ export async function getEnrichedMembershipsForUser(userId: string) {
     }));
 }
 
-// Update membership profile (display name and title within a tenant)
+// Update membership profile (display name within a tenant)
 export async function updateMembershipProfile(
     userId: string, 
     membershipId: string, 
-    data: { displayName?: string; displayTitle?: string }
+    data: { displayName?: string }
 ) {
     return await prisma.userTenantMembership.update({
         where: { id: membershipId, userId },
         data: {
             displayName: data.displayName,
-            displayTitle: data.displayTitle
         }
     });
 }
@@ -559,8 +558,30 @@ export async function updateUserNotificationPreferences(
 // These functions are called by components but not yet fully implemented
 
 export async function getMembersForTenant(tenantId: string) {
-    // TODO: Implement member fetching with enriched data
-    return [];
+    const memberships = await prisma.userTenantMembership.findMany({
+        where: { tenantId },
+        include: {
+            user: {
+                include: {
+                    profile: true,
+                }
+            },
+            roles: true,
+        },
+        orderBy: [
+            { user: { profile: { displayName: 'asc' } } }
+        ]
+    });
+    
+    return memberships.map(membership => ({
+        ...membership.user,
+        membership: {
+            id: membership.id,
+            status: membership.status,
+            displayName: membership.displayName,
+            roles: membership.roles,
+        }
+    }));
 }
 
 export async function updateMembershipStatus(userId: string, tenantId: string, status: string) {
@@ -574,7 +595,7 @@ export async function updateMemberRolesAndTitle(userId: string, tenantId: string
 }
 
 export async function getSmallGroupsForTenant(tenantId: string) {
-    return await prisma.smallGroup.findMany({
+    const groups = await prisma.smallGroup.findMany({
         where: { tenantId },
         include: {
             members: {
@@ -589,6 +610,30 @@ export async function getSmallGroupsForTenant(tenantId: string) {
         },
         orderBy: { name: 'asc' },
     });
+    
+    // Fetch leaders separately for enrichment
+    const enrichedGroups = await Promise.all(groups.map(async (group) => {
+        const leader = await prisma.user.findUnique({
+            where: { id: group.leaderUserId },
+            include: {
+                profile: true,
+                privacySettings: true,
+                accountSettings: true,
+            }
+        });
+        
+        return {
+            ...group,
+            leader: leader!,
+            members: group.members.map(m => ({
+                ...m.user,
+                groupRole: m.role,
+                joinedAt: m.joinedAt,
+            }))
+        };
+    }));
+    
+    return enrichedGroups;
 }
 
 export async function createSmallGroup(tenantId: string, groupData: any) {
@@ -675,7 +720,7 @@ export async function addEvent(tenantId: string, eventData: any) {
 }
 
 export async function getSermonsForTenant(tenantId: string) {
-    return await prisma.mediaItem.findMany({
+    const sermons = await prisma.mediaItem.findMany({
         where: { 
             tenantId, 
             type: 'SERMON_VIDEO',
@@ -690,10 +735,16 @@ export async function getSermonsForTenant(tenantId: string) {
             }
         }
     });
+    
+    return sermons.map(sermon => ({
+        ...sermon,
+        authorDisplayName: sermon.author.profile?.displayName || 'Unknown',
+        authorAvatarUrl: sermon.author.profile?.avatarUrl || undefined,
+    }));
 }
 
 export async function getPodcastsForTenant(tenantId: string) {
-    return await prisma.mediaItem.findMany({
+    const podcasts = await prisma.mediaItem.findMany({
         where: { 
             tenantId, 
             type: 'PODCAST_AUDIO',
@@ -708,6 +759,12 @@ export async function getPodcastsForTenant(tenantId: string) {
             }
         }
     });
+    
+    return podcasts.map(podcast => ({
+        ...podcast,
+        authorDisplayName: podcast.author.profile?.displayName || 'Unknown',
+        authorAvatarUrl: podcast.author.profile?.avatarUrl || undefined,
+    }));
 }
 
 export async function getBooksForTenant(tenantId: string) {

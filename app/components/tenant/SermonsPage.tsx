@@ -1,14 +1,29 @@
 "use client";
 
 import React from 'react';
-import type { Tenant, User, MediaItem } from '@prisma/client';
+import type { Tenant, User } from '@prisma/client';
 import Button from '../ui/Button';
 import SermonCard from './SermonCard';
+
+// Enriched media item type from data layer
+type EnrichedSermon = {
+  id: string;
+  description: string;
+  tenantId: string;
+  authorUserId: string;
+  type: string;
+  title: string;
+  publishedAt: Date;
+  deletedAt: Date | null;
+  embedUrl: string;
+  authorDisplayName: string;
+  authorAvatarUrl?: string;
+};
 
 interface SermonsPageProps {
   tenant: Pick<Tenant, 'name'>;
   user: User;
-  sermons: MediaItem[];
+  sermons: EnrichedSermon[];
   canCreate: boolean;
 }
 
@@ -32,7 +47,7 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons, canCre
       {sermons.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {sermons.map((sermon) => (
-            <SermonCard key={sermon.id} sermon={sermon} />
+            <SermonCard key={sermon.id} sermon={sermon as any} />
           ))}
         </div>
       ) : (

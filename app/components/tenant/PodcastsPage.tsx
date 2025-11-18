@@ -1,14 +1,29 @@
 "use client";
 
 import React from 'react';
-import type { Tenant, User, MediaItem } from '@prisma/client';
+import type { Tenant, User } from '@prisma/client';
 import Button from '../ui/Button';
 import PodcastCard from './PodcastCard';
+
+// Enriched media item type from data layer
+type EnrichedPodcast = {
+  id: string;
+  description: string;
+  tenantId: string;
+  authorUserId: string;
+  type: string;
+  title: string;
+  publishedAt: Date;
+  deletedAt: Date | null;
+  embedUrl: string;
+  authorDisplayName: string;
+  authorAvatarUrl?: string;
+};
 
 interface PodcastsPageProps {
   tenant: Pick<Tenant, 'name'>;
   user: User;
-  podcasts: MediaItem[];
+  podcasts: EnrichedPodcast[];
   canCreate: boolean;
 }
 
@@ -32,7 +47,7 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts, can
       {podcasts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {podcasts.map((podcast) => (
-            <PodcastCard key={podcast.id} podcast={podcast} />
+            <PodcastCard key={podcast.id} podcast={podcast as any} />
           ))}
         </div>
       ) : (

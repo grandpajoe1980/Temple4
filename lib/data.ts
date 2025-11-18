@@ -16,6 +16,11 @@ type TenantWithRelations = Tenant & {
     };
 };
 
+/**
+ * Get all tenants that a user is an approved member of
+ * @param userId - The ID of the user
+ * @returns Array of tenants where the user has APPROVED membership status
+ */
 export async function getTenantsForUser(userId: string): Promise<Tenant[]> {
   const memberships = await prisma.userTenantMembership.findMany({
     where: {
@@ -30,6 +35,11 @@ export async function getTenantsForUser(userId: string): Promise<Tenant[]> {
   return memberships.map((membership: { tenant: Tenant; }) => membership.tenant);
 }
 
+/**
+ * Get a tenant by ID with its settings, branding, and address information
+ * @param tenantId - The ID of the tenant to retrieve
+ * @returns Tenant with settings, branding, and address, or null if not found
+ */
 export async function getTenantById(tenantId: string) {
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
@@ -54,6 +64,11 @@ export async function getTenantById(tenantId: string) {
   };
 }
 
+/**
+ * Get a user by ID with profile, privacy settings, and account settings
+ * @param userId - The ID of the user to retrieve
+ * @returns User with all related data, or null if not found
+ */
 export async function getUserById(userId: string) {
   return await prisma.user.findUnique({
     where: { id: userId },
@@ -65,6 +80,10 @@ export async function getUserById(userId: string) {
   });
 }
 
+/**
+ * Get all tenants with their settings and branding
+ * @returns Array of all tenants with settings, branding, and address information
+ */
 export async function getTenants(): Promise<TenantWithRelations[]> {
     const tenants = await prisma.tenant.findMany({
         include: {
@@ -86,6 +105,12 @@ export async function getTenants(): Promise<TenantWithRelations[]> {
     }));
 }
 
+/**
+ * Get all events for a specific tenant, ordered by start date
+ * Includes creator information with display name and avatar
+ * @param tenantId - The ID of the tenant
+ * @returns Array of events with enriched creator information
+ */
 export async function getEventsForTenant(tenantId: string) {
   const events = await prisma.event.findMany({
     where: { tenantId },
@@ -107,6 +132,12 @@ export async function getEventsForTenant(tenantId: string) {
   }));
 }
 
+/**
+ * Get all published posts for a specific tenant, ordered by publish date (newest first)
+ * Only returns posts where isPublished is true
+ * @param tenantId - The ID of the tenant
+ * @returns Array of published posts with author information
+ */
 export async function getPostsForTenant(tenantId: string) {
   const posts = await prisma.post.findMany({
     where: { tenantId, isPublished: true },
@@ -128,6 +159,12 @@ export async function getPostsForTenant(tenantId: string) {
   }));
 }
 
+/**
+ * Get the membership record for a specific user in a specific tenant
+ * @param userId - The ID of the user
+ * @param tenantId - The ID of the tenant
+ * @returns The membership record, or null if the user is not a member
+ */
 export async function getMembershipForUserInTenant(userId: string, tenantId: string): Promise<UserTenantMembership | null> {
   return await prisma.userTenantMembership.findUnique({
     where: {
@@ -139,6 +176,11 @@ export async function getMembershipForUserInTenant(userId: string, tenantId: str
   });
 }
 
+/**
+ * Get all notifications for a user, ordered by creation date (newest first)
+ * @param userId - The ID of the user
+ * @returns Array of notifications with normalized optional fields
+ */
 export async function getNotificationsForUser(userId: string) {
     const notifications = await prisma.notification.findMany({
         where: { userId },
@@ -152,6 +194,11 @@ export async function getNotificationsForUser(userId: string) {
     }));
 }
 
+/**
+ * Mark a single notification as read
+ * @param notificationId - The ID of the notification
+ * @returns The updated notification record
+ */
 export async function markNotificationAsRead(notificationId: string): Promise<Notification> {
     return await prisma.notification.update({
         where: { id: notificationId },
@@ -159,6 +206,11 @@ export async function markNotificationAsRead(notificationId: string): Promise<No
     });
 }
 
+/**
+ * Mark all notifications as read for a specific user
+ * @param userId - The ID of the user
+ * @returns Update result with count of affected records
+ */
 export async function markAllNotificationsAsRead(userId: string) {
     return await prisma.notification.updateMany({
         where: { userId },
@@ -166,6 +218,12 @@ export async function markAllNotificationsAsRead(userId: string) {
     });
 }
 
+/**
+ * Get a user by their email address
+ * Includes profile, privacy settings, and account settings
+ * @param email - The email address to search for
+ * @returns User with all related data, or null if not found
+ */
 export async function getUserByEmail(email: string) {
     return await prisma.user.findUnique({
         where: { email },
@@ -177,6 +235,13 @@ export async function getUserByEmail(email: string) {
     });
 }
 
+/**
+ * Register a new user with hashed password and create associated profile/settings
+ * @param displayName - The display name for the user's profile
+ * @param email - The user's email address (must be unique)
+ * @param pass - The plaintext password (will be hashed with bcrypt)
+ * @returns Success object with user data, or error object if email already exists
+ */
 export async function registerUser(displayName: string, email: string, pass: string) {
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
@@ -204,6 +269,13 @@ export async function registerUser(displayName: string, email: string, pass: str
     return { success: true, user };
 }
 
+/**
+ * Create a new tenant and automatically assign the creator as ADMIN
+ * Generates a URL-safe slug from the tenant name
+ * @param tenantDetails - Tenant information (excluding id, slug, and permissions)
+ * @param ownerId - The user ID who will be the initial admin
+ * @returns The created tenant record
+ */
 export async function createTenant(tenantDetails: Omit<Tenant, 'id' | 'slug' | 'permissions'>, ownerId: string): Promise<Tenant> {
     const tenant = await prisma.tenant.create({
         data: {

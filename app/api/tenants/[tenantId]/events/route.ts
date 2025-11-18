@@ -27,6 +27,7 @@ export async function GET(
     const events = await prisma.event.findMany({
       where: {
         tenantId: resolvedParams.tenantId,
+        deletedAt: null, // Filter out soft-deleted events
         ...(from && to && {
             startDateTime: {
                 gte: new Date(from),
@@ -34,10 +35,28 @@ export async function GET(
             },
         }),
       },
+      include: {
+        _count: {
+          select: {
+            rsvps: {
+              where: {
+                status: { in: ['GOING', 'INTERESTED'] }
+              }
+            }
+          }
+        }
+      },
       orderBy: { startDateTime: 'asc' },
     });
 
-    return NextResponse.json(events);
+    // Transform to include RSVP counts
+    const eventsWithCounts = events.map(event => ({
+      ...event,
+      rsvpCount: event._count.rsvps,
+      _count: undefined, // Remove the _count field from response
+    }));
+
+    return NextResponse.json(eventsWithCounts);
   } catch (error) {
     console.error(`Failed to fetch events for tenant ${resolvedParams.tenantId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch events' }, { status: 500 });

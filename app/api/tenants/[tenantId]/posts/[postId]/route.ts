@@ -33,7 +33,7 @@ export async function GET(
       },
     });
 
-    if (!post) {
+    if (!post || post.deletedAt) {
       return NextResponse.json({ message: 'Post not found' }, { status: 404 });
     }
 
@@ -46,12 +46,12 @@ export async function GET(
 
 const postUpdateSchema = z.object({
     title: z.string().min(1).optional(),
-    content: z.string().min(1).optional(),
-    isPinned: z.boolean().optional(),
+    body: z.string().min(1).optional(),
+    isPublished: z.boolean().optional(),
 });
 
 // 9.4 Update Post
-export async function PUT(
+export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; postId: string }> }
 ) {
@@ -70,7 +70,7 @@ export async function PUT(
 
     try {
         const post = await prisma.post.findUnique({ where: { id: postId } });
-        if (!post || post.tenantId !== tenantId) {
+        if (!post || post.tenantId !== tenantId || post.deletedAt) {
             return NextResponse.json({ message: 'Post not found' }, { status: 404 });
         }
 
@@ -100,7 +100,7 @@ export async function PUT(
     }
 }
 
-// 9.5 Delete Post
+// 9.5 Delete Post (Soft Delete)
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; postId: string }> }
@@ -115,7 +115,7 @@ export async function DELETE(
 
     try {
         const post = await prisma.post.findUnique({ where: { id: postId } });
-        if (!post || post.tenantId !== tenantId) {
+        if (!post || post.tenantId !== tenantId || post.deletedAt) {
             return NextResponse.json({ message: 'Post not found' }, { status: 404 });
         }
 
@@ -133,8 +133,10 @@ export async function DELETE(
             return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
-        await prisma.post.delete({
+        // Soft delete by setting deletedAt timestamp
+        await prisma.post.update({
             where: { id: postId },
+            data: { deletedAt: new Date() },
         });
 
         return new NextResponse(null, { status: 204 });

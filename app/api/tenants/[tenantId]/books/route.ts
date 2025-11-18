@@ -21,7 +21,10 @@ export async function GET(
     }
 
     const books = await prisma.book.findMany({
-      where: { tenantId: resolvedParams.tenantId },
+      where: { 
+        tenantId: resolvedParams.tenantId,
+        deletedAt: null, // Filter out soft-deleted books
+      },
       orderBy: { title: 'asc' },
     });
 

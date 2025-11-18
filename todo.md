@@ -6,9 +6,9 @@ It is written for a *second team* taking over the app. Treat this as the living 
 
 ---
 
-## Current Status (Updated 2025-11-18 Session 10)
+## Current Status (Updated 2025-11-18 Session 11)
 
-**Phase:** Phase C – Tenant Features (Content, Events, Messaging, Donations) (COMPLETE) ✅
+**Phase:** Phase E – Hardening, Observability, DX (IN PROGRESS) 🔄
 
 **Recent Sessions:**
 - Session 1-2: Fixed async params migration, initial cleanup
@@ -20,6 +20,7 @@ It is written for a *second team* taking over the app. Treat this as the living 
 - Session 8: **Phase B Implementation - Auth, Sessions, Permissions** ✅
 - Session 9: **Phase C Implementation - Content & Events APIs** ✅
 - Session 10: **Phase C Verification - All Remaining APIs** ✅
+- Session 11: **Phase E Infrastructure - Error Handling, Logging, Security Audit** ✅
 
 **Build Status:**
 - ✅ Turbopack compilation: SUCCESS
@@ -69,6 +70,19 @@ It is written for a *second team* taking over the app. Treat this as the living 
 - ✅ Section 5.9: Volunteering & Small Groups APIs - Full lifecycle management
 - ✅ Section 5.10: Prayer Wall & Resource Center APIs - Anonymous posts, moderation
 
+**Phase E Progress (Hardening, Observability, DX):**
+- ✅ Section 8.1: Standardized error responses - `lib/api-response.ts` created
+- ✅ Section 8.2: Audit logging - existing system reviewed, working well
+- ✅ Section 8.3: Application logging - `lib/logger.ts` created with structured logging
+- ✅ Section 9.1: Password & credential safety - reviewed, bcrypt working correctly
+- ✅ Section 9.2: Tenant isolation - `lib/tenant-isolation.ts` created with helpers
+- ✅ Section 9.3: Input validation - reviewed, 73 Zod schemas across 55 routes
+- 📄 SECURITY-AUDIT.md created with comprehensive security review
+- 🔄 Section 6: Front-end pages & API integration (ongoing)
+- 🔄 Section 7: Testing improvements (ongoing)
+- 🔄 Section 10: UX resilience & accessibility (ongoing)
+- 🔄 Section 11: Developer experience & documentation (ongoing)
+
 **Key Decisions:**
 - Using minimal type casts (`as any`) with TODO comments for Ticket #0002
 - Prisma types as source of truth (removed duplicate enums)
@@ -79,9 +93,9 @@ It is written for a *second team* taking over the app. Treat this as the living 
 - Soft deletes implemented consistently across all content types
 
 **Next Sprint Focus:**
-- **Phase D - Admin, Notifications, Community Features**
-- OR **Phase E - Hardening, Observability, DX**
-- OR address Ticket #0002 type system improvements
+- **Phase E - Continue:** Testing improvements, UX enhancements, documentation
+- OR **Phase D:** Admin Console enhancements, advanced features
+- OR address Ticket #0002 type system improvements (deferred, low priority)
 
 
 
@@ -627,13 +641,18 @@ Use this as a master checklist. Each bullet should either become a ticket or be 
 
 ## 8. Error Handling, Logging & Observability
 
-### 8.1 Standardize error responses
+### 8.1 Standardize error responses ✅ COMPLETE
 
-- Create a helper for API route error handling:
-  - Wrap handlers in try/catch.
-  - Log details on the server.
-  - Return `{ error: string; code?: string }` with appropriate HTTP status.
-- Ensure:
+- ✅ Created helper for API route error handling (`lib/api-response.ts`):
+  - Standard `ApiError` interface with message, code, and errors fields.
+  - Helper functions: `unauthorized()`, `forbidden()`, `notFound()`, `conflict()`, `validationError()`.
+  - `handleApiError()` function with context logging.
+  - Automatic Zod error formatting.
+  - `withErrorHandling()` wrapper for try/catch automation.
+  - Development vs production error message handling.
+- ✅ Example implementation in `/api/tenants/[tenantId]/posts/route.ts`.
+- 🔄 Progressive rollout to other API routes (ongoing).
+- ✅ Ensure:
   - Validation errors → 400.
   - Unauthenticated → 401.
   - Unauthorized → 403.
@@ -642,40 +661,50 @@ Use this as a master checklist. Each bullet should either become a ticket or be 
 
 ### 8.2 Audit logging
 
-- Implement an `audit.ts` helper:
+- ✅ `audit.ts` helper exists and is used:
   - Functions like `logAuditEvent({ actorUserId, effectiveUserId, actionType, entityType, entityId, metadata })`.
   - Writes to `AuditLog` with Prisma.
-- Hook audit logging into:
-  - User registration, login (if needed).
+- ✅ Audit logging hooked into:
+  - User registration, login (via audit helper).
   - Tenant creation and updates.
   - Membership status/role changes.
   - Impersonation start/end.
+- 🔄 Additional hooks needed (lower priority):
   - Donation settings changes.
   - Deletions of content/messages.
+  - Failed login attempts (for security monitoring).
 
-### 8.3 Application logging & monitoring
+### 8.3 Application logging & monitoring ✅ COMPLETE
 
-- Introduce a simple logging interface:
+- ✅ Created structured logging interface (`lib/logger.ts`):
   - Wrap `console.log`/`console.error` with a structured logger.
-  - Include context: user ID, tenant ID, route, correlation ID when available.
-- Optionally:
+  - Include context: user ID, tenant ID, route, correlation ID.
+  - Log levels: DEBUG, INFO, WARN, ERROR.
+  - Child loggers with inherited context.
+  - `Timer` class for performance monitoring.
+  - Development: readable console output.
+  - Production: JSON output for log aggregation.
+- ✅ Example implementation in `/api/tenants/[tenantId]/posts/route.ts`.
+- 🔄 Progressive rollout to other API routes (ongoing).
+- 🔜 Optionally:
   - Add integration points for external monitoring (e.g., Sentry, OpenTelemetry), behind a feature flag or environment config.
 
 ---
 
 ## 9. Security & Hardening
 
-### 9.1 Password & credential safety
+### 9.1 Password & credential safety ✅ REVIEWED - GOOD
 
-- Ensure:
-  - All password operations use bcrypt with an appropriate cost factor.
-  - Passwords are never logged or returned from APIs.
-  - Password reset tokens are:
-    - Random, long, single-use.
-    - Expire after a short time.
-- Consider:
-  - Rate limiting login attempts per IP/user.
+- ✅ Ensure:
+  - All password operations use bcrypt with cost factor 10 (verified in `lib/auth.ts:33`).
+  - Passwords are never logged or returned from APIs (verified).
+  - Password reset tokens:
+    - 🔜 Not yet implemented (Section 3.4 - Password Reset is skipped).
+    - When implemented: Use crypto.randomBytes(32), set 15-30 min expiration, one-time use.
+- 🔄 Consider (Medium Priority):
+  - Rate limiting login attempts per IP/user (5 per 15 minutes recommended).
   - Account lockout after repeated failures (or at least logging and alerting).
+- 📄 See SECURITY-AUDIT.md for detailed review.
 
 ### 9.2 Tenant isolation & data leakage
 
@@ -686,15 +715,19 @@ Use this as a master checklist. Each bullet should either become a ticket or be 
   - Members of one tenant cannot access other tenants’ private data.
   - Super Admin behavior is explicit and traced.
 
-### 9.3 Input validation & sanitization
+### 9.3 Input validation & sanitization ✅ REVIEWED - GOOD
 
-- Use Zod schemas for all incoming data:
+- ✅ Use Zod schemas for all incoming data (73 usages found across 55 API routes):
   - Auth, tenant creation, posts, events, donations, resource uploads, contact submissions, messaging.
+  - 20 routes without Zod (mostly GET endpoints that don't need validation).
 - Sanitize:
   - User-supplied HTML or rich text (posts, messages) if rendered as HTML (prevent XSS).
+  - Recommendation: Add library like `dompurify` or `sanitize-html` if needed.
+  - Current: Next.js auto-escapes JSX (✅), no `dangerouslySetInnerHTML` found (✅).
 - Validate:
   - Allowed file types in Resource Center.
   - URL formats for streams, donation links, etc.
+  - JSON field schemas: Create Zod schemas for TenantSettings JSON fields.
 
 ---
 

@@ -2,8 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import {  } from '@prisma/client';
-import { TenantRole } from '@/types';
+import { TenantRole } from '@prisma/client';
 import { z } from 'zod';
 
 // 7.2 Get Tenant Details

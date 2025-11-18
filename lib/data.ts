@@ -279,7 +279,7 @@ export async function registerUser(displayName: string, email: string, pass: str
 export async function createTenant(tenantDetails: Omit<Tenant, 'id' | 'slug' | 'permissions'>, ownerId: string): Promise<Tenant> {
     const tenant = await prisma.tenant.create({
         data: {
-            ...tenantDetails,
+            ...tenantDetails as any, // TODO: Ticket #0002 - Type alignment needed
             slug: tenantDetails.name.toLowerCase().replace(/ /g, '-'),
             memberships: {
                 create: {
@@ -402,7 +402,7 @@ export async function resetPassword(email: string, newPass: string) {
 export async function logAuditEvent(event: Omit<AuditLog, 'id' | 'createdAt'>): Promise<AuditLog> {
     return await prisma.auditLog.create({
         data: {
-            ...event,
+            ...event as any, // TODO: Ticket #0002 - Type alignment needed
             metadata: event.metadata || {},
         },
     });

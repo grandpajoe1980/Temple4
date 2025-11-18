@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import {  } from '@prisma/client';
 import { TenantRole, MembershipStatus } from '@/types';
 import { z } from 'zod';
+import { sendMembershipApprovedEmail } from '@/lib/email-helpers';
 
 const requestActionSchema = z.object({
   action: z.enum(['APPROVE', 'REJECT']),
@@ -54,7 +55,35 @@ export async function PUT(
       data: {
         status: newStatus,
       },
+      include: {
+        user: {
+          include: {
+            profile: true,
+          },
+        },
+        tenant: true,
+      },
     });
+
+    // Send email notification if approved
+    if (action === 'APPROVE' && updatedRequest.user.profile) {
+      const tenantUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/tenants/${tenantId}`;
+      
+      sendMembershipApprovedEmail(
+        {
+          user: {
+            displayName: updatedRequest.user.profile.displayName,
+          },
+          tenantName: updatedRequest.tenant.name,
+          tenantUrl,
+        },
+        updatedRequest.user.email,
+        tenantId
+      ).catch(error => {
+        console.error('Failed to send membership approved email:', error);
+        // Don't throw - email failure shouldn't block approval
+      });
+    }
 
     // Here you would typically trigger a notification to the user
     // e.g., createNotification(userId, 'Your membership request was ' + newStatus.toLowerCase());

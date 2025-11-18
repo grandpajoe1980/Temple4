@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { sendPasswordResetEmail } from '@/lib/email-helpers';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -23,14 +24,17 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
+      include: {
+        profile: true,
+      },
     });
 
-    if (user) {
+    if (user && user.profile) {
       // Generate a secure random token
       const token = crypto.randomBytes(32).toString('hex');
       
-      // Set expiration to 1 hour from now
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+      // Set expiration to 30 minutes from now (security best practice)
+      const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
       
       // Store token in database
       await prisma.passwordResetToken.create({
@@ -41,12 +45,19 @@ export async function POST(request: Request) {
         },
       });
 
-      // In production, send email with reset link
-      // For now, log to console for development
-      const resetLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}`;
-      console.log(`Password reset requested for ${email}`);
-      console.log(`Reset link: ${resetLink}`);
-      console.log(`Token expires at: ${expiresAt.toISOString()}`);
+      // Send password reset email
+      const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}`;
+      
+      await sendPasswordResetEmail({
+        user: {
+          displayName: user.profile.displayName,
+          email: user.email,
+        },
+        token,
+        resetUrl,
+      });
+
+      console.log(`Password reset email sent to ${email}`);
     } else {
       console.log(`Password reset requested for non-existent email: ${email}. No action taken.`);
     }

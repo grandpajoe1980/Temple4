@@ -3,6 +3,7 @@ import { User } from '@prisma/client';
 import { ActionType } from '@/types';
 import bcrypt from 'bcryptjs';
 import { logAuditEvent } from './audit';
+import { sendWelcomeEmail } from './email-helpers';
 
 const defaultNotificationPreferences = {
   email: {
@@ -71,6 +72,18 @@ export async function registerUser(displayName: string, email: string, pass: str
     actionType: ActionType.USER_REGISTERED,
     entityType: 'USER',
     entityId: newUser.id,
+  });
+
+  // Send welcome email (async, don't block registration)
+  sendWelcomeEmail({
+    user: {
+      displayName: newUser.profile!.displayName,
+      email: newUser.email,
+    },
+    loginUrl: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/login`,
+  }).catch(error => {
+    console.error('Failed to send welcome email:', error);
+    // Don't throw - email failure shouldn't block registration
   });
 
   // We need to be careful about what we return. The password should not be returned.

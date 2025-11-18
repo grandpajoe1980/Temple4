@@ -198,6 +198,7 @@ model Tenant {
   resourceItems    ResourceItem[]
   contactSubmissions ContactSubmission[]
   impersonationSessions ImpersonationSession[]
+  emailLogs        EmailLog[]
 }
 
 model TenantBranding {
@@ -562,4 +563,22 @@ model ImpersonationSession {
   reason          String?
   startedAt       DateTime  @default(now())
   endedAt         DateTime?
+}
+
+// --- EMAIL SERVICE ---
+
+model EmailLog {
+  id         String   @id @default(cuid())
+  tenantId   String?
+  tenant     Tenant?  @relation(fields: [tenantId], references: [id])
+  recipient  String
+  subject    String
+  status     String   // SENT, FAILED, BOUNCED
+  provider   String   // MOCK, RESEND, SENDGRID
+  providerId String?  // External tracking ID
+  sentAt     DateTime @default(now())
+  error      String?
+  
+  @@index([tenantId, sentAt])
+  @@index([recipient, sentAt])
 }

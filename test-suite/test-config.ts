@@ -99,7 +99,7 @@ export const TEST_CONFIG = {
       { method: 'DELETE', path: '/tenants/[tenantId]/resources/[resourceId]', requiresAuth: true },
     ],
     communityPosts: [
-      { method: 'GET', path: '/tenants/[tenantId]/community-posts', requiresAuth: false },
+      { method: 'GET', path: '/tenants/[tenantId]/community-posts', requiresAuth: true }, // Prayer wall requires auth (visitorVisibility.prayerWall = false)
       { method: 'POST', path: '/tenants/[tenantId]/community-posts', requiresAuth: true },
       { method: 'PUT', path: '/tenants/[tenantId]/community-posts/[postId]', requiresAuth: true },
       { method: 'DELETE', path: '/tenants/[tenantId]/community-posts/[postId]', requiresAuth: true },

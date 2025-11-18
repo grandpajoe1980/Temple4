@@ -1008,5 +1008,27 @@ npm run test:suite
 - 05:20 - Ran test suite and verified results
 - 05:25 - Verified schema alignment
 - 05:30 - Updated journal with session notes
+- 05:35 - Investigated test failures
+- 05:40 - Fixed test config mismatch for community-posts endpoint
+- 05:45 - Final documentation updates
+
+### Decision Log
+
+#### Decision 8: Test Config Fix vs Auth Implementation
+**Problem:** Tests failing with 401 errors, investigation revealed test config mismatch
+**Options:**
+  1. Fix authentication in tests (Phase B work, 2-3 days)
+  2. Fix test config to match actual API behavior (minimal change)
+  3. Leave as-is and document
+
+**Decision:** Option 2 - Fix test config
+**Rationale:**
+  - Test config had `communityPosts GET requiresAuth: false` but API requires auth
+  - Seed data shows `visitorVisibility.prayerWall: false` (requires auth)
+  - API implementation is correct per spec
+  - Minimal change to align test expectations with reality
+  - Real fix (authentication) is Phase B work
+
+**Action:** Updated test-config.ts to mark community-posts GET as `requiresAuth: true`
 
 

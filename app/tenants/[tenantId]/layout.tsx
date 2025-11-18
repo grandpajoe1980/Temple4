@@ -7,6 +7,7 @@ import {  } from '@prisma/client';
 import { TenantRole } from '@/types';
 import Link from 'next/link';
 import TenantNav from './TenantNav'; // This will be the client component for navigation
+import TenantFooter from './TenantFooter';
 
 export default async function TenantLayout({
   children,
@@ -38,7 +39,7 @@ export default async function TenantLayout({
                           await can(user, tenant, 'canManageContactSubmissions');
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 min-h-screen flex flex-col">
       <header className="bg-white shadow-sm sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-3">
@@ -72,11 +73,12 @@ export default async function TenantLayout({
             <TenantNav tenant={tenant} canViewSettings={canViewSettings} />
         </div>
       </header>
-       <main className="py-10">
+       <main className="py-10 flex-grow">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {children}
         </div>
       </main>
+      <TenantFooter tenant={tenant} />
     </div>
   );
 }

@@ -148,6 +148,12 @@ export interface TenantBranding {
   primaryColor: string;
   accentColor: string;
   customLinks: Array<{ label: string; url: string }>;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  twitterUrl?: string;
+  youtubeUrl?: string;
+  websiteUrl?: string;
+  linkedInUrl?: string;
 }
 
 export interface LiveStreamSettings {

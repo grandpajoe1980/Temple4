@@ -209,6 +209,12 @@ model TenantBranding {
   primaryColor   String?
   accentColor    String?
   customLinks    Json? // Array<{ label: string; url: string }>
+  facebookUrl    String?
+  instagramUrl   String?
+  twitterUrl     String?
+  youtubeUrl     String?
+  websiteUrl     String?
+  linkedInUrl    String?
 }
 
 model TenantSettings {

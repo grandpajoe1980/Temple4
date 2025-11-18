@@ -6,6 +6,7 @@ import Card from '../ui/Card';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
+import { FaFacebook, FaInstagram, FaTwitter, FaYoutube, FaLinkedin, FaGlobe } from 'react-icons/fa';
 
 interface ContactPageProps {
   tenant: {
@@ -20,6 +21,14 @@ interface ContactPageProps {
     };
     contactEmail?: string | null;
     phoneNumber?: string | null;
+    branding?: {
+      facebookUrl?: string | null;
+      instagramUrl?: string | null;
+      twitterUrl?: string | null;
+      youtubeUrl?: string | null;
+      websiteUrl?: string | null;
+      linkedInUrl?: string | null;
+    } | null;
   };
 }
 
@@ -75,6 +84,87 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
               <div>
                 <h4 className="text-sm font-semibold text-gray-500">Phone</h4>
                 <p className="text-gray-800">{tenant.phoneNumber}</p>
+              </div>
+            )}
+            {/* Social Links */}
+            {tenant.branding && (
+              tenant.branding.facebookUrl || 
+              tenant.branding.instagramUrl || 
+              tenant.branding.twitterUrl || 
+              tenant.branding.youtubeUrl || 
+              tenant.branding.websiteUrl || 
+              tenant.branding.linkedInUrl
+            ) && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-500 mb-2">Follow Us</h4>
+                <div className="flex gap-3">
+                  {tenant.branding.facebookUrl && (
+                    <a 
+                      href={tenant.branding.facebookUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="Facebook"
+                    >
+                      <FaFacebook size={24} />
+                    </a>
+                  )}
+                  {tenant.branding.instagramUrl && (
+                    <a 
+                      href={tenant.branding.instagramUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="Instagram"
+                    >
+                      <FaInstagram size={24} />
+                    </a>
+                  )}
+                  {tenant.branding.twitterUrl && (
+                    <a 
+                      href={tenant.branding.twitterUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="Twitter"
+                    >
+                      <FaTwitter size={24} />
+                    </a>
+                  )}
+                  {tenant.branding.youtubeUrl && (
+                    <a 
+                      href={tenant.branding.youtubeUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="YouTube"
+                    >
+                      <FaYoutube size={24} />
+                    </a>
+                  )}
+                  {tenant.branding.linkedInUrl && (
+                    <a 
+                      href={tenant.branding.linkedInUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="LinkedIn"
+                    >
+                      <FaLinkedin size={24} />
+                    </a>
+                  )}
+                  {tenant.branding.websiteUrl && (
+                    <a 
+                      href={tenant.branding.websiteUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="Website"
+                    >
+                      <FaGlobe size={24} />
+                    </a>
+                  )}
+                </div>
               </div>
             )}
           </div>

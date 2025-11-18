@@ -1,15 +1,14 @@
 "use client";
 
 import React from 'react';
-import type { Tenant, User } from '@/types';
-import { VolunteerNeed } from '@prisma/client';
+import type { Tenant, User, VolunteerNeed } from '@prisma/client';
 import VolunteerNeedCard from './VolunteerNeedCard';
 
 interface VolunteeringPageProps {
-  tenant: Tenant;
+  tenant: Pick<Tenant, 'name'>;
   user: User;
   needs: VolunteerNeed[];
-  onRefresh: () => void;
+  onRefresh?: () => void;
 }
 
 const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs, onRefresh }) => {

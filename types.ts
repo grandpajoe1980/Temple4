@@ -259,7 +259,7 @@ export interface PostWithAuthor extends Post {
 }
 
 export interface Event {
-  id:string;
+  id: string;
   tenantId: string;
   createdByUserId: string;
   title: string;
@@ -268,11 +268,12 @@ export interface Event {
   endDateTime: Date;
   locationText: string;
   isOnline: boolean;
-  onlineUrl?: string;
+  onlineUrl: string | null;
+  deletedAt?: Date | null;
 }
 export interface EventWithCreator extends Event {
     creatorDisplayName: string;
-    creatorAvatarUrl?: string;
+    creatorAvatarUrl: string | null;
 }
 
 export interface MediaItem {

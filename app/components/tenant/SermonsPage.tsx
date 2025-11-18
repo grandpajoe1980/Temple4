@@ -1,13 +1,12 @@
 "use client";
 
 import React from 'react';
-import type { Tenant, User } from '@/types';
-import { MediaItem } from '@prisma/client';
+import type { Tenant, User, MediaItem } from '@prisma/client';
 import Button from '../ui/Button';
 import SermonCard from './SermonCard';
 
 interface SermonsPageProps {
-  tenant: Tenant;
+  tenant: Pick<Tenant, 'name'>;
   user: User;
   sermons: MediaItem[];
   canCreate: boolean;

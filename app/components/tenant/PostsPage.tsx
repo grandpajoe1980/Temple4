@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { Tenant, User, PostInput, PostWithAuthor } from '@/types';
-import { addPost } from '@/lib/data';
+import type { PostInput, PostWithAuthor } from '@/types';
+import type { Tenant, User } from '@prisma/client';
 import Button from '../ui/Button';
 import PostCard from './PostCard';
 import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 
 interface PostsPageProps {
-  tenant: Tenant;
+  tenant: Pick<Tenant, 'id' | 'name'>;
   user: User;
   posts: PostWithAuthor[];
   canCreate: boolean;
@@ -20,11 +20,17 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCreatePost = async (postData: PostInput) => {
-    await addPost(tenant.id, {
-      ...postData,
-      authorUserId: user.id,
+    const response = await fetch(`/api/tenants/${tenant.id}/posts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(postData),
     });
-    // TODO: Refetch or optimistically update
+    
+    if (response.ok) {
+      const newPost = await response.json();
+      // Optimistically update
+      setPosts([newPost, ...posts]);
+    }
     setIsModalOpen(false);
   };
 

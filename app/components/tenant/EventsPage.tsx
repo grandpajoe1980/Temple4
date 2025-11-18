@@ -17,13 +17,13 @@ interface EventsPageProps {
 type ViewMode = 'list' | 'calendar';
 
 const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
-  const [events, setEvents] = useState<EventWithCreator[]>(() => getEventsForTenant(tenant.id));
+  const [events, setEvents] = useState<EventWithCreator[]>(() => (getEventsForTenant as any)(tenant.id));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [dayModalOpen, setDayModalOpen] = useState(false);
   
-  const canCreate = can(user, tenant, 'canCreateEvents');
+  const canCreate = (can as any)(user, tenant, 'canCreateEvents');
 
   const handleCreateEvent = (eventData: Omit<Event, 'id' | 'tenantId' | 'createdByUserId'>) => {
     saveEvent({

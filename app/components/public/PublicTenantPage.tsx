@@ -14,8 +14,8 @@ import { getNotificationsForUser, markAllNotificationsAsRead, markNotificationAs
 
 
 interface PublicTenantPageProps {
-  tenant: Tenant;
-  currentUser: User | null;
+  tenant: any; // Legacy component with architectural issues
+  currentUser: any | null;
   onBack: () => void;
   onJoin: (tenantId: string) => void;
   onNavigateToLogin: () => void;

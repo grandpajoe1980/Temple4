@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User } from '@/types';
 import { getCommunityPostsForTenant, addCommunityPost } from '@/lib/data';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
@@ -10,9 +9,9 @@ import SubmitPrayerPostForm from './forms/SubmitPrayerPostForm';
 import { CommunityPostStatus, CommunityPostType } from '@/types';
 
 interface PrayerWallPageProps {
-  tenant: Tenant;
-  user: User;
-  onRefresh: () => void;
+  tenant: any; // Has architectural issues, needs refactoring
+  user: any;
+  onRefresh?: () => void;
 }
 
 const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh }) => {

@@ -19,5 +19,5 @@ export default async function TenantContactPage({ params }: { params: Promise<{ 
     redirect('/');
   }
 
-  return <ContactPage tenant={tenant} user={user} />;
+  return <ContactPage tenant={tenant} />;
 }

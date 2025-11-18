@@ -1,14 +1,25 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { Tenant } from '@/types';
 import { addContactSubmission } from '@/lib/data';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 
 interface ContactPageProps {
-  tenant: Tenant;
+  tenant: {
+    id: string;
+    name: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      country: string;
+      postalCode: string;
+    };
+    contactEmail?: string | null;
+    phoneNumber?: string | null;
+  };
 }
 
 const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {

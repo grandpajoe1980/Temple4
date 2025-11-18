@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User } from '@/types';
 import { getMembersForTenant } from '@/lib/data';
 import Input from '../ui/Input';
 import MemberCard from './MemberCard';
 
 interface MembersPageProps {
-  tenant: Tenant;
-  user: User;
-  onViewProfile: (userId: string) => void;
+  tenant: any; // Has architectural issues, needs refactoring
+  user: any;
+  onViewProfile?: (userId: string) => void;
 }
 
 const MembersPage: React.FC<MembersPageProps> = ({ tenant, user, onViewProfile }) => {

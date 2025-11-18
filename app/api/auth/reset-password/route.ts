@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { logAuditEvent } from '@/lib/audit';
 import { ActionType } from '@/types';
+import { logger } from '@/lib/logger';
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token is required'),
@@ -69,11 +70,14 @@ export async function POST(request: Request) {
       metadata: { action: 'password_reset' },
     });
 
-    console.log(`Password reset successful for user ${resetToken.user.email}`);
+    logger.info('Password reset successful', {
+      userId: resetToken.userId,
+      email: resetToken.user.email,
+    });
 
     return NextResponse.json({ message: 'Password reset successful' });
   } catch (error) {
-    console.error('Reset password error:', error);
+    logger.error('Reset password error', { error });
     return NextResponse.json({ message: 'An unexpected error occurred.' }, { status: 500 });
   }
 }

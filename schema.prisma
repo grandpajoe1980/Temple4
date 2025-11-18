@@ -569,3 +569,17 @@ model ImpersonationSession {
   startedAt       DateTime  @default(now())
   endedAt         DateTime?
 }
+
+// --- EMAIL SERVICE (Phase F3) ---
+
+model EmailLog {
+  id         String   @id @default(cuid())
+  tenantId   String?
+  recipient  String
+  subject    String
+  status     String   // SENT, FAILED, BOUNCED
+  provider   String   // RESEND, SENDGRID, MOCK
+  providerId String?  // External tracking ID
+  sentAt     DateTime @default(now())
+  error      String?
+}

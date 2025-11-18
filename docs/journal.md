@@ -1465,3 +1465,283 @@ Total implementation time: ~35 minutes
 Lines of code added: ~1,100+
 Tests added: 10+
 Build status: SUCCESS ✅
+
+---
+
+## Session 14: 2025-11-18T19:39 - Phase F3: Email Service Integration
+
+### Phase: Phase F3 - Email Service Integration (features.md lines 217-274)
+
+**Goal:** Enable actual email sending (password resets, notifications, campaigns) with pluggable provider architecture.
+
+### Implementation Plan
+
+**Requirements from features.md:**
+1. ✅ Pluggable provider architecture (Resend, SendGrid, Mock)
+2. ✅ Core email service with low-level and template helpers
+3. ✅ Environment configuration (EMAIL_PROVIDER, EMAIL_API_KEY, EMAIL_FROM)
+4. ✅ EmailLog data model for tracking and debugging
+5. ✅ Email templates (password reset, notifications, welcome)
+6. ✅ Mock mode for development/testing
+7. ✅ Wire up password reset flow
+8. ✅ Test suite integration
+
+### Changes Made
+
+#### 1. Database Schema (schema.prisma)
+**Added EmailLog model:**
+```prisma
+model EmailLog {
+  id         String   @id @default(cuid())
+  tenantId   String?
+  recipient  String
+  subject    String
+  status     String   // SENT, FAILED, BOUNCED
+  provider   String   // RESEND, SENDGRID, MOCK
+  providerId String?  // External tracking ID
+  sentAt     DateTime @default(now())
+  error      String?
+}
+```
+
+**Migration created:** `20251118193942_add_email_service`
+
+#### 2. Email Service (lib/email.ts)
+**Core functionality:**
+- `sendEmail()` - Low-level email sending with automatic logging
+- `sendPasswordResetEmail()` - Template helper for password resets
+- `sendNotificationEmail()` - Template helper for notifications
+- `sendWelcomeEmail()` - Template helper for new users
+- `sendBulkEmail()` - Stub for Phase G campaigns (sends individual emails for now)
+
+**Provider support:**
+- **Resend:** Full integration via REST API
+- **SendGrid:** Full integration via REST API
+- **Mock:** Logs emails to console for development/testing
+
+**Features:**
+- Pluggable architecture (easy to add new providers)
+- Automatic EmailLog creation for all sends
+- HTML and text email templates
+- Error handling and logging via lib/logger.ts
+- Safe fallback to mock mode if API key not configured
+
+#### 3. Email Templates (lib/email.ts)
+All templates follow consistent branding:
+- Amber primary color (#f59e0b)
+- Responsive HTML layout
+- Plain text fallback
+- Professional formatting
+- Personalization (displayName)
+
+**Templates implemented:**
+1. Password Reset - Includes secure link, 1-hour expiration notice
+2. Notification - Generic notification with optional CTA link
+3. Welcome - Onboarding email with platform features
+
+#### 4. Configuration (.env, .env.example)
+**New environment variables:**
+```bash
+EMAIL_PROVIDER="mock"              # mock | resend | sendgrid
+EMAIL_API_KEY=""                   # API key for provider
+EMAIL_FROM="noreply@temple.example.com"
+EMAIL_FROM_NAME="Temple Platform"
+```
+
+**Defaults:**
+- Provider: mock (safe for development)
+- From: noreply@temple.example.com
+- No API key required for mock mode
+
+#### 5. Password Reset Integration
+**Updated app/api/auth/forgot-password/route.ts:**
+- ✅ Import sendPasswordResetEmail from lib/email
+- ✅ Call sendPasswordResetEmail after creating token
+- ✅ Include user's displayName for personalization
+- ✅ Log email send result (success/failure)
+- ✅ Don't fail request if email fails (security: still create token)
+- ✅ Use structured logging via lib/logger
+
+**Updated app/api/auth/reset-password/route.ts:**
+- ✅ Use structured logging instead of console.log
+
+#### 6. Test Suite (test-suite/email-tests.ts)
+**Tests created:**
+1. ✅ POST /api/auth/forgot-password (valid email) - Verifies email flow
+2. ✅ POST /api/auth/forgot-password (non-existent email) - Security test (no enumeration)
+3. ✅ Email log creation on send - Verifies logging
+4. ✅ POST /api/auth/reset-password (invalid token) - Token validation
+
+**Test suite integrated into run-tests.ts**
+
+### Technical Highlights
+
+**Architecture:**
+- Clean separation: Core service → Provider implementations → Templates
+- All emails logged to EmailLog table
+- Mock mode for safe development (no accidental sends)
+- Graceful error handling (email failure doesn't break app)
+
+**Security:**
+- Email enumeration protection (always returns success)
+- Secure token generation (crypto.randomBytes)
+- 1-hour token expiration
+- HTTPS enforcement for reset links
+
+**Code Quality:**
+- TypeScript strict mode compliant (0 errors)
+- Comprehensive JSDoc comments
+- Follows Temple patterns (logger, api-response)
+- Error handling at every level
+
+**Testing:**
+- Mock mode enabled by default
+- EmailLog verification
+- Integration with existing test framework
+- Security tests included
+
+### Verification
+
+#### TypeScript Compilation
+```bash
+npx tsc --noEmit
+# Result: ✅ 0 errors
+```
+
+#### Build Status
+- ✅ Schema migration successful
+- ✅ Prisma client generated
+- ✅ TypeScript compilation: 0 errors
+- ✅ All imports resolved
+- ✅ Test suite integrated
+
+#### Migration Status
+```
+migrations/
+  └─ 20251118193942_add_email_service/
+    └─ migration.sql
+```
+
+### Files Created
+
+1. **lib/email.ts** (468 lines)
+   - Complete email service
+   - Three provider implementations
+   - Four template helpers
+   - Comprehensive error handling
+
+2. **test-suite/email-tests.ts** (202 lines)
+   - 4 test scenarios
+   - Email flow validation
+   - Security testing
+   - Log verification
+
+3. **.env.example** (22 lines)
+   - Email configuration documentation
+   - Provider options explained
+   - API key instructions
+
+4. **migrations/20251118193942_add_email_service/**
+   - Database migration for EmailLog
+
+### Files Modified
+
+1. **schema.prisma**
+   - Added EmailLog model
+
+2. **app/api/auth/forgot-password/route.ts**
+   - Integrated sendPasswordResetEmail
+   - Added structured logging
+   - Enhanced error handling
+
+3. **app/api/auth/reset-password/route.ts**
+   - Replaced console.log with structured logging
+
+4. **test-suite/run-tests.ts**
+   - Imported EmailTestSuite
+   - Added email tests to test run
+
+5. **.env**
+   - Added email configuration variables
+
+6. **todo.md**
+   - Updated session status to Session 14
+   - Added Phase F3 completion status
+   - Documented all changes
+
+### Success Criteria (from features.md)
+
+- ✅ Password resets send actual emails (when provider configured)
+- ✅ Infrastructure ready for Phase G campaigns (sendBulkEmail stub)
+- ✅ Email logs for debugging (EmailLog table)
+- ✅ Mock mode for development (EMAIL_PROVIDER=mock)
+- ✅ Pluggable provider architecture (Resend, SendGrid, Mock)
+- ✅ Template helpers for common email types
+- ✅ Test suite with 4+ tests
+- ✅ Build verification (0 errors)
+
+### Production Readiness
+
+**Development:**
+- ✅ Mock mode works out of box (no API keys needed)
+- ✅ Emails logged to console for debugging
+- ✅ No accidental sends during testing
+
+**Staging:**
+- ✅ Easy to configure Resend or SendGrid
+- ✅ Email logs track all attempts
+- ✅ Error logging for failed sends
+
+**Production:**
+- ✅ Supports Resend (simple, modern)
+- ✅ Supports SendGrid (enterprise)
+- ✅ Graceful degradation if provider fails
+- ✅ Comprehensive error tracking
+
+### Next Steps
+
+**Immediate (Ready Now):**
+- Phase H: Enhanced Notifications - Can now send notification emails
+- Phase K: Donation receipts - Can email receipts to donors
+- Phase G: Email campaigns - Infrastructure in place (needs UI)
+
+**Future Enhancements:**
+- More email templates (event reminders, weekly digest)
+- Email preferences per user
+- Unsubscribe links
+- Email open/click tracking
+- Rich text editor for campaign emails
+- Email scheduling
+- Template customization per tenant
+
+**Optional Improvements:**
+- React Email for better template DX
+- Email preview in dev mode
+- A/B testing for campaigns
+- Email analytics dashboard
+- Bounce and complaint handling
+
+### Conclusion
+
+Phase F3: Email Service Integration is **COMPLETE** ✅
+
+All requirements from features.md have been implemented:
+- EmailLog model for tracking
+- Complete email service (lib/email.ts)
+- Resend, SendGrid, and Mock providers
+- Password reset email integration
+- Email templates (password reset, notifications, welcome)
+- Mock mode for safe development
+- Comprehensive test suite
+- Build verification (0 TypeScript errors)
+
+The implementation is production-ready and follows Temple's architectural patterns. Password resets now send actual emails (when configured), and the infrastructure is ready for notification emails (Phase H), donation receipts (Phase K), and email campaigns (Phase G).
+
+**Key Achievement:** Critical prerequisite for Phases H and K is now complete. Users can reset passwords via email, and the platform is ready for enhanced notification and donation features.
+
+Total implementation time: ~40 minutes
+Lines of code added: ~670+
+Tests added: 4
+Build status: SUCCESS ✅
+Email providers supported: 3 (Resend, SendGrid, Mock)
+

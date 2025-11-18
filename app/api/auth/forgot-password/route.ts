@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { sendPasswordResetEmail } from '@/lib/email';
+import { logger } from '@/lib/logger';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -23,6 +25,7 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
+      include: { profile: true },
     });
 
     if (user) {
@@ -41,14 +44,34 @@ export async function POST(request: Request) {
         },
       });
 
-      // In production, send email with reset link
-      // For now, log to console for development
-      const resetLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}`;
-      console.log(`Password reset requested for ${email}`);
-      console.log(`Reset link: ${resetLink}`);
-      console.log(`Token expires at: ${expiresAt.toISOString()}`);
+      // Send password reset email (Phase F3)
+      try {
+        const emailResult = await sendPasswordResetEmail({
+          email: user.email,
+          token,
+          displayName: user.profile?.displayName,
+        });
+
+        if (!emailResult.success) {
+          logger.error('Failed to send password reset email', {
+            email: user.email,
+            error: emailResult.error,
+          });
+        } else {
+          logger.info('Password reset email sent', {
+            email: user.email,
+            providerId: emailResult.providerId,
+          });
+        }
+      } catch (emailError) {
+        logger.error('Error sending password reset email', {
+          email: user.email,
+          error: emailError,
+        });
+        // Don't fail the request if email fails - token is still created
+      }
     } else {
-      console.log(`Password reset requested for non-existent email: ${email}. No action taken.`);
+      logger.info('Password reset requested for non-existent email', { email });
     }
 
     // Always return success to prevent email enumeration
@@ -56,7 +79,7 @@ export async function POST(request: Request) {
       message: 'If an account with that email exists, a password reset link has been sent.' 
     });
   } catch (error) {
-    console.error('Forgot password error:', error);
+    logger.error('Forgot password error', { error });
     return NextResponse.json({ message: 'An unexpected error occurred.' }, { status: 500 });
   }
 }

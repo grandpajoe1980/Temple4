@@ -3,9 +3,16 @@ import { Tenant, User, Post, Event, UserTenantMembership, Notification, AuditLog
 import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
 
-type TenantWithDetails = Tenant & {
+type TenantWithRelations = Tenant & {
     settings: TenantSettings | null;
     branding: TenantBranding | null;
+    address: {
+        street: string;
+        city: string;
+        state: string;
+        country: string;
+        postalCode: string;
+    };
 };
 
 export async function getTenantsForUser(userId: string): Promise<Tenant[]> {
@@ -33,7 +40,7 @@ export async function getTenantById(tenantId: string) {
   
   if (!tenant) return null;
   
-  // Transform Prisma data to match Tenant interface with nested address
+  // Return tenant with proper types - settings and branding are nullable in the relation
   return {
     ...tenant,
     address: {
@@ -43,22 +50,6 @@ export async function getTenantById(tenantId: string) {
       country: tenant.country,
       postalCode: tenant.postalCode,
     },
-    settings: tenant.settings || {
-      isPublic: true,
-      allowMemberDirectory: true,
-      allowEvents: true,
-      allowDonations: true,
-      allowSmallGroups: true,
-      allowMessaging: true,
-    } as any,
-    branding: tenant.branding || {
-      logoUrl: '',
-      bannerImageUrl: '',
-      primaryColor: '#d97706',
-      accentColor: '#92400e',
-      customLinks: [],
-    } as any,
-    permissions: tenant.permissions as any || {},
   };
 }
 
@@ -73,7 +64,7 @@ export async function getUserById(userId: string) {
   });
 }
 
-export async function getTenants(): Promise<Tenant[]> {
+export async function getTenants(): Promise<TenantWithRelations[]> {
     const tenants = await prisma.tenant.findMany({
         include: {
             settings: true,
@@ -81,7 +72,7 @@ export async function getTenants(): Promise<Tenant[]> {
         }
     });
     
-    // Transform Prisma data to match Tenant interface with nested address
+    // Transform Prisma data to include nested address
     return tenants.map(tenant => ({
         ...tenant,
         address: {
@@ -91,22 +82,7 @@ export async function getTenants(): Promise<Tenant[]> {
             country: tenant.country,
             postalCode: tenant.postalCode,
         },
-        settings: tenant.settings || {
-            isPublic: true,
-            allowMemberDirectory: true,
-            allowEvents: true,
-            allowDonations: true,
-            allowSmallGroups: true,
-            allowMessaging: true,
-        },
-        branding: tenant.branding || {
-            logoUrl: '',
-            bannerImageUrl: '',
-            primaryColor: '#d97706',
-            accentColor: '#92400e',
-        },
-        permissions: tenant.permissions as any || {},
-    })) as Tenant[];
+    }));
 }
 
 export async function getEventsForTenant(tenantId: string) {
@@ -170,7 +146,6 @@ export async function getNotificationsForUser(userId: string) {
     
     return notifications.map(notif => ({
         ...notif,
-        type: notif.type as any,
         actorUserId: notif.actorUserId ?? undefined,
         link: notif.link ?? undefined,
     }));
@@ -278,7 +253,7 @@ export async function createTenant(tenantDetails: Omit<Tenant, 'id' | 'slug' | '
     return tenant;
 }
 
-export async function updateTenant(tenant: Partial<TenantWithDetails>): Promise<Tenant> {
+export async function updateTenant(tenant: Partial<TenantWithRelations>): Promise<Tenant> {
     const { id, settings, branding, ...data } = tenant;
     
     const updateData: any = { ...data };

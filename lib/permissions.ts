@@ -1,5 +1,6 @@
 import { TenantRole, User, Tenant, ChatMessage, Conversation, UserTenantMembership } from '@prisma/client';
 import { prisma } from './db';
+import { TenantFeaturePermissions } from '@/types';
 
 // Define RolePermissions based on your application's logic, as it's not in Prisma schema
 export interface RolePermissions {
@@ -94,7 +95,7 @@ export async function can(user: User, tenant: Tenant, permission: keyof RolePerm
   // Check if any of the user's roles grant the required permission.
   for (const roleInfo of membership.roles) {
     const roleType = getRoleType(roleInfo.role);
-    const permissions = tenant.permissions as any;
+    const permissions = tenant.permissions as TenantFeaturePermissions | null;
 
     // If permissions is null or undefined, no permissions are granted
     if (!permissions) {
@@ -156,11 +157,11 @@ export async function canUserViewContent(userId: string | null, tenantId: string
             return false;
         }
 
-        const settings = tenant.settings as any;
+        const settings = tenant.settings;
 
         // Check if the entire feature is disabled
-        const featureFlag = `enable${contentType.charAt(0).toUpperCase() + contentType.slice(1)}`;
-        if (!settings[featureFlag]) {
+        const featureFlag = `enable${contentType.charAt(0).toUpperCase() + contentType.slice(1)}` as keyof typeof settings;
+        if (typeof settings[featureFlag] === 'boolean' && !settings[featureFlag]) {
             return false;
         }
 
@@ -172,7 +173,9 @@ export async function canUserViewContent(userId: string | null, tenantId: string
             if (!settings.visitorVisibility || typeof settings.visitorVisibility !== 'object') {
                 return false;
             }
-            const result = settings.visitorVisibility[contentType] === true;
+            // Cast to record type for indexing
+            const visibility = settings.visitorVisibility as Record<string, boolean>;
+            const result = visibility[contentType] === true;
             return result;
         }
 

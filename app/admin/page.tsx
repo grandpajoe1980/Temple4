@@ -10,7 +10,7 @@ import type { User } from '@/types';
 export default function Page() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Awaited<ReturnType<typeof getUserByEmail>> | null>(null);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function Page() {
           router.push('/');
           return;
         }
-        setUser(userData as any);
+        setUser(userData);
       } catch (error) {
         console.error('Error loading user:', error);
         router.push('/');

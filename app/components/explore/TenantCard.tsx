@@ -1,10 +1,22 @@
 import React from 'react';
-import type { Tenant } from '@/types';
+import type { Tenant, TenantSettings, TenantBranding } from '@prisma/client';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 
+type TenantWithRelations = Tenant & {
+  settings: TenantSettings | null;
+  branding: TenantBranding | null;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+  };
+};
+
 interface TenantCardProps {
-  tenant: Tenant;
+  tenant: TenantWithRelations;
   onView: () => void;
 }
 
@@ -14,13 +26,13 @@ const TenantCard: React.FC<TenantCardProps> = ({ tenant, onView }) => {
         <Card className="!p-0 flex flex-col h-full group">
             <div className="relative">
                 <img 
-                    src={tenant.branding.bannerImageUrl || `https://source.unsplash.com/random/400x200?temple,${tenant.id}`} 
+                    src={tenant.branding?.bannerImageUrl || `https://source.unsplash.com/random/400x200?temple,${tenant.id}`} 
                     alt={`${tenant.name} banner`} 
                     className="h-40 w-full object-cover" 
                 />
                 <div className="absolute -bottom-8 left-6">
                     <img 
-                        src={tenant.branding.logoUrl || `https://source.unsplash.com/random/100x100?logo,${tenant.id}`}
+                        src={tenant.branding?.logoUrl || `https://source.unsplash.com/random/100x100?logo,${tenant.id}`}
                         alt={`${tenant.name} logo`}
                         className="h-16 w-16 rounded-full bg-white p-1 shadow-md object-cover ring-2 ring-white"
                     />

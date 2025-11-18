@@ -1,5 +1,5 @@
 import { prisma } from './db';
-import { User } from '@/types';
+import { User } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 // This is a placeholder for the real audit log function
@@ -25,7 +25,7 @@ const defaultAccountSettings = {
     languagePreference: 'en-US',
 };
 
-export async function registerUser(displayName: string, email: string, pass: string): Promise<{ success: boolean; message?: string; user?: User }> {
+export async function registerUser(displayName: string, email: string, pass: string): Promise<{ success: boolean; message?: string; user?: Omit<User, 'password'> }> {
   const existingUser = await prisma.user.findUnique({
     where: { email: email.toLowerCase() },
   });
@@ -80,5 +80,5 @@ export async function registerUser(displayName: string, email: string, pass: str
   // We need to be careful about what we return. The password should not be returned.
   const { password, ...userWithoutPassword } = newUser;
 
-  return { success: true, user: userWithoutPassword as any }; // TODO: Type mismatch - see Ticket #0002
+  return { success: true, user: userWithoutPassword };
 }

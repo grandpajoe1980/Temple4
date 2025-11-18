@@ -43,6 +43,12 @@ const brandingSchema = z.object({
     primaryColor: z.string().optional(),
     accentColor: z.string().optional(),
     customLinks: z.array(z.object({ label: z.string(), url: z.string().url() })).optional(),
+    facebookUrl: z.string().url().optional().or(z.literal('')),
+    instagramUrl: z.string().url().optional().or(z.literal('')),
+    twitterUrl: z.string().url().optional().or(z.literal('')),
+    youtubeUrl: z.string().url().optional().or(z.literal('')),
+    websiteUrl: z.string().url().optional().or(z.literal('')),
+    linkedInUrl: z.string().url().optional().or(z.literal('')),
 });
 
 // 17.4 Update Tenant Branding
@@ -79,4 +85,12 @@ export async function PUT(
         console.error(`Failed to update tenant branding for tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to update tenant branding' }, { status: 500 });
     }
+}
+
+// PATCH handler for partial updates (same as PUT but more semantically correct)
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ tenantId: string }> }
+) {
+    return PUT(request, { params });
 }

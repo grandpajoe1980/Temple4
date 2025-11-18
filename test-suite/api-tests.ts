@@ -429,6 +429,49 @@ export class APITestSuite {
       }
     );
 
+    // Test PATCH branding with social links
+    await this.testEndpoint(
+      category,
+      'PATCH /api/tenants/[tenantId]/admin/branding - Update social links',
+      async () => {
+        const response = await fetch(
+          `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/admin/branding`,
+          {
+            method: 'PATCH',
+            headers: this.getAuthHeaders(),
+            body: JSON.stringify({
+              facebookUrl: 'https://facebook.com/testchurch',
+              instagramUrl: 'https://instagram.com/testchurch',
+              twitterUrl: 'https://twitter.com/testchurch',
+              youtubeUrl: 'https://youtube.com/@testchurch',
+              websiteUrl: 'https://testchurch.com',
+              linkedInUrl: 'https://linkedin.com/company/testchurch',
+            }),
+          }
+        );
+        return { response, expectedStatus: [200, 401, 403] };
+      }
+    );
+
+    // Test PATCH branding with invalid URL
+    await this.testEndpoint(
+      category,
+      'PATCH /api/tenants/[tenantId]/admin/branding - Invalid URL should fail',
+      async () => {
+        const response = await fetch(
+          `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/admin/branding`,
+          {
+            method: 'PATCH',
+            headers: this.getAuthHeaders(),
+            body: JSON.stringify({
+              facebookUrl: 'not-a-valid-url',
+            }),
+          }
+        );
+        return { response, expectedStatus: [400, 401, 403] };
+      }
+    );
+
     await this.testEndpoint(
       category,
       'GET /api/tenants/[tenantId]/admin/audit-logs',

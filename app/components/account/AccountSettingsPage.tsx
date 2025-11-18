@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { User as PrismaUser, UserProfile as PrismaUserProfile } from '@prisma/client';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -21,14 +22,21 @@ interface AccountSettingsPageProps {
     privacySettings: any;
     accountSettings: any;
   };
-  onBack: () => void;
-  onRefresh: () => void;
 }
 
 const TABS = ['Profile', 'Privacy', 'My Memberships', 'Account', 'Notifications'];
 
-const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user, onBack, onRefresh }) => {
+const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user }) => {
   const [activeTab, setActiveTab] = useState(TABS[0]);
+  const router = useRouter();
+
+  const handleRefresh = () => {
+    router.refresh();
+  };
+
+  const handleBack = () => {
+    router.back();
+  };
 
   const renderTabContent = () => {
     if (!user.profile) {
@@ -38,21 +46,21 @@ const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user, onBack,
     switch (activeTab) {
       case 'Profile':
         return <ProfileSettingsTab profile={user.profile} onUpdate={(profile) => {
-          // Update user profile and call onRefresh
-          onRefresh();
+          // Update user profile and call handleRefresh
+          handleRefresh();
         }} />;
       case 'Privacy':
         return <PrivacySettingsTab settings={user.privacySettings || {} as any} onUpdate={(settings) => {
-          onRefresh();
+          handleRefresh();
         }} />;
       case 'My Memberships':
-        return <MyMembershipsTab user={user as any} onRefresh={onRefresh} />;
+        return <MyMembershipsTab user={user as any} onRefresh={handleRefresh} />;
       case 'Account':
         return <AccountSettingsTab settings={user.accountSettings || {} as any} onUpdate={(settings) => {
-          onRefresh();
+          handleRefresh();
         }} />;
       case 'Notifications':
-        return <NotificationSettingsTab user={user as any} onRefresh={onRefresh} />;
+        return <NotificationSettingsTab user={user as any} onRefresh={handleRefresh} />;
       // Add other tabs here later
       default:
         return (
@@ -71,7 +79,7 @@ const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user, onBack,
           <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
           <p className="text-sm text-gray-500">Manage your profile, privacy, and account preferences.</p>
         </div>
-        <Button variant="secondary" onClick={onBack}>&larr; Back</Button>
+        <Button variant="secondary" onClick={handleBack}>&larr; Back</Button>
       </div>
       
       <Card className="!p-0">

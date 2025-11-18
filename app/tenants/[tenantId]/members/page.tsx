@@ -21,5 +21,5 @@ export default async function TenantMembersPage({ params }: { params: Promise<{ 
 
   const members = await getMembersForTenant(tenant.id);
 
-  return <MembersPage tenant={tenant} user={user} members={members} />;
+  return <MembersPage tenant={tenant as any} user={user as any} members={members as any} />; {/* TODO: Type mismatch - see Ticket #0002 */}
 }

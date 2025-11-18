@@ -68,12 +68,7 @@ export enum ContactSubmissionStatus {
     ARCHIVED = 'ARCHIVED',
 }
 
-export enum NotificationType {
-    NEW_DIRECT_MESSAGE = 'NEW_DIRECT_MESSAGE',
-    NEW_ANNOUNCEMENT = 'NEW_ANNOUNCEMENT',
-    MEMBERSHIP_APPROVED = 'MEMBERSHIP_APPROVED',
-    NEW_CONTACT_SUBMISSION = 'NEW_CONTACT_SUBMISSION',
-}
+// NotificationType is defined in schema.prisma and exported from @prisma/client
 
 
 // --- USER-RELATED MODELS ---

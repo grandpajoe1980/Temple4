@@ -10,7 +10,7 @@ export default async function Page() {
   return (
     <ExplorePage 
       initialSearchTerm="" 
-      tenants={tenants}
+      tenants={tenants as any} // TODO: Type mismatch - see Ticket #0002
     />
   );
 }

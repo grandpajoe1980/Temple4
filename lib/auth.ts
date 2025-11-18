@@ -80,5 +80,5 @@ export async function registerUser(displayName: string, email: string, pass: str
   // We need to be careful about what we return. The password should not be returned.
   const { password, ...userWithoutPassword } = newUser;
 
-  return { success: true, user: userWithoutPassword as User };
+  return { success: true, user: userWithoutPassword as any }; // TODO: Type mismatch - see Ticket #0002
 }

@@ -8,7 +8,7 @@ export default async function Page() {
   const session = await getServerSession(authOptions);
 
   const userId = (session?.user as any)?.id;
-  let tenants = [];
+  let tenants: any[] = [];
   if (userId) {
     tenants = await getTenantsForUser(userId);
   }

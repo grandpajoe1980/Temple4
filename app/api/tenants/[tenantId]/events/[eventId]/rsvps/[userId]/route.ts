@@ -3,7 +3,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { RSVPStatus } from '@prisma/client';
+import { RSVPStatus } from '@/types';
 
 const rsvpUpdateSchema = z.object({
     status: z.enum(['GOING', 'INTERESTED', 'NOT_GOING']),

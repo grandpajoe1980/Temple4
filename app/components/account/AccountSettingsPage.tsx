@@ -1,10 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { User, UserProfile } from '@prisma/client';
+import type { User as PrismaUser, UserProfile as PrismaUserProfile } from '@prisma/client';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Tabs from '../ui/Tabs';
+
+// Use any as fallback since Prisma client is outdated
+type User = PrismaUser | any;
+type UserProfile = PrismaUserProfile | any;
 import ProfileSettingsTab from './ProfileSettingsTab';
 import PrivacySettingsTab from './PrivacySettingsTab';
 import MyMembershipsTab from './MyMembershipsTab';

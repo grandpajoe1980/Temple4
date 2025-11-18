@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TenantRole as TenantRoleType, type Tenant, type User, type Notification } from '@/types';
-import { TenantRole } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole } from '@/types';
 import Button from '../ui/Button';
 import ControlPanel from './ControlPanel';
 import PostsPage from './PostsPage';
@@ -235,8 +236,8 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                  </div>
             </div>
              <nav className="-mb-px flex space-x-6 overflow-x-auto border-t border-gray-200">
-                {navItems.map((item) => {
-                    const isEnabled = !item.feature || tenant.settings[item.feature];
+                {navItems.map((item: any) => {
+                    const isEnabled = !item.feature || (tenant.settings as any)[item.feature];
                     if (!isEnabled) return null;
                     if (item.adminOnly && !canViewSettings) return null;
 

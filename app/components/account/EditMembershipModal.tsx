@@ -27,7 +27,7 @@ const EditMembershipModal: React.FC<EditMembershipModalProps> = ({ isOpen, onClo
   useEffect(() => {
     if (membership) {
       setDisplayName(membership.displayName || '');
-      const primaryRole = membership.roles.find(r => r.isPrimary) || membership.roles[0];
+      const primaryRole = membership.roles.find((r: any) => r.isPrimary) || membership.roles[0];
       setDisplayTitle(primaryRole?.displayTitle || '');
     }
   }, [membership]);

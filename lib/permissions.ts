@@ -1,4 +1,5 @@
-import { TenantRole, User, Tenant, ChatMessage, Conversation, UserTenantMembership } from '@prisma/client';
+import { User, Tenant, ChatMessage, Conversation, UserTenantMembership } from '@prisma/client';
+import { TenantRole } from '@/types';
 import { prisma } from './db';
 import { TenantFeaturePermissions } from '@/types';
 
@@ -134,7 +135,7 @@ export async function hasRole(userId: string, tenantId: string, requiredRoles: T
     return false;
   }
 
-  return membership.roles.some(roleInfo => requiredRoles.includes(roleInfo.role));
+  return membership.roles.some((roleInfo: any) => requiredRoles.includes(roleInfo.role));
 }
 
 /**

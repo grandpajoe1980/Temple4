@@ -21,9 +21,9 @@ const EditRolesModal: React.FC<EditRolesModalProps> = ({ isOpen, onClose, member
 
   useEffect(() => {
     if (member) {
-      const currentRoles = new Set(member.membership.roles.map(r => r.role));
-      const currentPrimary = member.membership.roles.find(r => r.isPrimary)?.role || TenantRole.MEMBER;
-      const currentTitle = member.membership.roles.find(r => r.displayTitle)?.displayTitle || '';
+      const currentRoles = new Set(member.membership.roles.map((r: any) => r.role));
+      const currentPrimary = member.membership.roles.find((r: any) => r.isPrimary)?.role || TenantRole.MEMBER;
+      const currentTitle = member.membership.roles.find((r: any) => r.displayTitle)?.displayTitle || '';
       
       setSelectedRoles(currentRoles);
       setPrimaryRole(currentPrimary);
@@ -59,7 +59,7 @@ const EditRolesModal: React.FC<EditRolesModalProps> = ({ isOpen, onClose, member
     }
 
     const newRoles: UserTenantRole[] = Array.from(selectedRoles).map(role => ({
-      id: member.membership.roles.find(r => r.role === role)?.id || `tr-${Date.now()}-${role}`,
+      id: member.membership.roles.find((r: any) => r.role === role)?.id || `tr-${Date.now()}-${role}`,
       role: role,
       isPrimary: role === primaryRole,
       displayTitle: role === primaryRole ? displayTitle : undefined,

@@ -62,10 +62,10 @@ const HomePage: React.FC<HomePageProps> = async ({ tenant, user, onNavigate, onR
 
   const tenantDisplayName = membership?.displayName || user.profile.displayName;
   const allEvents = await getEventsForTenant(tenant.id);
-  const upcomingEvents = allEvents.filter(e => e.startDateTime > new Date()).slice(0, 3);
+  const upcomingEvents = allEvents.filter((e: any) => e.startDateTime > new Date()).slice(0, 3);
   const allPosts = await getPostsForTenant(tenant.id);
   const recentPosts = allPosts.slice(0, 3);
-  const donationLink = tenant.branding.customLinks.find(link => link.label.toLowerCase() === 'donate');
+  const donationLink = tenant.branding.customLinks.find((link: any) => link.label.toLowerCase() === 'donate');
   const { enableLiveStream, liveStreamSettings } = tenant.settings;
   const isLive = enableLiveStream && liveStreamSettings.isLive;
 
@@ -143,7 +143,7 @@ const HomePage: React.FC<HomePageProps> = async ({ tenant, user, onNavigate, onR
                     <Button variant="secondary" size="sm" onClick={() => onNavigate('posts')}>View All</Button>
                 </div>
                 <ul className="divide-y divide-gray-200">
-                    {recentPosts.length > 0 ? recentPosts.map(post => (
+                    {recentPosts.length > 0 ? recentPosts.map((post: any) => (
                         <li key={post.id} className="p-4 hover:bg-gray-50 cursor-pointer">
                             <div className="text-sm font-semibold text-gray-800">{post.title}</div>
                             <div className="text-xs text-gray-500 mt-1">
@@ -168,7 +168,7 @@ const HomePage: React.FC<HomePageProps> = async ({ tenant, user, onNavigate, onR
                     <Button variant="secondary" size="sm" onClick={() => onNavigate('calendar')}>View Calendar</Button>
                 </div>
                 <ul className="divide-y divide-gray-200">
-                   {upcomingEvents.length > 0 ? upcomingEvents.map(event => (
+                   {upcomingEvents.length > 0 ? upcomingEvents.map((event: any) => (
                         <li key={event.id} className="p-4 hover:bg-gray-50 cursor-pointer">
                             <div className="font-semibold text-sm text-gray-800">{event.title}</div>
                             <div className="text-xs text-amber-700 mt-1">

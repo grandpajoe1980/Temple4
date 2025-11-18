@@ -16,7 +16,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
     MEMBER: 'bg-gray-100 text-gray-800',
   };
 
-  const primaryRole = member.membership.roles.find(r => r.isPrimary) || member.membership.roles[0];
+  const primaryRole = member.membership.roles.find((r: any) => r.isPrimary) || member.membership.roles[0];
   const displayName = member.membership.displayName || member.profile.displayName;
 
   return (

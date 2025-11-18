@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
-import { ContactSubmissionStatus } from '@prisma/client';
+import { ContactSubmissionStatus } from '@/types';
 
 const updateSubmissionSchema = z.object({
     status: z.nativeEnum(ContactSubmissionStatus),

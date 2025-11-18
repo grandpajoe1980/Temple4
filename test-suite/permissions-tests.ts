@@ -5,7 +5,7 @@
 
 import { prisma } from '../lib/db';
 import { can, hasRole, canUserViewContent, canUserPost } from '../lib/permissions';
-import { TenantRole, MembershipStatus } from '@prisma/client';
+import { TenantRole, MembershipStatus } from '../types';
 import { TestLogger } from './test-logger';
 
 export class PermissionTestSuite {
@@ -44,7 +44,7 @@ export class PermissionTestSuite {
     this.logger.startTest(category, 'Admin Can Create Posts');
     try {
       const adminUser = await this.createTestUser('admin-test@test.com');
-      await this.createMembership(adminUser.id, tenant.id, [TenantRole.ADMIN], 'APPROVED');
+      await this.createMembership(adminUser.id, tenant.id, [TenantRole.ADMIN], MembershipStatus.APPROVED);
       
       const canCreate = await can(adminUser, tenant, 'canCreatePosts');
       
@@ -63,7 +63,7 @@ export class PermissionTestSuite {
     this.logger.startTest(category, 'Staff Can Create Sermons');
     try {
       const staffUser = await this.createTestUser('staff-test@test.com');
-      await this.createMembership(staffUser.id, tenant.id, [TenantRole.STAFF], 'APPROVED');
+      await this.createMembership(staffUser.id, tenant.id, [TenantRole.STAFF], MembershipStatus.APPROVED);
       
       const canCreate = await can(staffUser, tenant, 'canCreateSermons');
       
@@ -82,7 +82,7 @@ export class PermissionTestSuite {
     this.logger.startTest(category, 'Moderator Can Moderate Posts');
     try {
       const modUser = await this.createTestUser('mod-test@test.com');
-      await this.createMembership(modUser.id, tenant.id, [TenantRole.MODERATOR], 'APPROVED');
+      await this.createMembership(modUser.id, tenant.id, [TenantRole.MODERATOR], MembershipStatus.APPROVED);
       
       const canModerate = await can(modUser, tenant, 'canModeratePosts');
       
@@ -101,7 +101,7 @@ export class PermissionTestSuite {
     this.logger.startTest(category, 'Member Cannot Approve Membership');
     try {
       const memberUser = await this.createTestUser('member-test@test.com');
-      await this.createMembership(memberUser.id, tenant.id, [TenantRole.MEMBER], 'APPROVED');
+      await this.createMembership(memberUser.id, tenant.id, [TenantRole.MEMBER], MembershipStatus.APPROVED);
       
       const canApprove = await can(memberUser, tenant, 'canApproveMembership');
       
@@ -162,7 +162,7 @@ export class PermissionTestSuite {
     try {
       const testTenant = await this.createTestTenant('feature-test-tenant');
       const user = await this.createTestUser('feature-test@test.com');
-      await this.createMembership(user.id, testTenant.id, [TenantRole.MEMBER], 'APPROVED');
+      await this.createMembership(user.id, testTenant.id, [TenantRole.MEMBER], MembershipStatus.APPROVED);
 
       // Disable prayer wall feature
       await prisma.tenantSettings.update({
@@ -201,7 +201,7 @@ export class PermissionTestSuite {
     this.logger.startTest(category, 'Pending Member Has No Permissions');
     try {
       const pendingUser = await this.createTestUser('pending-test@test.com');
-      await this.createMembership(pendingUser.id, tenant.id, [TenantRole.MEMBER], 'PENDING');
+      await this.createMembership(pendingUser.id, tenant.id, [TenantRole.MEMBER], MembershipStatus.PENDING);
       
       const canCreate = await can(pendingUser, tenant, 'canCreatePosts');
       
@@ -220,7 +220,7 @@ export class PermissionTestSuite {
     this.logger.startTest(category, 'Banned Member Has No Permissions');
     try {
       const bannedUser = await this.createTestUser('banned-test@test.com');
-      await this.createMembership(bannedUser.id, tenant.id, [TenantRole.MEMBER], 'BANNED');
+      await this.createMembership(bannedUser.id, tenant.id, [TenantRole.MEMBER], MembershipStatus.BANNED);
       
       const canCreate = await can(bannedUser, tenant, 'canCreatePosts');
       

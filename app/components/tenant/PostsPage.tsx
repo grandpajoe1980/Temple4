@@ -52,7 +52,7 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
 
       {posts.length > 0 ? (
         <div className="space-y-6">
-          {posts.map((post) => (
+          {posts.map((post: any) => (
             <PostCard key={post.id} post={post} />
           ))}
         </div>

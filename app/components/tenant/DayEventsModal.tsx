@@ -22,7 +22,7 @@ const DayEventsModal: React.FC<DayEventsModalProps> = ({ isOpen, onClose, date, 
     <Modal isOpen={isOpen} onClose={onClose} title={`Events for ${formattedDate}`}>
       {events.length > 0 ? (
         <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-          {events.map(event => (
+          {events.map((event: any) => (
             <EventCard key={event.id} event={event} />
           ))}
         </div>

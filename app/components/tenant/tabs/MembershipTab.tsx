@@ -112,8 +112,8 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, current
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {members.map((member) => {
-                    const primaryRole = member.membership.roles.find(r => r.isPrimary) || member.membership.roles[0];
+                  {members.map((member: any) => {
+                    const primaryRole = member.membership.roles.find((r: any) => r.isPrimary) || member.membership.roles[0];
                     return (
                       <tr key={member.id}>
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
@@ -129,7 +129,7 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, current
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           <div className="text-gray-900">{primaryRole?.displayTitle}</div>
-                          <div className="text-gray-500">{member.membership.roles.map(r => r.role).join(', ')}</div>
+                          <div className="text-gray-500">{member.membership.roles.map((r: any) => r.role).join(', ')}</div>
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                            <div className="flex items-center justify-end space-x-2">

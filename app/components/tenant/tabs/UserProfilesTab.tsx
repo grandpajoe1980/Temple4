@@ -99,7 +99,7 @@ const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, 
                       </div>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {member.membership.roles.map(r => r.role).join(', ')}
+                      {member.membership.roles.map((r: any) => r.role).join(', ')}
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                       {currentUser.isSuperAdmin && (

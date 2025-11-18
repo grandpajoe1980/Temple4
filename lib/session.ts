@@ -1,7 +1,7 @@
 import { prisma } from './db';
 import { User, ImpersonationSession } from '@prisma/client';
+import { ActionType } from '@/types';
 import { logAuditEvent } from './audit';
-import { ActionType } from '@prisma/client';
 
 /**
  * Start an impersonation session

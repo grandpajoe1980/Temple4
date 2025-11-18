@@ -68,7 +68,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ profileUser, affiliatedTenant
       {profileUser.privacySettings.showAffiliations && affiliatedTenants.length > 0 && (
         <Card title="Affiliated Temples">
           <div className="space-y-4">
-            {affiliatedTenants.map(tenant => (
+            {affiliatedTenants.map((tenant: any) => (
               <div key={tenant.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors">
                  <h4 className="font-semibold text-gray-800">{tenant.name}</h4>
                  <p className="text-sm text-gray-500">{tenant.creed}</p>

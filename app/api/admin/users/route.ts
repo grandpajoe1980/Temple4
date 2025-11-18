@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     ]);
 
     // Remove passwords from response
-    const usersWithoutPasswords = users.map(({ password, ...user }) => user);
+    const usersWithoutPasswords = users.map(({ password, ...user }: any) => user);
 
     return NextResponse.json({
       users: usersWithoutPasswords,

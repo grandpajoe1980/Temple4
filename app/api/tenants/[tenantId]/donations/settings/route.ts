@@ -5,7 +5,8 @@ import { prisma } from '@/lib/db';
 import { hasRole } from '@/lib/permissions';
 import { z } from 'zod';
 import { DonationSettings } from '@/types';
-import { TenantRole } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole } from '@/types';
 
 const donationSettingsSchema = z.object({
   mode: z.enum(['EXTERNAL', 'INTEGRATED']),

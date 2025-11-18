@@ -46,12 +46,12 @@ export async function GET(request: Request) {
     const { password, ...userWithoutPassword } = user;
     
     // Format memberships for easier consumption
-    const tenantMemberships = user.memberships.map((membership) => ({
+    const tenantMemberships = user.memberships.map((membership: any) => ({
       tenantId: membership.tenant.id,
       tenantName: membership.tenant.name,
       tenantSlug: membership.tenant.slug,
       status: membership.status,
-      roles: membership.roles.map((r) => r.role),
+      roles: membership.roles.map((r: any) => r.role),
     }));
 
     return NextResponse.json({

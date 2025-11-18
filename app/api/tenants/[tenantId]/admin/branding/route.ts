@@ -4,7 +4,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { hasRole } from '@/lib/permissions';
 import { z } from 'zod';
-import { TenantRole } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole } from '@/types';
 
 // 17.3 Get Tenant Branding
 export async function GET(

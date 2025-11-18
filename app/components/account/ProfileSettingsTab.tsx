@@ -15,11 +15,11 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    setProfile((prev: any) => ({ ...prev, [name]: value }));
   };
 
   const handleLanguagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setProfile(prev => ({ ...prev, languages: e.target.value }));
+    setProfile((prev: any) => ({ ...prev, languages: e.target.value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -1,5 +1,6 @@
 import { prisma } from './db';
-import { User, ActionType } from '@prisma/client';
+import { User } from '@prisma/client';
+import { ActionType } from '@/types';
 import bcrypt from 'bcryptjs';
 import { logAuditEvent } from './audit';
 

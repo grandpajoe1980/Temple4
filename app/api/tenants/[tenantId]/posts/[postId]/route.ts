@@ -1,7 +1,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { TenantRole } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole } from '@/types';
 import { prisma } from '@/lib/db';
 import { canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
@@ -80,7 +81,7 @@ export async function PATCH(
             include: { roles: true },
         });
         const isAuthor = post.authorUserId === userId;
-        const canModerate = membership?.roles.some(role =>
+        const canModerate = membership?.roles.some((role: any) =>
             (role.role === TenantRole.ADMIN || role.role === TenantRole.MODERATOR)
         );
 
@@ -125,7 +126,7 @@ export async function DELETE(
             include: { roles: true },
         });
         const isAuthor = post.authorUserId === userId;
-        const canModerate = membership?.roles.some(role =>
+        const canModerate = membership?.roles.some((role: any) =>
             (role.role === TenantRole.ADMIN || role.role === TenantRole.MODERATOR)
         );
 

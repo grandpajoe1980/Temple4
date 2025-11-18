@@ -1,7 +1,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { TenantRole, MembershipStatus } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole, MembershipStatus } from '@/types';
 import { prisma } from '@/lib/db';
 
 // 8.1 List Members
@@ -40,11 +41,11 @@ export async function GET(
     }
 
     // Deny access if the directory is disabled and the user is not an admin/staff
-    const roleNames = requestingMembership?.roles.map(role => role.role) ?? [];
+    const roleNames = requestingMembership?.roles.map((role: any) => role.role) ?? [];
     const allowedRoles: TenantRole[] = [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR];
     const canViewDirectory =
         tenant.settings?.enableMemberDirectory ||
-        roleNames.some(role => allowedRoles.includes(role));
+        roleNames.some((role: any) => allowedRoles.includes(role));
 
     if (!canViewDirectory) {
         return NextResponse.json({ message: 'You do not have permission to view the member directory.' }, { status: 403 });

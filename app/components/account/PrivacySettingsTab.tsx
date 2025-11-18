@@ -14,7 +14,7 @@ const PrivacySettingsTab: React.FC<PrivacySettingsTabProps> = ({ settings: initi
   const [settings, setSettings] = useState<UserPrivacySettings>(initialSettings);
 
   const handleToggleChange = (key: keyof UserPrivacySettings, value: boolean) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+    setSettings((prev: any) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {

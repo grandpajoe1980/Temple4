@@ -65,8 +65,8 @@ export async function GET(request: NextRequest) {
 
     // Calculate unread counts for each conversation
     const conversationsWithUnread = await Promise.all(
-      conversations.map(async (conversation) => {
-        const userParticipant = conversation.participants.find(p => p.userId === userId);
+      conversations.map(async (conversation: any) => {
+        const userParticipant = conversation.participants.find((p: any) => p.userId === userId);
         
         if (!userParticipant) {
           return { ...conversation, unreadCount: 0 };

@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 import { getMembershipForUserInTenant } from '@/lib/data';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
-import { ResourceVisibility, FileType } from '@prisma/client';
+import { ResourceVisibility, FileType } from '@/types';
 
 // 16.3 Get Resource
 export async function GET(

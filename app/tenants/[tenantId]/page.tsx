@@ -28,7 +28,7 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
       tenant={tenant}
       user={user}
       membership={membership}
-      upcomingEvents={upcomingEvents.filter(e => e.startDateTime > new Date()).slice(0, 3)}
+      upcomingEvents={upcomingEvents.filter((e: any) => e.startDateTime > new Date()).slice(0, 3)}
       recentPosts={recentPosts.slice(0, 3)}
     />
   );

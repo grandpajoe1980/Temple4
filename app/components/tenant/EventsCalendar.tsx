@@ -81,7 +81,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick }) 
                 {day}
               </div>
               <div className="mt-1 space-y-1 overflow-y-auto max-h-16">
-                {dayEvents.map(event => (
+                {dayEvents.map((event: any) => (
                   <div key={event.id} className="text-xs bg-blue-100 text-blue-800 p-1 rounded truncate">
                     {event.title}
                   </div>

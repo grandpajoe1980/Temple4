@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { can, canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
-import { RSVPStatus } from '@prisma/client';
+import { RSVPStatus } from '@/types';
 
 // 10.6 List Event RSVPs
 export async function GET(

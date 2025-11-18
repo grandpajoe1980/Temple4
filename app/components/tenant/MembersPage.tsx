@@ -64,7 +64,7 @@ const MembersPage: React.FC<MembersPageProps> = ({ tenant, user, members, onView
 
       {filteredMembers.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredMembers.map((member) => (
+          {filteredMembers.map((member: any) => (
             <MemberCard key={member.id} member={member as any} onViewProfile={() => onViewProfile?.(member.id)} />
           ))}
         </div>

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { logAuditEvent } from '@/lib/audit';
-import { ActionType } from '@prisma/client';
+import { ActionType } from '@/types';
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token is required'),

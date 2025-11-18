@@ -2,7 +2,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { TenantRole, MembershipStatus } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole, MembershipStatus } from '@/types';
 import { z } from 'zod';
 
 const requestActionSchema = z.object({
@@ -28,7 +29,7 @@ export async function PUT(
     include: { roles: true },
   });
 
-  const hasPermission = currentUserMembership?.roles.some(role => 
+  const hasPermission = currentUserMembership?.roles.some((role: any) => 
     ([TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR] as TenantRole[]).includes(role.role)
   );
 

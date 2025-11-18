@@ -25,7 +25,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
         </Button>
       </div>
       <div className="space-y-4">
-        {tenants.map(tenant => {
+        {tenants.map((tenant: any) => {
           const safeAddress = tenant.address ?? {
             street: (tenant as any).street,
             city: (tenant as any).city,

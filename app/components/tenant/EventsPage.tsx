@@ -59,7 +59,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
     setDayModalOpen(true);
   };
   
-  const eventsForSelectedDay = events.filter(e => {
+  const eventsForSelectedDay = events.filter((e: any) => {
     if (!selectedDate) return false;
     const eventDate = new Date(e.startDateTime);
     return eventDate.getFullYear() === selectedDate.getFullYear() &&
@@ -127,7 +127,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
         <>
         {events.length > 0 ? (
           <div className="space-y-6">
-            {events.map((event) => (
+            {events.map((event: any) => (
               <EventCard key={event.id} event={event} />
             ))}
           </div>

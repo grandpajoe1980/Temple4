@@ -2,7 +2,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { TenantRole, MembershipStatus } from '@prisma/client';
+import {  } from '@prisma/client';
+import { TenantRole, MembershipStatus } from '@/types';
 
 // 8.4 List Membership Requests
 export async function GET(
@@ -23,7 +24,7 @@ export async function GET(
     include: { roles: true },
   });
 
-  const hasPermission = membership?.roles.some(role => 
+  const hasPermission = membership?.roles.some((role: any) => 
     ([TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR] as TenantRole[]).includes(role.role)
   );
 

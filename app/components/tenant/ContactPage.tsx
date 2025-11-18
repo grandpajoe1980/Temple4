@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { addContactSubmission } from '@/lib/data';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
 import Button from '../ui/Button';

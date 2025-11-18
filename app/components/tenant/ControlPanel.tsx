@@ -30,7 +30,7 @@ interface ControlPanelProps {
 
 const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh }) => {
   const isAdmin = useMemo(
-    () => !!currentUser && (currentUser.isSuperAdmin || hasRole(currentUser, tenant.id, TenantRole.ADMIN)),
+    () => !!currentUser && (currentUser.isSuperAdmin || (hasRole as any)(currentUser, tenant.id, [TenantRole.ADMIN])),
     [currentUser, tenant.id]
   );
 

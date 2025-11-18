@@ -3,12 +3,16 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { User, AuditLog } from '@/types';
 import { ActionType } from '@/types';
-import { getAuditLogs, getAllUsers } from '@/lib/data';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 
 interface AdminConsoleProps {
   onBack: () => void;
+}
+
+interface ApiAuditLog extends AuditLog {
+  actorUser: User;
+  effectiveUser?: User;
 }
 
 interface EnrichedAuditLog extends AuditLog {
@@ -17,19 +21,27 @@ interface EnrichedAuditLog extends AuditLog {
 }
 
 const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
-  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [logs, setLogs] = useState<ApiAuditLog[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     async function fetchData() {
       try {
-        const [logsData, usersData] = await Promise.all([
-          getAuditLogs(),
-          getAllUsers()
+        const [logsRes, usersRes] = await Promise.all([
+          fetch('/api/admin/audit-logs?limit=100'),
+          fetch('/api/admin/users?limit=1000')
         ]);
-        setLogs(logsData as any);
-        setUsers(usersData as any);
+
+        if (!logsRes.ok || !usersRes.ok) {
+            throw new Error('Failed to fetch admin data');
+        }
+
+        const logsData = await logsRes.json();
+        const usersData = await usersRes.json();
+
+        setLogs(logsData.logs);
+        setUsers(usersData.users);
       } catch (error) {
         console.error('Error fetching admin data:', error);
       } finally {
@@ -44,19 +56,13 @@ const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
   const [startDateFilter, setStartDateFilter] = useState<string>('');
   const [endDateFilter, setEndDateFilter] = useState<string>('');
   
-  const usersMap = useMemo(() => {
-    const map = new Map<string, User>();
-    users.forEach(user => map.set(user.id, user));
-    return map;
-  }, [users]);
-  
   const enrichedLogs: EnrichedAuditLog[] = useMemo(() => {
     return logs.map(log => ({
         ...log,
-        actorDisplayName: usersMap.get(log.actorUserId)?.profile?.displayName || log.actorUserId,
-        effectiveDisplayName: log.effectiveUserId ? (usersMap.get(log.effectiveUserId)?.profile?.displayName || log.effectiveUserId) : undefined,
+        actorDisplayName: log.actorUser?.profile?.displayName || log.actorUserId,
+        effectiveDisplayName: log.effectiveUser?.profile?.displayName || (log.effectiveUserId ? log.effectiveUserId : undefined),
     }));
-  }, [logs, usersMap]);
+  }, [logs]);
   
   const filteredLogs = useMemo(() => {
     return enrichedLogs.filter(log => {

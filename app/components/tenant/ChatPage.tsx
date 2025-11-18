@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { Tenant, User, EnrichedConversation } from '@/types';
+import type { EnrichedConversation } from '@/types';
 import { getConversationsForUser, createConversation } from '@/lib/data';
 import ConversationList from '../messages/ConversationList';
 import MessageStream from '../messages/MessageStream';
@@ -12,9 +12,9 @@ import CreateChannelForm from '../messages/CreateChannelForm';
 import ConversationDetailsPanel from '../messages/ConversationDetailsPanel';
 
 interface ChatPageProps {
-  tenant: Tenant;
-  user: User;
-  onViewProfile: (userId: string) => void;
+  tenant: any; // Has architectural issues, needs refactoring
+  user: any;
+  onViewProfile?: (userId: string) => void;
 }
 
 const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile }) => {

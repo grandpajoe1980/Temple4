@@ -8,7 +8,7 @@ interface SmallGroupsPageProps {
   tenant: Pick<Tenant, 'name'>;
   user: User;
   groups: SmallGroup[];
-  onRefresh: () => void;
+  onRefresh?: () => void;
 }
 
 const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, groups, onRefresh }) => {

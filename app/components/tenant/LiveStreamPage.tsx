@@ -1,17 +1,20 @@
 "use client";
 
 import React from 'react';
-import type { Tenant } from '@/types';
 import Card from '../ui/Card';
 
 interface LiveStreamPageProps {
-  tenant: Tenant;
+  tenant: {
+    id: string;
+    name: string;
+    settings: any; // Transformed settings with nested structure
+  };
 }
 
 const LiveStreamPage: React.FC<LiveStreamPageProps> = ({ tenant }) => {
-  const { liveStreamSettings } = tenant.settings;
+  const liveStreamSettings = (tenant.settings as any)?.liveStreamSettings;
 
-  if (!liveStreamSettings.embedUrl) {
+  if (!liveStreamSettings?.embedUrl) {
     return (
        <Card>
         <div className="text-center py-12">

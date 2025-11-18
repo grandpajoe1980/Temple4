@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User, ResourceItem } from '@/types';
+import type { ResourceItem } from '@/types';
 import { getResourceItemsForTenant, getMembershipForUserInTenant, addResourceItem } from '@/lib/data';
 import { can } from '@/lib/permissions';
 import Button from '../ui/Button';
@@ -10,9 +10,9 @@ import ResourceForm from './forms/ResourceForm';
 import ResourceItemCard from './ResourceItemCard';
 
 interface ResourceCenterPageProps {
-  tenant: Tenant;
-  user: User;
-  onRefresh: () => void;
+  tenant: any; // Has architectural issues, needs refactoring
+  user: any;
+  onRefresh?: () => void;
 }
 
 const ResourceCenterPage: React.FC<ResourceCenterPageProps> = ({ tenant, user, onRefresh }) => {

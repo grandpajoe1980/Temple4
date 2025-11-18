@@ -8,7 +8,7 @@ interface VolunteeringPageProps {
   tenant: Pick<Tenant, 'name'>;
   user: User;
   needs: VolunteerNeed[];
-  onRefresh: () => void;
+  onRefresh?: () => void;
 }
 
 const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs, onRefresh }) => {

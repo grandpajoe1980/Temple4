@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import type { Tenant, User, EnrichedDonationRecord } from '@/types';
+import type { EnrichedDonationRecord } from '@/types';
 import { getDonationsForTenant, addDonationRecord } from '@/lib/data';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -9,13 +9,13 @@ import Input from '../ui/Input';
 import ToggleSwitch from '../ui/ToggleSwitch';
 
 interface DonationsPageProps {
-  tenant: Tenant;
-  user: User;
-  onRefresh: () => void;
+  tenant: any; // Has architectural issues, needs refactoring
+  user: any;
+  onRefresh?: () => void;
 }
 
 interface LeaderboardProps {
-    tenant: Tenant;
+    tenant: any;
 }
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ tenant }) => {

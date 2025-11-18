@@ -1,0 +1,488 @@
+================================================================================
+TEMPLE PLATFORM - COMPREHENSIVE TEST REPORT
+================================================================================
+
+Generated: 11/18/2025, 5:14:33 AM
+Total Duration: 29.15s
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total Tests: 61
+✓ Passed:    54
+✗ Failed:    6
+⚠ Errors:    0
+⊘ Skipped:   1
+
+
+FEATURE - AUTHENTICATION
+--------------------------------------------------------------------------------
+✓ PASS: User Registration Flow (241ms)
+  Details: {
+  "status": 200,
+  "email": "test-1763442843929@example.com"
+}
+✓ PASS: User Login Flow (21ms)
+  Details: {
+  "hasSession": true
+}
+✓ PASS: Session Persistence (174ms)
+  Details: {
+  "status": 401,
+  "note": "Endpoint responds correctly (401 expected without proper session cookie)"
+}
+
+FEATURE - TENANT CREATION
+--------------------------------------------------------------------------------
+✓ PASS: Create New Tenant (11ms)
+  Details: {
+  "status": 401,
+  "note": "Endpoint requires authentication (401 expected without proper session)"
+}
+
+FEATURE - MEMBERSHIP
+--------------------------------------------------------------------------------
+✗ FAIL: Join Tenant (740ms)
+  Error: Failed to join tenant: 401
+  Details: {
+  "tenantId": "cmi3atear0014ums4fuftaa9r"
+}
+✗ FAIL: View Tenant Members (21ms)
+  Error: Failed to view members: 401
+
+FEATURE - CONTENT CREATION
+--------------------------------------------------------------------------------
+✗ FAIL: Create Post (851ms)
+  Error: Failed to create post: 401
+✗ FAIL: Create Event (789ms)
+  Error: Failed to create event: 401
+✗ FAIL: Create Sermon (806ms)
+  Error: Failed to create sermon: 401
+
+FEATURE - PERMISSIONS
+--------------------------------------------------------------------------------
+✓ PASS: Admin Access Control (769ms)
+  Details: {
+  "status": 401,
+  "message": "Access correctly denied"
+}
+
+API - AUTHENTICATION
+--------------------------------------------------------------------------------
+✓ PASS: POST /api/auth/register (107ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/auth/callback/credentials (21ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/auth/me (11ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/auth/forgot-password (127ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+API - TENANTS
+--------------------------------------------------------------------------------
+✓ PASS: GET /api/tenants (11ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/tenants (15ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/tenants/[tenantId] (836ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+API - MEMBERS
+--------------------------------------------------------------------------------
+✓ PASS: GET /api/tenants/[tenantId]/members (20ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/tenants/[tenantId]/join (23ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+API - CONTENT
+--------------------------------------------------------------------------------
+✓ PASS: GET /api/tenants/[tenantId]/posts (31ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/tenants/[tenantId]/posts (16ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/tenants/[tenantId]/events (50ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: POST /api/tenants/[tenantId]/events (31ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/tenants/[tenantId]/sermons (66ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/tenants/[tenantId]/books (1190ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/tenants/[tenantId]/small-groups (788ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/tenants/[tenantId]/resources (791ms)
+  Details: {
+  "status": 200,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✗ FAIL: GET /api/tenants/[tenantId]/community-posts (790ms)
+  Error: Unexpected status code: 401 (expected: 200)
+  Details: {
+  "body": {
+    "message": "Not authenticated"
+  },
+  "contentType": "application/json"
+}
+
+API - CONVERSATIONS
+--------------------------------------------------------------------------------
+✓ PASS: GET /api/conversations (116ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+API - ADMIN
+--------------------------------------------------------------------------------
+✓ PASS: GET /api/tenants/[tenantId]/admin/settings (18ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/tenants/[tenantId]/admin/branding (810ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/tenants/[tenantId]/admin/audit-logs (727ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+✓ PASS: GET /api/tenants/[tenantId]/admin/contact-submissions (723ms)
+  Details: {
+  "status": 401,
+  "contentType": "application/json",
+  "hasBody": true
+}
+
+PAGES - PUBLIC
+--------------------------------------------------------------------------------
+✓ PASS: Landing Page (52ms)
+  Details: {
+  "status": 200,
+  "url": "/",
+  "redirected": false,
+  "contentLength": 20449
+}
+✓ PASS: Login Page (382ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/login",
+  "redirected": false,
+  "contentLength": 21215
+}
+✓ PASS: Register Page (276ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/register",
+  "redirected": false,
+  "contentLength": 21057
+}
+✓ PASS: Forgot Password Page (297ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/forgot-password",
+  "redirected": false,
+  "contentLength": 20444
+}
+✓ PASS: Reset Password Page (245ms)
+  Details: {
+  "status": 200,
+  "url": "/auth/reset-password",
+  "redirected": false,
+  "contentLength": 20663
+}
+
+PAGES - AUTHENTICATED
+--------------------------------------------------------------------------------
+✓ PASS: Explore Page (343ms)
+  Details: {
+  "status": 200,
+  "url": "/explore",
+  "redirected": false,
+  "contentLength": 25339
+}
+✓ PASS: Messages Page (552ms)
+  Details: {
+  "status": 200,
+  "url": "/messages",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21217
+}
+✓ PASS: Notifications Page (326ms)
+  Details: {
+  "status": 200,
+  "url": "/notifications",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21223
+}
+✓ PASS: Account Settings Page (409ms)
+  Details: {
+  "status": 200,
+  "url": "/account",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21218
+}
+⊘ SKIP: Profile Page
+  Error: No test user ID available
+✓ PASS: Create Tenant Page (243ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/new",
+  "redirected": false,
+  "contentLength": 23423
+}
+
+PAGES - TENANT
+--------------------------------------------------------------------------------
+✓ PASS: Tenant Home Page (991ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21218
+}
+✓ PASS: Posts Page (883ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/posts",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21222
+}
+✓ PASS: Calendar Page (859ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/calendar",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21223
+}
+✓ PASS: Sermons Page (864ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/sermons",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21224
+}
+✓ PASS: Podcasts Page (845ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/podcasts",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21225
+}
+✓ PASS: Books Page (868ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/books",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21223
+}
+✓ PASS: Members Page (883ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/members",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21217
+}
+✓ PASS: Chat Page (897ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/chat",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21223
+}
+✓ PASS: Donations Page (843ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/donations",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21224
+}
+✓ PASS: Contact Page (825ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/contact",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21225
+}
+✓ PASS: Volunteering Page (876ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/volunteering",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21216
+}
+✓ PASS: Small Groups Page (826ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/small-groups",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21223
+}
+✓ PASS: Live Stream Page (828ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/livestream",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21225
+}
+✓ PASS: Prayer Wall Page (842ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/prayer-wall",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21220
+}
+✓ PASS: Resource Center Page (852ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/resources",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21223
+}
+✓ PASS: Settings Page (988ms)
+  Details: {
+  "status": 200,
+  "url": "/tenants/cmi3atear0014ums4fuftaa9r/settings",
+  "redirected": true,
+  "finalUrl": "http://localhost:3000/auth/login",
+  "contentLength": 21219
+}
+
+PAGES - ADMIN
+--------------------------------------------------------------------------------
+✓ PASS: Admin Console (310ms)
+  Details: {
+  "status": 200,
+  "url": "/admin",
+  "redirected": false,
+  "contentLength": 18022
+}
+
+
+================================================================================
+ISSUES THAT NEED FIXING
+================================================================================
+
+1. [FAIL] Feature - Membership - Join Tenant
+   Failed to join tenant: 401
+   Details: {
+  "tenantId": "cmi3atear0014ums4fuftaa9r"
+}
+
+2. [FAIL] Feature - Membership - View Tenant Members
+   Failed to view members: 401
+   Details: {}
+
+3. [FAIL] Feature - Content Creation - Create Post
+   Failed to create post: 401
+   Details: {}
+
+4. [FAIL] Feature - Content Creation - Create Event
+   Failed to create event: 401
+   Details: {}
+
+5. [FAIL] Feature - Content Creation - Create Sermon
+   Failed to create sermon: 401
+   Details: {}
+
+6. [FAIL] API - Content - GET /api/tenants/[tenantId]/community-posts
+   Unexpected status code: 401 (expected: 200)
+   Details: {
+  "body": {
+    "message": "Not authenticated"
+  },
+  "contentType": "application/json"
+}
+
+
+================================================================================
+END OF REPORT
+================================================================================

@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
-import { getTenantById, getUserById } from '@/lib/data';
+import { getTenantById, getUserById, getMembersForTenant } from '@/lib/data';
 import MembersPage from '@/app/components/tenant/MembersPage';
 
 export default async function TenantMembersPage({ params }: { params: Promise<{ tenantId: string }> }) {
@@ -19,5 +19,7 @@ export default async function TenantMembersPage({ params }: { params: Promise<{ 
     redirect('/');
   }
 
-  return <MembersPage tenant={tenant} user={user} />;
+  const members = await getMembersForTenant(tenant.id);
+
+  return <MembersPage tenant={tenant} user={user} members={members} />;
 }

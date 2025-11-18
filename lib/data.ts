@@ -589,8 +589,11 @@ export async function updateMembershipStatus(userId: string, tenantId: string, s
     return null;
 }
 
-export async function updateMemberRolesAndTitle(userId: string, tenantId: string, roles: any[], title: string) {
+export async function updateMemberRolesAndTitle(membershipId: string, roles: any[], userId?: string) {
     // TODO: Implement member roles and title update
+    // membershipId: UserTenantMembership.id
+    // roles: array of UserTenantRole
+    // userId: for audit logging when implemented
     return null;
 }
 
@@ -669,13 +672,15 @@ export async function getResourceItemsForTenant(tenantId: string) {
     return [];
 }
 
-export async function addResourceItem(tenantId: string, itemData: any) {
+export async function addResourceItem(itemData: any) {
     // TODO: Implement resource item creation
+    // Expected fields: tenantId, uploaderUserId, title, description, fileUrl, fileType, visibility
     return null;
 }
 
-export async function deleteResourceItem(itemId: string) {
+export async function deleteResourceItem(itemId: string, userId?: string) {
     // TODO: Implement resource item deletion
+    // userId parameter for audit logging when implemented
     return null;
 }
 
@@ -694,18 +699,21 @@ export async function getContactSubmissionsForTenant(tenantId: string) {
     return [];
 }
 
-export async function updateContactSubmissionStatus(submissionId: string, status: string) {
+export async function updateContactSubmissionStatus(submissionId: string, status: string, userId?: string) {
     // TODO: Implement contact submission status update
+    // userId parameter for audit logging when implemented
     return null;
 }
 
-export async function respondToContactSubmission(submissionId: string, response: string) {
+export async function respondToContactSubmission(submissionId: string, response: string, userId?: string, tenantName?: string) {
     // TODO: Implement contact submission response
+    // userId and tenantName parameters for sending response email when implemented
     return null;
 }
 
-export async function updateTenantPermissions(tenantId: string, permissions: any) {
+export async function updateTenantPermissions(tenantId: string, permissions: any, userId?: string) {
     // TODO: Implement tenant permissions update
+    // userId parameter for audit logging when implemented
     return null;
 }
 
@@ -714,8 +722,9 @@ export async function addPost(tenantId: string, postData: any) {
     return null;
 }
 
-export async function addEvent(tenantId: string, eventData: any) {
+export async function addEvent(eventData: any) {
     // TODO: Implement event creation
+    // Expected fields: tenantId, createdByUserId, title, description, startDateTime, endDateTime, location, onlineUrl
     return null;
 }
 
@@ -807,8 +816,9 @@ export async function addContactSubmission(tenantId: string, submissionData: any
     return null;
 }
 
-export async function addCommunityPost(tenantId: string, postData: any) {
+export async function addCommunityPost(postData: any) {
     // TODO: Implement community post creation
+    // Expected fields: tenantId, authorUserId (can be null for anonymous), type, body, isAnonymous
     return null;
 }
 

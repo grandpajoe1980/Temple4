@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import type { UserProfile } from '@prisma/client';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { useToast } from '../ui/Toast';
 
 interface ProfileSettingsTabProps {
   profile: UserProfile;
@@ -12,6 +13,8 @@ interface ProfileSettingsTabProps {
 
 const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initialProfile, onUpdate }) => {
   const [profile, setProfile] = useState<UserProfile>(initialProfile);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const toast = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -22,9 +25,19 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
     setProfile((prev: any) => ({ ...prev, languages: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdate(profile);
+    setIsSubmitting(true);
+    
+    try {
+      // Call onUpdate which should handle the API call
+      await onUpdate(profile);
+      toast.success('Profile updated successfully!');
+    } catch (error) {
+      toast.error('Failed to update profile. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -40,7 +53,8 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
           name="displayName" 
           value={profile.displayName} 
           onChange={handleInputChange} 
-          required 
+          required
+          disabled={isSubmitting}
         />
         <Input 
           label="Avatar URL" 
@@ -48,7 +62,8 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
           name="avatarUrl" 
           type="url"
           value={profile.avatarUrl || ''} 
-          onChange={handleInputChange} 
+          onChange={handleInputChange}
+          disabled={isSubmitting}
         />
         <div>
           <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
@@ -58,9 +73,10 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
             id="bio"
             name="bio"
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
             value={profile.bio || ''}
             onChange={handleInputChange}
+            disabled={isSubmitting}
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -69,14 +85,16 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
             id="locationCity" 
             name="locationCity" 
             value={profile.locationCity || ''} 
-            onChange={handleInputChange} 
+            onChange={handleInputChange}
+            disabled={isSubmitting}
           />
           <Input 
             label="Country" 
             id="locationCountry" 
             name="locationCountry" 
             value={profile.locationCountry || ''} 
-            onChange={handleInputChange} 
+            onChange={handleInputChange}
+            disabled={isSubmitting}
           />
         </div>
         <Input 
@@ -86,11 +104,14 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
           value={profile.languages || ''} 
           onChange={handleLanguagesChange} 
           placeholder="e.g., English, Spanish, German"
+          disabled={isSubmitting}
         />
       </div>
 
       <div className="text-right border-t border-gray-200 pt-6">
-        <Button type="submit">Save Changes</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save Changes'}
+        </Button>
       </div>
     </form>
   );

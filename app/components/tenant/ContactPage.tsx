@@ -5,6 +5,7 @@ import { addContactSubmission } from '@/lib/data';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { useToast } from '../ui/Toast';
 
 interface ContactPageProps {
   tenant: {
@@ -25,6 +26,8 @@ interface ContactPageProps {
 const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const toast = useToast();
 
   const addressString = [tenant.address.street, tenant.address.city, tenant.address.state, tenant.address.country, tenant.address.postalCode].filter(Boolean).join(', ');
   const mapSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSy...&q=${encodeURIComponent(addressString)}`;
@@ -36,9 +39,19 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addContactSubmission(tenant.id, formState);
-    setIsSubmitted(true);
-    setFormState({ name: '', email: '', message: '' });
+    setIsSubmitting(true);
+    
+    try {
+      await addContactSubmission(tenant.id, formState);
+      setIsSubmitted(true);
+      setFormState({ name: '', email: '', message: '' });
+      toast.success('Message sent successfully! We\'ll get back to you soon.');
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -94,8 +107,26 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <Input label="Your Name" id="name" name="name" type="text" value={formState.name} onChange={handleInputChange} required />
-              <Input label="Your Email" id="email" name="email" type="email" value={formState.email} onChange={handleInputChange} required />
+              <Input 
+                label="Your Name" 
+                id="name" 
+                name="name" 
+                type="text" 
+                value={formState.name} 
+                onChange={handleInputChange} 
+                required
+                disabled={isSubmitting}
+              />
+              <Input 
+                label="Your Email" 
+                id="email" 
+                name="email" 
+                type="email" 
+                value={formState.email} 
+                onChange={handleInputChange} 
+                required
+                disabled={isSubmitting}
+              />
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
                   Message
@@ -104,14 +135,17 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
                   id="message"
                   name="message"
                   rows={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                   value={formState.message}
                   onChange={handleInputChange}
                   required
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="text-right">
-                <Button type="submit">Send Message</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                </Button>
               </div>
             </form>
           )}

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Card from '@/app/components/ui/Card';
 import Input from '@/app/components/ui/Input';
 import Button from '@/app/components/ui/Button';
+import { useToast } from '@/app/components/ui/Toast';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@temple.com');
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,15 +29,20 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError('Invalid credentials. Please try again.');
+        const errorMsg = 'Invalid credentials. Please try again.';
+        setError(errorMsg);
+        toast.error(errorMsg);
         setLoading(false);
       } else if (result?.ok) {
+        toast.success('Login successful! Redirecting...');
         // Successful login, redirect to home
         router.push('/');
         router.refresh();
       }
     } catch (err) {
-      setError('An error occurred during login. Please try again.');
+      const errorMsg = 'An error occurred during login. Please try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
       setLoading(false);
     }
   };
@@ -57,7 +64,8 @@ export default function LoginPage() {
                     type="email" 
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)} 
-                    required 
+                    required
+                    disabled={loading}
                 />
                 <Input 
                     id="password" 
@@ -66,16 +74,27 @@ export default function LoginPage() {
                     type="password" 
                     value={password} 
                     onChange={(e) => setPassword(e.target.value)} 
-                    required 
+                    required
+                    disabled={loading}
                 />
                 <div className="text-right">
-                    <button type="button" onClick={() => router.push('/auth/forgot-password')} className="text-sm text-amber-600 hover:text-amber-800 hover:underline">
-                    Forgot your password?
+                    <button 
+                      type="button" 
+                      onClick={() => router.push('/auth/forgot-password')} 
+                      className="text-sm text-amber-600 hover:text-amber-800 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={loading}
+                    >
+                      Forgot your password?
                     </button>
                 </div>
                 <div className="flex justify-between items-center">
-                    <button type="button" onClick={() => router.push('/auth/register')} className="text-sm text-amber-600 hover:text-amber-800 hover:underline">
-                    Create an account
+                    <button 
+                      type="button" 
+                      onClick={() => router.push('/auth/register')} 
+                      className="text-sm text-amber-600 hover:text-amber-800 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={loading}
+                    >
+                      Create an account
                     </button>
                     <Button type="submit" disabled={loading}>
                       {loading ? 'Logging in...' : 'Login'}

@@ -9,9 +9,10 @@ import ToggleSwitch from '../ui/ToggleSwitch';
 interface PostFormProps {
   onSubmit: (postData: PostInput) => void;
   onCancel: () => void;
+  isSubmitting?: boolean;
 }
 
-const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel }) => {
+const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel, isSubmitting = false }) => {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [type, setType] = useState<'BLOG' | 'ANNOUNCEMENT' | 'BOOK'>('BLOG');
@@ -36,6 +37,7 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel }) => {
         onChange={(e) => setTitle(e.target.value)}
         required
         placeholder="e.g., Annual Community Picnic"
+        disabled={isSubmitting}
       />
 
       <div>
@@ -46,11 +48,12 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel }) => {
           id="body"
           name="body"
           rows={8}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
           value={body}
           onChange={(e) => setBody(e.target.value)}
           required
           placeholder="Write your content here..."
+          disabled={isSubmitting}
         />
       </div>
       
@@ -61,9 +64,10 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel }) => {
         <select
           id="type"
           name="type"
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md bg-white text-gray-900"
+          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
           value={type}
           onChange={(e) => setType(e.target.value as 'BLOG' | 'ANNOUNCEMENT' | 'BOOK')}
+          disabled={isSubmitting}
         >
           <option value="BLOG">Blog</option>
           <option value="ANNOUNCEMENT">Announcement</option>
@@ -79,11 +83,11 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel }) => {
       />
 
       <div className="flex justify-end items-center space-x-4 pt-4 border-t border-gray-200">
-        <Button type="button" variant="secondary" onClick={onCancel}>
+        <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button type="submit">
-          Save Post
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save Post'}
         </Button>
       </div>
     </form>

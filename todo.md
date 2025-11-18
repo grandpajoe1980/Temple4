@@ -6,9 +6,9 @@ It is written for a *second team* taking over the app. Treat this as the living 
 
 ---
 
-## Current Status (Updated 2025-11-18 Session 8)
+## Current Status (Updated 2025-11-18 Session 10)
 
-**Phase:** Phase B – Auth, Sessions, Permissions (COMPLETE) ✅
+**Phase:** Phase C – Tenant Features (Content, Events, Messaging, Donations) (COMPLETE) ✅
 
 **Recent Sessions:**
 - Session 1-2: Fixed async params migration, initial cleanup
@@ -18,6 +18,8 @@ It is written for a *second team* taking over the app. Treat this as the living 
 - Session 6: Final build fixes, test baseline established ✅
 - Session 7: Data seeding verification, schema alignment verification ✅
 - Session 8: **Phase B Implementation - Auth, Sessions, Permissions** ✅
+- Session 9: **Phase C Implementation - Content & Events APIs** ✅
+- Session 10: **Phase C Verification - All Remaining APIs** ✅
 
 **Build Status:**
 - ✅ Turbopack compilation: SUCCESS
@@ -55,16 +57,30 @@ It is written for a *second team* taking over the app. Treat this as the living 
 - ✅ Section 4.2: Tenant resolution and isolation fully implemented
 - ✅ Section 4.3: UI-level permission enforcement fixed in TenantLayout
 
+**Phase C Completion Status:**
+- ✅ Section 5.1: Auth & Account APIs - Registration, profile management
+- ✅ Section 5.2: Tenants & Search APIs - CRUD and search functionality
+- ✅ Section 5.3: Membership & Roles APIs - Join, approve, manage roles
+- ✅ Section 5.4: Content APIs - Posts, sermons, podcasts, books with soft deletes
+- ✅ Section 5.5: Events & Calendar APIs - Full CRUD with RSVP functionality
+- ✅ Section 5.6: Messaging & Conversations APIs - DMs, channels, read receipts
+- ✅ Section 5.7: Notifications APIs - List, mark read, unread counts
+- ✅ Section 5.8: Donations APIs - Settings, records, leaderboard with privacy
+- ✅ Section 5.9: Volunteering & Small Groups APIs - Full lifecycle management
+- ✅ Section 5.10: Prayer Wall & Resource Center APIs - Anonymous posts, moderation
+
 **Key Decisions:**
 - Using minimal type casts (`as any`) with TODO comments for Ticket #0002
 - Prisma types as source of truth (removed duplicate enums)
 - Legacy Vite files moved to legacy/ folder
 - Comprehensive seed data already exists and working
 - Test failures due to HTTP-only cookie limitation (not auth bugs)
+- All Phase C APIs verified and production-ready
+- Soft deletes implemented consistently across all content types
 
 **Next Sprint Focus:**
-- **Phase C - Tenant Features (Content, Events, Messaging, Donations)**
-- OR continue with API route implementation (Section 5)
+- **Phase D - Admin, Notifications, Community Features**
+- OR **Phase E - Hardening, Observability, DX**
 - OR address Ticket #0002 type system improvements
 
 

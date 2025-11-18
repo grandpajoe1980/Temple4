@@ -62,7 +62,7 @@ export default async function TenantLayout({
                         <Link href="/admin" className="text-sm font-medium text-red-600 hover:text-red-800">Admin Console</Link>
                     )}
                     <div className="flex items-center space-x-2">
-                         <img src={user.profile?.avatarUrl} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
+                         <img src={user.profile?.avatarUrl || ''} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
                          <p className="font-semibold text-amber-700 text-sm hidden sm:block">{user.profile?.displayName}</p>
                     </div>
                      <Link href="/api/auth/signout" className="text-sm font-medium text-gray-600 hover:text-amber-700">Logout</Link>

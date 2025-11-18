@@ -5,36 +5,54 @@ import { useRouter } from 'next/navigation';
 import Card from '@/app/components/ui/Card';
 import Input from '@/app/components/ui/Input';
 import Button from '@/app/components/ui/Button';
+import { useToast } from '@/app/components/ui/Toast';
 
 export default function RegisterPage() {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
+      const errorMsg = 'Password must be at least 6 characters long.';
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ displayName, email, password }),
-    });
+    setIsSubmitting(true);
 
-    if (response.ok) {
-      router.push('/auth/login');
-    } else {
-      const data = await response.json();
-      setError(data.message || 'Registration failed. Please try again.');
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ displayName, email, password }),
+      });
+
+      if (response.ok) {
+        toast.success('Account created successfully! Please log in.');
+        router.push('/auth/login');
+      } else {
+        const data = await response.json();
+        const errorMsg = data.message || 'Registration failed. Please try again.';
+        setError(errorMsg);
+        toast.error(errorMsg);
+      }
+    } catch (error) {
+      const errorMsg = 'An unexpected error occurred. Please try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -55,7 +73,8 @@ export default function RegisterPage() {
                     type="text" 
                     value={displayName} 
                     onChange={(e) => setDisplayName(e.target.value)} 
-                    required 
+                    required
+                    disabled={isSubmitting}
                 />
                 <Input 
                     id="email" 
@@ -64,7 +83,8 @@ export default function RegisterPage() {
                     type="email" 
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)} 
-                    required 
+                    required
+                    disabled={isSubmitting}
                 />
                 <Input 
                     id="password" 
@@ -73,13 +93,21 @@ export default function RegisterPage() {
                     type="password" 
                     value={password} 
                     onChange={(e) => setPassword(e.target.value)} 
-                    required 
+                    required
+                    disabled={isSubmitting}
                 />
                 <div className="flex justify-between items-center">
-                    <button type="button" onClick={() => router.push('/auth/login')} className="text-sm text-amber-600 hover:text-amber-800 hover:underline">
-                    Already have an account?
+                    <button 
+                      type="button" 
+                      onClick={() => router.push('/auth/login')} 
+                      className="text-sm text-amber-600 hover:text-amber-800 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isSubmitting}
+                    >
+                      Already have an account?
                     </button>
-                    <Button type="submit">Register</Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? 'Creating Account...' : 'Register'}
+                    </Button>
                 </div>
                 </form>
             </Card>

@@ -8,6 +8,7 @@ import Modal from '../ui/Modal';
 import EventForm from './EventForm';
 import EventsCalendar from './EventsCalendar';
 import DayEventsModal from './DayEventsModal';
+import { useToast } from '../ui/Toast';
 
 interface EventsPageProps {
   tenant: Tenant;
@@ -23,6 +24,8 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [dayModalOpen, setDayModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const toast = useToast();
 
   // Load events on mount
   useEffect(() => {
@@ -43,15 +46,24 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
   const canCreate = (can as any)(user, tenant, 'canCreateEvents');
 
   const handleCreateEvent = async (eventData: Omit<Event, 'id' | 'tenantId' | 'createdByUserId'>) => {
-    await saveEvent({
-      ...eventData,
-      tenantId: tenant.id,
-      createdByUserId: user.id,
-    });
-    // Reload events after creating
-    const updatedEvents = await getEventsForTenant(tenant.id);
-    setEvents(updatedEvents);
-    setIsModalOpen(false);
+    setIsSubmitting(true);
+    try {
+      await saveEvent({
+        ...eventData,
+        tenantId: tenant.id,
+        createdByUserId: user.id,
+      });
+      // Reload events after creating
+      const updatedEvents = await getEventsForTenant(tenant.id);
+      setEvents(updatedEvents);
+      setIsModalOpen(false);
+      toast.success('Event created successfully!');
+    } catch (error) {
+      console.error('Failed to create event:', error);
+      toast.error('Failed to create event. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   const handleDateClick = (date: Date) => {
@@ -142,8 +154,12 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
         </>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create a New Event">
-        <EventForm onSubmit={handleCreateEvent} onCancel={() => setIsModalOpen(false)} />
+      <Modal isOpen={isModalOpen} onClose={() => !isSubmitting && setIsModalOpen(false)} title="Create a New Event">
+        <EventForm 
+          onSubmit={handleCreateEvent} 
+          onCancel={() => setIsModalOpen(false)}
+          isSubmitting={isSubmitting}
+        />
       </Modal>
 
       {selectedDate && (

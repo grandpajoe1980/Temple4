@@ -14,16 +14,14 @@ const VolunteerNeedCard: React.FC<VolunteerNeedCardProps> = ({ need, currentUser
   const isUserSignedUp = need.signups.some(s => s.user.id === currentUser.id);
   const isFull = need.signups.length >= need.slotsNeeded;
 
-  const handleSignUp = () => {
-    if (signUpForNeed(need.id, currentUser.id)) {
-      onUpdate();
-    }
+  const handleSignUp = async () => {
+    await signUpForNeed(need.id, currentUser.id);
+    onUpdate();
   };
 
-  const handleCancel = () => {
-    if (cancelSignUp(need.id, currentUser.id)) {
-      onUpdate();
-    }
+  const handleCancel = async () => {
+    await cancelSignUp(need.id, currentUser.id);
+    onUpdate();
   };
 
   const SignupButton = () => {

@@ -1,5 +1,6 @@
 import { prisma } from './db';
-import { Tenant, User, Post, Event, UserTenantMembership, Notification, AuditLog, Conversation, TenantRole, MembershipStatus, TenantSettings, TenantBranding } from '@prisma/client';
+import { Tenant, User, Post, Event, UserTenantMembership, Notification, AuditLog, Conversation, TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost } from '@prisma/client';
+import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
 
 type TenantWithDetails = Tenant & {
@@ -667,7 +668,7 @@ export async function addVolunteerNeed(tenantId: string, needData: any) {
     return null;
 }
 
-export async function getResourceItemsForTenant(tenantId: string, isMember?: boolean) {
+export async function getResourceItemsForTenant(tenantId: string, isMember?: boolean): Promise<EnrichedResourceItem[]> {
     // TODO: Implement resource items fetching
     // isMember parameter to filter based on visibility (members-only vs public)
     return [];
@@ -685,7 +686,7 @@ export async function deleteResourceItem(itemId: string, userId?: string) {
     return null;
 }
 
-export async function getCommunityPostsForTenant(tenantId: string, includePrivate?: boolean) {
+export async function getCommunityPostsForTenant(tenantId: string, includePrivate?: boolean): Promise<CommunityPost[]> {
     // TODO: Implement community posts fetching
     // includePrivate parameter to filter based on status (for moderation)
     return [];

@@ -46,7 +46,8 @@ const EditRolesModal: React.FC<EditRolesModalProps> = ({ isOpen, onClose, member
   // If the primary role is deselected, reset the primary role to the first available selected role.
   useEffect(() => {
     if (!selectedRoles.has(primaryRole)) {
-      setPrimaryRole(selectedRoles.size > 0 ? selectedRoles.values().next().value : TenantRole.MEMBER);
+      const firstRole = selectedRoles.values().next().value;
+      setPrimaryRole(firstRole ?? TenantRole.MEMBER);
     }
   }, [selectedRoles, primaryRole]);
 

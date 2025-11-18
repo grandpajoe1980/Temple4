@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Tenant, User, EnrichedMember, UserTenantRole } from '@/types';
 import { MembershipApprovalMode, MembershipStatus } from '@/types';
 import Button from '../../ui/Button';
@@ -16,12 +16,27 @@ interface MembershipTabProps {
 }
 
 const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh }) => {
-  const allMembers = getMembersForTenant(tenant.id);
-  
+  const [allMembers, setAllMembers] = useState<EnrichedMember[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [editingMember, setEditingMember] = useState<EnrichedMember | null>(null);
 
-  const canApprove = can(currentUser, tenant, 'canApproveMembership');
-  const canBan = can(currentUser, tenant, 'canBanMembers');
+  useEffect(() => {
+    const loadMembers = async () => {
+      setIsLoading(true);
+      try {
+        const members = await getMembersForTenant(tenant.id);
+        setAllMembers(members as any);
+      } catch (error) {
+        console.error('Failed to load members:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadMembers();
+  }, [tenant.id, onRefresh]);
+
+  const canApprove = (can as any)(currentUser, tenant, 'canApproveMembership');
+  const canBan = (can as any)(currentUser, tenant, 'canBanMembers');
 
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onUpdate({
@@ -33,7 +48,7 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, current
     });
   };
 
-  const handleStatusUpdate = (membershipId: string, status: MembershipStatus, memberName: string) => {
+  const handleStatusUpdate = async (membershipId: string, status: MembershipStatus, memberName: string) => {
     let confirmMessage = `Are you sure you want to ${status.toLowerCase()} this member?`;
     if (status === MembershipStatus.BANNED) {
         confirmMessage = `Are you sure you want to ban ${memberName}? This will revoke all their permissions and access to this tenant's member-only content.`;
@@ -44,16 +59,30 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, current
     }
 
     if (window.confirm(confirmMessage)) {
-      updateMembershipStatus(membershipId, status, currentUser.id);
+      await updateMembershipStatus(membershipId, status, currentUser.id);
       onRefresh();
     }
   };
   
-  const handleRolesUpdate = (member: EnrichedMember, newRoles: UserTenantRole[]) => {
-    updateMemberRolesAndTitle(member.membership.id, newRoles, currentUser.id);
+  const handleRolesUpdate = async (member: EnrichedMember, newRoles: UserTenantRole[]) => {
+    await updateMemberRolesAndTitle(member.membership.id, newRoles, currentUser.id);
     setEditingMember(null);
     onRefresh();
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">Membership & Moderation</h3>
+          <p className="mt-1 text-sm text-gray-500">Manage member access and permissions for your tenant.</p>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-gray-500">Loading members...</p>
+        </div>
+      </div>
+    );
+  }
 
   const requested = allMembers.filter(m => m.membership.status === MembershipStatus.PENDING);
   const approved = allMembers.filter(m => m.membership.status === MembershipStatus.APPROVED);

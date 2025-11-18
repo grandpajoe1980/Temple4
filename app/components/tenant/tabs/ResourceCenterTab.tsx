@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Tenant, User, EnrichedResourceItem, ResourceItem } from '@/types';
 import { getResourceItemsForTenant, addResourceItem, deleteResourceItem } from '@/lib/data';
 import Button from '../../ui/Button';
@@ -12,12 +12,27 @@ interface ResourceCenterTabProps {
 }
 
 const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUser, onRefresh }) => {
-  // Admins see all resources, so isMember is true
-  const resources = useMemo(() => getResourceItemsForTenant(tenant.id, true), [tenant.id, onRefresh]);
+  const [resources, setResources] = useState<EnrichedResourceItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleCreateResource = (data: Omit<ResourceItem, 'id' | 'createdAt' | 'tenantId' | 'uploaderUserId'>) => {
-    addResourceItem({
+  useEffect(() => {
+    const loadResources = async () => {
+      setIsLoading(true);
+      try {
+        const items = await getResourceItemsForTenant(tenant.id, true);
+        setResources(items);
+      } catch (error) {
+        console.error('Failed to load resources:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadResources();
+  }, [tenant.id, onRefresh]);
+
+  const handleCreateResource = async (data: Omit<ResourceItem, 'id' | 'createdAt' | 'tenantId' | 'uploaderUserId'>) => {
+    await addResourceItem({
       ...data,
       tenantId: tenant.id,
       uploaderUserId: currentUser.id,
@@ -26,12 +41,26 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
     setIsModalOpen(false);
   };
 
-  const handleDelete = (resourceId: string) => {
+  const handleDelete = async (resourceId: string) => {
     if (window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) {
-      deleteResourceItem(resourceId, currentUser.id);
+      await deleteResourceItem(resourceId, currentUser.id);
       onRefresh();
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">Resource Center Management</h3>
+          <p className="mt-1 text-sm text-gray-500">Manage your tenant's downloadable resources and files.</p>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-gray-500">Loading resources...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

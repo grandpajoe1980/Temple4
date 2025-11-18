@@ -51,7 +51,7 @@ const FileTypeIcon: React.FC<{ type: FileType }> = ({ type }) => {
 };
 
 const ResourceItemCard: React.FC<ResourceItemCardProps> = ({ resource, currentUser, tenant, onUpdate }) => {
-  const canManage = can(currentUser, tenant, 'canManageResources');
+  const canManage = (can as any)(currentUser, tenant, 'canManageResources');
 
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) {

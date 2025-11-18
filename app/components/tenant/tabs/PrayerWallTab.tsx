@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, EnrichedCommunityPost } from '@/types';
 import { CommunityPostStatus } from '@/types';
 import { getCommunityPostsForTenant, updateCommunityPostStatus } from '@/lib/data';
@@ -11,21 +11,37 @@ interface PrayerWallTabProps {
 }
 
 const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRefresh }) => {
-  const allPosts = useMemo(() => getCommunityPostsForTenant(tenant.id, true), [tenant.id, onRefresh]);
+  const [allPosts, setAllPosts] = useState<EnrichedCommunityPost[]>([]);
   const [statusFilter, setStatusFilter] = useState<CommunityPostStatus | 'ALL'>('ALL');
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleStatusChange = (postId: string, newStatus: CommunityPostStatus) => {
+  useEffect(() => {
+    const loadPosts = async () => {
+      setIsLoading(true);
+      try {
+        const posts = await getCommunityPostsForTenant(tenant.id, true);
+        setAllPosts(posts as any);
+      } catch (error) {
+        console.error('Failed to load prayer wall posts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadPosts();
+  }, [tenant.id, onRefresh]);
+
+  const handleStatusChange = async (postId: string, newStatus: CommunityPostStatus) => {
     if (window.confirm(`Are you sure you want to change this post's status to ${newStatus}?`)) {
-        updateCommunityPostStatus(postId, newStatus, currentUser.id);
+        await updateCommunityPostStatus(postId, newStatus);
         onRefresh();
     }
   };
   
-  const handleDelete = (postId: string) => {
+  const handleDelete = async (postId: string) => {
     // For now, we'll just set the status to something that hides it. A real delete would be better.
      if (window.confirm(`Are you sure you want to delete this post? This cannot be undone.`)) {
         // This is a mock for delete. A real implementation would remove the record.
-        updateCommunityPostStatus(postId, 'DELETED' as any, currentUser.id);
+        await updateCommunityPostStatus(postId, 'DELETED' as any);
         onRefresh();
     }
   }
@@ -38,6 +54,20 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
   }, [allPosts, statusFilter]);
 
   const statusFilters: (CommunityPostStatus | 'ALL')[] = ['ALL', CommunityPostStatus.PENDING_APPROVAL, CommunityPostStatus.PUBLISHED, CommunityPostStatus.FULFILLED];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">Prayer Wall Moderation</h3>
+          <p className="mt-1 text-sm text-gray-500">Manage all prayer requests and tangible needs submitted by members.</p>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-gray-500">Loading posts...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

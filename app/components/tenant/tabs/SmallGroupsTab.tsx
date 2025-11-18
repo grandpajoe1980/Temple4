@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import type { Tenant, User, EnrichedSmallGroup } from '@/types';
+import React, { useState, useEffect } from 'react';
+import type { Tenant, User, EnrichedSmallGroup, EnrichedMember } from '@/types';
 import { getSmallGroupsForTenant, createSmallGroup, getMembersForTenant } from '@/lib/data';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
@@ -12,21 +12,55 @@ interface SmallGroupsTabProps {
 }
 
 const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, onRefresh }) => {
-  const [groups, setGroups] = useState<EnrichedSmallGroup[]>(() => getSmallGroupsForTenant(tenant.id));
+  const [groups, setGroups] = useState<EnrichedSmallGroup[]>([]);
+  const [tenantMembers, setTenantMembers] = useState<EnrichedMember[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
-  const tenantMembers = useMemo(() => getMembersForTenant(tenant.id), [tenant.id]);
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const [groupsData, membersData] = await Promise.all([
+          getSmallGroupsForTenant(tenant.id),
+          getMembersForTenant(tenant.id)
+        ]);
+        setGroups(groupsData as any);
+        setTenantMembers(membersData as any);
+      } catch (error) {
+        console.error('Failed to load small groups data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [tenant.id, onRefresh]);
 
-  const refreshGroups = () => {
-    setGroups(getSmallGroupsForTenant(tenant.id));
+  const refreshGroups = async () => {
+    const groupsData = await getSmallGroupsForTenant(tenant.id);
+    setGroups(groupsData as any);
     onRefresh();
   };
 
-  const handleCreateGroup = (data: { name: string; description: string; leaderUserId: string; meetingSchedule: string; isActive: boolean }) => {
-    createSmallGroup({ tenantId: tenant.id, ...data }, currentUser.id);
-    refreshGroups();
+  const handleCreateGroup = async (data: { name: string; description: string; leaderUserId: string; meetingSchedule: string; isActive: boolean }) => {
+    await createSmallGroup(tenant.id, data);
+    await refreshGroups();
     setIsModalOpen(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">Small Group Management</h3>
+          <p className="mt-1 text-sm text-gray-500">Create and manage small groups for your members.</p>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-gray-500">Loading groups...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

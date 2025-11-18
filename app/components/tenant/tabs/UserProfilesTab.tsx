@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, EnrichedMember } from '@/types';
 import { getMembersForTenant } from '@/lib/data';
 import Input from '../../ui/Input';
@@ -12,9 +12,25 @@ interface UserProfilesTabProps {
 }
 
 const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, onRefresh }) => {
-  const allMembers = useMemo(() => getMembersForTenant(tenant.id), [tenant.id, onRefresh]);
+  const [allMembers, setAllMembers] = useState<EnrichedMember[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingMember, setEditingMember] = useState<EnrichedMember | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadMembers = async () => {
+      setIsLoading(true);
+      try {
+        const members = await getMembersForTenant(tenant.id);
+        setAllMembers(members as any);
+      } catch (error) {
+        console.error('Failed to load members:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadMembers();
+  }, [tenant.id, onRefresh]);
 
   const filteredMembers = useMemo(() => {
     if (!searchTerm) return allMembers;
@@ -23,6 +39,22 @@ const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, 
       m => m.profile.displayName.toLowerCase().includes(lower) || m.email.toLowerCase().includes(lower)
     );
   }, [allMembers, searchTerm]);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">Manage User Profiles</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            View member profiles for {tenant.name}.
+          </p>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-gray-500">Loading members...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

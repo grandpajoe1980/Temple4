@@ -13,16 +13,14 @@ interface SmallGroupCardProps {
 const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onUpdate }) => {
   const isUserMember = group.members.some(m => m.user.id === currentUser.id);
 
-  const handleJoin = () => {
-    if (joinSmallGroup(group.id, currentUser.id)) {
-      onUpdate();
-    }
+  const handleJoin = async () => {
+    await joinSmallGroup(group.id, currentUser.id);
+    onUpdate();
   };
 
-  const handleLeave = () => {
-    if (leaveSmallGroup(group.id, currentUser.id)) {
-      onUpdate();
-    }
+  const handleLeave = async () => {
+    await leaveSmallGroup(group.id, currentUser.id);
+    onUpdate();
   };
   
   const ActionButton = () => {

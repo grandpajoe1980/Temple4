@@ -14,11 +14,11 @@ interface HomePageProps {
   onRefresh: () => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh }) => {
-  const membership = getMembershipForUserInTenant(user.id, tenant.id);
+const HomePage: React.FC<HomePageProps> = async ({ tenant, user, onNavigate, onRefresh }) => {
+  const membership = await getMembershipForUserInTenant(user.id, tenant.id);
 
-  const handleJoin = () => {
-    requestToJoinTenant(user.id, tenant.id);
+  const handleJoin = async () => {
+    await requestToJoinTenant(user.id, tenant.id);
     onRefresh();
   };
 
@@ -61,8 +61,10 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
   }
 
   const tenantDisplayName = membership?.displayName || user.profile.displayName;
-  const upcomingEvents = getEventsForTenant(tenant.id).filter(e => e.startDateTime > new Date()).slice(0, 3);
-  const recentPosts = getPostsForTenant(tenant.id).slice(0, 3);
+  const allEvents = await getEventsForTenant(tenant.id);
+  const upcomingEvents = allEvents.filter(e => e.startDateTime > new Date()).slice(0, 3);
+  const allPosts = await getPostsForTenant(tenant.id);
+  const recentPosts = allPosts.slice(0, 3);
   const donationLink = tenant.branding.customLinks.find(link => link.label.toLowerCase() === 'donate');
   const { enableLiveStream, liveStreamSettings } = tenant.settings;
   const isLive = enableLiveStream && liveStreamSettings.isLive;

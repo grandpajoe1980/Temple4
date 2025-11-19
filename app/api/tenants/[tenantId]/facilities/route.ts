@@ -21,12 +21,13 @@ const facilitySchema = z.object({
   type: z.enum(FACILITY_TYPE_VALUES),
   location: z.string().max(500).optional().or(z.literal('')),
   capacity: z.number().int().positive().optional(),
+  imageUrl: z.string().url().optional().or(z.literal('')),
   isActive: z.boolean().optional(),
   bookingRules: z.record(z.any()).optional(),
 });
 
-export async function GET(request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
-  const { tenantId } = await params;
+export async function GET(request: Request, { params }: { params: { tenantId: string } }) {
+  const { tenantId } = params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id ?? null;
   let includeInactive = false;
@@ -41,8 +42,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
   return NextResponse.json(facilities);
 }
 
-export async function POST(request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
-  const { tenantId } = await params;
+export async function POST(request: Request, { params }: { params: { tenantId: string } }) {
+  const { tenantId } = params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id ?? null;
 
@@ -74,6 +75,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     ...parsed.data,
     description: parsed.data.description?.trim() || undefined,
     location: parsed.data.location?.trim() || undefined,
+    imageUrl: parsed.data.imageUrl?.trim() || undefined,
   };
 
   const facility = await createFacility(tenantId, normalized);

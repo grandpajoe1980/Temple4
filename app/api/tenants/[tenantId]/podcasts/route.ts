@@ -20,15 +20,29 @@ export async function GET(
       return NextResponse.json({ message: 'You do not have permission to view podcasts.' }, { status: 403 });
     }
 
-    const podcasts = await prisma.podcast.findMany({
-      where: { 
+    const podcasts = await prisma.mediaItem.findMany({
+      where: {
         tenantId: tenantId,
+        type: 'PODCAST_AUDIO',
         deletedAt: null, // Filter out soft-deleted podcasts
       },
       orderBy: { publishedAt: 'desc' },
+      include: {
+        author: {
+          include: {
+            profile: true,
+          },
+        },
+      },
     });
 
-    return NextResponse.json(podcasts);
+    return NextResponse.json(
+      podcasts.map((podcast) => ({
+        ...podcast,
+        authorDisplayName: podcast.author.profile?.displayName || 'Unknown',
+        authorAvatarUrl: podcast.author.profile?.avatarUrl || undefined,
+      }))
+    );
   } catch (error) {
     console.error(`Failed to fetch podcasts for tenant ${tenantId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch podcasts' }, { status: 500 });
@@ -38,9 +52,7 @@ export async function GET(
 const podcastSchema = z.object({
     title: z.string().min(1),
     description: z.string().optional(),
-    audioUrl: z.string().url(),
-    imageUrl: z.string().url().optional(),
-    duration: z.number().int().positive().optional(),
+    embedUrl: z.string().url(),
 });
 
 // 12.2 Create Podcast
@@ -77,11 +89,14 @@ export async function POST(
     }
 
     try {
-        const newPodcast = await prisma.podcast.create({
+        const newPodcast = await prisma.mediaItem.create({
             data: {
-                ...result.data,
+                title: result.data.title,
+                description: result.data.description || '',
+                embedUrl: result.data.embedUrl,
                 tenantId: tenantId,
                 authorUserId: userId,
+                type: 'PODCAST_AUDIO',
             },
         });
 

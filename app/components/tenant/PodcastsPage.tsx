@@ -1,9 +1,11 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { Tenant, User } from '@prisma/client';
 import Button from '../ui/Button';
 import PodcastCard from './PodcastCard';
+import Modal from '../ui/Modal';
+import PodcastForm, { type PodcastFormData } from './forms/PodcastForm';
 
 // Enriched media item type from data layer
 type EnrichedPodcast = {
@@ -21,13 +23,54 @@ type EnrichedPodcast = {
 };
 
 interface PodcastsPageProps {
-  tenant: Pick<Tenant, 'name'>;
+  tenant: Pick<Tenant, 'id' | 'name'>;
   user: User;
   podcasts: EnrichedPodcast[];
   canCreate: boolean;
 }
 
-const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts, canCreate }) => {
+const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: initialPodcasts, canCreate }) => {
+  const [podcasts, setPodcasts] = useState<EnrichedPodcast[]>(initialPodcasts);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCreatePodcast = async (data: PodcastFormData) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`/api/tenants/${tenant.id}/podcasts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: data.title,
+          description: data.description,
+          embedUrl: data.embedUrl,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(errorBody.message || 'Failed to create podcast');
+      }
+
+      const newPodcast = await response.json();
+      setPodcasts([
+        {
+          ...newPodcast,
+          publishedAt: new Date(newPodcast.publishedAt),
+          authorDisplayName: user.name || 'You',
+          authorAvatarUrl: (user as any)?.profile?.avatarUrl,
+        },
+        ...podcasts,
+      ]);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Failed to create podcast', error);
+      alert('Failed to create podcast. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -38,7 +81,7 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts, can
           </p>
         </div>
         {canCreate && (
-            <Button onClick={() => alert('Open "New Podcast" form (not implemented).')}>
+            <Button onClick={() => setIsModalOpen(true)}>
             + New Podcast
             </Button>
         )}
@@ -58,6 +101,10 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts, can
           </p>
         </div>
       )}
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create a New Podcast Episode">
+        <PodcastForm onSubmit={handleCreatePodcast} onCancel={() => setIsModalOpen(false)} isSubmitting={isSubmitting} />
+      </Modal>
     </div>
   );
 };

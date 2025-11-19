@@ -70,14 +70,15 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
       });
 
       if (!response.ok) {
-        throw new Error('Failed to start impersonation');
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to start impersonation');
       }
 
       // Refresh the page to reflect the impersonated session
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error starting impersonation:', error);
-      alert('Failed to start impersonation. Please try again.');
+      alert(error.message || 'Failed to start impersonation. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -135,7 +136,7 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
             <div className="mt-6">
               <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Languages</h3>
               <div className="mt-2 flex flex-wrap gap-2">
-                {profileUser.profile.languages.split(',').map((lang) => lang.trim()).filter(Boolean).map((lang) => (
+                {profileUser.profile.languages.split(',').map((lang: string) => lang.trim()).filter(Boolean).map((lang: string) => (
                   <span
                     key={lang}
                     className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800"

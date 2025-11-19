@@ -193,6 +193,9 @@ async function main() {
           },
         },
       },
+      include: {
+        profile: true,
+      },
     });
 
     createdUsers[userData.email] = user;
@@ -295,7 +298,9 @@ async function main() {
           userId: user.id,
         },
       },
-      update: {},
+      update: {
+        displayName: user.profile?.displayName,
+      },
       create: {
         tenantId: springfieldChurch.id,
         userId: user.id,

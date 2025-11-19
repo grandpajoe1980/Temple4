@@ -56,9 +56,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ profileUser, affiliatedTenant
             <div className="mt-6">
                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Languages</h3>
                <div className="mt-2 flex flex-wrap gap-2">
-                 {(typeof profileUser.profile.languages === 'string' 
-                    ? profileUser.profile.languages.split(',') 
-                    : profileUser.profile.languages
+                 {(Array.isArray(profileUser.profile.languages)
+                    ? profileUser.profile.languages
+                    : (profileUser.profile.languages as unknown as string).split(',')
                  ).map((lang: string) => (
                     <span key={lang} className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800">
                         {lang.trim()}

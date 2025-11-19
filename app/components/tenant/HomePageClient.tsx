@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 
 interface HomePageClientProps {
   tenant: Tenant & { settings: TenantSettings | null; branding: TenantBranding | null; };
-  user: User & { profile: UserProfile | null };
+  user: (User & { profile: UserProfile | null }) | null;
   membership: UserTenantMembership | null;
   upcomingEvents: Event[];
   recentPosts: (Post & { author: { profile: UserProfile | null } })[];
@@ -19,6 +19,10 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
   const router = useRouter();
 
   const handleJoin = async () => {
+    if (!user) {
+      router.push(`/auth/login?callbackUrl=/tenants/${tenant.id}`);
+      return;
+    }
     await fetch(`/api/tenants/${tenant.id}/join`, { method: 'POST' });
     router.refresh();
   };
@@ -27,8 +31,8 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
     router.push(`/tenants/${tenant.id}/${path}`);
   }
 
-  // If user is not an approved member, show a join/status view.
-  if (!membership || membership.status !== MembershipStatus.APPROVED) {
+  // If user is not logged in or not an approved member, show a join/status view.
+  if (!user || !membership || membership.status !== MembershipStatus.APPROVED) {
     let joinContent;
     if (membership?.status === MembershipStatus.BANNED) {
       joinContent = (
@@ -52,7 +56,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
           <h3 className="text-xl font-semibold text-gray-800">Join {tenant.name}</h3>
           <p className="mt-2 text-gray-600">{tenant.description}</p>
           <Button onClick={handleJoin} className="mt-6">
-            {isApprovalRequired ? 'Request Membership' : 'Join Temple'}
+            {user ? (isApprovalRequired ? 'Request Membership' : 'Join Temple') : 'Login to Join'}
           </Button>
         </div>
       );

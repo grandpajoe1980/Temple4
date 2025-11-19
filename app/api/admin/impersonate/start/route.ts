@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
+    const userId = (session.user as any).realUserId || (session.user as any).id;
     const isSuperAdmin = (session.user as any).isSuperAdmin;
 
     if (!isSuperAdmin) {

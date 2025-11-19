@@ -11,7 +11,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
+    const userId = (session.user as any).realUserId || (session.user as any).id;
 
     // Get active impersonation session
     const activeSession = await getActiveImpersonation(userId);

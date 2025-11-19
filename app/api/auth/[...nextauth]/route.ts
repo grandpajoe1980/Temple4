@@ -2,6 +2,7 @@ import NextAuth from 'next-auth/next';
 import { AuthOptions, SessionStrategy } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/db';
+import { getActiveImpersonation } from '@/lib/session';
 import bcrypt from 'bcryptjs';
 
 export const authOptions: AuthOptions = {
@@ -59,19 +60,55 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
+        token.realUserId = user.id as string;
+        token.realUserEmail = user.email;
+        token.realUserName = user.name;
         token.isSuperAdmin = (user as any).isSuperAdmin;
       }
+
+      const realUserId = token.realUserId || (typeof token.id === 'string' ? token.id : undefined);
+
+      if (realUserId) {
+        const activeImpersonation = await getActiveImpersonation(realUserId);
+
+        if (activeImpersonation) {
+          token.impersonationSessionId = activeImpersonation.id;
+          token.impersonatedUserId = activeImpersonation.effectiveUserId;
+          token.effectiveUserId = activeImpersonation.effectiveUserId;
+          token.effectiveUserEmail = activeImpersonation.effectiveUser.email;
+          token.effectiveUserName =
+            activeImpersonation.effectiveUser.profile?.displayName || activeImpersonation.effectiveUser.email;
+        } else {
+          token.impersonationSessionId = null;
+          token.impersonatedUserId = null;
+          token.effectiveUserId = realUserId;
+          token.effectiveUserEmail = token.realUserEmail || (typeof token.email === 'string' ? token.email : null);
+          token.effectiveUserName = token.realUserName || (typeof token.name === 'string' ? token.name : null);
+        }
+
+        token.id = token.effectiveUserId as string;
+        if (token.effectiveUserEmail) {
+          token.email = token.effectiveUserEmail;
+        }
+        if (token.effectiveUserName) {
+          token.name = token.effectiveUserName;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        session.user.email = token.email as string;
-        session.user.name = token.name as string;
-        (session.user as any).isSuperAdmin = token.isSuperAdmin;
+        (session.user as any).id = token.effectiveUserId ?? token.id;
+        (session.user as any).realUserId = token.realUserId ?? token.effectiveUserId ?? token.id;
+        session.user.email = (token.email as string) ?? null;
+        session.user.name = (token.name as string) ?? null;
+        (session.user as any).realUserEmail = token.realUserEmail ?? null;
+        (session.user as any).realUserName = token.realUserName ?? session.user.name;
+        (session.user as any).isSuperAdmin = Boolean(token.isSuperAdmin);
+        (session.user as any).impersonatedUserId = token.impersonatedUserId ?? null;
+        (session.user as any).impersonationActive = Boolean(token.impersonatedUserId);
+        (session.user as any).impersonationSessionId = token.impersonationSessionId ?? null;
       }
       return session;
     }

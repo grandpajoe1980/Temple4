@@ -246,6 +246,59 @@ model ServiceOffering {
   @@index([tenantId, category, isPublic])
 }
 
+enum FacilityType {
+  ROOM
+  HALL
+  EQUIPMENT
+  VEHICLE
+  OTHER
+}
+
+enum BookingStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Facility {
+  id           String             @id @default(cuid())
+  tenantId     String
+  tenant       Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name         String
+  description  String?
+  type         FacilityType
+  location     String?
+  capacity     Int?
+  isActive     Boolean            @default(true)
+  bookingRules Json?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  bookings     FacilityBooking[]
+
+  @@index([tenantId, isActive])
+}
+
+model FacilityBooking {
+  id            String        @id @default(cuid())
+  tenantId      String
+  facilityId    String
+  facility      Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  eventId       String?
+  event         Event?        @relation(fields: [eventId], references: [id])
+  requestedById String
+  requestedBy   User          @relation(fields: [requestedById], references: [id])
+  startAt       DateTime
+  endAt         DateTime
+  purpose       String
+  status        BookingStatus @default(REQUESTED)
+  notes         String?
+  createdAt     DateTime      @default(now())
+
+  @@index([tenantId, facilityId, startAt, endAt])
+  @@index([requestedById])
+}
+
 model TenantSettings {
   id                       String                 @id @default(cuid())
   tenantId                 String                 @unique

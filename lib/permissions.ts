@@ -21,6 +21,7 @@ export interface RolePermissions {
   canUploadResources: boolean;
   canManageResources: boolean;
   canManageContactSubmissions: boolean;
+  canManageFacilities: boolean;
 }
 
 // This can be a simple enum if you don't need the string values

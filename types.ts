@@ -174,6 +174,38 @@ export interface ServiceOffering {
   updatedAt: string;
 }
 
+export type FacilityType = 'ROOM' | 'HALL' | 'EQUIPMENT' | 'VEHICLE' | 'OTHER';
+
+export type BookingStatus = 'REQUESTED' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+
+export interface Facility {
+  id: string;
+  tenantId: string;
+  name: string;
+  description?: string | null;
+  type: FacilityType;
+  location?: string | null;
+  capacity?: number | null;
+  isActive: boolean;
+  bookingRules?: Record<string, any> | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FacilityBooking {
+  id: string;
+  tenantId: string;
+  facilityId: string;
+  requestedById: string;
+  eventId?: string | null;
+  startAt: string;
+  endAt: string;
+  purpose: string;
+  status: BookingStatus;
+  notes?: string | null;
+  createdAt: string;
+}
+
 export interface LiveStreamSettings {
   provider: 'YOUTUBE' | 'FACEBOOK' | 'VIMEO' | 'OTHER';
   embedUrl: string;
@@ -231,6 +263,7 @@ export interface RolePermissions {
   canUploadResources: boolean;
   canManageResources: boolean;
   canManageContactSubmissions: boolean;
+  canManageFacilities: boolean;
 }
 
 // Sticking with a map for easier frontend access

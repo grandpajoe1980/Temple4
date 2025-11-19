@@ -9,7 +9,7 @@ export const SERVICE_CATEGORY_OPTIONS: { value: ServiceCategory; label: string; 
   { value: 'OTHER', label: 'Other', description: 'Community services, outreach, unique offerings' },
 ];
 
-export const CONTROL_PANEL_TABS = ['General', 'Branding', 'Features', 'Permissions', 'Membership & Moderation', 'User Profiles', 'Donations', 'Volunteering', 'Small Groups', 'Services', 'Live Stream', 'Prayer Wall', 'Resource Center', 'Contact Submissions'];
+export const CONTROL_PANEL_TABS = ['General', 'Branding', 'Features', 'Permissions', 'Membership & Moderation', 'User Profiles', 'Donations', 'Volunteering', 'Small Groups', 'Services', 'Facilities', 'Live Stream', 'Prayer Wall', 'Resource Center', 'Contact Submissions'];
 
 const defaultRolePermissions: RolePermissions = {
   canCreatePosts: false,
@@ -28,6 +28,7 @@ const defaultRolePermissions: RolePermissions = {
   canUploadResources: false,
   canManageResources: false,
   canManageContactSubmissions: false,
+  canManageFacilities: false,
 };
 
 export const adminPermissions: RolePermissions = {
@@ -47,6 +48,7 @@ export const adminPermissions: RolePermissions = {
   canUploadResources: true,
   canManageResources: true,
   canManageContactSubmissions: true,
+  canManageFacilities: true,
 };
 
 const defaultPermissions: TenantFeaturePermissions = {
@@ -68,6 +70,7 @@ const defaultPermissions: TenantFeaturePermissions = {
     canUploadResources: true,
     canManageResources: true,
     canManageContactSubmissions: true,
+    canManageFacilities: true,
   },
   [TenantRoleType.MODERATOR]: {
     ...defaultRolePermissions,
@@ -77,6 +80,7 @@ const defaultPermissions: TenantFeaturePermissions = {
     canBanMembers: true,
     canManagePrayerWall: true,
     canManageResources: true, // Moderators can manage resources
+    canManageFacilities: false,
   },
   ADMIN: {
     ...adminPermissions,

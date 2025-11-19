@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import Button from '../ui/Button';
@@ -13,6 +14,26 @@ const statHighlights = [
   { label: 'Temples & Communities', value: '2,400+', detail: 'Across every creed and tradition' },
   { label: 'Messages Delivered', value: '1.2M', detail: 'Tenant chats and global DMs' },
   { label: 'Donations Facilitated', value: '$18M', detail: 'Tracked through Temple dashboards' },
+];
+
+type FilterField = 'creed' | 'city' | 'support';
+
+const filterGroups: { label: string; field: FilterField; options: string[] }[] = [
+  {
+    label: 'Creed',
+    field: 'creed',
+    options: ['Interfaith', 'Buddhist', 'Catholic', 'Non-denominational'],
+  },
+  {
+    label: 'City',
+    field: 'city',
+    options: ['New York', 'Chicago', 'Oakland', 'Toronto'],
+  },
+  {
+    label: 'Support groups',
+    field: 'support',
+    options: ['Youth programs', 'Food distribution', 'Care ministries', 'Community choirs'],
+  },
 ];
 
 const featureHighlights = [
@@ -69,22 +90,55 @@ const journeyItems = [
     title: 'Discover',
     description:
       'Search by creed, neighborhood, or languages spoken. Preview public profiles before requesting membership.',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 text-amber-600">
+        <path
+          fill="currentColor"
+          d="M12 5a7 7 0 0 0-7 7c0 3.9 3.1 7 7 7s7-3.1 7-7a7 7 0 0 0-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-1 1v4H7v2h6V8z"
+        />
+      </svg>
+    ),
   },
   {
     title: 'Belong',
     description:
       'Chat with members, join small groups, RSVP for events, and follow along with sermons and study plans.',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 text-amber-600">
+        <path
+          fill="currentColor"
+          d="M12 3a5 5 0 0 0-5 5c0 1.9 1.1 3.5 2.6 4.3A6 6 0 0 0 6 18.9l.1 1.1h11.8l.1-1.1a6 6 0 0 0-3.6-6.6A5 5 0 0 0 12 3zm0 2a3 3 0 0 1 0 6 3 3 0 0 1 0-6z"
+        />
+      </svg>
+    ),
   },
   {
     title: 'Serve & Give',
     description:
       'Answer volunteer calls, donate toward shared goals, and share prayer requests and resources securely.',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 text-amber-600">
+        <path
+          fill="currentColor"
+          d="m12 4-8 4.5v7c0 1.1.9 2 2 2h4v-4h4v4h4a2 2 0 0 0 2-2v-7z"
+        />
+      </svg>
+    ),
   },
 ];
 
 const quickFilters = ['Meditation circles', 'Youth programs', 'Spanish services', 'Community kitchens'];
 
 const partnerBadges = ['Compassion Fund', 'Rhythm & Rosary', 'Northstar Aid', 'Resonant Media'];
+
+const partnerLogos = [
+  { name: 'Compassion Fund', src: '/placeholder-logo.svg' },
+  { name: 'Harmony Radio', src: '/placeholder-logo.svg' },
+  { name: 'Northstar Aid', src: '/placeholder-logo.svg' },
+  { name: 'Resonant Media', src: '/placeholder-logo.svg' },
+];
+
+const complianceBadges = ['SOC 2 Type II', 'GDPR ready', '99.9% uptime'];
 
 const testimonials = [
   {
@@ -108,6 +162,8 @@ const testimonials = [
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0);
+  const [filtersPanelOpen, setFiltersPanelOpen] = useState(false);
+  const [filters, setFilters] = useState<Record<FilterField, string>>({ creed: '', city: '', support: '' });
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -121,6 +177,48 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
     e.preventDefault();
     onSearch(searchTerm.trim());
   };
+
+  const handleFilterSelect = (field: FilterField, value: string) => {
+    setFilters((prev) => {
+      const nextValue = prev[field] === value ? '' : value;
+      if (nextValue) {
+        setSearchTerm(value);
+        onSearch(value);
+      } else if (searchTerm === value) {
+        setSearchTerm('');
+      }
+      return { ...prev, [field]: nextValue };
+    });
+  };
+
+  const activeFilters = Object.values(filters).filter(Boolean);
+
+  const renderFilterGroups = () =>
+    filterGroups.map((group) => (
+      <div key={group.field} className="flex flex-col gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{group.label}</p>
+        <div className="flex flex-wrap gap-2">
+          {group.options.map((option) => {
+            const isActive = filters[group.field] === option;
+            return (
+              <button
+                key={option}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => handleFilterSelect(group.field, option)}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                  isActive
+                    ? 'bg-amber-600 text-white shadow-sm'
+                    : 'border border-slate-200 text-slate-600 hover:border-amber-200 hover:text-amber-700'
+                }`}
+              >
+                {option}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    ));
 
   return (
     <div className="relative isolate overflow-hidden bg-gradient-to-b from-white via-[#f4efff] to-[#fdfbf5] py-16">
@@ -152,6 +250,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
                   </span>
                 ))}
               </div>
+              <div className="flex flex-wrap items-center justify-center gap-6 pt-4 text-slate-500 lg:justify-start">
+                {partnerLogos.map((logo) => (
+                  <span
+                    key={logo.name}
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/80 px-4 py-2 shadow-sm"
+                    aria-label={`${logo.name} logo`}
+                  >
+                    <Image src={logo.src} alt="" width={24} height={24} className="opacity-70" />
+                    <span className="text-xs font-semibold uppercase tracking-[0.2em]">{logo.name}</span>
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
           <div className="space-y-4">
@@ -165,14 +275,37 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
                   </div>
                 ))}
               </div>
-              <div className="mt-6 rounded-2xl bg-gradient-to-r from-amber-50 to-white p-5" aria-live="polite">
+              <div
+                className="mt-6 rounded-2xl bg-gradient-to-r from-amber-50 to-white p-5"
+                aria-live="polite"
+                role="region"
+                aria-label="Community testimonial carousel"
+              >
                 <p className="text-sm text-slate-600">{testimonials[activeTestimonialIndex].quote}</p>
-                <p className="mt-3 text-sm font-semibold text-slate-900">
-                  {testimonials[activeTestimonialIndex].name}
-                </p>
+                <p className="mt-3 text-sm font-semibold text-slate-900">{testimonials[activeTestimonialIndex].name}</p>
                 <p className="text-xs uppercase tracking-wide text-amber-600">
                   {testimonials[activeTestimonialIndex].tenant}
                 </p>
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActiveTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+                    }
+                    className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-amber-200 hover:text-amber-700"
+                    aria-label="Previous testimonial"
+                  >
+                    Prev
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length)}
+                    className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-amber-200 hover:text-amber-700"
+                    aria-label="Next testimonial"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -221,9 +354,25 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
               </button>
             ))}
           </div>
+          <div className="mt-4 hidden gap-6 sm:flex">{renderFilterGroups()}</div>
+          <div className="mt-4 sm:hidden">
+            <button
+              type="button"
+              onClick={() => setFiltersPanelOpen((prev) => !prev)}
+              aria-expanded={filtersPanelOpen}
+              className="flex w-full items-center justify-between rounded-2xl border border-slate-200 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600"
+            >
+              Refine filters
+              <span aria-hidden="true">{filtersPanelOpen ? '−' : '+'}</span>
+            </button>
+            {filtersPanelOpen && <div className="mt-4 flex flex-col gap-4">{renderFilterGroups()}</div>}
+          </div>
           <p className="mt-3 text-xs text-slate-500">
             Trending now: multilingual congregations, after-school support, outdoor services
           </p>
+          {activeFilters.length > 0 && (
+            <p className="mt-2 text-xs font-semibold text-slate-600">Active filters: {activeFilters.join(', ')}</p>
+          )}
         </section>
 
         <section className="grid gap-6 text-left md:grid-cols-2">
@@ -246,11 +395,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
             </p>
             <div className="mt-6 space-y-6">
               {journeyItems.map((item, index) => (
-                <div key={item.title} className="relative pl-10">
-                  <span className="absolute left-0 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-amber-700 shadow">
-                    {index + 1}
+                <div key={item.title} className="relative pl-12">
+                  <span className="absolute left-0 top-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-semibold text-amber-700 shadow">
+                    {item.icon}
                   </span>
                   <div className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-white/60">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Step {index + 1}</p>
                     <p className="text-base font-semibold text-slate-900">{item.title}</p>
                     <p className="text-sm text-slate-600">{item.description}</p>
                   </div>
@@ -291,7 +441,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
               Log in to the Control Panel
             </Button>
           </div>
-          <p className="text-xs text-white/60">SOC 2 ready • GDPR aligned • Data encrypted at rest and in transit</p>
+          <div className="flex flex-wrap justify-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
+            {complianceBadges.map((badge) => (
+              <span key={badge} className="rounded-full border border-white/30 px-4 py-1">
+                {badge}
+              </span>
+            ))}
+          </div>
         </section>
       </div>
     </div>

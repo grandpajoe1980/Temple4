@@ -15,6 +15,7 @@ import {
   ServiceCategory,
   Facility as PrismaFacility,
   FacilityBooking as PrismaFacilityBooking,
+  FacilityBlackout as PrismaFacilityBlackout,
   FacilityType,
   BookingStatus,
 } from '@prisma/client';
@@ -52,6 +53,7 @@ interface FacilityInput {
   type: FacilityType;
   location?: string | null;
   capacity?: number | null;
+  imageUrl?: string | null;
   isActive?: boolean;
   bookingRules?: Record<string, any> | null;
 }
@@ -65,6 +67,20 @@ interface FacilityBookingInput {
   purpose: string;
   eventId?: string | null;
   notes?: string | null;
+}
+
+interface FacilityBlackoutInput {
+  facilityId: string;
+  tenantId: string;
+  startAt: Date;
+  endAt: Date;
+  reason?: string | null;
+}
+
+function assertFacilityClient() {
+  if (!(prisma as any)?.facility || !(prisma as any)?.facilityBlackout || !(prisma as any)?.facilityBooking) {
+    throw new Error('Prisma client is missing facility models. Run `prisma generate` to sync the client with the schema.');
+  }
 }
 
 /**
@@ -127,6 +143,24 @@ export async function getUserById(userId: string) {
       profile: true,
       privacySettings: true,
       accountSettings: true,
+    },
+  });
+}
+
+export async function createFacilityBlackout(data: FacilityBlackoutInput): Promise<PrismaFacilityBlackout> {
+  if (data.startAt >= data.endAt) {
+    throw new Error('Blackout start time must be before the end time');
+  }
+
+  assertFacilityClient();
+
+  return prisma.facilityBlackout.create({
+    data: {
+      facilityId: data.facilityId,
+      tenantId: data.tenantId,
+      startAt: data.startAt,
+      endAt: data.endAt,
+      reason: data.reason ?? null,
     },
   });
 }
@@ -330,6 +364,8 @@ export async function getFacilitiesForTenant(
   tenantId: string,
   options?: { includeInactive?: boolean }
 ): Promise<PrismaFacility[]> {
+  assertFacilityClient();
+
   const where = {
     tenantId,
     ...(options?.includeInactive ? {} : { isActive: true }),
@@ -342,6 +378,8 @@ export async function getFacilitiesForTenant(
 }
 
 export async function getFacilityById(tenantId: string, facilityId: string, includeInactive = false) {
+  assertFacilityClient();
+
   const facility = await prisma.facility.findFirst({
     where: {
       id: facilityId,
@@ -356,6 +394,10 @@ export async function getFacilityById(tenantId: string, facilityId: string, incl
         },
         orderBy: { startAt: 'asc' },
       },
+      blackouts: {
+        where: { endAt: { gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30) } },
+        orderBy: { startAt: 'asc' },
+      },
     },
   });
 
@@ -363,6 +405,8 @@ export async function getFacilityById(tenantId: string, facilityId: string, incl
 }
 
 export async function createFacility(tenantId: string, data: FacilityInput): Promise<PrismaFacility> {
+  assertFacilityClient();
+
   return prisma.facility.create({
     data: {
       tenantId,
@@ -371,6 +415,7 @@ export async function createFacility(tenantId: string, data: FacilityInput): Pro
       type: data.type,
       location: data.location ?? null,
       capacity: data.capacity ?? null,
+      imageUrl: data.imageUrl ?? null,
       isActive: data.isActive ?? true,
       bookingRules: data.bookingRules ?? null,
     },
@@ -378,6 +423,8 @@ export async function createFacility(tenantId: string, data: FacilityInput): Pro
 }
 
 export async function updateFacility(tenantId: string, facilityId: string, data: Partial<FacilityInput>) {
+  assertFacilityClient();
+
   const existing = await prisma.facility.findFirst({ where: { id: facilityId, tenantId } });
 
   if (!existing) return null;
@@ -390,6 +437,7 @@ export async function updateFacility(tenantId: string, facilityId: string, data:
       type: data.type ?? existing.type,
       location: data.location === undefined ? existing.location : data.location,
       capacity: data.capacity === undefined ? existing.capacity : data.capacity,
+      imageUrl: data.imageUrl === undefined ? existing.imageUrl : data.imageUrl,
       isActive: data.isActive ?? existing.isActive,
       bookingRules: data.bookingRules === undefined ? (existing.bookingRules as any) : data.bookingRules,
     },
@@ -403,6 +451,21 @@ export async function checkFacilityAvailability(
   endAt: Date,
   options?: { excludeBookingId?: string }
 ) {
+  assertFacilityClient();
+
+  const blackoutConflict = await prisma.facilityBlackout.findFirst({
+    where: {
+      tenantId,
+      facilityId,
+      startAt: { lt: endAt },
+      endAt: { gt: startAt },
+    },
+  });
+
+  if (blackoutConflict) {
+    return false;
+  }
+
   const conflict = await prisma.facilityBooking.findFirst({
     where: {
       tenantId,
@@ -423,6 +486,8 @@ export async function requestFacilityBooking(data: FacilityBookingInput): Promis
   if (data.startAt >= data.endAt) {
     throw new Error('Start time must be before end time');
   }
+
+  assertFacilityClient();
 
   const facility = await prisma.facility.findFirst({
     where: { id: data.facilityId, tenantId: data.tenantId, isActive: true },
@@ -458,6 +523,8 @@ export async function updateFacilityBookingStatus(
   status: BookingStatus,
   notes?: string | null
 ) {
+  assertFacilityClient();
+
   const booking = await prisma.facilityBooking.findFirst({ where: { id: bookingId, tenantId } });
 
   if (!booking) return null;
@@ -483,6 +550,8 @@ export async function getFacilityBookings(
   facilityId?: string,
   statuses: BookingStatus[] = [BookingStatus.REQUESTED, BookingStatus.APPROVED, BookingStatus.REJECTED, BookingStatus.CANCELLED]
 ) {
+  assertFacilityClient();
+
   return prisma.facilityBooking.findMany({
     where: {
       tenantId,
@@ -500,6 +569,8 @@ export async function getFacilityCalendar(
   startDate: Date,
   endDate: Date
 ) {
+  assertFacilityClient();
+
   return prisma.facilityBooking.findMany({
     where: {
       tenantId,

@@ -272,11 +272,13 @@ model Facility {
   type         FacilityType
   location     String?
   capacity     Int?
+  imageUrl     String?
   isActive     Boolean            @default(true)
   bookingRules Json?
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
   bookings     FacilityBooking[]
+  blackouts    FacilityBlackout[]
 
   @@index([tenantId, isActive])
 }
@@ -299,6 +301,19 @@ model FacilityBooking {
 
   @@index([tenantId, facilityId, startAt, endAt])
   @@index([requestedById])
+}
+
+model FacilityBlackout {
+  id         String      @id @default(cuid())
+  tenantId   String
+  facilityId String
+  facility   Facility    @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  reason     String?
+  startAt    DateTime
+  endAt      DateTime
+  createdAt  DateTime    @default(now())
+
+  @@index([tenantId, facilityId, startAt, endAt])
 }
 
 model TenantSettings {

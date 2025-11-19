@@ -16,6 +16,14 @@ const typeLabels: Record<string, string> = {
   OTHER: 'Other',
 };
 
+const fallbackImages: Record<string, string> = {
+  ROOM: 'https://images.unsplash.com/photo-1529333166433-8a58c0c3d1e1?auto=format&fit=crop&w=800&q=80',
+  HALL: 'https://images.unsplash.com/photo-1524230572899-a752b3835840?auto=format&fit=crop&w=800&q=80',
+  EQUIPMENT: 'https://images.unsplash.com/photo-1454165205744-3b78555e5572?auto=format&fit=crop&w=800&q=80',
+  VEHICLE: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80',
+  OTHER: 'https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=800&q=80',
+};
+
 export default function FacilitiesPage({ tenant, facilities, isMember }: FacilitiesPageProps) {
   return (
     <div className="space-y-8">
@@ -50,31 +58,46 @@ export default function FacilitiesPage({ tenant, facilities, isMember }: Facilit
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {facilities.map((facility) => (
             <Card key={facility.id}>
-              <div className="flex flex-col h-full gap-3">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  <span>{typeLabels[facility.type] ?? facility.type}</span>
-                  {!facility.isActive && <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[11px]">Inactive</span>}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">{facility.name}</h3>
-                {facility.description && <p className="text-gray-600">{facility.description}</p>}
-                <div className="flex flex-wrap gap-2 text-sm text-gray-600">
-                  {facility.location && <span className="rounded-full bg-gray-100 px-3 py-1">{facility.location}</span>}
-                  {typeof facility.capacity === 'number' && (
-                    <span className="rounded-full bg-gray-100 px-3 py-1">Capacity: {facility.capacity}</span>
+              <div className="flex flex-col h-full gap-4">
+                <div className="relative h-40 w-full overflow-hidden rounded-lg bg-gray-100">
+                  <img
+                    src={facility.imageUrl || fallbackImages[facility.type] || fallbackImages.OTHER}
+                    alt={facility.name}
+                    className="h-full w-full object-cover"
+                  />
+                  {!facility.isActive && (
+                    <div className="absolute left-3 top-3 rounded-full bg-white/80 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-700">
+                      Inactive
+                    </div>
                   )}
                 </div>
-                <div className="mt-2 flex gap-3">
-                  <Link
-                    href={`/tenants/${tenant.id}/facilities/${facility.id}`}
-                    className="text-sm font-semibold text-amber-600 hover:text-amber-700"
-                  >
-                    View availability →
-                  </Link>
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <span>{typeLabels[facility.type] ?? facility.type}</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-xl font-semibold text-gray-900">{facility.name}</h3>
+                  </div>
+                  {facility.description && <p className="text-gray-600">{facility.description}</p>}
+                  <div className="flex flex-wrap gap-2 text-sm text-gray-600">
+                    {facility.location && <span className="rounded-full bg-gray-100 px-3 py-1">{facility.location}</span>}
+                    {typeof facility.capacity === 'number' && (
+                      <span className="rounded-full bg-gray-100 px-3 py-1">Capacity: {facility.capacity}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-auto flex flex-wrap gap-3">
                   <Link
                     href={`/tenants/${tenant.id}/facilities/${facility.id}`}
                     className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
                   >
-                    Request booking
+                    Use this facility
+                  </Link>
+                  <Link
+                    href={`/tenants/${tenant.id}/facilities/${facility.id}`}
+                    className="text-sm font-semibold text-amber-600 hover:text-amber-700"
+                  >
+                    View availability
                   </Link>
                 </div>
               </div>

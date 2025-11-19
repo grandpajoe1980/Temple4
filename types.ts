@@ -186,10 +186,21 @@ export interface Facility {
   type: FacilityType;
   location?: string | null;
   capacity?: number | null;
+  imageUrl?: string | null;
   isActive: boolean;
   bookingRules?: Record<string, any> | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface FacilityBlackout {
+  id: string;
+  tenantId: string;
+  facilityId: string;
+  reason?: string | null;
+  startAt: string;
+  endAt: string;
+  createdAt: string;
 }
 
 export interface FacilityBooking {

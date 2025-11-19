@@ -15,12 +15,13 @@ const updateSchema = z.object({
   type: z.enum(FACILITY_TYPE_VALUES).optional(),
   location: z.string().max(500).optional().or(z.literal('')),
   capacity: z.number().int().positive().optional(),
+  imageUrl: z.string().url().optional().or(z.literal('')),
   isActive: z.boolean().optional(),
   bookingRules: z.record(z.any()).optional(),
 });
 
-export async function GET(_req: Request, { params }: { params: Promise<{ tenantId: string; facilityId: string }> }) {
-  const { tenantId, facilityId } = await params;
+export async function GET(_req: Request, { params }: { params: { tenantId: string; facilityId: string } }) {
+  const { tenantId, facilityId } = params;
   const facility = await getFacilityById(tenantId, facilityId, true);
 
   if (!facility) {
@@ -30,8 +31,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ tenantI
   return NextResponse.json(facility);
 }
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ tenantId: string; facilityId: string }> }) {
-  const { tenantId, facilityId } = await params;
+export async function PATCH(request: Request, { params }: { params: { tenantId: string; facilityId: string } }) {
+  const { tenantId, facilityId } = params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id ?? null;
 
@@ -63,6 +64,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ te
     ...parsed.data,
     description: parsed.data.description?.trim() ?? undefined,
     location: parsed.data.location?.trim() ?? undefined,
+    imageUrl: parsed.data.imageUrl?.trim() || undefined,
   };
 
   const updated = await updateFacility(tenantId, facilityId, normalized);

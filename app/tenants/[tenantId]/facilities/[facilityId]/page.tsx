@@ -7,9 +7,9 @@ import FacilityDetailPage from '@/app/components/tenant/FacilityDetailPage';
 export default async function FacilityDetail({
   params,
 }: {
-  params: Promise<{ tenantId: string; facilityId: string }>;
+  params: { tenantId: string; facilityId: string };
 }) {
-  const { tenantId, facilityId } = await params;
+  const { tenantId, facilityId } = params;
   const tenant = await getTenantById(tenantId);
 
   if (!tenant) {
@@ -36,6 +36,12 @@ export default async function FacilityDetail({
       startAt: booking.startAt.toISOString(),
       endAt: booking.endAt.toISOString(),
       createdAt: booking.createdAt.toISOString(),
+    })),
+    blackouts: (facility.blackouts ?? []).map((blackout) => ({
+      ...blackout,
+      startAt: blackout.startAt.toISOString(),
+      endAt: blackout.endAt.toISOString(),
+      createdAt: blackout.createdAt.toISOString(),
     })),
   };
 

@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import { addContactSubmission } from '@/lib/data';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
@@ -63,7 +62,17 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
     setIsSubmitting(true);
     
     try {
-      await addContactSubmission(tenant.id, formState);
+      const response = await fetch(`/api/tenants/${tenant.id}/contact-submissions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formState),
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.message || 'Failed to send message');
+      }
+
       setIsSubmitted(true);
       resetForm();
       toast.success('Message sent successfully! We\'ll get back to you soon.');

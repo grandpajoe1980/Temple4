@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import type { EventWithCreator } from '@/types';
 import Card from '../ui/Card';

@@ -12,7 +12,11 @@
     "test:all": "cd test-suite && run-tests-with-server.bat",
     "test:api": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" -e \"const {TestLogger} = require('./test-suite/test-logger'); const {APITestSuite} = require('./test-suite/api-tests'); const logger = new TestLogger(); const suite = new APITestSuite(logger); suite.runAllTests().then(() => { logger.printSummary(); logger.saveResults(); }).catch(console.error);\"",
     "test:pages": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" -e \"const {TestLogger} = require('./test-suite/test-logger'); const {PageTestSuite} = require('./test-suite/page-tests'); const logger = new TestLogger(); const suite = new PageTestSuite(logger); suite.runAllTests().then(() => { logger.printSummary(); logger.saveResults(); }).catch(console.error);\"",
-    "test:features": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" -e \"const {TestLogger} = require('./test-suite/test-logger'); const {FeatureTestSuite} = require('./test-suite/feature-tests'); const logger = new TestLogger(); const suite = new FeatureTestSuite(logger); suite.runAllTests().then(() => { logger.printSummary(); logger.saveResults(); }).catch(console.error);\""
+    "test:features": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" -e \"const {TestLogger} = require('./test-suite/test-logger'); const {FeatureTestSuite} = require('./test-suite/feature-tests'); const logger = new TestLogger(); const suite = new FeatureTestSuite(logger); suite.runAllTests().then(() => { logger.printSummary(); logger.saveResults(); }).catch(console.error);\"",
+    "test:ui": "playwright test",
+    "test:ui:headed": "playwright test --headed",
+    "test:ui:debug": "playwright test --debug",
+    "test:setup-users": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" test-suite/setup-test-users.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
@@ -34,6 +38,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.14.0",
     "@types/react": "^18.3.3",
@@ -41,6 +46,7 @@
     "autoprefixer": "^10.4.22",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.3",
+    "playwright": "^1.56.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
     "ts-node": "^10.9.2",

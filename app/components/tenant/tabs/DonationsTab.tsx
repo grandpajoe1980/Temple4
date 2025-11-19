@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import type { Tenant, DonationSettings } from '@/types';
 import Input from '../../ui/Input';

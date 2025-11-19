@@ -35,3 +35,8 @@ legacy
  
 # Next.js generated types
 next-env.d.ts
+test-results/screenshots/
+test-results/playwright-report/
+test-results/error-backlog.json
+test-results/ui-test-results.json
+test-results/error-backlog-report.txt

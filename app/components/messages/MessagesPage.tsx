@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { User, EnrichedConversation } from '@/types';

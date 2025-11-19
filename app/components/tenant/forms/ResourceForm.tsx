@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react';
 import type { ResourceItem } from '@/types';
 import { FileType, ResourceVisibility } from '@/types';

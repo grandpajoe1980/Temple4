@@ -7,12 +7,6 @@ export type DocDescriptor = {
 
 export const DOC_PAGES: DocDescriptor[] = [
   {
-    slug: 'projectplan',
-    title: 'Project Plan',
-    description: 'High-level roadmap and delivery schedule for Temple Platform.',
-    file: 'projectplan.md',
-  },
-  {
     slug: 'security',
     title: 'Security & Compliance',
     description: 'Security audit notes and guidance for ongoing hardening.',

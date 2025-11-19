@@ -8,7 +8,6 @@
 - `/auth/reset-password` - Reset password page (app/auth/reset-password/page.tsx)
 - `/tenants` - Tenant switcher and directory (app/tenants/page.tsx)
 - `/docs` - Documentation hub (app/docs/page.tsx)
-- `/docs/projectplan` - Project plan viewer (app/docs/[slug]/page.tsx)
 - `/docs/security` - Security & compliance notes (app/docs/[slug]/page.tsx)
 - `/docs/status` - Delivery/status snapshot (app/docs/[slug]/page.tsx)
 - `/support` - Support resources and links (app/support/page.tsx)

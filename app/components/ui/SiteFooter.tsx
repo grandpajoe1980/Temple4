@@ -4,7 +4,6 @@ const footerSections = [
   {
     title: 'Platform',
     links: [
-      { label: 'Project Plan', href: '/docs/projectplan' },
       { label: 'Security', href: '/docs/security' },
       { label: 'Status', href: '/docs/status' },
     ],

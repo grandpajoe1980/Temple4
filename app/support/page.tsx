@@ -7,14 +7,14 @@ export default function SupportPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Support</p>
         <h1 className="text-3xl font-semibold text-slate-900">Need help with Temple Platform?</h1>
         <p className="text-sm text-slate-600">
-          Use the resources below to report issues, request onboarding assistance, or follow along with the project plan.
+          Use the resources below to report issues, request onboarding assistance, or explore the platform documentation.
         </p>
       </header>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">Self-serve docs</h2>
-          <p className="mt-2 text-sm text-slate-600">Read the latest plan, security notes, and delivery status.</p>
+          <p className="mt-2 text-sm text-slate-600">Read the latest security notes, delivery status, and platform how-tos.</p>
           <Link href="/docs" className="mt-4 inline-flex text-sm font-semibold text-amber-700 hover:underline">
             Browse documentation →
           </Link>

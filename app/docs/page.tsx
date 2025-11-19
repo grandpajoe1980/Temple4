@@ -8,8 +8,8 @@ export default function DocsLandingPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Documentation</p>
         <h1 className="text-3xl font-semibold text-slate-900">Temple Platform Knowledge Base</h1>
         <p className="max-w-3xl text-sm text-slate-600">
-          Centralized references for the project plan, security guardrails, and current delivery status. These pages mirror the
-          markdown files in the <code>docs/</code> directory for quick access.
+          Centralized references for security guardrails and current delivery status. These pages mirror the markdown files in the
+          <code>docs/</code> directory for quick access.
         </p>
       </header>
 

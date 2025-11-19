@@ -68,6 +68,8 @@ export enum ContactSubmissionStatus {
     ARCHIVED = 'ARCHIVED',
 }
 
+export type ServiceCategory = 'CEREMONY' | 'EDUCATION' | 'FACILITY' | 'COUNSELING' | 'OTHER';
+
 export enum RSVPStatus {
     GOING = 'GOING',
     INTERESTED = 'INTERESTED',
@@ -154,6 +156,22 @@ export interface TenantBranding {
   youtubeUrl?: string;
   websiteUrl?: string;
   linkedInUrl?: string;
+}
+
+export interface ServiceOffering {
+  id: string;
+  tenantId: string;
+  name: string;
+  description: string;
+  category: ServiceCategory;
+  isPublic: boolean;
+  requiresBooking: boolean;
+  contactEmailOverride?: string | null;
+  pricing?: string | null;
+  imageUrl?: string | null;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LiveStreamSettings {

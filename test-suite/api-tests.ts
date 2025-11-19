@@ -11,6 +11,7 @@ export class APITestSuite {
   private authToken: string | null = null;
   private testTenantId: string | null = null;
   private testUserId: string | null = null;
+  private testServiceId: string | null = null;
 
   constructor(logger: TestLogger) {
     this.logger = logger;
@@ -339,6 +340,96 @@ export class APITestSuite {
         return { response, expectedStatus: [200] };
       }
     );
+
+    // Test service offerings
+    await this.testEndpoint(
+      category,
+      'GET /api/tenants/[tenantId]/services',
+      async () => {
+        const response = await fetch(
+          `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/services`,
+          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+        );
+        return { response, expectedStatus: [200] };
+      }
+    );
+
+    await this.testEndpoint(
+      category,
+      'POST /api/tenants/[tenantId]/services',
+      async () => {
+        const response = await fetch(
+          `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/services`,
+          {
+            method: 'POST',
+            headers: this.getAuthHeaders(),
+            body: JSON.stringify({
+              name: `Test Service ${Date.now()}`,
+              description: 'A sample service offering for automated testing.',
+              category: 'CEREMONY',
+              isPublic: true,
+              requiresBooking: false,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          this.testServiceId = data.id || data.serviceId || this.testServiceId;
+        }
+
+        return { response, expectedStatus: [201, 200, 401, 403] };
+      }
+    );
+
+    if (this.testServiceId) {
+      await this.testEndpoint(
+        category,
+        'GET /api/tenants/[tenantId]/services/[serviceId]',
+        async () => {
+          const response = await fetch(
+            `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/services/${this.testServiceId}`,
+            { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+          );
+          return { response, expectedStatus: [200, 404] };
+        }
+      );
+
+      await this.testEndpoint(
+        category,
+        'PATCH /api/tenants/[tenantId]/services/[serviceId]',
+        async () => {
+          const response = await fetch(
+            `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/services/${this.testServiceId}`,
+            {
+              method: 'PATCH',
+              headers: this.getAuthHeaders(),
+              body: JSON.stringify({
+                pricing: 'Contact us for pricing',
+              }),
+            }
+          );
+          return { response, expectedStatus: [200, 401, 403, 404] };
+        }
+      );
+
+      await this.testEndpoint(
+        category,
+        'DELETE /api/tenants/[tenantId]/services/[serviceId]',
+        async () => {
+          const response = await fetch(
+            `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/services/${this.testServiceId}`,
+            { method: 'DELETE', headers: this.getAuthHeaders() }
+          );
+
+          if (response.ok) {
+            this.testServiceId = null;
+          }
+
+          return { response, expectedStatus: [200, 401, 403, 404] };
+        }
+      );
+    }
 
     // Test community posts
     await this.testEndpoint(

@@ -70,9 +70,9 @@ const ServicesPage = ({ tenant, services, selectedCategory, isMember }: Services
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900">{service.name}</h3>
                   <p className="text-gray-600">{service.description}</p>
-                  {service.pricing && (
-                    <p className="text-sm font-semibold text-gray-800">Suggested Contribution: {service.pricing}</p>
-                  )}
+                  <p className="text-sm font-semibold text-gray-800">
+                    {service.pricing ? `Cost: ${service.pricing}` : 'No cost listed'}
+                  </p>
                   {service.requiresBooking && (
                     <p className="text-sm text-amber-700">Booking is required. Our team will help you schedule next steps.</p>
                   )}

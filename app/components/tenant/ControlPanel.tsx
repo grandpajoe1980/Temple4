@@ -14,6 +14,7 @@ import UserProfilesTab from './tabs/UserProfilesTab';
 import DonationsTab from './tabs/DonationsTab';
 import VolunteeringTab from './tabs/VolunteeringTab';
 import SmallGroupsTab from './tabs/SmallGroupsTab';
+import ServicesTab from './tabs/ServicesTab';
 import LiveStreamTab from './tabs/LiveStreamTab';
 import PrayerWallTab from './tabs/PrayerWallTab';
 import ResourceCenterTab from './tabs/ResourceCenterTab';
@@ -89,6 +90,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, currentUs
       case 'Small Groups':
         return currentUser ? (
           <SmallGroupsTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
+        ) : null;
+      case 'Services':
+        return currentUser ? (
+          <ServicesTab tenant={tenant} onRefresh={onRefresh} />
         ) : null;
       case 'Live Stream':
         return <LiveStreamTab tenant={tenant} onUpdate={onUpdate} />;

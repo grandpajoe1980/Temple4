@@ -41,7 +41,7 @@ const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, groups,
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Small Groups</h2>
         <p className="mt-1 text-sm text-gray-500">
-          Find a group to connect with at {tenant.name}.
+          Find a group to connect with at {tenant.name}. Join to access the dedicated group chat and shared resources.
         </p>
       </div>
 

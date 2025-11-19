@@ -35,7 +35,6 @@ export default function LoginPage() {
         setLoading(false);
       } else if (result?.ok) {
         toast.success('Login successful! Redirecting...');
-        // Successful login, redirect to home
         router.push('/');
         router.refresh();
       }
@@ -48,68 +47,97 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full">
-            <Card title="Platform Login" description="Enter your credentials to continue.">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                {error && (
-                    <div className="p-3 bg-red-100 border border-red-200 text-red-800 rounded-md text-sm">
-                        {error}
-                    </div>
-                )}
-                <Input 
-                    id="email" 
-                    name="email" 
-                    label="Email Address"
-                    type="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    required
-                    disabled={loading}
-                />
-                <Input 
-                    id="password" 
-                    name="password" 
-                    label="Password"
-                    type="password" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    required
-                    disabled={loading}
-                />
-                <div className="text-right">
-                    <button 
-                      type="button" 
-                      onClick={() => router.push('/auth/forgot-password')} 
-                      className="text-sm text-amber-600 hover:text-amber-800 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={loading}
-                    >
-                      Forgot your password?
-                    </button>
-                </div>
-                <div className="flex justify-between items-center">
-                    <button 
-                      type="button" 
-                      onClick={() => router.push('/auth/register')} 
-                      className="text-sm text-amber-600 hover:text-amber-800 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={loading}
-                    >
-                      Create an account
-                    </button>
-                    <Button type="submit" disabled={loading}>
-                      {loading ? 'Logging in...' : 'Login'}
-                    </Button>
-                </div>
-                <div className="text-center text-xs text-gray-400 pt-4">
-                    <p className="font-semibold mb-2">Platform Administrator:</p>
-                    <p>Email: <strong>admin@temple.com</strong> / Password: <strong>password</strong></p>
-                    <p className="mt-2 text-gray-500">Or use tenant users:</p>
-                    <p><strong>homer@simpson.com</strong> / <strong>doh123</strong></p>
-                    <p><strong>ned@flanders.com</strong> / <strong>okily-dokily</strong></p>
-                </div>
-                </form>
-            </Card>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-5xl">
+        <div className="mb-8 flex items-center gap-3 text-slate-900">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 text-amber-600">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6">
+              <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
+            </svg>
+          </span>
+          <div className="leading-tight">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-600">Temple</p>
+            <p className="text-xl font-semibold text-slate-900">Platform Login</p>
+          </div>
         </div>
+
+        <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr] items-start">
+          <Card title="Platform Login" description="Enter your credentials to continue.">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="p-3 bg-amber-50 border border-amber-100 text-amber-800 rounded-md text-sm">
+                  {error}
+                </div>
+              )}
+              <Input
+                id="email"
+                name="email"
+                label="Email Address"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <Input
+                id="password"
+                name="password"
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <div className="flex justify-between items-center text-sm">
+                <button
+                  type="button"
+                  onClick={() => router.push('/auth/forgot-password')}
+                  className="text-amber-600 hover:text-amber-700 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading}
+                >
+                  Forgot your password?
+                </button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Logging in...' : 'Login'}
+                </Button>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-600">Need an account?</span>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => router.push('/auth/register')}
+                  disabled={loading}
+                  className="px-4"
+                >
+                  Create an account
+                </Button>
+              </div>
+              <div className="text-sm text-slate-500 pt-2 space-y-1">
+                <p className="font-semibold text-slate-700">For this prototype, use:</p>
+                <p>
+                  Email: <strong>admin@temple.com</strong> / Password: <strong>password</strong>
+                </p>
+                <p>Or any other user from the mock data.</p>
+              </div>
+            </form>
+          </Card>
+
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4 text-slate-700">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">Need platform access?</h3>
+              <span className="text-xs font-semibold uppercase tracking-wide text-amber-600">Admin access</span>
+            </div>
+            <p className="text-sm text-slate-600">
+              Platform admin accounts oversee tenants, feature toggles, and billing. Ask your Temple implementation partner if you need an invite.
+            </p>
+            <p className="text-sm text-slate-600">
+              You can still explore tenants as a member or guest after logging in with any seeded account.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

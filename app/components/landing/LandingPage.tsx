@@ -1,8 +1,6 @@
 "use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Button from '../ui/Button';
 
 interface LandingPageProps {
@@ -10,445 +8,71 @@ interface LandingPageProps {
   onSearch: (term: string) => void;
 }
 
-const statHighlights = [
-  { label: 'Temples & Communities', value: '2,400+', detail: 'Across every creed and tradition' },
-  { label: 'Messages Delivered', value: '1.2M', detail: 'Tenant chats and global DMs' },
-  { label: 'Donations Facilitated', value: '$18M', detail: 'Tracked through Temple dashboards' },
-];
-
-type FilterField = 'creed' | 'city' | 'support';
-
-const filterGroups: { label: string; field: FilterField; options: string[] }[] = [
-  {
-    label: 'Creed',
-    field: 'creed',
-    options: ['Interfaith', 'Buddhist', 'Catholic', 'Non-denominational'],
-  },
-  {
-    label: 'City',
-    field: 'city',
-    options: ['New York', 'Chicago', 'Oakland', 'Toronto'],
-  },
-  {
-    label: 'Support groups',
-    field: 'support',
-    options: ['Youth programs', 'Food distribution', 'Care ministries', 'Community choirs'],
-  },
-];
-
-const featureHighlights = [
-  {
-    title: 'Curated Tenant Spaces',
-    description:
-      'Create branded homebases with custom colors, banners, navigation, and welcome flows for each community.',
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-6 w-6 text-amber-600" aria-hidden="true">
-        <path
-          fill="currentColor"
-          d="M12 3c-.4 0-.8.12-1.15.36L3 9v10.5A1.5 1.5 0 0 0 4.5 21H9v-5.5h6V21h4.5a1.5 1.5 0 0 0 1.5-1.5V9l-7.85-5.64A1.94 1.94 0 0 0 12 3z"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: 'Events & Grid Calendar',
-    description:
-      'Plan services, retreats, and volunteer rallies with a grid-style calendar and RSVP-ready event cards.',
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-6 w-6 text-amber-600" aria-hidden="true">
-        <path
-          fill="currentColor"
-          d="M7 2v2H5a2 2 0 0 0-2 2v3h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2zM3 11v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9zm4 3h4v4H7z"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: 'Content & Broadcasts',
-    description:
-      'Sermons, podcasts, books, and live streams live side by side so members never miss a message.',
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-6 w-6 text-amber-600" aria-hidden="true">
-        <path fill="currentColor" d="M4 5h16v14H4zm3 2v10h2V7zm5 0v10h6V7z" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Donations & Care',
-    description:
-      'Collect offerings with integrated donation flows, donor leaderboards, and contact touchpoints.',
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-6 w-6 text-amber-600" aria-hidden="true">
-        <path fill="currentColor" d="M12 5.69 5 12.19V21h5v-4h4v4h5v-8.81z" />
-      </svg>
-    ),
-  },
-];
-
-const journeyItems = [
-  {
-    title: 'Discover',
-    description:
-      'Search by creed, neighborhood, or languages spoken. Preview public profiles before requesting membership.',
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 text-amber-600">
-        <path
-          fill="currentColor"
-          d="M12 5a7 7 0 0 0-7 7c0 3.9 3.1 7 7 7s7-3.1 7-7a7 7 0 0 0-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-1 1v4H7v2h6V8z"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: 'Belong',
-    description:
-      'Chat with members, join small groups, RSVP for events, and follow along with sermons and study plans.',
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 text-amber-600">
-        <path
-          fill="currentColor"
-          d="M12 3a5 5 0 0 0-5 5c0 1.9 1.1 3.5 2.6 4.3A6 6 0 0 0 6 18.9l.1 1.1h11.8l.1-1.1a6 6 0 0 0-3.6-6.6A5 5 0 0 0 12 3zm0 2a3 3 0 0 1 0 6 3 3 0 0 1 0-6z"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: 'Serve & Give',
-    description:
-      'Answer volunteer calls, donate toward shared goals, and share prayer requests and resources securely.',
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 text-amber-600">
-        <path
-          fill="currentColor"
-          d="m12 4-8 4.5v7c0 1.1.9 2 2 2h4v-4h4v4h4a2 2 0 0 0 2-2v-7z"
-        />
-      </svg>
-    ),
-  },
-];
-
-const quickFilters = ['Meditation circles', 'Youth programs', 'Spanish services', 'Community kitchens'];
-
-const partnerBadges = ['Compassion Fund', 'Rhythm & Rosary', 'Northstar Aid', 'Resonant Media'];
-
-const partnerLogos = [
-  { name: 'Compassion Fund', src: '/placeholder-logo.svg' },
-  { name: 'Harmony Radio', src: '/placeholder-logo.svg' },
-  { name: 'Northstar Aid', src: '/placeholder-logo.svg' },
-  { name: 'Resonant Media', src: '/placeholder-logo.svg' },
-];
-
-const complianceBadges = ['SOC 2 Type II', 'GDPR ready', '99.9% uptime'];
-
-const testimonials = [
-  {
-    quote:
-      'Temple helped us centralize communications, so planning vigils and volunteer drives feels calm, modern, and joyful.',
-    name: 'Evelyn O., Community Director',
-    tenant: 'Sacred Steps Collective',
-  },
-  {
-    quote: 'Members found us within days of launch thanks to search, and the grid calendar keeps everyone aligned.',
-    name: 'Brother Mateo',
-    tenant: 'Sunrise Abbey',
-  },
-  {
-    quote: 'Donations, small group chats, and pastoral care notes finally live in one place. Temple is our digital commons.',
-    name: 'Rev. Priya',
-    tenant: 'Open Table Fellowship',
-  },
-];
-
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0);
-  const [filtersPanelOpen, setFiltersPanelOpen] = useState(false);
-  const [filters, setFilters] = useState<Record<FilterField, string>>({ creed: '', city: '', support: '' });
 
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
-    }, 6000);
-
-    return () => window.clearInterval(intervalId);
-  }, []);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(searchTerm.trim());
   };
 
-  const handleFilterSelect = (field: FilterField, value: string) => {
-    setFilters((prev) => {
-      const nextValue = prev[field] === value ? '' : value;
-      if (nextValue) {
-        setSearchTerm(value);
-        onSearch(value);
-      } else if (searchTerm === value) {
-        setSearchTerm('');
-      }
-      return { ...prev, [field]: nextValue };
-    });
-  };
-
-  const activeFilters = Object.values(filters).filter(Boolean);
-
-  const renderFilterGroups = () =>
-    filterGroups.map((group) => (
-      <div key={group.field} className="flex flex-col gap-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{group.label}</p>
-        <div className="flex flex-wrap gap-2">
-          {group.options.map((option) => {
-            const isActive = filters[group.field] === option;
-            return (
-              <button
-                key={option}
-                type="button"
-                aria-pressed={isActive}
-                onClick={() => handleFilterSelect(group.field, option)}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                  isActive
-                    ? 'bg-amber-600 text-white shadow-sm'
-                    : 'border border-slate-200 text-slate-600 hover:border-amber-200 hover:text-amber-700'
-                }`}
-              >
-                {option}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    ));
-
   return (
-    <div className="relative isolate overflow-hidden bg-gradient-to-b from-white via-[#f4efff] to-[#fdfbf5] py-16">
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.18),_transparent_65%)]"
-        aria-hidden="true"
-      />
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-16 px-4 sm:px-6 lg:px-8">
-        <header className="grid gap-10 text-center lg:grid-cols-[1.15fr,0.85fr] lg:text-left">
-          <div className="flex flex-col items-center gap-4 lg:items-start">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-xs font-medium text-amber-700 shadow-sm ring-1 ring-amber-100">
-              Platform Spec • Find your temple, Find yourself
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-slate-50 flex flex-col items-center justify-center px-4 py-16">
+      <div className="w-full max-w-3xl space-y-8 text-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-md ring-1 ring-slate-200 text-amber-600">
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-7 w-7">
+                <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
+              </svg>
             </span>
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-center gap-3 lg:justify-start">
-                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-14 w-14 text-amber-600">
-                  <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
-                </svg>
-                <h1 className="text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl">Temple</h1>
-              </div>
-              <p className="max-w-2xl text-lg text-slate-600">
-                Temple is the multi-tenant spiritual OS outlined in the master project plan. Launch beautiful community hubs,
-                orchestrate events with a grid calendar, broadcast sermons, and coordinate care from one secure command center.
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-medium uppercase tracking-wide text-slate-400 lg:justify-start">
-                {partnerBadges.map((badge) => (
-                  <span key={badge} className="rounded-full border border-slate-200/80 px-4 py-1 text-slate-500">
-                    {badge}
-                  </span>
-                ))}
-              </div>
-              <div className="flex flex-wrap items-center justify-center gap-6 pt-4 text-slate-500 lg:justify-start">
-                {partnerLogos.map((logo) => (
-                  <span
-                    key={logo.name}
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/80 px-4 py-2 shadow-sm"
-                    aria-label={`${logo.name} logo`}
-                  >
-                    <Image src={logo.src} alt="" width={24} height={24} className="opacity-70" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em]">{logo.name}</span>
-                  </span>
-                ))}
-              </div>
+            <div className="text-left">
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-600">Temple</p>
+              <p className="text-3xl font-bold tracking-tight text-slate-900">Find your temple, Find yourself</p>
             </div>
           </div>
-          <div className="space-y-4">
-            <div className="rounded-3xl bg-white/90 p-6 shadow-xl ring-1 ring-slate-100">
-              <div className="grid gap-4 sm:grid-cols-3">
-                {statHighlights.map((stat) => (
-                  <div key={stat.label} className="text-left">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">{stat.label}</p>
-                    <p className="mt-2 text-3xl font-semibold text-slate-900">{stat.value}</p>
-                    <p className="text-sm text-slate-500">{stat.detail}</p>
-                  </div>
-                ))}
-              </div>
-              <div
-                className="mt-6 rounded-2xl bg-gradient-to-r from-amber-50 to-white p-5"
-                aria-live="polite"
-                role="region"
-                aria-label="Community testimonial carousel"
-              >
-                <p className="text-sm text-slate-600">{testimonials[activeTestimonialIndex].quote}</p>
-                <p className="mt-3 text-sm font-semibold text-slate-900">{testimonials[activeTestimonialIndex].name}</p>
-                <p className="text-xs uppercase tracking-wide text-amber-600">
-                  {testimonials[activeTestimonialIndex].tenant}
-                </p>
-                <div className="mt-4 flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActiveTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)
-                    }
-                    className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-amber-200 hover:text-amber-700"
-                    aria-label="Previous testimonial"
-                  >
-                    Prev
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length)}
-                    className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-amber-200 hover:text-amber-700"
-                    aria-label="Next testimonial"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <section className="rounded-3xl bg-white/90 p-6 shadow-2xl ring-1 ring-slate-100 backdrop-blur">
-          <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3 text-left sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-slate-400">
-                <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M11 4a7 7 0 0 1 5.3 11.5l4 4-1.4 1.4-4-4A7 7 0 1 1 11 4zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"
-                  />
-                </svg>
-              </span>
-              <label className="sr-only" htmlFor="landing-search">
-                Search for a temple
-              </label>
-              <input
-                id="landing-search"
-                aria-label="Search for a temple"
-                type="search"
-                placeholder="Search temples by name, creed, or location"
-                className="w-full rounded-2xl border border-slate-200 bg-white px-12 py-3 text-base text-slate-900 placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Button type="submit" className="rounded-2xl px-6 py-3 text-base shadow-sm">
-              Find my temple
-            </Button>
-          </form>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {quickFilters.map((filter) => (
-              <button
-                key={filter}
-                type="button"
-                className="rounded-full border border-slate-200 px-4 py-1 text-xs font-medium text-slate-600 transition hover:border-amber-200 hover:text-amber-700"
-                onClick={() => {
-                  setSearchTerm(filter);
-                  onSearch(filter);
-                }}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-          <div className="mt-4 hidden gap-6 sm:flex">{renderFilterGroups()}</div>
-          <div className="mt-4 sm:hidden">
-            <button
-              type="button"
-              onClick={() => setFiltersPanelOpen((prev) => !prev)}
-              aria-expanded={filtersPanelOpen}
-              className="flex w-full items-center justify-between rounded-2xl border border-slate-200 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600"
-            >
-              Refine filters
-              <span aria-hidden="true">{filtersPanelOpen ? '−' : '+'}</span>
-            </button>
-            {filtersPanelOpen && <div className="mt-4 flex flex-col gap-4">{renderFilterGroups()}</div>}
-          </div>
-          <p className="mt-3 text-xs text-slate-500">
-            Trending now: multilingual congregations, after-school support, outdoor services
+          <p className="max-w-2xl text-base text-slate-600">
+            Search across every temple, denomination, and city. Preview services, connect with members, and join the communities that feel like home.
           </p>
-          {activeFilters.length > 0 && (
-            <p className="mt-2 text-xs font-semibold text-slate-600">Active filters: {activeFilters.join(', ')}</p>
-          )}
-        </section>
+        </div>
 
-        <section className="grid gap-6 text-left md:grid-cols-2">
-          {featureHighlights.map((feature) => (
-            <div key={feature.title} className="flex flex-col gap-3 rounded-2xl border border-transparent bg-white/90 p-6 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:border-amber-200">
-              <div className="flex items-center gap-3">
-                {feature.icon}
-                <h3 className="text-lg font-semibold text-slate-900">{feature.title}</h3>
-              </div>
-              <p className="text-sm text-slate-600">{feature.description}</p>
-            </div>
-          ))}
-        </section>
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full flex-col gap-3 rounded-2xl bg-white/80 p-3 shadow-lg ring-1 ring-slate-200 sm:flex-row sm:items-center"
+        >
+          <div className="relative flex-1">
+            <label className="sr-only" htmlFor="landing-search">
+              Search for a temple
+            </label>
+            <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-slate-400">
+              <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M11 4a7 7 0 0 1 5.3 11.5l4 4-1.4 1.4-4-4A7 7 0 1 1 11 4zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"
+                />
+              </svg>
+            </span>
+            <input
+              id="landing-search"
+              aria-label="Search for a temple"
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search for a temple by name, creed, or location..."
+              className="w-full h-14 rounded-full border border-slate-200 bg-white px-12 text-base text-slate-900 placeholder:text-slate-400 shadow-inner focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
+            />
+          </div>
+          <Button type="submit" className="h-14 rounded-full px-6 text-base font-semibold shadow-md">
+            Search
+          </Button>
+        </form>
 
-        <section className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
-          <div className="rounded-3xl bg-gradient-to-r from-amber-50 to-white/90 p-6 text-left shadow-inner ring-1 ring-amber-100">
-            <h2 className="text-2xl font-semibold text-slate-900">Member journey, anchored in the Temple playbook</h2>
-            <p className="mt-2 text-sm text-slate-600">
-              Every experience outlined in projectplan.md is accounted for—search, membership workflows, donations, contact forms, and moderation-ready messaging.
-            </p>
-            <div className="mt-6 space-y-6">
-              {journeyItems.map((item, index) => (
-                <div key={item.title} className="relative pl-12">
-                  <span className="absolute left-0 top-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-semibold text-amber-700 shadow">
-                    {item.icon}
-                  </span>
-                  <div className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-white/60">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Step {index + 1}</p>
-                    <p className="text-base font-semibold text-slate-900">{item.title}</p>
-                    <p className="text-sm text-slate-600">{item.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-3xl bg-white/90 p-6 shadow-xl ring-1 ring-slate-100">
-            <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">Community voices</p>
-            <p className="mt-2 text-lg font-semibold text-slate-900">Built with best-in-class tools</p>
-            <p className="text-sm text-slate-600">Organizations trust Temple to steward sacred data, compliance, and modern pastoral care.</p>
-            <div className="mt-6 flex flex-wrap gap-4 text-sm font-medium text-slate-500">
-              {partnerBadges.map((badge) => (
-                <span key={`${badge}-secondary`} className="rounded-2xl border border-dashed border-slate-200 px-4 py-2">
-                  {badge}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="flex flex-col gap-4 rounded-3xl bg-slate-900/95 p-8 text-center text-white shadow-2xl">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">Next steps</p>
-            <h2 className="mt-2 text-3xl font-semibold">Bring your community online with Temple</h2>
-            <p className="mt-3 text-sm text-white/80">
-              Create a tenant in minutes or hop back into the control panel to continue stewarding your people. The backend routes stay exactly the same—only the visuals get brighter.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Link
-              href="/tenants/new"
-              className="rounded-2xl bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-amber-50"
-            >
-              Create a tenant space
-            </Link>
-            <Button variant="secondary" className="rounded-2xl px-6" onClick={onNavigateToLogin}>
-              Log in to the Control Panel
-            </Button>
-          </div>
-          <div className="flex flex-wrap justify-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
-            {complianceBadges.map((badge) => (
-              <span key={badge} className="rounded-full border border-white/30 px-4 py-1">
-                {badge}
-              </span>
-            ))}
-          </div>
-        </section>
+        <div className="flex flex-col items-center gap-2 text-sm text-slate-600">
+          <p>Already a platform administrator?</p>
+          <Button variant="secondary" className="rounded-full px-5" onClick={onNavigateToLogin}>
+            Login to Manage
+          </Button>
+        </div>
       </div>
     </div>
   );

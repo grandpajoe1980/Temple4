@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { getTenantById, getUserById, getEventsForTenant } from '@/lib/data';
-import EventsCalendar from '@/app/components/tenant/EventsCalendar';
+import CalendarPageClient from './CalendarPageClient';
 
 export default async function TenantCalendarPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const session = await getServerSession(authOptions);
@@ -21,7 +21,5 @@ export default async function TenantCalendarPage({ params }: { params: Promise<{
 
   const events = await getEventsForTenant(tenant.id);
 
-  return <div>
-    <EventsCalendar events={events} onDateClick={(date) => {/* TODO: Implement */}} />
-  </div>;
+  return <CalendarPageClient events={events} />;
 }

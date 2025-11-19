@@ -141,6 +141,7 @@ model User {
   smallGroupMemberships   SmallGroupMembership[]
   uploadedResources       ResourceItem[]
   passwordResetTokens     PasswordResetToken[]
+  facilityBookings        FacilityBooking[]
   impersonationsAsReal    ImpersonationSession[]  @relation("RealUser")
   impersonationsAsEffective ImpersonationSession[] @relation("EffectiveUser")
 }
@@ -207,6 +208,7 @@ model Tenant {
   contactSubmissions ContactSubmission[]
   impersonationSessions ImpersonationSession[]
   serviceOfferings ServiceOffering[]
+  facilities       Facility[]
 }
 
 model TenantBranding {
@@ -382,6 +384,7 @@ model Event {
   onlineUrl       String?
   deletedAt       DateTime?
   rsvps           EventRSVP[]
+  facilityBookings FacilityBooking[]
 }
 
 model EventRSVP {

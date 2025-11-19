@@ -22,4 +22,6 @@ declare module '@prisma/client' {
   export type CommunityPost = any;
   export type ChatMessage = any;
   export type ImpersonationSession = any;
+  export type Facility = any;
+  export type FacilityBooking = any;
 }

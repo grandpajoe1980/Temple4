@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { User, EnrichedConversation } from '@/types';
+import type { User, EnrichedConversation, EnrichedChatMessage } from '@/types';
 import ConversationList from './ConversationList';
 import MessageStream from './MessageStream';
 import Button from '../ui/Button';
@@ -16,14 +16,62 @@ interface MessagesPageProps {
   initialActiveConversationId?: string | null;
 }
 
-const MessagesPage: React.FC<MessagesPageProps> = ({ 
-  currentUser, 
+function normalizeMessage(rawMessage: any): EnrichedChatMessage {
+  const user = rawMessage.user ?? rawMessage;
+  return {
+    ...rawMessage,
+    userDisplayName: user.profile?.displayName || user.email || 'Unknown user',
+    userAvatarUrl: user.profile?.avatarUrl || undefined,
+    createdAt: new Date(rawMessage.createdAt),
+  };
+}
+
+function normalizeConversation(conversation: any, currentUserId: string): EnrichedConversation {
+  const participants = (conversation.participants || []).map((participant: any) => {
+    const user = participant.user ?? participant;
+    return {
+      ...user,
+      profile: user.profile ?? participant.user?.profile ?? {},
+    };
+  });
+
+  const derivedIsDirect =
+    conversation.isDirect ??
+    conversation.isDirectMessage ??
+    (!conversation.name && participants.length <= 2);
+  const isDirect = Boolean(derivedIsDirect);
+  const otherParticipant = isDirect
+    ? participants.find((participant: any) => participant.id !== currentUserId)
+    : null;
+
+  const lastMessageRaw = conversation.lastMessage || conversation.messages?.[0];
+  const lastMessage = lastMessageRaw ? normalizeMessage(lastMessageRaw) : undefined;
+
+  return {
+    ...conversation,
+    participants,
+    isDirect,
+    displayName:
+      conversation.displayName ||
+      conversation.name ||
+      (isDirect && otherParticipant
+        ? otherParticipant.profile?.displayName || otherParticipant.email || 'Direct Message'
+        : 'Group Conversation'),
+    lastMessage,
+    unreadCount: conversation.unreadCount ?? 0,
+  };
+}
+
+const MessagesPage: React.FC<MessagesPageProps> = ({
+  currentUser,
   initialConversations,
-  onBack, 
-  onViewProfile, 
-  initialActiveConversationId 
+  onBack,
+  onViewProfile,
+  initialActiveConversationId
 }) => {
-  const [conversations, setConversations] = useState<EnrichedConversation[]>(initialConversations);
+  const [conversations, setConversations] = useState<EnrichedConversation[]>(() =>
+    initialConversations.map((conversation) => normalizeConversation(conversation, currentUser.id))
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [isNewMessageModalOpen, setIsNewMessageModalOpen] = useState(false);
   const [newlyCreatedConvId, setNewlyCreatedConvId] = useState<string | null>(null);
@@ -50,31 +98,37 @@ const MessagesPage: React.FC<MessagesPageProps> = ({
     }
   }, [initialActiveConversationId, conversations, newlyCreatedConvId]);
   
-  const handleStartConversation = useCallback(async (recipientId: string) => {
-    // Create or get conversation via API
-    const response = await fetch('/api/conversations/direct', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recipientId }),
-    });
-    
-    if (response.ok) {
-      const conversation = await response.json();
-      setConversations(prev => {
-        const exists = prev.find(c => c.id === conversation.id);
-        return exists ? prev : [...prev, conversation];
+  const handleStartConversation = useCallback(
+    async (recipientId: string) => {
+      const response = await fetch('/api/conversations/direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipientId }),
       });
-      setIsNewMessageModalOpen(false);
-      setNewlyCreatedConvId(conversation.id);
-    }
-  }, []);
+
+      if (response.ok) {
+        const conversation = await response.json();
+        const normalized = normalizeConversation(conversation, currentUser.id);
+
+        setConversations((prev) => {
+          const exists = prev.find((c) => c.id === normalized.id);
+          return exists ? prev : [...prev, normalized];
+        });
+
+        setIsNewMessageModalOpen(false);
+        setNewlyCreatedConvId(normalized.id);
+      }
+    },
+    [currentUser.id]
+  );
 
   const forceConversationListUpdate = useCallback(() => {
-    // Reload conversations from server
     fetch('/api/conversations')
-      .then(res => res.json())
-      .then(data => setConversations(data));
-  }, []);
+      .then((res) => res.json())
+      .then((data) =>
+        setConversations(data.map((conversation: any) => normalizeConversation(conversation, currentUser.id)))
+      );
+  }, [currentUser.id]);
 
   return (
     <div>

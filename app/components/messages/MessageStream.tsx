@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import type { User, EnrichedConversation, EnrichedChatMessage, Tenant } from '@/types';
-import { getMessagesForConversation, addMessage, markConversationAsRead, deleteMessage } from '@/lib/data';
 import Button from '../ui/Button';
 import { can, canDeleteMessage } from '@/lib/permissions';
 
@@ -16,6 +15,16 @@ interface MessageStreamProps {
   onMarkAsRead: () => void;
 }
 
+const mapMessage = (message: any): EnrichedChatMessage => {
+  const user = message.user ?? message;
+  return {
+    ...message,
+    userDisplayName: user.profile?.displayName || user.email || 'Unknown user',
+    userAvatarUrl: user.profile?.avatarUrl || undefined,
+    createdAt: new Date(message.createdAt),
+  };
+};
+
 const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation, onViewProfile, tenant, isDetailsPanelOpen, onToggleDetailsPanel, onMarkAsRead }) => {
   const [messages, setMessages] = useState<EnrichedChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -26,13 +35,41 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    // TODO: Fetch messages via API endpoint
-    async function fetchMessages() {
+  const fetchMessages = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/conversations/${conversation.id}/messages`);
+
+      if (!response.ok) {
+        setMessages([]);
+        return;
+      }
+
+      const data = await response.json();
+      const normalizedMessages = (data as any[]).map(mapMessage);
+      setMessages(normalizedMessages);
+
+      if (normalizedMessages.length > 0) {
+        await fetch(`/api/conversations/${conversation.id}/messages`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messageId: normalizedMessages[normalizedMessages.length - 1].id }),
+        });
+      }
+
+      onMarkAsRead();
+    } catch (error) {
+      console.error('Failed to load messages', error);
       setMessages([]);
     }
+  }, [conversation.id, onMarkAsRead]);
+
+  useEffect(() => {
+    setMessages([]);
     fetchMessages();
-  }, [conversation.id, currentUser.id, onMarkAsRead, tenant?.id]);
+
+    const interval = setInterval(fetchMessages, 5000);
+    return () => clearInterval(interval);
+  }, [fetchMessages]);
   
   useEffect(() => {
     scrollToBottom();
@@ -48,21 +85,46 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
     return true;
   }, [currentUser, conversation, tenant]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() === '' || !canSendMessage) return;
-    // TODO: Call API endpoint to send message
-    // addMessage(conversation.id, currentUser.id, newMessage.trim());
-    // TODO: Refetch messages
-    setNewMessage('');
-    onMarkAsRead();
+
+    try {
+      const response = await fetch(`/api/conversations/${conversation.id}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newMessage.trim() }),
+      });
+
+      if (response.ok) {
+        const created = await response.json();
+        const normalized = mapMessage(created);
+        setMessages((currentMessages) => [...currentMessages, normalized]);
+        setNewMessage('');
+        onMarkAsRead();
+      }
+    } catch (error) {
+      console.error('Failed to send message', error);
+    }
   };
   
-  const handleDeleteMessage = useCallback((messageId: string) => {
-    // TODO: Call API endpoint to delete message
-    setMessages(currentMessages => currentMessages.filter(m => m.id !== messageId));
-    onMarkAsRead();
-  }, [onMarkAsRead]);
+  const handleDeleteMessage = useCallback(
+    async (messageId: string) => {
+      try {
+        const response = await fetch(`/api/messages/${messageId}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          setMessages((currentMessages) => currentMessages.filter((m) => m.id !== messageId));
+          onMarkAsRead();
+        }
+      } catch (error) {
+        console.error('Failed to delete message', error);
+      }
+    },
+    [onMarkAsRead]
+  );
 
   const otherParticipant = conversation.isDirect ? conversation.participants.find(p => p.id !== currentUser.id) : null;
 

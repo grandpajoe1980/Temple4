@@ -16,8 +16,23 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ currentUser, onClose,
   const [allOtherUsers, setAllOtherUsers] = useState<any[]>([]);
 
   useEffect(() => {
-    // TODO: Fetch users via API
-    setAllOtherUsers([]);
+    async function fetchUsers() {
+      try {
+        const response = await fetch('/api/users');
+        if (!response.ok) {
+          setAllOtherUsers([]);
+          return;
+        }
+
+        const users = await response.json();
+        setAllOtherUsers(users.filter((user: any) => user.id !== currentUser.id));
+      } catch (error) {
+        console.error('Failed to load users', error);
+        setAllOtherUsers([]);
+      }
+    }
+
+    fetchUsers();
   }, [currentUser.id]);
 
   const filteredUsers = useMemo(() => {

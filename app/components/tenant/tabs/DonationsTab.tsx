@@ -9,9 +9,11 @@ import ToggleSwitch from '../../ui/ToggleSwitch';
 interface DonationsTabProps {
   tenant: Tenant;
   onUpdate: (tenant: Tenant) => void;
+  onSave: (updates: any) => Promise<any>;
 }
 
-const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate }) => {
+const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave }) => {
+  const [isSaving, setIsSaving] = React.useState(false);
   const settings = tenant.settings.donationSettings;
 
   const handleSettingsChange = (field: keyof DonationSettings, value: any) => {
@@ -133,7 +135,22 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate }) => {
         </div>
         
         <div className="text-right border-t border-gray-200 pt-6">
-            <Button onClick={() => alert('Donation settings saved (mock)!')}>Save Changes</Button>
+            <Button
+              disabled={isSaving}
+              onClick={async () => {
+                try {
+                  setIsSaving(true);
+                  await onSave({ settings: { ...tenant.settings } });
+                  alert('Donation settings saved');
+                } catch (error: any) {
+                  alert(error.message || 'Failed to save donation settings');
+                } finally {
+                  setIsSaving(false);
+                }
+              }}
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </Button>
         </div>
     </div>
   );

@@ -24,12 +24,13 @@ import { hasRole, can } from '@/lib/permissions';
 interface ControlPanelProps {
   tenant: any; // Has architectural issues, needs refactoring
   onUpdate: (tenant: any) => void;
+  onSave: (updates: any) => Promise<any>;
   currentUser?: any | null;
   onImpersonate: (user: any) => void;
   onRefresh: () => void;
 }
 
-const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh }) => {
+const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, currentUser, onImpersonate, onRefresh }) => {
   const isAdmin = useMemo(
     () => !!currentUser && (currentUser.isSuperAdmin || (hasRole as any)(currentUser, tenant.id, [TenantRole.ADMIN])),
     [currentUser, tenant.id]
@@ -64,25 +65,25 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, currentUs
   const renderTabContent = () => {
     switch (activeTab) {
       case 'General':
-        return <GeneralTab tenant={tenant} onUpdate={onUpdate} />;
+        return <GeneralTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} />;
       case 'Branding':
-        return <BrandingTab tenant={tenant} onUpdate={onUpdate} />;
+        return <BrandingTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} />;
       case 'Features':
-        return <FeaturesTab tenant={tenant} onUpdate={onUpdate} />;
+        return <FeaturesTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} />;
       case 'Permissions':
         return currentUser ? (
           <PermissionsTab tenant={tenant} onUpdate={onUpdate} currentUser={currentUser} />
         ) : null;
       case 'Membership & Moderation':
         return currentUser ? (
-          <MembershipTab tenant={tenant} onUpdate={onUpdate} currentUser={currentUser} onImpersonate={onImpersonate} onRefresh={onRefresh} />
+          <MembershipTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} currentUser={currentUser} onImpersonate={onImpersonate} onRefresh={onRefresh} />
         ) : null;
       case 'User Profiles':
         return currentUser ? (
           <UserProfilesTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
         ) : null;
       case 'Donations':
-        return <DonationsTab tenant={tenant} onUpdate={onUpdate} />;
+        return <DonationsTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} />;
       case 'Volunteering':
         return currentUser ? (
           <VolunteeringTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
@@ -96,7 +97,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, currentUs
           <ServicesTab tenant={tenant} onRefresh={onRefresh} />
         ) : null;
       case 'Live Stream':
-        return <LiveStreamTab tenant={tenant} onUpdate={onUpdate} />;
+        return <LiveStreamTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} />;
       case 'Prayer Wall':
         return currentUser ? (
           <PrayerWallTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />

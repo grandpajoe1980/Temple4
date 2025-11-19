@@ -8,9 +8,11 @@ import Button from '../../ui/Button';
 interface BrandingTabProps {
   tenant: Tenant;
   onUpdate: (tenant: Tenant) => void;
+  onSave: (updates: any) => Promise<any>;
 }
 
-const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate }) => {
+const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) => {
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -129,7 +131,22 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate }) => {
       </div>
 
        <div className="text-right border-t border-gray-200 pt-6">
-          <Button onClick={() => alert('Branding saved (mock)!')}>Save Branding</Button>
+          <Button
+            disabled={isSaving}
+            onClick={async () => {
+              try {
+                setIsSaving(true);
+                await onSave({ branding: { ...tenant.branding } });
+                alert('Branding saved');
+              } catch (error: any) {
+                alert(error.message || 'Failed to save branding');
+              } finally {
+                setIsSaving(false);
+              }
+            }}
+          >
+            {isSaving ? 'Saving...' : 'Save Branding'}
+          </Button>
       </div>
     </div>
   );

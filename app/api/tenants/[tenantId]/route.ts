@@ -63,6 +63,14 @@ const tenantUpdateSchema = z.object({
     name: z.string().min(3).optional(),
     slug: z.string().min(3).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
     description: z.string().optional(),
+    creed: z.string().optional(),
+    contactEmail: z.string().email().optional().or(z.literal('').transform(() => null)),
+    phoneNumber: z.string().optional(),
+    street: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    country: z.string().optional(),
+    postalCode: z.string().optional(),
     // Add nested objects for settings and branding
     settings: z.any().optional(),
     branding: z.any().optional(),
@@ -105,7 +113,7 @@ export async function PUT(
         return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const { name, slug, description, settings, branding } = result.data;
+    const { name, slug, description, settings, branding, creed, contactEmail, phoneNumber, street, city, state, country, postalCode } = result.data;
 
     try {
         // If slug is being updated, check for uniqueness
@@ -127,6 +135,14 @@ export async function PUT(
                 ...(name && { name }),
                 ...(slug && { slug }),
                 ...(description && { description }),
+                ...(creed && { creed }),
+                ...(contactEmail !== undefined && { contactEmail }),
+                ...(phoneNumber !== undefined && { phoneNumber }),
+                ...(street && { street }),
+                ...(city && { city }),
+                ...(state && { state }),
+                ...(country && { country }),
+                ...(postalCode && { postalCode }),
                 ...(settings && { settings: { update: settings } }),
                 ...(branding && { branding: { update: branding } }),
             },

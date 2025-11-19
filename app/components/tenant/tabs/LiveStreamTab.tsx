@@ -9,9 +9,11 @@ import ToggleSwitch from '../../ui/ToggleSwitch';
 interface LiveStreamTabProps {
   tenant: Tenant;
   onUpdate: (tenant: Tenant) => void;
+  onSave: (updates: any) => Promise<any>;
 }
 
-const LiveStreamTab: React.FC<LiveStreamTabProps> = ({ tenant, onUpdate }) => {
+const LiveStreamTab: React.FC<LiveStreamTabProps> = ({ tenant, onUpdate, onSave }) => {
+  const [isSaving, setIsSaving] = React.useState(false);
   const settings = tenant.settings.liveStreamSettings;
 
   const handleSettingsChange = (field: keyof LiveStreamSettings, value: any) => {
@@ -73,7 +75,22 @@ const LiveStreamTab: React.FC<LiveStreamTabProps> = ({ tenant, onUpdate }) => {
       />
       
       <div className="text-right border-t border-gray-200 pt-6">
-        <Button onClick={() => alert('Live stream settings saved (mock)!')}>Save Changes</Button>
+        <Button
+          disabled={isSaving}
+          onClick={async () => {
+            try {
+              setIsSaving(true);
+              await onSave({ settings: { ...tenant.settings } });
+              alert('Live stream settings saved');
+            } catch (error: any) {
+              alert(error.message || 'Failed to save live stream settings');
+            } finally {
+              setIsSaving(false);
+            }
+          }}
+        >
+          {isSaving ? 'Saving...' : 'Save Changes'}
+        </Button>
       </div>
     </div>
   );

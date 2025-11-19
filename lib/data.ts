@@ -1,5 +1,20 @@
 import { prisma } from './db';
-import { Tenant, User, Post, Event, UserTenantMembership, Notification, AuditLog, Conversation, TenantSettings as PrismaTenantSettings, TenantBranding as PrismaTenantBranding, CommunityPost as PrismaCommunityPost, ServiceOffering as PrismaServiceOffering, ServiceCategory } from '@prisma/client';
+import {
+  Prisma,
+  Tenant,
+  User,
+  Post,
+  Event,
+  UserTenantMembership,
+  Notification,
+  AuditLog,
+  Conversation,
+  TenantSettings as PrismaTenantSettings,
+  TenantBranding as PrismaTenantBranding,
+  CommunityPost as PrismaCommunityPost,
+  ServiceOffering as PrismaServiceOffering,
+  ServiceCategory,
+} from '@prisma/client';
 import { TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost } from '@/types';
 import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
@@ -205,10 +220,37 @@ export async function getServiceOfferingsForTenant(
     where.category = options.category;
   }
 
-  return prisma.serviceOffering.findMany({
-    where,
-    orderBy: [{ order: 'asc' }, { name: 'asc' }],
-  });
+  const serviceOfferingDelegate = (prisma as any)?.serviceOffering;
+
+  if (serviceOfferingDelegate?.findMany) {
+    return serviceOfferingDelegate.findMany({
+      where,
+      orderBy: [{ order: 'asc' }, { name: 'asc' }],
+    });
+  }
+
+  // Older Prisma clients that haven't been regenerated yet won't have the
+  // serviceOffering delegate. Fall back to a raw query so the UI can still
+  // load instead of crashing.
+  const filters = [
+    Prisma.sql`"tenantId" = ${tenantId}`,
+    Prisma.sql`"deletedAt" IS NULL`,
+  ];
+
+  if (!options?.includePrivate) {
+    filters.push(Prisma.sql`"isPublic" = true`);
+  }
+
+  if (options?.category) {
+    filters.push(Prisma.sql`"category" = ${options.category}`);
+  }
+
+  return prisma.$queryRaw<PrismaServiceOffering[]>(Prisma.sql`
+    SELECT *
+    FROM "ServiceOffering"
+    WHERE ${Prisma.join(filters, Prisma.sql` AND `)}
+    ORDER BY "order" ASC, "name" ASC
+  `);
 }
 
 export async function getServiceOfferingById(tenantId: string, serviceId: string, includePrivate = false) {

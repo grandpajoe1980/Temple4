@@ -3,6 +3,23 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
+const SEARCHABLE_RELATIONS = {
+  profile: true,
+  accountSettings: true,
+  memberships: {
+    include: {
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+      roles: true,
+    },
+  },
+} as const;
+
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
 
@@ -37,10 +54,7 @@ export async function GET(request: Request) {
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         where,
-        include: {
-          profile: true,
-          accountSettings: true,
-        },
+        include: SEARCHABLE_RELATIONS,
         skip,
         take: limit,
         orderBy: { email: 'asc' },

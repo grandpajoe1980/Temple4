@@ -49,7 +49,7 @@ export default async function TenantLayout({
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <header className="bg-white shadow-sm sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-3">
+            <div className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
                  <div className="flex items-center space-x-4">
                     {tenant.branding?.logoUrl ? (
                          <img src={tenant.branding.logoUrl} alt={`${tenant.name} Logo`} className="h-8 w-auto" />
@@ -60,28 +60,33 @@ export default async function TenantLayout({
                     )}
                     <h1 className="text-xl font-bold text-gray-800 hidden md:block">{tenant.name}</h1>
                  </div>
-                 <div className="flex items-center space-x-2 md:space-x-4">
-                    <Link href="/" className="text-sm font-medium text-gray-600 hover:text-amber-700 hidden sm:block">
-                        &larr; Switch Tenant
-                    </Link>
-                    {user ? (
-                      <>
-                        {/* NotificationBell will be added later */}
-                        <Link href="/messages" className="text-sm font-medium text-gray-600 hover:text-amber-700">Global Messages</Link>
-                        <Link href="/account" className="text-sm font-medium text-gray-600 hover:text-amber-700">Account</Link>
-                        {user.isSuperAdmin && (
+                 <div className="flex flex-col items-start gap-2 sm:items-end">
+                    <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                        {user?.isSuperAdmin && (
                             <Link href="/admin" className="text-sm font-medium text-red-600 hover:text-red-800">Admin Console</Link>
                         )}
-                        <div className="flex items-center space-x-2">
-                            <img src={user.profile?.avatarUrl || ''} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
-                            <p className="font-semibold text-amber-700 text-sm hidden sm:block">{user.profile?.displayName}</p>
-                        </div>
-                        <Link href="/api/auth/signout" className="text-sm font-medium text-gray-600 hover:text-amber-700">Logout</Link>
-                      </>
-                    ) : (
-                      <Link href={`/auth/login?callbackUrl=/tenants/${tenant.id}`} className="text-sm font-medium text-amber-600 hover:text-amber-700">
-                        Login / Join
-                      </Link>
+                        {user ? (
+                          <>
+                            <div className="flex items-center space-x-2">
+                                <img src={user.profile?.avatarUrl || ''} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
+                                <p className="font-semibold text-amber-700 text-sm hidden sm:block">{user.profile?.displayName}</p>
+                            </div>
+                            <Link href="/api/auth/signout" className="text-sm font-medium text-gray-600 hover:text-amber-700">Logout</Link>
+                          </>
+                        ) : (
+                          <Link href={`/auth/login?callbackUrl=/tenants/${tenant.id}`} className="text-sm font-medium text-amber-600 hover:text-amber-700">
+                            Login / Join
+                          </Link>
+                        )}
+                    </div>
+                    {user && (
+                      <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-gray-600">
+                          <Link href="/" className="hover:text-amber-700 hidden sm:block">
+                              &larr; Switch Tenant
+                          </Link>
+                          <Link href="/messages" className="hover:text-amber-700">Global Messages</Link>
+                          <Link href="/explore" className="hover:text-amber-700">Explore</Link>
+                      </div>
                     )}
                  </div>
             </div>

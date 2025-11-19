@@ -1,5 +1,6 @@
 import { prisma } from './db';
 import {
+  Prisma,
   Tenant,
   User,
   Post,
@@ -75,6 +76,32 @@ interface FacilityBlackoutInput {
   startAt: Date;
   endAt: Date;
   reason?: string | null;
+}
+
+export interface TenantDataExport {
+  tenant: Tenant & { settings: PrismaTenantSettings | null; branding: PrismaTenantBranding | null };
+  members: Array<{
+    id: string;
+    status: MembershipStatus;
+    roles: TenantRole[];
+    joinedAt: Date;
+    user: {
+      id: string;
+      email: string;
+      createdAt: Date;
+      profile: any;
+    };
+  }>;
+  posts: Array<Prisma.Post & { author?: { id: string; email: string; profile: any } | null }>;
+  events: Array<Prisma.Event & { creator?: { id: string; email: string; profile: any } | null }>;
+  services: PrismaServiceOffering[];
+  facilities: Array<
+    PrismaFacility & {
+      bookings: PrismaFacilityBooking[];
+      blackouts: PrismaFacilityBlackout[];
+    }
+  >;
+  contactSubmissions: Prisma.ContactSubmission[];
 }
 
 function assertFacilityClient() {
@@ -188,6 +215,116 @@ export async function getTenants(): Promise<TenantWithRelations[]> {
             postalCode: tenant.postalCode,
         },
     }));
+}
+
+export async function exportTenantData(tenantId: string): Promise<TenantDataExport | null> {
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: tenantId },
+    include: { settings: true, branding: true },
+  });
+
+  if (!tenant) {
+    return null;
+  }
+
+  const memberships = await prisma.userTenantMembership.findMany({
+    where: { tenantId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          email: true,
+          createdAt: true,
+          profile: true,
+        },
+      },
+      roles: true,
+    },
+  });
+
+  const posts = await prisma.post.findMany({
+    where: { tenantId },
+    orderBy: [{ publishedAt: 'desc' }],
+    include: {
+      author: {
+        select: {
+          id: true,
+          email: true,
+          profile: true,
+        },
+      },
+    },
+  });
+
+  const events = await prisma.event.findMany({
+    where: { tenantId },
+    orderBy: [{ startDateTime: 'asc' }],
+    include: {
+      creator: {
+        select: {
+          id: true,
+          email: true,
+          profile: true,
+        },
+      },
+    },
+  });
+
+  const services = await prisma.serviceOffering.findMany({
+    where: { tenantId, deletedAt: null },
+    orderBy: [{ order: 'asc' }, { name: 'asc' }],
+  });
+
+  const facilities = (prisma as any)?.facility
+    ? await prisma.facility.findMany({
+        where: { tenantId },
+        include: { bookings: true, blackouts: true },
+      })
+    : [];
+
+  const contactSubmissions = await prisma.contactSubmission.findMany({
+    where: { tenantId },
+    orderBy: [{ createdAt: 'desc' }],
+  });
+
+  return {
+    tenant,
+    members: memberships.map((membership) => ({
+      id: membership.id,
+      status: membership.status as MembershipStatus,
+      roles: membership.roles.map((role) => role.role as TenantRole),
+      joinedAt: membership.createdAt,
+      user: {
+        id: membership.user.id,
+        email: membership.user.email,
+        createdAt: membership.user.createdAt,
+        profile: membership.user.profile,
+      },
+    })),
+    posts: posts.map((post) => ({
+      ...post,
+      author: post.author
+        ? {
+            id: post.author.id,
+            email: post.author.email,
+            profile: post.author.profile,
+          }
+        : null,
+    })),
+    events: events.map((event) => ({
+      ...event,
+      creator: event.creator
+        ? {
+            id: event.creator.id,
+            email: event.creator.email,
+            profile: event.creator.profile,
+          }
+        : null,
+    })),
+    services,
+    facilities,
+    contactSubmissions,
+  };
 }
 
 /**

@@ -4,8 +4,13 @@ import { redirect } from 'next/navigation';
 import { getFacilityById, getMembershipForUserInTenant, getTenantById } from '@/lib/data';
 import FacilityDetailPage from '@/app/components/tenant/FacilityDetailPage';
 
-export default async function FacilityDetail({ params }: { params: { tenantId: string; facilityId: string } }) {
-  const tenant = await getTenantById(params.tenantId);
+export default async function FacilityDetail({
+  params,
+}: {
+  params: Promise<{ tenantId: string; facilityId: string }>;
+}) {
+  const { tenantId, facilityId } = await params;
+  const tenant = await getTenantById(tenantId);
 
   if (!tenant) {
     redirect('/');
@@ -16,7 +21,7 @@ export default async function FacilityDetail({ params }: { params: { tenantId: s
     ? await getMembershipForUserInTenant((session.user as any).id, tenant.id)
     : null;
 
-  const facility = await getFacilityById(tenant.id, params.facilityId, membership?.status === 'APPROVED');
+  const facility = await getFacilityById(tenant.id, facilityId, membership?.status === 'APPROVED');
 
   if (!facility) {
     redirect(`/tenants/${tenant.id}/facilities`);

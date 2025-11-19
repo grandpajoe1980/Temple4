@@ -14,7 +14,7 @@ import {
   ServiceOffering as PrismaServiceOffering,
   ServiceCategory,
 } from '@prisma/client';
-import { TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost } from '@/types';
+import { TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost, CommunityPostStatus, ContactSubmissionStatus } from '@/types';
 import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
 
@@ -759,16 +759,37 @@ export async function getMembersForTenant(tenantId: string) {
 }
 
 export async function updateMembershipStatus(userId: string, tenantId: string, status: string) {
-    // TODO: Implement membership status update
-    return null;
+    return prisma.userTenantMembership.update({
+        where: {
+            userId_tenantId: {
+                userId,
+                tenantId,
+            },
+        },
+        data: { status: status as any },
+    });
 }
 
 export async function updateMemberRolesAndTitle(membershipId: string, roles: any[], userId?: string) {
-    // TODO: Implement member roles and title update
-    // membershipId: UserTenantMembership.id
-    // roles: array of UserTenantRole
-    // userId: for audit logging when implemented
-    return null;
+    const [primaryRole] = roles.filter((role) => role.isPrimary);
+
+    await prisma.userTenantRole.deleteMany({ where: { membershipId } });
+
+    await prisma.userTenantRole.createMany({
+        data: roles.map((role) => ({
+            membershipId,
+            role: role.role,
+            isPrimary: role.isPrimary || false,
+            displayTitle: role.displayTitle || null,
+        })),
+    });
+
+    if (primaryRole?.displayTitle) {
+        await prisma.userTenantMembership.update({
+            where: { id: membershipId },
+            data: { displayName: primaryRole.displayTitle },
+        });
+    }
 }
 
 export async function getSmallGroupsForTenant(tenantId: string) {
@@ -860,31 +881,55 @@ export async function deleteResourceItem(itemId: string, userId?: string) {
 }
 
 export async function getCommunityPostsForTenant(tenantId: string, includePrivate?: boolean): Promise<CommunityPost[]> {
-    // TODO: Implement community posts fetching
-    // includePrivate parameter to filter based on status (for moderation)
-    return [];
+    const posts = await prisma.communityPost.findMany({
+        where: {
+            tenantId,
+            ...(includePrivate ? {} : { status: CommunityPostStatus.PUBLISHED }),
+        },
+        orderBy: { createdAt: 'desc' },
+    });
+
+    return posts.map((post: any) => ({
+        ...post,
+        authorDisplayName: post.isAnonymous ? 'Anonymous' : post.authorUserId || 'Unknown',
+        authorAvatarUrl: undefined,
+        createdAt: new Date(post.createdAt),
+    }));
 }
 
 export async function updateCommunityPostStatus(postId: string, status: string) {
-    // TODO: Implement community post status update
-    return null;
+    return prisma.communityPost.update({
+        where: { id: postId },
+        data: { status: status as any },
+    });
 }
 
 export async function getContactSubmissionsForTenant(tenantId: string) {
-    // TODO: Implement contact submissions fetching
-    return [];
+    const submissions = await prisma.contactSubmission.findMany({
+        where: { tenantId },
+        orderBy: { createdAt: 'desc' },
+    });
+
+    return submissions.map((submission) => ({
+        ...submission,
+        createdAt: new Date(submission.createdAt),
+    }));
 }
 
 export async function updateContactSubmissionStatus(submissionId: string, status: string, userId?: string) {
-    // TODO: Implement contact submission status update
-    // userId parameter for audit logging when implemented
-    return null;
+    return prisma.contactSubmission.update({
+        where: { id: submissionId },
+        data: { status: status as any },
+    });
 }
 
 export async function respondToContactSubmission(submissionId: string, response: string, userId?: string, tenantName?: string) {
-    // TODO: Implement contact submission response
-    // userId and tenantName parameters for sending response email when implemented
-    return null;
+    await prisma.contactSubmission.update({
+        where: { id: submissionId },
+        data: { status: ContactSubmissionStatus.READ },
+    });
+
+    console.info(`Response recorded for submission ${submissionId}${tenantName ? ` from ${tenantName}` : ''}: ${response}`);
 }
 
 export async function updateTenantPermissions(tenantId: string, permissions: any, userId?: string) {
@@ -988,8 +1033,17 @@ export async function addDonationRecord(tenantId: string, donationData: any) {
 }
 
 export async function addContactSubmission(tenantId: string, submissionData: any) {
-    // TODO: Implement contact submission creation
-    return null;
+    const submission = await prisma.contactSubmission.create({
+        data: {
+            tenantId,
+            name: submissionData.name,
+            email: submissionData.email,
+            message: submissionData.message,
+            status: ContactSubmissionStatus.UNREAD,
+        },
+    });
+
+    return submission;
 }
 
 export async function addCommunityPost(postData: any) {

@@ -9,9 +9,11 @@ import ToggleSwitch from '../../ui/ToggleSwitch';
 interface GeneralTabProps {
   tenant: Tenant;
   onUpdate: (tenant: Tenant) => void;
+  onSave: (updates: any) => Promise<any>;
 }
 
-const GeneralTab: React.FC<GeneralTabProps> = ({ tenant, onUpdate }) => {
+const GeneralTab: React.FC<GeneralTabProps> = ({ tenant, onUpdate, onSave }) => {
+  const [isSaving, setIsSaving] = React.useState(false);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -79,7 +81,34 @@ const GeneralTab: React.FC<GeneralTabProps> = ({ tenant, onUpdate }) => {
         />
         
         <div className="text-right border-t border-gray-200 pt-6">
-            <Button onClick={() => alert('Settings saved (mock)!')}>Save Changes</Button>
+            <Button
+              disabled={isSaving}
+              onClick={async () => {
+                try {
+                  setIsSaving(true);
+                  await onSave({
+                    name: tenant.name,
+                    creed: tenant.creed,
+                    contactEmail: tenant.contactEmail,
+                    phoneNumber: tenant.phoneNumber,
+                    description: tenant.description,
+                    street: tenant.address.street,
+                    city: tenant.address.city,
+                    state: tenant.address.state,
+                    country: tenant.address.country,
+                    postalCode: tenant.address.postalCode,
+                    settings: { ...tenant.settings },
+                  });
+                  alert('Settings saved');
+                } catch (error: any) {
+                  alert(error.message || 'Failed to save settings');
+                } finally {
+                  setIsSaving(false);
+                }
+              }}
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </Button>
         </div>
     </div>
   );

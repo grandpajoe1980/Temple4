@@ -261,6 +261,7 @@ model TenantSettings {
   enableGroupChat          Boolean                @default(true)
   enableComments           Boolean                @default(true)
   enableReactions          Boolean                @default(true)
+  enableServices           Boolean                @default(true)
   enableDonations          Boolean                @default(false)
   enableVolunteering       Boolean                @default(false)
   enableSmallGroups        Boolean                @default(false)

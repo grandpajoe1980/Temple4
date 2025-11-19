@@ -193,6 +193,7 @@ export interface TenantSettings {
   enableGroupChat: boolean;
   enableComments: boolean;
   enableReactions: boolean;
+  enableServices: boolean;
   enableDonations: boolean;
   enableVolunteering: boolean;
   enableSmallGroups: boolean;

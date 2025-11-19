@@ -8,9 +8,15 @@ import Button from '../../ui/Button';
 interface FeaturesTabProps {
   tenant: Tenant;
   onUpdate: (tenant: Tenant) => void;
+  onSave: (updates: any) => Promise<any>;
 }
 
-const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate }) => {
+const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave }) => {
+  const [isSaving, setIsSaving] = React.useState(false);
+  const formatLabel = (key: string) => {
+    return key.replace('enable', '').replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+  };
+
   const handleFeatureToggle = (feature: keyof Omit<Tenant['settings'], 'isPublic' | 'membershipApprovalMode' | 'visitorVisibility' | 'donationSettings' | 'liveStreamSettings'>, enabled: boolean) => {
     onUpdate({
       ...tenant,
@@ -34,29 +40,12 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate }) => {
     });
   };
 
-  const featureKeys: (keyof Omit<Tenant['settings'], 'isPublic' | 'membershipApprovalMode' | 'visitorVisibility' | 'donationSettings' | 'liveStreamSettings'>)[] = [
-    'enableCalendar',
-    'enablePosts',
-    'enableSermons',
-    'enablePodcasts',
-    'enableBooks',
-    'enableMemberDirectory',
-    'enableGroupChat',
-    'enableComments',
-    'enableReactions',
-    'enableDonations',
-    'enableVolunteering',
-    'enableSmallGroups',
-    'enableLiveStream',
-    'enablePrayerWall',
-    'enableResourceCenter',
-  ];
+  const featureKeys = (['enableBooks', 'enableCalendar', 'enableComments', 'enableDonations', 'enableGroupChat', 'enableLiveStream', 'enableMemberDirectory', 'enablePodcasts', 'enablePosts', 'enablePrayerWall', 'enableReactions', 'enableResourceCenter', 'enableServices', 'enableSermons', 'enableSmallGroups', 'enableVolunteering'] satisfies Array<keyof Omit<
+    Tenant['settings'],
+    'isPublic' | 'membershipApprovalMode' | 'visitorVisibility' | 'donationSettings' | 'liveStreamSettings'
+  >>).sort((a, b) => formatLabel(a).localeCompare(formatLabel(b)));
 
   const visibilityKeys = Object.keys(tenant.settings.visitorVisibility) as (keyof Tenant['settings']['visitorVisibility'])[];
-
-  const formatLabel = (key: string) => {
-    return key.replace('enable', '').replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-  };
 
   return (
     <div className="space-y-8">
@@ -91,7 +80,22 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate }) => {
       </div>
 
       <div className="text-right border-t border-gray-200 pt-6">
-        <Button onClick={() => alert('Features saved (mock)!')}>Save Feature Settings</Button>
+        <Button
+          disabled={isSaving}
+          onClick={async () => {
+            try {
+              setIsSaving(true);
+              await onSave({ settings: { ...tenant.settings } });
+              alert('Features saved');
+            } catch (error: any) {
+              alert(error.message || 'Failed to save features');
+            } finally {
+              setIsSaving(false);
+            }
+          }}
+        >
+          {isSaving ? 'Saving...' : 'Save Feature Settings'}
+        </Button>
       </div>
     </div>
   );

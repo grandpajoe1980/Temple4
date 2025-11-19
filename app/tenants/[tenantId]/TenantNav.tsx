@@ -35,7 +35,7 @@ const navItems: { key: TenantPage; label: string; path: string; feature?: NavIte
     { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
     { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
     { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
-    { key: 'services', label: 'Services', path: '/services' },
+    { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
     { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
     { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
     { key: 'liveStream', label: 'Live Stream', path: '/livestream', feature: 'enableLiveStream' },

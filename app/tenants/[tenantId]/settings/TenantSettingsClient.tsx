@@ -17,6 +17,47 @@ export default function TenantSettingsClient({ tenant, user }: TenantSettingsCli
     setCurrentTenant(tenant);
   }, [tenant]);
 
+  const persistUpdates = async (updates: any) => {
+    const cleanSettings = (settings: any) => {
+      if (!settings) return undefined;
+      const { id, tenantId, ...rest } = settings;
+      return rest;
+    };
+
+    const cleanBranding = (branding: any) => {
+      if (!branding) return undefined;
+      const { id, tenantId, ...rest } = branding;
+      return rest;
+    };
+
+    const payload: any = { ...updates };
+
+    if (payload.settings) {
+      payload.settings = cleanSettings(payload.settings);
+    }
+
+    if (payload.branding) {
+      payload.branding = cleanBranding(payload.branding);
+    }
+
+    const response = await fetch(`/api/tenants/${tenant.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Failed to update tenant' }));
+      throw new Error(error.message || 'Failed to update tenant');
+    }
+
+    const updated = await response.json();
+    setCurrentTenant(updated);
+    return updated;
+  };
+
   const handleRefresh = () => {
     router.refresh();
   };
@@ -59,6 +100,7 @@ export default function TenantSettingsClient({ tenant, user }: TenantSettingsCli
     <ControlPanel
       tenant={currentTenant}
       onUpdate={handleUpdate}
+      onSave={persistUpdates}
       currentUser={user}
       onImpersonate={handleImpersonate}
       onRefresh={handleRefresh}

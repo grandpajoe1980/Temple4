@@ -4,9 +4,8 @@ import { redirect } from 'next/navigation';
 import { getFacilitiesForTenant, getMembershipForUserInTenant, getTenantById } from '@/lib/data';
 import FacilitiesPage from '@/app/components/tenant/FacilitiesPage';
 
-export default async function TenantFacilitiesPage({ params }: { params: Promise<{ tenantId: string }> }) {
-  const resolvedParams = await params;
-  const tenant = await getTenantById(resolvedParams.tenantId);
+export default async function TenantFacilitiesPage({ params }: { params: { tenantId: string } }) {
+  const tenant = await getTenantById(params.tenantId);
 
   if (!tenant) {
     redirect('/');

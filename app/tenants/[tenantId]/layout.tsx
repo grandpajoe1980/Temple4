@@ -14,10 +14,9 @@ export default async function TenantLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ tenantId: string }>;
+  params: { tenantId: string };
 }) {
-  const resolvedParams = await params;
-  const tenant = await getTenantById(resolvedParams.tenantId);
+  const tenant = await getTenantById(params.tenantId);
   
   if (!tenant) {
     redirect('/');

@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
-// Temporarily disabled due to network restrictions
-// import { Inter } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import Providers from './components/providers'
 import SiteHeader from './components/ui/SiteHeader'
 import SiteFooter from './components/ui/SiteFooter'
 
-// const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
 
 export const metadata: Metadata = {
   title: 'Temple Platform',
@@ -19,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <body className="font-sans">
         <a href="#main-content" className="skip-link">
           Skip to main content

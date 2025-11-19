@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "db:seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
     "test:suite": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" test-suite/run-tests.ts",
     "test:all": "cd test-suite && run-tests-with-server.bat",

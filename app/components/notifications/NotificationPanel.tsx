@@ -45,14 +45,34 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
 
   return (
     <div
-      className="absolute right-0 mt-2 w-80 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-30"
+      className="absolute right-0 mt-2 w-80 origin-top-right rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 focus:outline-none z-30"
       role="menu"
       aria-orientation="vertical"
       aria-labelledby="user-menu-button"
     >
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-        <h3 className="text-md font-semibold text-gray-900">Notifications</h3>
-        <Button variant="secondary" size="sm" onClick={onMarkAllAsRead}>Mark all as read</Button>
+      <div className="flex items-center justify-between gap-2 border-b border-gray-200 px-4 py-3">
+        <div>
+          <h3 className="text-md font-semibold text-gray-900">Notifications</h3>
+          <p className="text-xs text-gray-500">Stay on top of approvals and updates</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={onMarkAllAsRead}>
+            Mark all as read
+          </Button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            aria-label="Close notifications"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M6.3 5.3 5.3 6.3 10.9 12l-5.6 5.7 1 1 5.7-5.6 5.7 5.6 1-1-5.6-5.7 5.6-5.7-1-1-5.7 5.6z"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
       <div className="py-1 max-h-96 overflow-y-auto" role="none">
         {notifications.length > 0 ? (

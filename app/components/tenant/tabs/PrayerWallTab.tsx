@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, EnrichedCommunityPost } from '@/types';
 import { CommunityPostStatus } from '@/types';

@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useMemo } from 'react';
 import type { EnrichedConversation, User } from '@/types';
 import Input from '../ui/Input';
@@ -65,8 +67,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     {conv.isDirect && otherParticipant ? (
                       <img
                         className="h-10 w-10 rounded-full"
-                        // FIX: Access avatarUrl and displayName from the nested profile object.
-                        src={otherParticipant.profile.avatarUrl}
+                        src={otherParticipant.profile.avatarUrl || '/placeholder-avatar.svg'}
                         alt={otherParticipant.profile.displayName}
                       />
                     ) : (

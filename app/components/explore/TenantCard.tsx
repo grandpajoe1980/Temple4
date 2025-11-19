@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import type { Tenant, TenantSettings, TenantBranding } from '@prisma/client';
 import Card from '../ui/Card';
@@ -25,14 +27,18 @@ const TenantCard: React.FC<TenantCardProps> = ({ tenant, onView }) => {
     <div className="h-full">
         <Card className="!p-0 flex flex-col h-full group">
             <div className="relative">
-                <img 
-                    src={tenant.branding?.bannerImageUrl || `https://source.unsplash.com/random/400x200?temple,${tenant.id}`} 
-                    alt={`${tenant.name} banner`} 
-                    className="h-40 w-full object-cover" 
-                />
+                <div className="h-40 w-full bg-gradient-to-r from-amber-100 to-amber-200">
+                  {tenant.branding?.bannerImageUrl && (
+                    <img 
+                        src={tenant.branding.bannerImageUrl} 
+                        alt={`${tenant.name} banner`} 
+                        className="h-40 w-full object-cover" 
+                    />
+                  )}
+                </div>
                 <div className="absolute -bottom-8 left-6">
                     <img 
-                        src={tenant.branding?.logoUrl || `https://source.unsplash.com/random/100x100?logo,${tenant.id}`}
+                        src={tenant.branding?.logoUrl || '/placeholder-logo.svg'}
                         alt={`${tenant.name} logo`}
                         className="h-16 w-16 rounded-full bg-white p-1 shadow-md object-cover ring-2 ring-white"
                     />

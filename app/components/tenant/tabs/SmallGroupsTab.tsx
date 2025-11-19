@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import type { Tenant, User, EnrichedSmallGroup, EnrichedMember } from '@/types';
 import { getSmallGroupsForTenant, createSmallGroup, getMembersForTenant } from '@/lib/data';

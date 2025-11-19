@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react';
 import type { EnrichedMember } from '@/types';
 import Input from '../../ui/Input';

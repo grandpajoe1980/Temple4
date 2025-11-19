@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import type { User, Tenant } from '@/types';
 import Card from '../ui/Card';
@@ -27,7 +29,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ profileUser, affiliatedTenant
         <div className="p-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8">
             <img 
-              src={profileUser.profile.avatarUrl} 
+              src={profileUser.profile.avatarUrl || '/placeholder-avatar.svg'} 
               alt={`${profileUser.profile.displayName}'s avatar`}
               className="w-32 h-32 rounded-full ring-4 ring-white ring-offset-2 ring-offset-amber-100"
             />

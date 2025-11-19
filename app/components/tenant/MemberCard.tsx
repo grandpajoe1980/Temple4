@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import type { EnrichedMember } from '@/types';
 import Card from '../ui/Card';
@@ -24,7 +26,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
       <Card className="!p-4 text-center h-full group-hover:shadow-lg group-hover:border-amber-400 border border-transparent transition-all">
         <img
           className="w-20 h-20 mx-auto rounded-full"
-          src={member.profile.avatarUrl}
+          src={member.profile.avatarUrl || '/placeholder-avatar.svg'}
           alt={`${displayName}'s avatar`}
         />
         <h3 className="mt-4 text-md font-semibold text-gray-900 truncate">{displayName}</h3>

@@ -38,6 +38,7 @@ const navItems: { key: TenantPage; label: string; path: string; feature?: NavIte
     { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
     { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
     { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
+    { key: 'facilities', label: 'Facilities', path: '/facilities' },
     { key: 'liveStream', label: 'Live Stream', path: '/livestream', feature: 'enableLiveStream' },
     { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
     { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },

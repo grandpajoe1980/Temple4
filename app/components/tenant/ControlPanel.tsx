@@ -15,6 +15,7 @@ import DonationsTab from './tabs/DonationsTab';
 import VolunteeringTab from './tabs/VolunteeringTab';
 import SmallGroupsTab from './tabs/SmallGroupsTab';
 import ServicesTab from './tabs/ServicesTab';
+import FacilitiesTab from './tabs/FacilitiesTab';
 import LiveStreamTab from './tabs/LiveStreamTab';
 import PrayerWallTab from './tabs/PrayerWallTab';
 import ResourceCenterTab from './tabs/ResourceCenterTab';
@@ -54,6 +55,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
           return can(currentUser, tenant, 'canManageResources');
         case 'Contact Submissions':
             return can(currentUser, tenant, 'canManageContactSubmissions');
+        case 'Facilities':
+          return can(currentUser, tenant, 'canManageFacilities');
         default:
           return false; // Hide all other tabs from non-admins
       }
@@ -95,6 +98,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
       case 'Services':
         return currentUser ? (
           <ServicesTab tenant={tenant} onRefresh={onRefresh} />
+        ) : null;
+      case 'Facilities':
+        return currentUser ? (
+          <FacilitiesTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
         ) : null;
       case 'Live Stream':
         return <LiveStreamTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} />;

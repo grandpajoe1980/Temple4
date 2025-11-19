@@ -12,6 +12,7 @@ export class APITestSuite {
   private testTenantId: string | null = null;
   private testUserId: string | null = null;
   private testServiceId: string | null = null;
+  private testFacilityId: string | null = null;
 
   constructor(logger: TestLogger) {
     this.logger = logger;
@@ -592,6 +593,62 @@ export class APITestSuite {
         return { response, expectedStatus: [200, 401, 403] };
       }
     );
+
+    await this.testEndpoint(
+      category,
+      'GET /api/tenants/[tenantId]/facilities',
+      async () => {
+        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/facilities`, {
+          method: 'GET',
+          headers: this.getAuthHeaders(),
+        });
+
+        return { response, expectedStatus: [200, 401, 403] };
+      }
+    );
+
+    await this.testEndpoint(
+      category,
+      'POST /api/tenants/[tenantId]/facilities - Create facility',
+      async () => {
+        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/facilities`, {
+          method: 'POST',
+          headers: this.getAuthHeaders(),
+          body: JSON.stringify({
+            name: `Test Facility ${Date.now()}`,
+            type: 'ROOM',
+            description: 'Automated test facility',
+            location: 'Main Campus',
+            capacity: 25,
+          }),
+        });
+
+        if (response.ok) {
+          const body = await response.json().catch(() => null);
+          this.testFacilityId = (body as any)?.id ?? this.testFacilityId;
+        }
+
+        return { response, expectedStatus: [201, 400, 401, 403] };
+      }
+    );
+
+    if (this.testFacilityId) {
+      await this.testEndpoint(
+        category,
+        'GET /api/tenants/[tenantId]/facilities/[facilityId]/bookings',
+        async () => {
+          const response = await fetch(
+            `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/facilities/${this.testFacilityId}/bookings`,
+            {
+              method: 'GET',
+              headers: this.getAuthHeaders(),
+            }
+          );
+
+          return { response, expectedStatus: [200, 401, 403, 404] };
+        }
+      );
+    }
   }
 
   private async testEndpoint(

@@ -13,6 +13,10 @@ import {
   CommunityPost as PrismaCommunityPost,
   ServiceOffering as PrismaServiceOffering,
   ServiceCategory,
+  Facility as PrismaFacility,
+  FacilityBooking as PrismaFacilityBooking,
+  FacilityType,
+  BookingStatus,
 } from '@prisma/client';
 import { TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost, CommunityPostStatus, ContactSubmissionStatus } from '@/types';
 import { EnrichedResourceItem } from '@/types';
@@ -40,6 +44,27 @@ interface ServiceOfferingInput {
   pricing?: string | null;
   imageUrl?: string | null;
   order?: number;
+}
+
+interface FacilityInput {
+  name: string;
+  description?: string | null;
+  type: FacilityType;
+  location?: string | null;
+  capacity?: number | null;
+  isActive?: boolean;
+  bookingRules?: Record<string, any> | null;
+}
+
+interface FacilityBookingInput {
+  facilityId: string;
+  tenantId: string;
+  requestedById: string;
+  startAt: Date;
+  endAt: Date;
+  purpose: string;
+  eventId?: string | null;
+  notes?: string | null;
 }
 
 /**
@@ -299,6 +324,192 @@ export async function deleteServiceOffering(tenantId: string, serviceId: string)
   });
 
   return result.count > 0;
+}
+
+export async function getFacilitiesForTenant(
+  tenantId: string,
+  options?: { includeInactive?: boolean }
+): Promise<PrismaFacility[]> {
+  const where = {
+    tenantId,
+    ...(options?.includeInactive ? {} : { isActive: true }),
+  };
+
+  return prisma.facility.findMany({
+    where,
+    orderBy: [{ name: 'asc' }],
+  });
+}
+
+export async function getFacilityById(tenantId: string, facilityId: string, includeInactive = false) {
+  const facility = await prisma.facility.findFirst({
+    where: {
+      id: facilityId,
+      tenantId,
+      ...(includeInactive ? {} : { isActive: true }),
+    },
+    include: {
+      bookings: {
+        where: {
+          status: { in: [BookingStatus.REQUESTED, BookingStatus.APPROVED] },
+          endAt: { gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30) },
+        },
+        orderBy: { startAt: 'asc' },
+      },
+    },
+  });
+
+  return facility;
+}
+
+export async function createFacility(tenantId: string, data: FacilityInput): Promise<PrismaFacility> {
+  return prisma.facility.create({
+    data: {
+      tenantId,
+      name: data.name,
+      description: data.description ?? null,
+      type: data.type,
+      location: data.location ?? null,
+      capacity: data.capacity ?? null,
+      isActive: data.isActive ?? true,
+      bookingRules: data.bookingRules ?? null,
+    },
+  });
+}
+
+export async function updateFacility(tenantId: string, facilityId: string, data: Partial<FacilityInput>) {
+  const existing = await prisma.facility.findFirst({ where: { id: facilityId, tenantId } });
+
+  if (!existing) return null;
+
+  return prisma.facility.update({
+    where: { id: existing.id },
+    data: {
+      name: data.name ?? existing.name,
+      description: data.description === undefined ? existing.description : data.description,
+      type: data.type ?? existing.type,
+      location: data.location === undefined ? existing.location : data.location,
+      capacity: data.capacity === undefined ? existing.capacity : data.capacity,
+      isActive: data.isActive ?? existing.isActive,
+      bookingRules: data.bookingRules === undefined ? (existing.bookingRules as any) : data.bookingRules,
+    },
+  });
+}
+
+export async function checkFacilityAvailability(
+  tenantId: string,
+  facilityId: string,
+  startAt: Date,
+  endAt: Date,
+  options?: { excludeBookingId?: string }
+) {
+  const conflict = await prisma.facilityBooking.findFirst({
+    where: {
+      tenantId,
+      facilityId,
+      status: { in: [BookingStatus.REQUESTED, BookingStatus.APPROVED] },
+      ...(options?.excludeBookingId ? { id: { not: options.excludeBookingId } } : {}),
+      OR: [
+        { startAt: { lt: endAt }, endAt: { gt: startAt } },
+        { startAt: { gte: startAt, lt: endAt } },
+      ],
+    },
+  });
+
+  return !conflict;
+}
+
+export async function requestFacilityBooking(data: FacilityBookingInput): Promise<PrismaFacilityBooking | null> {
+  if (data.startAt >= data.endAt) {
+    throw new Error('Start time must be before end time');
+  }
+
+  const facility = await prisma.facility.findFirst({
+    where: { id: data.facilityId, tenantId: data.tenantId, isActive: true },
+  });
+
+  if (!facility) {
+    return null;
+  }
+
+  const available = await checkFacilityAvailability(data.tenantId, data.facilityId, data.startAt, data.endAt);
+
+  if (!available) {
+    return null;
+  }
+
+  return prisma.facilityBooking.create({
+    data: {
+      tenantId: data.tenantId,
+      facilityId: data.facilityId,
+      requestedById: data.requestedById,
+      startAt: data.startAt,
+      endAt: data.endAt,
+      purpose: data.purpose,
+      eventId: data.eventId ?? null,
+      notes: data.notes ?? null,
+    },
+  });
+}
+
+export async function updateFacilityBookingStatus(
+  tenantId: string,
+  bookingId: string,
+  status: BookingStatus,
+  notes?: string | null
+) {
+  const booking = await prisma.facilityBooking.findFirst({ where: { id: bookingId, tenantId } });
+
+  if (!booking) return null;
+
+  if (status === BookingStatus.APPROVED) {
+    const available = await checkFacilityAvailability(tenantId, booking.facilityId, booking.startAt, booking.endAt, {
+      excludeBookingId: booking.id,
+    });
+
+    if (!available) {
+      throw new Error('Facility is not available for the selected time');
+    }
+  }
+
+  return prisma.facilityBooking.update({
+    where: { id: booking.id },
+    data: { status, notes: notes ?? booking.notes },
+  });
+}
+
+export async function getFacilityBookings(
+  tenantId: string,
+  facilityId?: string,
+  statuses: BookingStatus[] = [BookingStatus.REQUESTED, BookingStatus.APPROVED, BookingStatus.REJECTED, BookingStatus.CANCELLED]
+) {
+  return prisma.facilityBooking.findMany({
+    where: {
+      tenantId,
+      ...(facilityId ? { facilityId } : {}),
+      status: { in: statuses },
+    },
+    orderBy: { startAt: 'asc' },
+    include: { facility: true, requestedBy: true },
+  });
+}
+
+export async function getFacilityCalendar(
+  tenantId: string,
+  facilityId: string,
+  startDate: Date,
+  endDate: Date
+) {
+  return prisma.facilityBooking.findMany({
+    where: {
+      tenantId,
+      facilityId,
+      startAt: { gte: startDate },
+      endAt: { lte: endDate },
+      status: { in: [BookingStatus.REQUESTED, BookingStatus.APPROVED] },
+    },
+    orderBy: { startAt: 'asc' },
+  });
 }
 
 /**

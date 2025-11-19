@@ -21,9 +21,34 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ tenant, currentUs
   const [members, setMembers] = useState<any[]>([]);
 
   useEffect(() => {
-    // TODO: Fetch members via API endpoint
-    setMembers([]);
-  }, [tenant.id]);
+    const fetchMembers = async () => {
+      try {
+        const response = await fetch(`/api/tenants/${tenant.id}/members`);
+        if (!response.ok) {
+          setMembers([]);
+          return;
+        }
+
+        const data = await response.json();
+        const normalizedMembers = (data.members || []).map((member: any) => ({
+          id: member.user.id,
+          profile: member.user.profile || {},
+        }));
+
+        setMembers(normalizedMembers);
+        setSelectedParticipants((prev) => {
+          const next = new Set(prev);
+          next.add(currentUser.id);
+          return next;
+        });
+      } catch (error) {
+        console.error('Failed to load members for channel creation', error);
+        setMembers([]);
+      }
+    };
+
+    fetchMembers();
+  }, [tenant.id, currentUser.id]);
 
   const handleParticipantToggle = (userId: string) => {
     if (userId === currentUser.id) return; // Current user cannot be deselected

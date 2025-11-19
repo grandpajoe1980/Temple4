@@ -3,6 +3,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { getTenantById, getUserById } from '@/lib/data';
 import ChatPage from '@/app/components/tenant/ChatPage';
+import { can } from '@/lib/permissions';
 
 export default async function TenantChatPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const session = await getServerSession(authOptions);
@@ -19,5 +20,7 @@ export default async function TenantChatPage({ params }: { params: Promise<{ ten
     redirect('/');
   }
 
-  return <ChatPage tenant={tenant} user={user} />;
+  const canCreateGroupChats = await can(user as any, tenant as any, 'canCreateGroupChats');
+
+  return <ChatPage tenant={tenant} user={user} canCreateGroupChats={canCreateGroupChats} />;
 }

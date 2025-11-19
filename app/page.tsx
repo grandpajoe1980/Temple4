@@ -12,7 +12,12 @@ export default async function Page() {
   if (userId) {
     tenants = await getTenantsForUser(userId);
   }
-  const allTenants = await prisma.tenant.findMany();
+  const allTenants = await prisma.tenant.findMany({
+    include: {
+      settings: true,
+      branding: true,
+    },
+  });
 
   return <HomePageClient session={session} tenants={tenants} allTenants={allTenants} />;
 }

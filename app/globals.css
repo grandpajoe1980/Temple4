@@ -138,10 +138,13 @@
   h2,
   h3,
   h4 {
-    @apply font-semibold tracking-tight text-foreground;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--foreground);
   }
   p {
-    @apply text-muted-foreground leading-relaxed;
+    color: var(--muted-foreground);
+    line-height: 1.7;
   }
   button,
   input,

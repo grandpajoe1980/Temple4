@@ -92,7 +92,7 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
         ) : (
           <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg">
             <h3 className="text-lg font-medium text-gray-900">No Volunteer Needs Created</h3>
-            <p className="mt-1 text-sm text-gray-500">Click "Create Need" to get started.</p>
+            <p className="mt-1 text-sm text-gray-500">Click “Create Need” to get started.</p>
           </div>
         )}
       </div>

@@ -1,7 +1,7 @@
 "use client"
 
-import React from 'react';
-import type { Tenant, User } from '@/types';
+import React, { useEffect, useState } from 'react';
+import type { Tenant, User, UserTenantMembership } from '@/types';
 import { getEventsForTenant, getMembershipForUserInTenant, getPostsForTenant, requestToJoinTenant } from '@/lib/data';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -16,19 +16,64 @@ interface HomePageProps {
   onRefresh: () => void;
 }
 
-const HomePage: React.FC<HomePageProps> = async ({ tenant, user, onNavigate, onRefresh }) => {
-  const membership = await getMembershipForUserInTenant(user.id, tenant.id);
+const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh }) => {
+  const [membership, setMembership] = useState<UserTenantMembership | null>(null);
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+  const [recentPosts, setRecentPosts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      const membershipData = await getMembershipForUserInTenant(user.id, tenant.id);
+
+      if (!isMounted) return;
+
+      setMembership(membershipData);
+
+      if (!membershipData || membershipData.status !== MembershipStatus.APPROVED) {
+        setIsLoading(false);
+        return;
+      }
+
+      const allEvents = await getEventsForTenant(tenant.id);
+      const allPosts = await getPostsForTenant(tenant.id);
+
+      if (!isMounted) return;
+
+      setUpcomingEvents(allEvents.filter((e: any) => e.startDateTime > new Date()).slice(0, 3));
+      setRecentPosts(allPosts.slice(0, 3));
+      setIsLoading(false);
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [tenant.id, user.id]);
 
   const handleJoin = async () => {
     await requestToJoinTenant(user.id, tenant.id);
+    const updatedMembership = await getMembershipForUserInTenant(user.id, tenant.id);
+    setMembership(updatedMembership);
     onRefresh();
   };
+
+  if (isLoading) {
+    return (
+      <div className="grid place-items-center">
+        <Card className="max-w-2xl w-full text-center">Loading membership...</Card>
+      </div>
+    );
+  }
 
   // If user is not an approved member, show a join/status view.
   if (!membership || membership.status !== MembershipStatus.APPROVED) {
     let joinContent;
     if (membership?.status === MembershipStatus.BANNED) {
-      joinContent = (
+          joinContent = (
         <div className="text-center">
           <h3 className="text-xl font-semibold text-red-800">Access Restricted</h3>
           <p className="mt-2 text-gray-600">You are currently banned from this community. Please contact an administrator for more information.</p>
@@ -55,7 +100,7 @@ const HomePage: React.FC<HomePageProps> = async ({ tenant, user, onNavigate, onR
       );
     }
 
-    return (
+      return (
       <div className="grid place-items-center">
         <Card className="max-w-2xl w-full">{joinContent}</Card>
       </div>
@@ -63,10 +108,6 @@ const HomePage: React.FC<HomePageProps> = async ({ tenant, user, onNavigate, onR
   }
 
   const tenantDisplayName = membership?.displayName || user.profile.displayName;
-  const allEvents = await getEventsForTenant(tenant.id);
-  const upcomingEvents = allEvents.filter((e: any) => e.startDateTime > new Date()).slice(0, 3);
-  const allPosts = await getPostsForTenant(tenant.id);
-  const recentPosts = allPosts.slice(0, 3);
   const donationLink = tenant.branding.customLinks.find((link: any) => link.label.toLowerCase() === 'donate');
   const { enableLiveStream, liveStreamSettings } = tenant.settings;
   const isLive = enableLiveStream && liveStreamSettings.isLive;
@@ -83,7 +124,7 @@ const HomePage: React.FC<HomePageProps> = async ({ tenant, user, onNavigate, onR
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
           </span>
-          <span className="font-bold text-lg">We're Live! Click here to join.</span>
+          <span className="font-bold text-lg">We’re Live! Click here to join.</span>
         </div>
       )}
 
@@ -133,7 +174,7 @@ const HomePage: React.FC<HomePageProps> = async ({ tenant, user, onNavigate, onR
             <Card>
                 <h3 className="text-xl font-semibold text-gray-800">Welcome, {tenantDisplayName}!</h3>
                 <p className="mt-2 text-gray-600">
-                    This is the central hub for {tenant.name}. Here you'll find the latest announcements, upcoming events, and more. We're glad you're here.
+                    This is the central hub for {tenant.name}. Here you’ll find the latest announcements, upcoming events, and more. We’re glad you’re here.
                 </p>
             </Card>
 
@@ -167,7 +208,7 @@ const HomePage: React.FC<HomePageProps> = async ({ tenant, user, onNavigate, onR
                 <div className="p-6 border-b border-gray-200 flex justify-between items-center">
                     <div>
                         <h3 className="text-lg font-semibold leading-6 text-gray-900">Upcoming Events</h3>
-                        <p className="mt-1 text-sm text-gray-500">What's happening soon.</p>
+                        <p className="mt-1 text-sm text-gray-500">What’s happening soon.</p>
                     </div>
                     <Button variant="secondary" size="sm" onClick={() => onNavigate('calendar')}>View Calendar</Button>
                 </div>

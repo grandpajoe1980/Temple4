@@ -31,7 +31,7 @@ const LiveStreamTab: React.FC<LiveStreamTabProps> = ({ tenant, onUpdate }) => {
     <div className="space-y-8">
       <div>
         <h3 className="text-lg font-medium leading-6 text-gray-900">Live Stream Settings</h3>
-        <p className="mt-1 text-sm text-gray-500">Configure your live stream embed. The main "Enable Live Stream" toggle is in the <span className="font-semibold text-amber-700">Features</span> tab.</p>
+        <p className="mt-1 text-sm text-gray-500">Configure your live stream embed. The main “Enable Live Stream” toggle is in the <span className="font-semibold text-amber-700">Features</span> tab.</p>
       </div>
       
       <div className="space-y-6">

@@ -98,7 +98,7 @@ const ExplorePage: React.FC<ExplorePageProps> = ({ initialSearchTerm, tenants, o
                         {searchTerm ? `${filteredTenants.length} results found` : 'Discover Communities'}
                     </h2>
                     <p className="text-sm text-gray-500">
-                        {searchTerm ? `Showing results for "${searchTerm}"` : 'Browse all public temples on the platform.'}
+                        {searchTerm ? `Showing results for “${searchTerm}”` : 'Browse all public temples on the platform.'}
                     </p>
                 </div>
 
@@ -112,7 +112,7 @@ const ExplorePage: React.FC<ExplorePageProps> = ({ initialSearchTerm, tenants, o
                     <div className="mt-12 text-center bg-white p-16 rounded-lg shadow-sm">
                         <h3 className="text-xl font-medium text-gray-900">No Temples Found</h3>
                         <p className="mt-2 text-sm text-gray-500">
-                            Your search for "{searchTerm}" did not match any communities. Try a different search term.
+                            Your search for “{searchTerm}” did not match any communities. Try a different search term.
                         </p>
                     </div>
                 )}

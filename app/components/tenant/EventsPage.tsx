@@ -109,7 +109,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Calendar & Events</h2>
             <p className="mt-1 text-sm text-gray-500">
-              See what's happening at {tenant.name}.
+              See what’s happening at {tenant.name}.
             </p>
           </div>
         </div>
@@ -126,7 +126,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Calendar & Events</h2>
           <p className="mt-1 text-sm text-gray-500">
-            See what's happening at {tenant.name}.
+            See what’s happening at {tenant.name}.
           </p>
         </div>
         <div className="flex items-center space-x-4">

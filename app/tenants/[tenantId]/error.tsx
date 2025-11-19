@@ -39,7 +39,7 @@ export default function TenantError({
           Unable to Load Tenant
         </h2>
         <p className="text-gray-600 mb-6">
-          We encountered an error while loading this temple's content.
+          We encountered an error while loading this temple’s content.
         </p>
         <div className="space-x-4">
           <Button onClick={reset}>

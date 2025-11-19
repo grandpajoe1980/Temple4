@@ -30,10 +30,20 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
   const [newMessage, setNewMessage] = useState('');
   const [showActionsFor, setShowActionsFor] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+  const [isNearBottom, setIsNearBottom] = useState(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const handleScrollPosition = useCallback(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    setIsNearBottom(distanceFromBottom < 80);
+  }, []);
 
   const fetchMessages = useCallback(async () => {
     try {
@@ -70,10 +80,21 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
   }, [fetchMessages]);
-  
+
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (isNearBottom) {
+      scrollToBottom();
+    }
+  }, [messages, isNearBottom]);
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    handleScrollPosition();
+    container.addEventListener('scroll', handleScrollPosition);
+    return () => container.removeEventListener('scroll', handleScrollPosition);
+  }, [handleScrollPosition]);
   
   const canSendMessage = useMemo(() => {
     if (conversation.isDirect) {
@@ -88,6 +109,8 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() === '' || !canSendMessage) return;
+
+    setIsNearBottom(true);
 
     try {
       const response = await fetch(`/api/conversations/${conversation.id}/messages`, {
@@ -153,7 +176,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 p-6 overflow-y-auto space-y-2">
+      <div ref={messagesContainerRef} className="flex-1 p-6 overflow-y-auto space-y-2">
         {messages.map((msg) => {
            const userCanDelete = canDeleteMessage(currentUser as any, msg as any, conversation as any, tenant as any);
            const isOwnMessage = msg.userId === currentUser.id;

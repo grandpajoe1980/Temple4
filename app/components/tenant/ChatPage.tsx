@@ -1,11 +1,9 @@
 "use client"
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { EnrichedConversation } from '@/types';
-import { getConversationsForUser, createConversation } from '@/lib/data';
+import type { EnrichedConversation, EnrichedChatMessage } from '@/types';
 import ConversationList from '../messages/ConversationList';
 import MessageStream from '../messages/MessageStream';
-import { can } from '@/lib/permissions';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import CreateChannelForm from '../messages/CreateChannelForm';
@@ -15,22 +13,89 @@ interface ChatPageProps {
   tenant: any; // Has architectural issues, needs refactoring
   user: any;
   onViewProfile?: (userId: string) => void;
+  canCreateGroupChats?: boolean;
 }
 
-const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile }) => {
-  const [updateTrigger, setUpdateTrigger] = useState(0);
+function normalizeMessage(rawMessage: any): EnrichedChatMessage {
+  const user = rawMessage.user ?? rawMessage;
+  return {
+    ...rawMessage,
+    userDisplayName: user.profile?.displayName || user.email || 'Unknown user',
+    userAvatarUrl: user.profile?.avatarUrl || undefined,
+    createdAt: new Date(rawMessage.createdAt),
+  };
+}
+
+function normalizeConversation(conversation: any, currentUserId: string): EnrichedConversation {
+  const participants = (conversation.participants || []).map((participant: any) => {
+    const user = participant.user ?? participant;
+    return {
+      ...user,
+      profile: user.profile ?? participant.user?.profile ?? {},
+    };
+  });
+
+  const derivedIsDirect =
+    conversation.isDirect ??
+    conversation.isDirectMessage ??
+    (!conversation.name && participants.length <= 2);
+  const isDirect = Boolean(derivedIsDirect);
+  const otherParticipant = isDirect
+    ? participants.find((participant: any) => participant.id !== currentUserId)
+    : null;
+
+  const lastMessageRaw = conversation.lastMessage || conversation.messages?.[0];
+  const lastMessage = lastMessageRaw ? normalizeMessage(lastMessageRaw) : undefined;
+
+  return {
+    ...conversation,
+    participants,
+    isDirect,
+    displayName:
+      conversation.displayName ||
+      conversation.name ||
+      (isDirect && otherParticipant
+        ? otherParticipant.profile?.displayName || otherParticipant.email || 'Direct Message'
+        : 'Group Conversation'),
+    lastMessage,
+    unreadCount: conversation.unreadCount ?? 0,
+  };
+}
+
+const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCreateGroupChats }) => {
+  const [conversations, setConversations] = useState<EnrichedConversation[]>([]);
   const [isDetailsPanelOpen, setIsDetailsPanelOpen] = useState(true);
 
+  const refreshConversations = useCallback(async () => {
+    try {
+      const response = await fetch('/api/conversations');
+      if (!response.ok) {
+        setConversations([]);
+        return;
+      }
+
+      const data = await response.json();
+      const filtered = (data as any[]).filter((conversation) => conversation.tenant?.id === tenant.id || conversation.tenantId === tenant.id);
+      setConversations(filtered.map((conversation) => normalizeConversation(conversation, user.id)));
+    } catch (error) {
+      console.error('Failed to load tenant conversations', error);
+      setConversations([]);
+    }
+  }, [tenant.id, user.id]);
+
+  useEffect(() => {
+    refreshConversations();
+  }, [refreshConversations]);
+
   const tenantConversations = useMemo(() => {
-    const all = getConversationsForUser(user.id) as any;
-    return all.filter ? all.filter((c: any) => c.tenantId === tenant.id) : [];
-  }, [user.id, tenant.id, updateTrigger]);
+    return conversations;
+  }, [conversations]);
 
   const [activeConversation, setActiveConversation] = useState<EnrichedConversation | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newlyCreatedConvId, setNewlyCreatedConvId] = useState<string | null>(null);
 
-  const canCreate = (can as any)(user, tenant, 'canCreateGroupChats');
+  const canCreate = canCreateGroupChats ?? true;
 
   useEffect(() => {
     if (newlyCreatedConvId) {
@@ -51,11 +116,33 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile }) => {
     }
   }, [tenantConversations, activeConversation, newlyCreatedConvId]);
 
-  const handleCreateChannel = (data: { name: string; isPrivate: boolean; participantIds: string[] }) => {
-    const newConv = (createConversation as any)(tenant.id, user.id, data.name, data.isPrivate, data.participantIds);
-    setIsModalOpen(false);
-    setNewlyCreatedConvId((newConv as any)?.id || null);
-    setUpdateTrigger((c) => c + 1);
+  const handleCreateChannel = async (data: { name: string; isPrivate: boolean; participantIds: string[] }) => {
+    try {
+      const response = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tenantId: tenant.id, name: data.name, participantIds: data.participantIds }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to create channel');
+        return;
+      }
+
+      const created = await response.json();
+      const normalized = normalizeConversation(created, user.id);
+
+      setConversations((prev) => {
+        const exists = prev.find((conv) => conv.id === normalized.id);
+        if (exists) return prev;
+        return [...prev, normalized];
+      });
+
+      setIsModalOpen(false);
+      setNewlyCreatedConvId(normalized.id);
+    } catch (error) {
+      console.error('Failed to create channel', error);
+    }
   };
 
   const handleConversationSelect = useCallback((conversation: EnrichedConversation) => {
@@ -63,8 +150,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile }) => {
   }, []);
 
   const forceConversationListUpdate = useCallback(() => {
-    setUpdateTrigger(c => c + 1);
-  }, []);
+    refreshConversations();
+  }, [refreshConversations]);
 
 
   return (

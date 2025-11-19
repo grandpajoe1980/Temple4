@@ -1,6 +1,6 @@
 
 @import "tw-animate-css";
-@import "react-day-picker/dist/style.css";
+@import "react-day-picker/style.css";
 
 @plugin "tailwindcss-animate";
 

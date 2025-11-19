@@ -104,21 +104,33 @@ export class UITestBase {
 
     try {
       await this.page.goto('/auth/login');
+      
+      // Wait for the page to fully load and hydrate
       await this.page.waitForLoadState('networkidle');
+      await this.page.waitForSelector('input[name="email"], input[type="email"]', { timeout: 10000 });
+      
+      // Additional wait for React hydration
+      await this.page.waitForTimeout(1000);
 
       // Fill login form - try multiple possible selectors
       const emailInput = this.page.locator('input[name="email"], input[type="email"], input[id="email"]').first();
+      await emailInput.waitFor({ state: 'visible', timeout: 5000 });
       await emailInput.fill(user.email);
 
       const passwordInput = this.page.locator('input[name="password"], input[type="password"], input[id="password"]').first();
+      await passwordInput.waitFor({ state: 'visible', timeout: 5000 });
       await passwordInput.fill(user.password);
 
       // Click login button - try multiple possible selectors
-      const loginButton = this.page.locator('button[type="submit"], button:has-text("Sign In"), button:has-text("Login"), button:has-text("Log In")').first();
+      const loginButton = this.page.locator('button[type="submit"], button:has-text("Login")').first();
+      await loginButton.waitFor({ state: 'visible', timeout: 5000 });
       await loginButton.click();
 
       // Wait for navigation with a longer timeout
-      await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+      await this.page.waitForLoadState('networkidle', { timeout: 15000 });
+      
+      // Give time for redirect
+      await this.page.waitForTimeout(2000);
 
       // Check if login was successful
       const url = this.page.url();
@@ -127,9 +139,10 @@ export class UITestBase {
       if (isLoginPage) {
         // Check for error messages
         const errorText = await this.page.textContent('body');
-        console.error(`Login failed for ${user.email}. Current URL: ${url}`);
+        console.error(`❌ Login failed for ${user.email}`);
+        console.error(`   Current URL: ${url}`);
         if (errorText?.includes('Invalid') || errorText?.includes('error')) {
-          console.error('Error on page:', errorText.substring(0, 200));
+          console.error('   Error on page:', errorText.substring(0, 200));
         }
         return false;
       }
@@ -137,7 +150,7 @@ export class UITestBase {
       console.log(`✓ Successfully logged in as ${user.role} (${user.email})`);
       return true;
     } catch (error: any) {
-      console.error(`Failed to login as ${user.role}:`, error.message);
+      console.error(`❌ Failed to login as ${user.role}:`, error.message);
       return false;
     }
   }

@@ -44,10 +44,14 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
         </p>
         <div className="mt-6 border-t border-gray-200 pt-4">
              <div className="flex items-center space-x-3">
-                <img src={group.leader.profile.avatarUrl || '/placeholder-avatar.svg'} alt={group.leader.profile.displayName} className="w-10 h-10 rounded-full" />
+                <img
+                  src={group.leader.profile?.avatarUrl || '/placeholder-avatar.svg'}
+                  alt={group.leader.profile?.displayName || group.leader.email || 'Group leader'}
+                  className="w-10 h-10 rounded-full"
+                />
                 <div>
                     <p className="text-xs text-gray-500">Leader</p>
-                    <p className="text-sm font-medium text-gray-800">{group.leader.profile.displayName}</p>
+                    <p className="text-sm font-medium text-gray-800">{group.leader.profile?.displayName || group.leader.email || 'Leader'}</p>
                 </div>
             </div>
         </div>
@@ -55,7 +59,13 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
             <h4 className="text-xs font-bold uppercase text-gray-500">Members ({group.members.length})</h4>
              <div className="flex -space-x-2 overflow-hidden mt-2">
                 {group.members.slice(0, 7).map(({ user }) => (
-                     <img key={user.id} className="inline-block h-8 w-8 rounded-full ring-2 ring-white" src={user.profile.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile.displayName} title={user.profile.displayName} />
+                     <img
+                      key={user.id}
+                      className="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+                      src={user.profile?.avatarUrl || '/placeholder-avatar.svg'}
+                      alt={user.profile?.displayName || user.email || 'Group member'}
+                      title={user.profile?.displayName || user.email || 'Group member'}
+                    />
                 ))}
                  {group.members.length > 7 && (
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 ring-2 ring-white text-xs font-medium text-gray-600">

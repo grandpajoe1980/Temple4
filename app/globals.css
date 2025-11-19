@@ -49,25 +49,25 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #f7f4ff;
-  --foreground: #0f172a;
+  --background: #ecebff;
+  --foreground: #0b1224;
   --card: #ffffff;
   --card-foreground: #0b1224;
   --popover: #ffffff;
   --popover-foreground: #0b1224;
   --primary: #7c3aed;
   --primary-foreground: #f8fafc;
-  --secondary: #e0f2fe;
-  --secondary-foreground: #0f172a;
-  --muted: #f3f4f6;
-  --muted-foreground: #475569;
-  --accent: #cffafe;
-  --accent-foreground: #0f172a;
+  --secondary: #c7d2fe;
+  --secondary-foreground: #0b1224;
+  --muted: #e3e8ff;
+  --muted-foreground: #2f3d5c;
+  --accent: #bae6fd;
+  --accent-foreground: #0b1224;
   --destructive: #ef4444;
   --destructive-foreground: #fef2f2;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
-  --ring: #c084fc;
+  --border: #c7d2fe;
+  --input: #c7d2fe;
+  --ring: #7c3aed;
   --chart-1: #7c3aed;
   --chart-2: #0ea5e9;
   --chart-3: #22c55e;
@@ -95,8 +95,8 @@
   --secondary: #1f2937;
   --secondary-foreground: #e2e8f0;
   --muted: #1c2537;
-  --muted-foreground: #94a3b8;
-  --accent: #0ea5e9;
+  --muted-foreground: #cbd5f5;
+  --accent: #38bdf8;
   --accent-foreground: #0b1224;
   --destructive: #fca5a5;
   --destructive-foreground: #0b1224;
@@ -125,9 +125,9 @@
   body {
     @apply bg-background text-foreground min-h-screen antialiased;
     background-image:
-      radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 35%),
-      radial-gradient(circle at 82% 10%, color-mix(in oklab, var(--accent) 28%, transparent), transparent 32%),
-      linear-gradient(180deg, color-mix(in oklab, var(--background) 92%, #ffffff 8%), var(--background));
+      radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--primary) 24%, transparent), transparent 35%),
+      radial-gradient(circle at 82% 10%, color-mix(in oklab, var(--accent) 35%, transparent), transparent 32%),
+      linear-gradient(180deg, color-mix(in oklab, var(--background) 85%, #ffffff 15%), var(--background));
     background-attachment: fixed;
   }
   ::selection {
@@ -152,6 +152,28 @@
   select,
   a {
     @apply transition-colors duration-200 ease-out;
+  }
+  input,
+  textarea,
+  select {
+    background-color: #ffffff;
+    color: var(--foreground);
+    border: 1px solid #c7cde2;
+    border-radius: 0.65rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+    transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  }
+  input::placeholder,
+  textarea::placeholder,
+  select::placeholder {
+    color: #64748b;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    border-color: color-mix(in oklab, var(--primary) 55%, #94a3b8 45%);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 35%, #94a3b8 65%);
+    background-color: #fff;
   }
   :focus-visible {
     outline: 2px solid var(--ring);

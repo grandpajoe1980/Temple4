@@ -12,16 +12,16 @@ interface ToggleSwitchProps {
 
 const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ label, enabled, onChange, description }) => {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-4">
       <span className="flex-grow flex flex-col">
-        <span className="text-sm font-medium text-gray-900">{label}</span>
-        {description && <span className="text-sm text-gray-500">{description}</span>}
+        <span className="text-sm font-semibold text-slate-900">{label}</span>
+        {description && <span className="text-sm text-slate-500">{description}</span>}
       </span>
       <button
         type="button"
         className={`${
-          enabled ? 'bg-amber-600' : 'bg-gray-200'
-        } relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500`}
+          enabled ? 'bg-amber-500 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.4)]' : 'bg-slate-300 shadow-inner'
+        } relative inline-flex flex-shrink-0 h-6 w-11 border border-slate-200 rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500`}
         role="switch"
         aria-checked={enabled}
         onClick={() => onChange(!enabled)}
@@ -30,7 +30,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ label, enabled, onChange, d
           aria-hidden="true"
           className={`${
             enabled ? 'translate-x-5' : 'translate-x-0'
-          } pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200`}
+          } pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md transform ring-1 ring-black/5 transition ease-in-out duration-200`}
         />
       </button>
     </div>

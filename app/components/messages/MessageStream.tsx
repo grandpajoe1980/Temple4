@@ -32,6 +32,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
+  const [showScrollToLatest, setShowScrollToLatest] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -42,8 +43,10 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
     if (!container) return;
 
     const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-    setIsNearBottom(distanceFromBottom < 80);
-  }, []);
+    const nearBottom = distanceFromBottom < 40;
+    setIsNearBottom(nearBottom);
+    setShowScrollToLatest(!nearBottom && messages.length > 0);
+  }, [messages.length]);
 
   const fetchMessages = useCallback(async () => {
     try {
@@ -84,6 +87,9 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
   useEffect(() => {
     if (isNearBottom) {
       scrollToBottom();
+      setShowScrollToLatest(false);
+    } else if (messages.length > 0) {
+      setShowScrollToLatest(true);
     }
   }, [messages, isNearBottom]);
 
@@ -177,6 +183,20 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
 
       {/* Messages Area */}
       <div ref={messagesContainerRef} className="flex-1 p-6 overflow-y-auto space-y-2">
+        {showScrollToLatest && (
+          <div className="flex justify-center">
+            <button
+              type="button"
+              className="px-3 py-1 mb-2 text-xs font-medium text-white bg-amber-600 rounded-full shadow hover:bg-amber-700"
+              onClick={() => {
+                scrollToBottom();
+                setShowScrollToLatest(false);
+              }}
+            >
+              Jump to latest
+            </button>
+          </div>
+        )}
         {messages.map((msg) => {
            const userCanDelete = canDeleteMessage(currentUser as any, msg as any, conversation as any, tenant as any);
            const isOwnMessage = msg.userId === currentUser.id;

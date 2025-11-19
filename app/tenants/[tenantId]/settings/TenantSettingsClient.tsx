@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ControlPanel from '@/app/components/tenant/ControlPanel';
 
@@ -10,14 +11,18 @@ interface TenantSettingsClientProps {
 
 export default function TenantSettingsClient({ tenant, user }: TenantSettingsClientProps) {
   const router = useRouter();
+  const [currentTenant, setCurrentTenant] = useState(tenant);
+
+  useEffect(() => {
+    setCurrentTenant(tenant);
+  }, [tenant]);
 
   const handleRefresh = () => {
     router.refresh();
   };
 
   const handleUpdate = (updatedTenant: any) => {
-    // Refresh to get the latest data from the server
-    router.refresh();
+    setCurrentTenant(updatedTenant);
   };
 
   const handleImpersonate = async (targetUser: any) => {
@@ -52,7 +57,7 @@ export default function TenantSettingsClient({ tenant, user }: TenantSettingsCli
 
   return (
     <ControlPanel
-      tenant={tenant}
+      tenant={currentTenant}
       onUpdate={handleUpdate}
       currentUser={user}
       onImpersonate={handleImpersonate}

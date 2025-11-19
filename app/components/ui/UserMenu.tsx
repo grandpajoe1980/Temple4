@@ -70,7 +70,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, avatarUrl, displayName }) => 
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+        <div className="absolute right-0 mt-3 w-56 origin-top-right bg-white/95 backdrop-blur rounded-lg shadow-xl ring-1 ring-black/10 border border-gray-100 py-1 z-50">
           <div className="px-4 py-3 border-b border-gray-100">
             <p className="text-sm font-semibold text-gray-900 truncate">{name}</p>
             {user.email && (

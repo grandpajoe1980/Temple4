@@ -132,6 +132,7 @@ model User {
   eventRSVPs              EventRSVP[]
   messages                ChatMessage[]
   conversations           ConversationParticipant[]
+  postComments            PostComment[]
   auditLogsAsActor        AuditLog[]              @relation("Actor")
   auditLogsAsEffective    AuditLog[]              @relation("Effective")
   notifications           Notification[]          @relation("Recipient")
@@ -195,6 +196,7 @@ model Tenant {
   permissions      Json? // TenantFeaturePermissions
   memberships      UserTenantMembership[]
   posts            Post[]
+  postComments     PostComment[]
   events           Event[]
   mediaItems       MediaItem[]
   books            Book[]

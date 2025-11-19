@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 import Button from '../ui/Button';
 
 interface LandingPageProps {
@@ -81,8 +82,40 @@ const journeyItems = [
   },
 ];
 
+const quickFilters = ['Meditation circles', 'Youth programs', 'Spanish services', 'Community kitchens'];
+
+const partnerBadges = ['Compassion Fund', 'Rhythm & Rosary', 'Northstar Aid', 'Resonant Media'];
+
+const testimonials = [
+  {
+    quote:
+      'Temple helped us centralize communications, so planning vigils and volunteer drives feels calm, modern, and joyful.',
+    name: 'Evelyn O., Community Director',
+    tenant: 'Sacred Steps Collective',
+  },
+  {
+    quote: 'Members found us within days of launch thanks to search, and the grid calendar keeps everyone aligned.',
+    name: 'Brother Mateo',
+    tenant: 'Sunrise Abbey',
+  },
+  {
+    quote: 'Donations, small group chats, and pastoral care notes finally live in one place. Temple is our digital commons.',
+    name: 'Rev. Priya',
+    tenant: 'Open Table Fellowship',
+  },
+];
+
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
+    }, 6000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,27 +128,58 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
         className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.18),_transparent_65%)]"
         aria-hidden="true"
       />
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-16 px-4 text-center sm:px-6 lg:px-8">
-        <header className="flex flex-col items-center gap-4">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-xs font-medium text-amber-700 shadow-sm ring-1 ring-amber-100">
-            Platform Spec • Find your temple, Find yourself
-          </span>
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center gap-3">
-              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-14 w-14 text-amber-600">
-                <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
-              </svg>
-              <h1 className="text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl">Temple</h1>
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-16 px-4 sm:px-6 lg:px-8">
+        <header className="grid gap-10 text-center lg:grid-cols-[1.15fr,0.85fr] lg:text-left">
+          <div className="flex flex-col items-center gap-4 lg:items-start">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-xs font-medium text-amber-700 shadow-sm ring-1 ring-amber-100">
+              Platform Spec • Find your temple, Find yourself
+            </span>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-center gap-3 lg:justify-start">
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-14 w-14 text-amber-600">
+                  <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
+                </svg>
+                <h1 className="text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl">Temple</h1>
+              </div>
+              <p className="max-w-2xl text-lg text-slate-600">
+                Temple is the multi-tenant spiritual OS outlined in the master project plan. Launch beautiful community hubs,
+                orchestrate events with a grid calendar, broadcast sermons, and coordinate care from one secure command center.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-medium uppercase tracking-wide text-slate-400 lg:justify-start">
+                {partnerBadges.map((badge) => (
+                  <span key={badge} className="rounded-full border border-slate-200/80 px-4 py-1 text-slate-500">
+                    {badge}
+                  </span>
+                ))}
+              </div>
             </div>
-            <p className="max-w-3xl text-lg text-slate-600">
-              Temple is the multi-tenant spiritual OS outlined in the master project plan. Launch beautiful community hubs,
-              orchestrate events with a grid calendar, broadcast sermons, and coordinate care from one secure command center.
-            </p>
+          </div>
+          <div className="space-y-4">
+            <div className="rounded-3xl bg-white/90 p-6 shadow-xl ring-1 ring-slate-100">
+              <div className="grid gap-4 sm:grid-cols-3">
+                {statHighlights.map((stat) => (
+                  <div key={stat.label} className="text-left">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">{stat.label}</p>
+                    <p className="mt-2 text-3xl font-semibold text-slate-900">{stat.value}</p>
+                    <p className="text-sm text-slate-500">{stat.detail}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 rounded-2xl bg-gradient-to-r from-amber-50 to-white p-5" aria-live="polite">
+                <p className="text-sm text-slate-600">{testimonials[activeTestimonialIndex].quote}</p>
+                <p className="mt-3 text-sm font-semibold text-slate-900">
+                  {testimonials[activeTestimonialIndex].name}
+                </p>
+                <p className="text-xs uppercase tracking-wide text-amber-600">
+                  {testimonials[activeTestimonialIndex].tenant}
+                </p>
+              </div>
+            </div>
           </div>
         </header>
 
-        <form onSubmit={handleSearchSubmit} className="mx-auto w-full max-w-3xl rounded-2xl bg-white/90 p-4 shadow-xl ring-1 ring-slate-100 backdrop-blur">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <section className="rounded-3xl bg-white/90 p-6 shadow-2xl ring-1 ring-slate-100 backdrop-blur">
+          <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3 text-left sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-slate-400">
                 <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -125,30 +189,42 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
                   />
                 </svg>
               </span>
+              <label className="sr-only" htmlFor="landing-search">
+                Search for a temple
+              </label>
               <input
+                id="landing-search"
                 aria-label="Search for a temple"
                 type="search"
                 placeholder="Search temples by name, creed, or location"
-                className="w-full rounded-xl border border-slate-200 bg-white px-12 py-3 text-base text-slate-900 placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-12 py-3 text-base text-slate-900 placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button type="submit" className="rounded-xl px-6 py-3 text-base shadow-sm">
+            <Button type="submit" className="rounded-2xl px-6 py-3 text-base shadow-sm">
               Find my temple
             </Button>
+          </form>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {quickFilters.map((filter) => (
+              <button
+                key={filter}
+                type="button"
+                className="rounded-full border border-slate-200 px-4 py-1 text-xs font-medium text-slate-600 transition hover:border-amber-200 hover:text-amber-700"
+                onClick={() => {
+                  setSearchTerm(filter);
+                  onSearch(filter);
+                }}
+              >
+                {filter}
+              </button>
+            ))}
           </div>
-        </form>
-
-        <div className="grid gap-4 text-left sm:grid-cols-3">
-          {statHighlights.map((stat) => (
-            <div key={stat.label} className="rounded-2xl bg-white/80 p-5 shadow-sm ring-1 ring-white/60 backdrop-blur">
-              <p className="text-sm font-medium text-amber-700">{stat.label}</p>
-              <p className="mt-2 text-3xl font-semibold text-slate-900">{stat.value}</p>
-              <p className="text-sm text-slate-500">{stat.detail}</p>
-            </div>
-          ))}
-        </div>
+          <p className="mt-3 text-xs text-slate-500">
+            Trending now: multilingual congregations, after-school support, outdoor services
+          </p>
+        </section>
 
         <section className="grid gap-6 text-left md:grid-cols-2">
           {featureHighlights.map((feature) => (
@@ -162,29 +238,61 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
           ))}
         </section>
 
-        <section className="rounded-3xl bg-gradient-to-r from-amber-50 to-white/90 p-6 text-left shadow-inner ring-1 ring-amber-100">
-          <h2 className="text-2xl font-semibold text-slate-900">Member journey, anchored in the Temple playbook</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Every experience outlined in projectplan.md is accounted for—search, membership workflows, donations, contact forms,
-            and moderation-ready messaging.
-          </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {journeyItems.map((item, index) => (
-              <div key={item.title} className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-white/60">
-                <span className="text-xs font-semibold uppercase tracking-wide text-amber-600">Step {index + 1}</span>
-                <p className="mt-2 text-base font-semibold text-slate-900">{item.title}</p>
-                <p className="text-sm text-slate-600">{item.description}</p>
-              </div>
-            ))}
+        <section className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+          <div className="rounded-3xl bg-gradient-to-r from-amber-50 to-white/90 p-6 text-left shadow-inner ring-1 ring-amber-100">
+            <h2 className="text-2xl font-semibold text-slate-900">Member journey, anchored in the Temple playbook</h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Every experience outlined in projectplan.md is accounted for—search, membership workflows, donations, contact forms, and moderation-ready messaging.
+            </p>
+            <div className="mt-6 space-y-6">
+              {journeyItems.map((item, index) => (
+                <div key={item.title} className="relative pl-10">
+                  <span className="absolute left-0 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-amber-700 shadow">
+                    {index + 1}
+                  </span>
+                  <div className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-white/60">
+                    <p className="text-base font-semibold text-slate-900">{item.title}</p>
+                    <p className="text-sm text-slate-600">{item.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-3xl bg-white/90 p-6 shadow-xl ring-1 ring-slate-100">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">Community voices</p>
+            <p className="mt-2 text-lg font-semibold text-slate-900">Built with best-in-class tools</p>
+            <p className="text-sm text-slate-600">Organizations trust Temple to steward sacred data, compliance, and modern pastoral care.</p>
+            <div className="mt-6 flex flex-wrap gap-4 text-sm font-medium text-slate-500">
+              {partnerBadges.map((badge) => (
+                <span key={`${badge}-secondary`} className="rounded-2xl border border-dashed border-slate-200 px-4 py-2">
+                  {badge}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
 
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-sm text-slate-600">Already guiding a community on Temple?</p>
-          <Button variant="secondary" className="px-6" onClick={onNavigateToLogin}>
-            Log in to the Control Panel
-          </Button>
-        </div>
+        <section className="flex flex-col gap-4 rounded-3xl bg-slate-900/95 p-8 text-center text-white shadow-2xl">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">Next steps</p>
+            <h2 className="mt-2 text-3xl font-semibold">Bring your community online with Temple</h2>
+            <p className="mt-3 text-sm text-white/80">
+              Create a tenant in minutes or hop back into the control panel to continue stewarding your people. The backend routes stay exactly the same—only the visuals get brighter.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Link
+              href="/tenants/new"
+              className="rounded-2xl bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-amber-50"
+            >
+              Create a tenant space
+            </Link>
+            <Button variant="secondary" className="rounded-2xl px-6" onClick={onNavigateToLogin}>
+              Log in to the Control Panel
+            </Button>
+          </div>
+          <p className="text-xs text-white/60">SOC 2 ready • GDPR aligned • Data encrypted at rest and in transit</p>
+        </section>
       </div>
     </div>
   );

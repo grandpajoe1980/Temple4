@@ -84,6 +84,7 @@ export async function PUT(
     const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
+    const isSuperAdmin = Boolean((session?.user as any)?.isSuperAdmin);
 
     if (!userId) {
         return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
@@ -102,7 +103,8 @@ export async function PUT(
         }
     });
 
-    const hasPermission = membership?.roles.some((role: { role: TenantRole }) => role.role === TenantRole.ADMIN);
+    const hasPermission =
+        isSuperAdmin || membership?.roles.some((role: { role: TenantRole }) => role.role === TenantRole.ADMIN);
 
     if (!hasPermission) {
         return NextResponse.json({ message: 'Forbidden' }, { status: 403 });

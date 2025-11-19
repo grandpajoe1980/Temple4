@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import type { Tenant, User, EnrichedResourceItem, ResourceItem } from '@/types';
 import { getResourceItemsForTenant, addResourceItem, deleteResourceItem } from '@/lib/data';

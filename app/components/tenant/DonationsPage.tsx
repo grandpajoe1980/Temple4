@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useState, useMemo } from 'react';
 import type { EnrichedDonationRecord } from '@/types';

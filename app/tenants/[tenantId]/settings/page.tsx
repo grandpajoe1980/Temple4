@@ -5,7 +5,7 @@ import { getTenantById, getUserById } from '@/lib/data';
 import { hasRole } from '@/lib/permissions';
 import {  } from '@prisma/client';
 import { TenantRole } from '@/types';
-import ControlPanel from '@/app/components/tenant/ControlPanel';
+import TenantSettingsClient from './TenantSettingsClient';
 
 export default async function TenantSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const session = await getServerSession(authOptions);
@@ -30,12 +30,9 @@ export default async function TenantSettingsPage({ params }: { params: Promise<{
   }
 
   return (
-    <ControlPanel
+    <TenantSettingsClient
       tenant={tenant}
-      onUpdate={() => {}}
-      currentUser={user as any}
-      onImpersonate={() => {}}
-      onRefresh={() => {}}
+      user={user}
     />
   );
 }

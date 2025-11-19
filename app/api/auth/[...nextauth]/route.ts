@@ -1,4 +1,5 @@
-import NextAuth, { AuthOptions, SessionStrategy } from 'next-auth';
+import NextAuth from 'next-auth/next';
+import { AuthOptions, SessionStrategy } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/db';
 import bcrypt from 'bcryptjs';
@@ -13,26 +14,40 @@ export const authOptions: AuthOptions = {
         password: {  label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        console.log('Authorize called with:', { email: credentials?.email });
         if (!credentials?.email || !credentials.password) {
+          console.log('Missing credentials');
           return null;
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email.toLowerCase() },
-          include: {
-            profile: true,
-          },
-        });
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email.toLowerCase() },
+            include: {
+              profile: true,
+            },
+          });
 
-        if (user && user.password && await bcrypt.compare(credentials.password, user.password)) {
-          // Return user object with required fields for NextAuth
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.profile?.displayName || user.email,
-            isSuperAdmin: user.isSuperAdmin,
-          };
-        } else {
+          console.log('User found:', user ? user.email : 'null');
+
+          if (user && user.password) {
+            const isValid = await bcrypt.compare(credentials.password, user.password);
+            console.log('Password valid:', isValid);
+            
+            if (isValid) {
+              return {
+                id: user.id,
+                email: user.email,
+                name: user.profile?.displayName || user.email,
+                isSuperAdmin: user.isSuperAdmin,
+              };
+            }
+          } else {
+             console.log('User not found or no password');
+          }
+          return null;
+        } catch (error) {
+          console.error('Error in authorize:', error);
           return null;
         }
       }

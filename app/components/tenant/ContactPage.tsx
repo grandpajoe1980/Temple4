@@ -1,11 +1,12 @@
-"use client";
+"use client"
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { addContactSubmission } from '@/lib/data';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
+import { FaFacebook, FaInstagram, FaTwitter, FaYoutube, FaLinkedin, FaGlobe } from 'react-icons/fa';
 
 interface ContactPageProps {
   tenant: {
@@ -20,14 +21,34 @@ interface ContactPageProps {
     };
     contactEmail?: string | null;
     phoneNumber?: string | null;
+    branding?: {
+      facebookUrl?: string | null;
+      instagramUrl?: string | null;
+      twitterUrl?: string | null;
+      youtubeUrl?: string | null;
+      websiteUrl?: string | null;
+      linkedInUrl?: string | null;
+    } | null;
   };
+  initialServiceName?: string;
 }
 
-const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
-  const [formState, setFormState] = useState({ name: '', email: '', message: '' });
+const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName }) => {
+  const serviceMessage = initialServiceName
+    ? `Hi there! I'm interested in learning more about ${initialServiceName}.`
+    : '';
+  const [formState, setFormState] = useState({ name: '', email: '', message: serviceMessage });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
+
+  const resetForm = () => {
+    setFormState({ name: '', email: '', message: serviceMessage });
+  };
+
+  useEffect(() => {
+    setFormState((prev) => ({ ...prev, message: serviceMessage }));
+  }, [serviceMessage]);
 
   const addressString = [tenant.address.street, tenant.address.city, tenant.address.state, tenant.address.country, tenant.address.postalCode].filter(Boolean).join(', ');
   const mapSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSy...&q=${encodeURIComponent(addressString)}`;
@@ -44,7 +65,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
     try {
       await addContactSubmission(tenant.id, formState);
       setIsSubmitted(true);
-      setFormState({ name: '', email: '', message: '' });
+      resetForm();
       toast.success('Message sent successfully! We\'ll get back to you soon.');
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -77,6 +98,87 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
                 <p className="text-gray-800">{tenant.phoneNumber}</p>
               </div>
             )}
+            {/* Social Links */}
+            {tenant.branding && (
+              tenant.branding.facebookUrl || 
+              tenant.branding.instagramUrl || 
+              tenant.branding.twitterUrl || 
+              tenant.branding.youtubeUrl || 
+              tenant.branding.websiteUrl || 
+              tenant.branding.linkedInUrl
+            ) && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-500 mb-2">Follow Us</h4>
+                <div className="flex gap-3">
+                  {tenant.branding.facebookUrl && (
+                    <a 
+                      href={tenant.branding.facebookUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="Facebook"
+                    >
+                      <FaFacebook size={24} />
+                    </a>
+                  )}
+                  {tenant.branding.instagramUrl && (
+                    <a 
+                      href={tenant.branding.instagramUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="Instagram"
+                    >
+                      <FaInstagram size={24} />
+                    </a>
+                  )}
+                  {tenant.branding.twitterUrl && (
+                    <a 
+                      href={tenant.branding.twitterUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="Twitter"
+                    >
+                      <FaTwitter size={24} />
+                    </a>
+                  )}
+                  {tenant.branding.youtubeUrl && (
+                    <a 
+                      href={tenant.branding.youtubeUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="YouTube"
+                    >
+                      <FaYoutube size={24} />
+                    </a>
+                  )}
+                  {tenant.branding.linkedInUrl && (
+                    <a 
+                      href={tenant.branding.linkedInUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="LinkedIn"
+                    >
+                      <FaLinkedin size={24} />
+                    </a>
+                  )}
+                  {tenant.branding.websiteUrl && (
+                    <a 
+                      href={tenant.branding.websiteUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      aria-label="Website"
+                    >
+                      <FaGlobe size={24} />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </Card>
         <Card className="!p-0 overflow-hidden">
@@ -103,12 +205,26 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
             <div className="text-center p-8">
                 <h3 className="text-lg font-medium text-gray-900">Message Sent!</h3>
                 <p className="mt-1 text-sm text-gray-500">Thank you for contacting us. An administrator or staff member will get back to you shortly.</p>
-                <Button className="mt-4" onClick={() => setIsSubmitted(false)}>Send Another</Button>
+                <Button
+                  className="mt-4"
+                  onClick={() => {
+                    resetForm();
+                    setIsSubmitted(false);
+                  }}
+                >
+                  Send Another
+                </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <Input 
-                label="Your Name" 
+              {initialServiceName && (
+                <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                  You're asking about <span className="font-semibold">{initialServiceName}</span>. We'll include that in your
+                  message so our team knows how to help.
+                </div>
+              )}
+              <Input
+                label="Your Name"
                 id="name" 
                 name="name" 
                 type="text" 

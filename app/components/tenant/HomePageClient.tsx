@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import React from 'react';
 import { Tenant, User, Event, Post, UserTenantMembership, TenantSettings, TenantBranding, UserProfile } from '@prisma/client';
@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 
 interface HomePageClientProps {
   tenant: Tenant & { settings: TenantSettings | null; branding: TenantBranding | null; };
-  user: User & { profile: UserProfile | null };
+  user: (User & { profile: UserProfile | null }) | null;
   membership: UserTenantMembership | null;
   upcomingEvents: Event[];
   recentPosts: (Post & { author: { profile: UserProfile | null } })[];
@@ -19,6 +19,10 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
   const router = useRouter();
 
   const handleJoin = async () => {
+    if (!user) {
+      router.push(`/auth/login?callbackUrl=/tenants/${tenant.id}`);
+      return;
+    }
     await fetch(`/api/tenants/${tenant.id}/join`, { method: 'POST' });
     router.refresh();
   };
@@ -27,8 +31,8 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
     router.push(`/tenants/${tenant.id}/${path}`);
   }
 
-  // If user is not an approved member, show a join/status view.
-  if (!membership || membership.status !== MembershipStatus.APPROVED) {
+  // If user is not logged in or not an approved member, show a join/status view.
+  if (!user || !membership || membership.status !== MembershipStatus.APPROVED) {
     let joinContent;
     if (membership?.status === MembershipStatus.BANNED) {
       joinContent = (
@@ -52,7 +56,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
           <h3 className="text-xl font-semibold text-gray-800">Join {tenant.name}</h3>
           <p className="mt-2 text-gray-600">{tenant.description}</p>
           <Button onClick={handleJoin} className="mt-6">
-            {isApprovalRequired ? 'Request Membership' : 'Join Temple'}
+            {user ? (isApprovalRequired ? 'Request Membership' : 'Join Temple') : 'Login to Join'}
           </Button>
         </div>
       );
@@ -89,19 +93,21 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
 
       {/* Header Section */}
       <div className="relative bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="h-48 bg-gray-200">
-            <img 
-                src={tenant.branding?.bannerImageUrl || `https://source.unsplash.com/random/1200x400?landscape,${tenant.id}`} 
-                alt={`${tenant.name} banner`} 
-                className="h-full w-full object-cover"
-            />
+        <div className="h-48 bg-gradient-to-r from-amber-100 to-amber-200">
+            {tenant.branding?.bannerImageUrl && (
+              <img 
+                  src={tenant.branding.bannerImageUrl} 
+                  alt={`${tenant.name} banner`} 
+                  className="h-full w-full object-cover"
+              />
+            )}
         </div>
         <div className="p-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
                 <div className="flex items-end space-x-5">
                     <div className="flex-shrink-0">
                          <img 
-                            src={tenant.branding?.logoUrl || `https://source.unsplash.com/random/100x100?logo,${tenant.id}`}
+                            src={tenant.branding?.logoUrl || '/placeholder-logo.svg'}
                             alt={`${tenant.name} logo`}
                             className="h-24 w-24 rounded-full bg-white p-1 shadow-md object-cover ring-4 ring-white -mt-16"
                         />

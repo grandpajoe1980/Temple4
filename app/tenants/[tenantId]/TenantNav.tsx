@@ -9,7 +9,24 @@ interface TenantNavProps {
   canViewSettings: boolean;
 }
 
-type TenantPage = 'home' | 'settings' | 'posts' | 'calendar' | 'sermons' | 'podcasts' | 'books' | 'members' | 'chat' | 'donations' | 'contact' | 'volunteering' | 'smallGroups' | 'liveStream' | 'prayerWall' | 'resourceCenter';
+type TenantPage =
+  | 'home'
+  | 'settings'
+  | 'posts'
+  | 'calendar'
+  | 'sermons'
+  | 'podcasts'
+  | 'books'
+  | 'members'
+  | 'chat'
+  | 'donations'
+  | 'contact'
+  | 'volunteering'
+  | 'smallGroups'
+  | 'liveStream'
+  | 'prayerWall'
+  | 'resourceCenter'
+  | 'services';
 type NavItemFeature = keyof Omit<TenantSettings, 'id' | 'tenantId' | 'isPublic' | 'membershipApprovalMode' | 'visitorVisibility' | 'donationSettings' | 'liveStreamSettings'>;
 
 
@@ -18,6 +35,7 @@ const navItems: { key: TenantPage; label: string; path: string; feature?: NavIte
     { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
     { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
     { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
+    { key: 'services', label: 'Services', path: '/services' },
     { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
     { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
     { key: 'liveStream', label: 'Live Stream', path: '/livestream', feature: 'enableLiveStream' },

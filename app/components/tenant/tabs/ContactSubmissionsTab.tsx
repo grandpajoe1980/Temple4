@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, ContactSubmission } from '@/types';
 import { ContactSubmissionStatus } from '@/types';

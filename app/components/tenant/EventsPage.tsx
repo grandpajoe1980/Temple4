@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+"use client"
+
+import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, Event, EventWithCreator } from '@/types';
 import { getEventsForTenant, addEvent as saveEvent } from '@/lib/data';
 import Button from '../ui/Button';
@@ -9,6 +11,7 @@ import EventForm from './EventForm';
 import EventsCalendar from './EventsCalendar';
 import DayEventsModal from './DayEventsModal';
 import { useToast } from '../ui/Toast';
+import { DayPicker } from 'react-day-picker';
 
 interface EventsPageProps {
   tenant: Tenant;
@@ -25,6 +28,8 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
   const [dayModalOpen, setDayModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [calendarFocusDate, setCalendarFocusDate] = useState<Date>(new Date());
+  const [selectedEvent, setSelectedEvent] = useState<EventWithCreator | null>(null);
   const toast = useToast();
 
   // Load events on mount
@@ -68,16 +73,34 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
   
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
+    setCalendarFocusDate(date);
     setDayModalOpen(true);
   };
-  
-  const eventsForSelectedDay = events.filter((e: any) => {
-    if (!selectedDate) return false;
-    const eventDate = new Date(e.startDateTime);
-    return eventDate.getFullYear() === selectedDate.getFullYear() &&
-           eventDate.getMonth() === selectedDate.getMonth() &&
-           eventDate.getDate() === selectedDate.getDate();
-  });
+
+  const handleEventClick = (event: EventWithCreator) => {
+    setSelectedEvent(event);
+  };
+
+  const dayPickerEvents = useMemo(() => {
+    const uniqueDates = new Set<string>();
+    events.forEach(event => {
+      const dateKey = new Date(event.startDateTime).toDateString();
+      uniqueDates.add(dateKey);
+    });
+    return Array.from(uniqueDates).map(dateString => new Date(dateString));
+  }, [events]);
+
+  const eventsForSelectedDay = useMemo(() => {
+    if (!selectedDate) return [];
+    return events.filter(event => {
+      const eventDate = new Date(event.startDateTime);
+      return (
+        eventDate.getFullYear() === selectedDate.getFullYear() &&
+        eventDate.getMonth() === selectedDate.getMonth() &&
+        eventDate.getDate() === selectedDate.getDate()
+      );
+    });
+  }, [events, selectedDate]);
 
   if (isLoading) {
     return (
@@ -134,12 +157,45 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
       </div>
 
       {viewMode === 'calendar' ? (
-        <EventsCalendar events={events} onDateClick={handleDateClick} />
+        <div className="grid gap-6 lg:grid-cols-[320px,1fr]">
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Jump to any date</h3>
+                <p className="text-sm text-gray-500">Tap a day to instantly view what’s planned.</p>
+              </div>
+              <DayPicker
+                mode="single"
+                selected={selectedDate ?? undefined}
+                onSelect={(date) => date && handleDateClick(date)}
+                month={calendarFocusDate}
+                onMonthChange={(date) => setCalendarFocusDate(date)}
+                showOutsideDays
+                fixedWeeks
+                modifiers={{ hasEvents: dayPickerEvents }}
+                modifiersClassNames={{ hasEvents: 'rdp-day-has-events' }}
+                captionLayout="buttons"
+                className="rdp-modern"
+              />
+              <p className="text-xs text-gray-500 mt-3">
+                Dates with a subtle glow have scheduled gatherings. Selecting one opens the day overview.
+              </p>
+            </div>
+          </div>
+          <div className="min-h-[560px]">
+            <EventsCalendar
+              events={events}
+              onDateClick={handleDateClick}
+              onEventClick={handleEventClick}
+              focusDate={calendarFocusDate}
+            />
+          </div>
+        </div>
       ) : (
         <>
         {events.length > 0 ? (
           <div className="space-y-6">
-            {events.map((event: any) => (
+            {events.map((event: EventWithCreator) => (
               <EventCard key={event.id} event={event} />
             ))}
           </div>
@@ -169,6 +225,12 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
           date={selectedDate}
           events={eventsForSelectedDay}
         />
+      )}
+
+      {selectedEvent && (
+        <Modal isOpen={Boolean(selectedEvent)} onClose={() => setSelectedEvent(null)} title={selectedEvent.title}>
+          <EventCard event={selectedEvent} />
+        </Modal>
       )}
     </div>
   );

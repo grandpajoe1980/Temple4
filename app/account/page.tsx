@@ -20,8 +20,6 @@ export default async function Page() {
   return (
     <AccountSettingsPage 
       user={user}
-      onBack={() => {}}
-      onRefresh={() => {}}
     />
   );
 }

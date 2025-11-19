@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import type { Tenant, User, EnrichedVolunteerNeed } from '@/types';
 import { getVolunteerNeedsForTenant, addVolunteerNeed } from '@/lib/data';
@@ -72,7 +74,7 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
                     <ul className="divide-y divide-gray-200">
                       {need.signups.map(({ user, signup }: any) => (
                         <li key={signup.id} className="py-2 flex items-center space-x-3">
-                          <img src={user.profile.avatarUrl} alt={user.profile.displayName} className="w-8 h-8 rounded-full" />
+                          <img src={user.profile.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile.displayName} className="w-8 h-8 rounded-full" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">{user.profile.displayName}</p>
                             <p className="text-xs text-gray-500">{user.email}</p>

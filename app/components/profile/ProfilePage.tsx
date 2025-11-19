@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import type { User, Tenant } from '@/types';
 import Card from '../ui/Card';
@@ -27,7 +29,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ profileUser, affiliatedTenant
         <div className="p-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8">
             <img 
-              src={profileUser.profile.avatarUrl} 
+              src={profileUser.profile.avatarUrl || '/placeholder-avatar.svg'} 
               alt={`${profileUser.profile.displayName}'s avatar`}
               className="w-32 h-32 rounded-full ring-4 ring-white ring-offset-2 ring-offset-amber-100"
             />
@@ -50,13 +52,16 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ profileUser, affiliatedTenant
               <p className="mt-2 text-gray-700">{profileUser.profile.bio}</p>
             </div>
           )}
-          {profileUser.profile.languages && profileUser.profile.languages.length > 0 && (
+          {profileUser.profile.languages && (
             <div className="mt-6">
                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Languages</h3>
                <div className="mt-2 flex flex-wrap gap-2">
-                 {profileUser.profile.languages.map(lang => (
+                 {(Array.isArray(profileUser.profile.languages)
+                    ? profileUser.profile.languages
+                    : (profileUser.profile.languages as unknown as string).split(',')
+                 ).map((lang: string) => (
                     <span key={lang} className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800">
-                        {lang}
+                        {lang.trim()}
                     </span>
                  ))}
                </div>

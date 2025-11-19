@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react';
 import { CommunityPostType } from '@/types';
 import Button from '../../ui/Button';

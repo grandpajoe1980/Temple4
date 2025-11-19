@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import type { User } from '@/types';
 import Button from '../ui/Button';

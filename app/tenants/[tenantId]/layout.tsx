@@ -7,6 +7,7 @@ import {  } from '@prisma/client';
 import { TenantRole } from '@/types';
 import Link from 'next/link';
 import TenantNav from './TenantNav'; // This will be the client component for navigation
+import TenantFooter from './TenantFooter';
 
 export default async function TenantLayout({
   children,
@@ -15,30 +16,37 @@ export default async function TenantLayout({
   children: React.ReactNode;
   params: Promise<{ tenantId: string }>;
 }) {
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    redirect('/auth/login');
-  }
-
   const resolvedParams = await params;
   const tenant = await getTenantById(resolvedParams.tenantId);
-  const user = await getUserById((session.user as any).id);
-
-  if (!tenant || !user) {
+  
+  if (!tenant) {
     redirect('/');
   }
 
-  const canViewSettings = user.isSuperAdmin || 
-                          await hasRole(user.id, tenant.id, [TenantRole.ADMIN]) ||
-                          await can(user, tenant, 'canApproveMembership') ||
-                          await can(user, tenant, 'canBanMembers') ||
-                          await can(user, tenant, 'canManagePrayerWall') ||
-                          await can(user, tenant, 'canManageResources') ||
-                          await can(user, tenant, 'canManageContactSubmissions');
+  const session = await getServerSession(authOptions);
+  let user = null;
+
+  if (session && session.user) {
+    user = await getUserById((session.user as any).id);
+  }
+
+  // If not public and not logged in (or user not found), redirect to login
+  if (!tenant.settings?.isPublic && !user) {
+    redirect(`/auth/login?callbackUrl=/tenants/${tenant.id}`);
+  }
+
+  const canViewSettings = user ? (
+    user.isSuperAdmin || 
+    await hasRole(user.id, tenant.id, [TenantRole.ADMIN]) ||
+    await can(user, tenant, 'canApproveMembership') ||
+    await can(user, tenant, 'canBanMembers') ||
+    await can(user, tenant, 'canManagePrayerWall') ||
+    await can(user, tenant, 'canManageResources') ||
+    await can(user, tenant, 'canManageContactSubmissions')
+  ) : false;
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 min-h-screen flex flex-col">
       <header className="bg-white shadow-sm sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-3">
@@ -56,27 +64,36 @@ export default async function TenantLayout({
                     <Link href="/" className="text-sm font-medium text-gray-600 hover:text-amber-700 hidden sm:block">
                         &larr; Switch Tenant
                     </Link>
-                    {/* NotificationBell will be added later */}
-                    <Link href="/messages" className="text-sm font-medium text-gray-600 hover:text-amber-700">Global Messages</Link>
-                    <Link href="/account" className="text-sm font-medium text-gray-600 hover:text-amber-700">Account</Link>
-                    {user.isSuperAdmin && (
-                        <Link href="/admin" className="text-sm font-medium text-red-600 hover:text-red-800">Admin Console</Link>
+                    {user ? (
+                      <>
+                        {/* NotificationBell will be added later */}
+                        <Link href="/messages" className="text-sm font-medium text-gray-600 hover:text-amber-700">Global Messages</Link>
+                        <Link href="/account" className="text-sm font-medium text-gray-600 hover:text-amber-700">Account</Link>
+                        {user.isSuperAdmin && (
+                            <Link href="/admin" className="text-sm font-medium text-red-600 hover:text-red-800">Admin Console</Link>
+                        )}
+                        <div className="flex items-center space-x-2">
+                            <img src={user.profile?.avatarUrl || ''} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
+                            <p className="font-semibold text-amber-700 text-sm hidden sm:block">{user.profile?.displayName}</p>
+                        </div>
+                        <Link href="/api/auth/signout" className="text-sm font-medium text-gray-600 hover:text-amber-700">Logout</Link>
+                      </>
+                    ) : (
+                      <Link href={`/auth/login?callbackUrl=/tenants/${tenant.id}`} className="text-sm font-medium text-amber-600 hover:text-amber-700">
+                        Login / Join
+                      </Link>
                     )}
-                    <div className="flex items-center space-x-2">
-                         <img src={user.profile?.avatarUrl || ''} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
-                         <p className="font-semibold text-amber-700 text-sm hidden sm:block">{user.profile?.displayName}</p>
-                    </div>
-                     <Link href="/api/auth/signout" className="text-sm font-medium text-gray-600 hover:text-amber-700">Logout</Link>
                  </div>
             </div>
             <TenantNav tenant={tenant} canViewSettings={canViewSettings} />
         </div>
       </header>
-       <main className="py-10">
+       <main className="py-10 flex-grow">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {children}
         </div>
       </main>
+      <TenantFooter tenant={tenant} />
     </div>
   );
 }

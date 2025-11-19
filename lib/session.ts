@@ -41,10 +41,9 @@ export async function startImpersonation(
     });
 
     if (existingSession) {
-      return { 
-        success: false, 
-        error: 'You already have an active impersonation session. End it first.' 
-      };
+      // Automatically end the existing session so we can start the new one
+      console.log(`Ending existing impersonation session ${existingSession.id} for user ${adminUserId}`);
+      await endImpersonation(existingSession.id);
     }
 
     // Create impersonation session

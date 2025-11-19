@@ -1,9 +1,7 @@
+"use client";
 
-'use client';
-
-import React from 'react';
-import type { Tenant } from '@/types';
-import Card from '../ui/Card';
+import React, { useMemo, useState } from 'react';
+import type { Tenant, TenantSettings } from '@/types';
 import Button from '../ui/Button';
 
 interface TenantSelectorProps {
@@ -12,50 +10,148 @@ interface TenantSelectorProps {
   onCreateNew: () => void;
 }
 
+type FeatureKey = keyof Pick<
+  TenantSettings,
+  | 'enableCalendar'
+  | 'enableGroupChat'
+  | 'enableDonations'
+  | 'enableVolunteering'
+  | 'enableSmallGroups'
+  | 'enableLiveStream'
+>;
+
+const featureMap: Record<FeatureKey, string> = {
+  enableCalendar: 'Events',
+  enableGroupChat: 'Chat',
+  enableDonations: 'Donations',
+  enableVolunteering: 'Volunteers',
+  enableSmallGroups: 'Small Groups',
+  enableLiveStream: 'Live Stream',
+};
+
 const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCreateNew }) => {
+  const [query, setQuery] = useState('');
+
+  const filteredTenants = useMemo(() => {
+    const lowerQuery = query.trim().toLowerCase();
+    return tenants
+      .filter((tenant: any) => {
+        if (!lowerQuery) return true;
+        const safeAddress = tenant.address ?? {
+          street: tenant.street,
+          city: tenant.city,
+          state: tenant.state,
+          country: tenant.country,
+          postalCode: tenant.postalCode,
+        };
+        const searchBlob = [tenant.name, tenant.creed, safeAddress?.city, safeAddress?.state, safeAddress?.country]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        return searchBlob.includes(lowerQuery);
+      })
+      .sort((a: any, b: any) => a.name.localeCompare(b.name));
+  }, [tenants, query]);
+
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <h2 className="text-2xl font-bold text-gray-900">Select a Tenant</h2>
-            <p className="mt-1 text-sm text-gray-500">Choose a temple to manage or create a new one.</p>
+          <h2 className="text-2xl font-semibold text-slate-900">Select a tenant</h2>
+          <p className="text-sm text-slate-500">Search the full network or spin up a new spiritual home.</p>
         </div>
-        <Button onClick={onCreateNew}>
-          + Create New Temple
-        </Button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                <path fill="currentColor" d="M11 3a8 8 0 0 1 6.2 13.2l4.3 4.3-1.4 1.4-4.3-4.3A8 8 0 1 1 11 3m0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z" />
+              </svg>
+            </span>
+            <input
+              type="search"
+              aria-label="Filter tenants"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-white/80 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+              placeholder="Search name, creed, or city"
+            />
+          </div>
+          <Button onClick={onCreateNew} className="rounded-xl text-sm">
+            + Create new temple
+          </Button>
+        </div>
       </div>
+
       <div className="space-y-4">
-        {tenants.map((tenant: any) => {
-          const safeAddress = tenant.address ?? {
-            street: (tenant as any).street,
-            city: (tenant as any).city,
-            state: (tenant as any).state,
-            country: (tenant as any).country,
-            postalCode: (tenant as any).postalCode,
-          };
-          return (
-          <div key={tenant.id} onClick={() => onSelect(tenant.id)}
-             className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-amber-400 cursor-pointer transition-all">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h3 className="font-semibold text-lg text-gray-800">{tenant.name}</h3>
-                    <p className="text-sm text-gray-500">
+        {filteredTenants.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 p-6 text-center text-sm text-slate-500">
+            No temples match that search yet. Try another phrase or create a new tenant.
+          </div>
+        ) : (
+          filteredTenants.map((tenant: any) => {
+            const safeAddress = tenant.address ?? {
+              street: tenant.street,
+              city: tenant.city,
+              state: tenant.state,
+              country: tenant.country,
+              postalCode: tenant.postalCode,
+            };
+            const tenantSettings = (tenant?.settings ?? null) as Partial<TenantSettings> | null;
+            const activeFeatures = Object.entries(featureMap)
+              .filter(([key]) => Boolean(tenantSettings?.[key as FeatureKey]))
+              .map(([, label]) => label)
+              .slice(0, 3);
+            const isPublic = (tenantSettings?.isPublic as boolean | undefined) ?? false;
+
+            return (
+              <button
+                key={tenant.id}
+                onClick={() => onSelect(tenant.id)}
+                className="group w-full rounded-2xl border border-white/70 bg-white/90 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-xl"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-semibold text-slate-900">{tenant.name}</h3>
+                      <span className="rounded-full bg-emerald-50 px-3 py-0.5 text-xs font-semibold text-emerald-700">
+                        {isPublic ? 'Public' : 'Private'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-500">
                       {tenant.creed}
                       {safeAddress?.city || safeAddress?.state ? (
                         <>
-                          {' '}· {(safeAddress?.city ?? 'Unknown City')}, {(safeAddress?.state ?? 'Unknown State')}
+                          {' '}
+                          · {(safeAddress?.city ?? 'Unknown City')}, {(safeAddress?.state ?? 'Unknown State')}
                         </>
                       ) : null}
                     </p>
+                  </div>
+                  <span className="text-xs font-medium uppercase tracking-wide text-slate-400">Tap to open</span>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                    {tenant.settings?.isPublic ? 'Public' : 'Private'}
-                  </span>
+                {tenant.description ? (
+                  <p className="mt-2 text-sm text-slate-600" style={{ WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', display: '-webkit-box', overflow: 'hidden' }}>
+                    {tenant.description}
+                  </p>
+                ) : null}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {activeFeatures.length ? (
+                    activeFeatures.map((label) => (
+                      <span
+                        key={label}
+                        className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700"
+                      >
+                        {label}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs text-slate-400">Feature toggles coming soon</span>
+                  )}
                 </div>
-            </div>
-          </div>
-        )})}
+              </button>
+            );
+          })
+        )}
       </div>
     </div>
   );

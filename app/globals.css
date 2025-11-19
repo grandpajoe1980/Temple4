@@ -1,5 +1,6 @@
 
 @import "tw-animate-css";
+@import "react-day-picker/dist/style.css";
 
 @plugin "tailwindcss-animate";
 
@@ -49,71 +50,73 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: #ecebff;
+  --foreground: #0b1224;
+  --card: #ffffff;
+  --card-foreground: #0b1224;
+  --popover: #ffffff;
+  --popover-foreground: #0b1224;
+  --primary: #7c3aed;
+  --primary-foreground: #f8fafc;
+  --secondary: #c7d2fe;
+  --secondary-foreground: #0b1224;
+  --muted: #e3e8ff;
+  --muted-foreground: #2f3d5c;
+  --accent: #bae6fd;
+  --accent-foreground: #0b1224;
+  --destructive: #ef4444;
+  --destructive-foreground: #fef2f2;
+  --border: #c7d2fe;
+  --input: #c7d2fe;
+  --ring: #7c3aed;
+  --chart-1: #7c3aed;
+  --chart-2: #0ea5e9;
+  --chart-3: #22c55e;
+  --chart-4: #f59e0b;
+  --chart-5: #ec4899;
+  --sidebar: #f8f7ff;
+  --sidebar-foreground: #0b1224;
+  --sidebar-primary: #7c3aed;
+  --sidebar-primary-foreground: #f8fafc;
+  --sidebar-accent: #e0e7ff;
+  --sidebar-accent-foreground: #0b1224;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #c084fc;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #0b1224;
+  --foreground: #e2e8f0;
+  --card: #111827;
+  --card-foreground: #e5e7eb;
+  --popover: #0f172a;
+  --popover-foreground: #e5e7eb;
+  --primary: #c084fc;
+  --primary-foreground: #0b1224;
+  --secondary: #1f2937;
+  --secondary-foreground: #e2e8f0;
+  --muted: #1c2537;
+  --muted-foreground: #cbd5f5;
+  --accent: #38bdf8;
+  --accent-foreground: #0b1224;
+  --destructive: #fca5a5;
+  --destructive-foreground: #0b1224;
+  --border: #1f2a3a;
+  --input: #1f2a3a;
+  --ring: #c084fc;
+  --chart-1: #c084fc;
+  --chart-2: #38bdf8;
+  --chart-3: #34d399;
+  --chart-4: #fbbf24;
+  --chart-5: #fb7185;
+  --sidebar: #0f172a;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-primary: #c084fc;
+  --sidebar-primary-foreground: #0b1224;
+  --sidebar-accent: #1f2937;
+  --sidebar-accent-foreground: #e2e8f0;
+  --sidebar-border: #1f2a3a;
+  --sidebar-ring: #c084fc;
 }
 
 @layer base {
@@ -121,6 +124,151 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground min-h-screen antialiased;
+    background-image:
+      radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--primary) 24%, transparent), transparent 35%),
+      radial-gradient(circle at 82% 10%, color-mix(in oklab, var(--accent) 35%, transparent), transparent 32%),
+      linear-gradient(180deg, color-mix(in oklab, var(--background) 85%, #ffffff 15%), var(--background));
+    background-attachment: fixed;
   }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 35%, transparent);
+    color: var(--primary-foreground);
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--foreground);
+  }
+  p {
+    color: var(--muted-foreground);
+    line-height: 1.7;
+  }
+  button,
+  input,
+  textarea,
+  select,
+  a {
+    @apply transition-colors duration-200 ease-out;
+  }
+  input,
+  textarea,
+  select {
+    background-color: #ffffff;
+    color: var(--foreground);
+    border: 1px solid #c7cde2;
+    border-radius: 0.65rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+    transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  }
+  input::placeholder,
+  textarea::placeholder,
+  select::placeholder {
+    color: #64748b;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    border-color: color-mix(in oklab, var(--primary) 55%, #94a3b8 45%);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 35%, #94a3b8 65%);
+    background-color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/* FullCalendar theming */
+.fc .fc-toolbar.fc-header-toolbar {
+  padding: 1rem 1.25rem;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.fc .fc-button-primary {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled):focus {
+  background-color: #7c3aed;
+  border-color: #7c3aed;
+  color: #fff;
+}
+
+.fc .fc-daygrid-day-number {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: rgba(124, 58, 237, 0.05);
+}
+
+.fc .fc-event {
+  border-radius: 0.75rem;
+  border: none;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.78rem;
+}
+
+.fc .fc-event-main {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* DayPicker modern look */
+.rdp-modern {
+  --rdp-accent-color: #7c3aed;
+  --rdp-accent-background-color: rgba(124, 58, 237, 0.15);
+  --rdp-day-button-border-radius: 9999px;
+  --rdp-outline: 2px solid rgba(124, 58, 237, 0.3);
+  padding: 0.25rem;
+}
+
+.rdp-modern .rdp-day {
+  font-weight: 500;
+  color: #0f172a;
+  position: relative;
+}
+
+.rdp-modern .rdp-day:hover {
+  background-color: rgba(15, 23, 42, 0.04);
+}
+
+.rdp-modern .rdp-day_selected {
+  background-color: #7c3aed;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25);
+}
+
+.rdp-modern .rdp-day_today {
+  color: #7c3aed;
+  font-weight: 700;
+}
+
+.rdp-modern .rdp-day-has-events::after {
+  content: "";
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background-color: #7c3aed;
+  opacity: 0.65;
 }

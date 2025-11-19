@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import type { Tenant } from '@/types';
 import ToggleSwitch from '../../ui/ToggleSwitch';

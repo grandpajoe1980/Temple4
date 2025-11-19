@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
 import type { User } from '@/types';
@@ -16,8 +16,23 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ currentUser, onClose,
   const [allOtherUsers, setAllOtherUsers] = useState<any[]>([]);
 
   useEffect(() => {
-    // TODO: Fetch users via API
-    setAllOtherUsers([]);
+    async function fetchUsers() {
+      try {
+        const response = await fetch('/api/users');
+        if (!response.ok) {
+          setAllOtherUsers([]);
+          return;
+        }
+
+        const users = await response.json();
+        setAllOtherUsers(users.filter((user: any) => user.id !== currentUser.id));
+      } catch (error) {
+        console.error('Failed to load users', error);
+        setAllOtherUsers([]);
+      }
+    }
+
+    fetchUsers();
   }, [currentUser.id]);
 
   const filteredUsers = useMemo(() => {
@@ -55,7 +70,7 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ currentUser, onClose,
               >
                 <div className="flex items-center space-x-4">
                   {/* FIX: Access avatarUrl and displayName from the nested profile object. */}
-                  <img src={user.profile.avatarUrl} alt={user.profile.displayName} className="w-10 h-10 rounded-full" />
+                  <img src={user.profile.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile.displayName} className="w-10 h-10 rounded-full" />
                   <div>
                     <p className="font-semibold text-gray-800">{user.profile.displayName}</p>
                     <p className="text-sm text-gray-500">{user.email}</p>

@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import type { User, EnrichedMember, UserProfile } from '@/types';
 import { adminUpdateUserProfile } from '@/lib/data';

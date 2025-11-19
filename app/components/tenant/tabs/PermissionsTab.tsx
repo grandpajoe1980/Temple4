@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import type { Tenant, RolePermissions, User } from '@/types';
 import { TenantRoleType } from '@/types';

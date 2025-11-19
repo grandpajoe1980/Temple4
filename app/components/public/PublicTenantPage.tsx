@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useMemo, useEffect } from 'react';
 import type { Tenant, User, Notification } from '@/types';
 import Button from '../ui/Button';
@@ -124,7 +126,7 @@ const PublicTenantPage: React.FC<PublicTenantPageProps> = ({ tenant, currentUser
                            <p className="text-sm text-gray-500">Logged in as</p>
                            <p className="font-semibold text-amber-700">{currentUser.profile.displayName}</p>
                         </div>
-                        <img src={currentUser.profile.avatarUrl} alt="avatar" className="h-8 w-8 rounded-full" />
+                        <img src={currentUser.profile.avatarUrl || '/placeholder-avatar.svg'} alt="avatar" className="h-8 w-8 rounded-full" />
                      </>
                  ) : (
                     <Button variant="secondary" size="sm" onClick={onNavigateToLogin}>Login / Register</Button>

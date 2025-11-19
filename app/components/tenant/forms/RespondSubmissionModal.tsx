@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react';
 import type { ContactSubmission } from '@/types';
 import Modal from '../../ui/Modal';

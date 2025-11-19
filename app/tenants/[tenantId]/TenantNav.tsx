@@ -26,7 +26,8 @@ type TenantPage =
   | 'liveStream'
   | 'prayerWall'
   | 'resourceCenter'
-  | 'services';
+  | 'services'
+  | 'facilities';
 type NavItemFeature = keyof Omit<TenantSettings, 'id' | 'tenantId' | 'isPublic' | 'membershipApprovalMode' | 'visitorVisibility' | 'donationSettings' | 'liveStreamSettings'>;
 
 

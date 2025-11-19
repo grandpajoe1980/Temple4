@@ -131,11 +131,11 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
               <p className="mt-2 text-gray-700">{profileUser.profile.bio}</p>
             </div>
           )}
-          {profileUser.profile.languages && profileUser.profile.languages.length > 0 && (
+          {profileUser.profile.languages && (
             <div className="mt-6">
               <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Languages</h3>
               <div className="mt-2 flex flex-wrap gap-2">
-                {(profileUser.profile.languages as string[]).map((lang) => (
+                {profileUser.profile.languages.split(',').map((lang) => lang.trim()).filter(Boolean).map((lang) => (
                   <span
                     key={lang}
                     className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800"

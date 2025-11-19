@@ -50,13 +50,16 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ profileUser, affiliatedTenant
               <p className="mt-2 text-gray-700">{profileUser.profile.bio}</p>
             </div>
           )}
-          {profileUser.profile.languages && profileUser.profile.languages.length > 0 && (
+          {profileUser.profile.languages && (
             <div className="mt-6">
                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Languages</h3>
                <div className="mt-2 flex flex-wrap gap-2">
-                 {profileUser.profile.languages.map(lang => (
+                 {(typeof profileUser.profile.languages === 'string' 
+                    ? profileUser.profile.languages.split(',') 
+                    : profileUser.profile.languages
+                 ).map((lang: string) => (
                     <span key={lang} className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800">
-                        {lang}
+                        {lang.trim()}
                     </span>
                  ))}
                </div>

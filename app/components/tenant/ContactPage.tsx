@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { addContactSubmission } from '@/lib/data';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
@@ -30,13 +30,25 @@ interface ContactPageProps {
       linkedInUrl?: string | null;
     } | null;
   };
+  initialServiceName?: string;
 }
 
-const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
-  const [formState, setFormState] = useState({ name: '', email: '', message: '' });
+const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName }) => {
+  const serviceMessage = initialServiceName
+    ? `Hi there! I'm interested in learning more about ${initialServiceName}.`
+    : '';
+  const [formState, setFormState] = useState({ name: '', email: '', message: serviceMessage });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
+
+  const resetForm = () => {
+    setFormState({ name: '', email: '', message: serviceMessage });
+  };
+
+  useEffect(() => {
+    setFormState((prev) => ({ ...prev, message: serviceMessage }));
+  }, [serviceMessage]);
 
   const addressString = [tenant.address.street, tenant.address.city, tenant.address.state, tenant.address.country, tenant.address.postalCode].filter(Boolean).join(', ');
   const mapSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSy...&q=${encodeURIComponent(addressString)}`;
@@ -53,7 +65,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
     try {
       await addContactSubmission(tenant.id, formState);
       setIsSubmitted(true);
-      setFormState({ name: '', email: '', message: '' });
+      resetForm();
       toast.success('Message sent successfully! We\'ll get back to you soon.');
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -193,12 +205,26 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant }) => {
             <div className="text-center p-8">
                 <h3 className="text-lg font-medium text-gray-900">Message Sent!</h3>
                 <p className="mt-1 text-sm text-gray-500">Thank you for contacting us. An administrator or staff member will get back to you shortly.</p>
-                <Button className="mt-4" onClick={() => setIsSubmitted(false)}>Send Another</Button>
+                <Button
+                  className="mt-4"
+                  onClick={() => {
+                    resetForm();
+                    setIsSubmitted(false);
+                  }}
+                >
+                  Send Another
+                </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <Input 
-                label="Your Name" 
+              {initialServiceName && (
+                <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                  You're asking about <span className="font-semibold">{initialServiceName}</span>. We'll include that in your
+                  message so our team knows how to help.
+                </div>
+              )}
+              <Input
+                label="Your Name"
                 id="name" 
                 name="name" 
                 type="text" 

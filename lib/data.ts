@@ -1,5 +1,5 @@
 import { prisma } from './db';
-import { Tenant, User, Post, Event, UserTenantMembership, Notification, AuditLog, Conversation, TenantSettings as PrismaTenantSettings, TenantBranding as PrismaTenantBranding, CommunityPost as PrismaCommunityPost } from '@prisma/client';
+import { Tenant, User, Post, Event, UserTenantMembership, Notification, AuditLog, Conversation, TenantSettings as PrismaTenantSettings, TenantBranding as PrismaTenantBranding, CommunityPost as PrismaCommunityPost, ServiceOffering as PrismaServiceOffering, ServiceCategory } from '@prisma/client';
 import { TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost } from '@/types';
 import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
@@ -15,6 +15,18 @@ type TenantWithRelations = Tenant & {
         postalCode: string;
     };
 };
+
+interface ServiceOfferingInput {
+  name: string;
+  description: string;
+  category: ServiceCategory;
+  isPublic?: boolean;
+  requiresBooking?: boolean;
+  contactEmailOverride?: string | null;
+  pricing?: string | null;
+  imageUrl?: string | null;
+  order?: number;
+}
 
 /**
  * Get all tenants that a user is an approved member of
@@ -174,6 +186,105 @@ export async function getMembershipForUserInTenant(userId: string, tenantId: str
       }
     },
   });
+}
+
+export async function getServiceOfferingsForTenant(
+  tenantId: string,
+  options?: { includePrivate?: boolean; category?: ServiceCategory }
+) {
+  const where: any = {
+    tenantId,
+    deletedAt: null,
+  };
+
+  if (!options?.includePrivate) {
+    where.isPublic = true;
+  }
+
+  if (options?.category) {
+    where.category = options.category;
+  }
+
+  return prisma.serviceOffering.findMany({
+    where,
+    orderBy: [{ order: 'asc' }, { name: 'asc' }],
+  });
+}
+
+export async function getServiceOfferingById(tenantId: string, serviceId: string, includePrivate = false) {
+  const service = await prisma.serviceOffering.findFirst({
+    where: {
+      id: serviceId,
+      tenantId,
+      deletedAt: null,
+    },
+  });
+
+  if (!service) {
+    return null;
+  }
+
+  if (!includePrivate && !service.isPublic) {
+    return null;
+  }
+
+  return service;
+}
+
+export async function createServiceOffering(tenantId: string, data: ServiceOfferingInput): Promise<PrismaServiceOffering> {
+  return prisma.serviceOffering.create({
+    data: {
+      tenantId,
+      name: data.name,
+      description: data.description,
+      category: data.category,
+      isPublic: data.isPublic ?? true,
+      requiresBooking: data.requiresBooking ?? false,
+      contactEmailOverride: data.contactEmailOverride || null,
+      pricing: data.pricing || null,
+      imageUrl: data.imageUrl || null,
+      order: data.order ?? 0,
+    },
+  });
+}
+
+export async function updateServiceOffering(
+  tenantId: string,
+  serviceId: string,
+  data: Partial<ServiceOfferingInput>
+): Promise<PrismaServiceOffering | null> {
+  const existing = await prisma.serviceOffering.findFirst({
+    where: { id: serviceId, tenantId, deletedAt: null },
+  });
+
+  if (!existing) {
+    return null;
+  }
+
+  return prisma.serviceOffering.update({
+    where: { id: existing.id },
+    data: {
+      name: data.name ?? existing.name,
+      description: data.description ?? existing.description,
+      category: data.category ?? existing.category,
+      isPublic: data.isPublic ?? existing.isPublic,
+      requiresBooking: data.requiresBooking ?? existing.requiresBooking,
+      contactEmailOverride:
+        data.contactEmailOverride === undefined ? existing.contactEmailOverride : data.contactEmailOverride || null,
+      pricing: data.pricing === undefined ? existing.pricing : data.pricing || null,
+      imageUrl: data.imageUrl === undefined ? existing.imageUrl : data.imageUrl || null,
+      order: data.order ?? existing.order,
+    },
+  });
+}
+
+export async function deleteServiceOffering(tenantId: string, serviceId: string): Promise<boolean> {
+  const result = await prisma.serviceOffering.updateMany({
+    where: { id: serviceId, tenantId, deletedAt: null },
+    data: { deletedAt: new Date() },
+  });
+
+  return result.count > 0;
 }
 
 /**

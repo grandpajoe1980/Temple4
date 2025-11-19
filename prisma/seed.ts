@@ -274,6 +274,45 @@ async function main() {
 
   console.log('✅ Springfield Community Church created!');
 
+  console.log('🛎️ Creating featured service offerings...');
+  await prisma.serviceOffering.createMany({
+    data: [
+      {
+        tenantId: springfieldChurch.id,
+        name: 'Wedding & Vow Renewal Ceremonies',
+        description:
+          'Pastor Ned leads joyful ceremonies for couples beginning or renewing their vows. Includes premarital sessions, customized liturgy, and optional reception planning support.',
+        category: 'CEREMONY',
+        isPublic: true,
+        requiresBooking: true,
+        pricing: 'Suggested honorarium of $250 - $400',
+        order: 1,
+      },
+      {
+        tenantId: springfieldChurch.id,
+        name: 'Community Banquet Hall Rentals',
+        description:
+          'Reserve our fellowship hall for family reunions, banquets, and community celebrations. Includes seating for 150 guests, commercial kitchen access, and on-site host.',
+        category: 'FACILITY',
+        isPublic: true,
+        requiresBooking: true,
+        pricing: '$300 for half day / $500 full day',
+        order: 2,
+      },
+      {
+        tenantId: springfieldChurch.id,
+        name: 'Pastoral Counseling & Care',
+        description:
+          'Confidential pastoral counseling for individuals, couples, and families navigating life transitions, grief, or spiritual questions. Sessions led by our care team and visiting chaplains.',
+        category: 'COUNSELING',
+        isPublic: false,
+        requiresBooking: true,
+        contactEmailOverride: 'care@springfield-church.com',
+        order: 3,
+      },
+    ],
+  });
+
   // Create memberships with roles
   const membershipData = [
     { email: 'ned@flanders.com', roles: [{ role: 'CLERGY', title: 'Pastor', primary: true }, { role: 'ADMIN', title: 'Church Administrator', primary: false }] },

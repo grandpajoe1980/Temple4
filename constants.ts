@@ -1,5 +1,13 @@
-import type { Tenant, TenantFeaturePermissions, RolePermissions } from './types';
+import type { Tenant, TenantFeaturePermissions, RolePermissions, ServiceCategory } from './types';
 import { MembershipApprovalMode, TenantRoleType } from './types';
+
+export const SERVICE_CATEGORY_OPTIONS: { value: ServiceCategory; label: string; description: string }[] = [
+  { value: 'CEREMONY', label: 'Ceremonies', description: 'Weddings, funerals, baptisms, dedications' },
+  { value: 'EDUCATION', label: 'Education', description: 'Classes, courses, Sunday school, discipleship' },
+  { value: 'FACILITY', label: 'Facilities', description: 'Space rentals, banquets, events, rehearsals' },
+  { value: 'COUNSELING', label: 'Counseling', description: 'Pastoral care, marriage counseling, mentoring' },
+  { value: 'OTHER', label: 'Other', description: 'Community services, outreach, unique offerings' },
+];
 
 export const CONTROL_PANEL_TABS = ['General', 'Branding', 'Features', 'Permissions', 'Membership & Moderation', 'User Profiles', 'Donations', 'Volunteering', 'Small Groups', 'Live Stream', 'Prayer Wall', 'Resource Center', 'Contact Submissions'];
 

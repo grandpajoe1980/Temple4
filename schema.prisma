@@ -63,6 +63,14 @@ enum ContactSubmissionStatus {
   ARCHIVED
 }
 
+enum ServiceCategory {
+  CEREMONY
+  EDUCATION
+  FACILITY
+  COUNSELING
+  OTHER
+}
+
 enum ActionType {
   IMPERSONATE_START
   IMPERSONATE_END
@@ -198,6 +206,7 @@ model Tenant {
   resourceItems    ResourceItem[]
   contactSubmissions ContactSubmission[]
   impersonationSessions ImpersonationSession[]
+  serviceOfferings ServiceOffering[]
 }
 
 model TenantBranding {
@@ -215,6 +224,26 @@ model TenantBranding {
   youtubeUrl     String?
   websiteUrl     String?
   linkedInUrl    String?
+}
+
+model ServiceOffering {
+  id                   String          @id @default(cuid())
+  tenantId             String
+  tenant               Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name                 String
+  description          String
+  category             ServiceCategory
+  isPublic             Boolean         @default(true)
+  requiresBooking      Boolean         @default(false)
+  contactEmailOverride String?
+  pricing              String?
+  imageUrl             String?
+  order                Int             @default(0)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  deletedAt            DateTime?
+
+  @@index([tenantId, category, isPublic])
 }
 
 model TenantSettings {

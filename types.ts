@@ -328,6 +328,21 @@ export interface PostWithAuthor extends Post {
     authorAvatarUrl?: string;
 }
 
+export interface PostComment {
+  id: string;
+  tenantId: string;
+  postId: string;
+  authorUserId: string;
+  body: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PostCommentWithAuthor extends PostComment {
+  authorDisplayName: string;
+  authorAvatarUrl?: string;
+}
+
 export interface Event {
   id: string;
   tenantId: string;

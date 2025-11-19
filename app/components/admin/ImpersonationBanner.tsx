@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 import Button from '../ui/Button';
 
 interface ImpersonationBannerProps {
@@ -10,10 +10,16 @@ interface ImpersonationBannerProps {
   isEnding?: boolean;
 }
 
-const ImpersonationBanner: React.FC<ImpersonationBannerProps> = ({ originalName, impersonatedName, onExit, isEnding }) => {
-  return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-400 px-4 py-2 text-yellow-900 shadow-lg">
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
+const ImpersonationBanner = forwardRef<HTMLDivElement, ImpersonationBannerProps>(
+  ({ originalName, impersonatedName, onExit, isEnding }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className="fixed inset-x-0 top-0 z-50 bg-yellow-400 px-4 py-2 text-yellow-900 shadow-lg"
+        role="status"
+        aria-live="polite"
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
         <div className="flex items-center space-x-2 text-sm font-semibold">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path
@@ -35,9 +41,12 @@ const ImpersonationBanner: React.FC<ImpersonationBannerProps> = ({ originalName,
         >
           {isEnding ? 'Ending...' : 'Exit Impersonation'}
         </Button>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+
+ImpersonationBanner.displayName = 'ImpersonationBanner';
 
 export default ImpersonationBanner;

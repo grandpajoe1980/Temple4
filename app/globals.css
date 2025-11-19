@@ -82,6 +82,7 @@
   --sidebar-accent-foreground: #0b1224;
   --sidebar-border: #e5e7eb;
   --sidebar-ring: #c084fc;
+  --impersonation-banner-offset: 0px;
 }
 
 .dark {
@@ -130,6 +131,8 @@
       radial-gradient(circle at 82% 10%, color-mix(in oklab, var(--accent) 35%, transparent), transparent 32%),
       linear-gradient(180deg, color-mix(in oklab, var(--background) 85%, #ffffff 15%), var(--background));
     background-attachment: fixed;
+    padding-top: var(--impersonation-banner-offset, 0px);
+    transition: padding-top 150ms ease;
   }
   ::selection {
     background: color-mix(in oklab, var(--primary) 35%, transparent);

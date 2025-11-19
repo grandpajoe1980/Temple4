@@ -116,8 +116,13 @@ const SiteHeader = () => {
     router.push(link);
   };
 
+  const stickyOffsetStyle = { top: 'var(--impersonation-banner-offset, 0px)' } as const;
+
   return (
-    <header className="sticky top-0 z-40 border-b border-white/30 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header
+      className="sticky z-40 border-b border-white/30 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+      style={stickyOffsetStyle}
+    >
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4">
           <Link

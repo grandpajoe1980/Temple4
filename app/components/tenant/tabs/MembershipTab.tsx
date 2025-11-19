@@ -12,15 +12,17 @@ import Modal from '../../ui/Modal';
 interface MembershipTabProps {
   tenant: Tenant;
   onUpdate: (tenant: Tenant) => void;
+  onSave: (updates: any) => Promise<any>;
   currentUser: User;
   onImpersonate: (user: User) => void;
   onRefresh: () => void;
 }
 
-const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, currentUser, onImpersonate, onRefresh }) => {
+const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave, currentUser, onImpersonate, onRefresh }) => {
   const [allMembers, setAllMembers] = useState<EnrichedMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingMember, setEditingMember] = useState<EnrichedMember | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const loadMembers = async () => {
@@ -194,17 +196,32 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, current
         <MemberTable members={banned} title="Banned Members" />
       </div>
 
-       {editingMember && (
-         <EditRolesModal
-          isOpen={!!editingMember}
-          onClose={() => setEditingMember(null)}
-          member={editingMember}
-          onSubmit={handleRolesUpdate}
-         />
-       )}
+      {editingMember && (
+        <EditRolesModal
+         isOpen={!!editingMember}
+         onClose={() => setEditingMember(null)}
+         member={editingMember}
+         onSubmit={handleRolesUpdate}
+        />
+      )}
 
       <div className="text-right border-t border-gray-200 pt-6">
-        <Button onClick={() => alert('Membership settings saved (mock)!')}>Save Membership Settings</Button>
+        <Button
+          disabled={isSaving}
+          onClick={async () => {
+            try {
+              setIsSaving(true);
+              await onSave({ settings: { ...tenant.settings } });
+              alert('Membership settings saved');
+            } catch (error: any) {
+              alert(error.message || 'Failed to save membership settings');
+            } finally {
+              setIsSaving(false);
+            }
+          }}
+        >
+          {isSaving ? 'Saving...' : 'Save Membership Settings'}
+        </Button>
       </div>
     </div>
   );

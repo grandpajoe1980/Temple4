@@ -1,0 +1,36 @@
+-- RedefineTables
+PRAGMA defer_foreign_keys=ON;
+PRAGMA foreign_keys=OFF;
+CREATE TABLE "new_TenantSettings" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "tenantId" TEXT NOT NULL,
+    "isPublic" BOOLEAN NOT NULL DEFAULT false,
+    "membershipApprovalMode" TEXT NOT NULL DEFAULT 'APPROVAL_REQUIRED',
+    "enableCalendar" BOOLEAN NOT NULL DEFAULT true,
+    "enablePosts" BOOLEAN NOT NULL DEFAULT true,
+    "enableSermons" BOOLEAN NOT NULL DEFAULT true,
+    "enablePodcasts" BOOLEAN NOT NULL DEFAULT true,
+    "enableBooks" BOOLEAN NOT NULL DEFAULT true,
+    "enableMemberDirectory" BOOLEAN NOT NULL DEFAULT true,
+    "enableGroupChat" BOOLEAN NOT NULL DEFAULT true,
+    "enableComments" BOOLEAN NOT NULL DEFAULT true,
+    "enableReactions" BOOLEAN NOT NULL DEFAULT true,
+    "enableServices" BOOLEAN NOT NULL DEFAULT true,
+    "enableDonations" BOOLEAN NOT NULL DEFAULT false,
+    "enableVolunteering" BOOLEAN NOT NULL DEFAULT false,
+    "enableSmallGroups" BOOLEAN NOT NULL DEFAULT false,
+    "enableLiveStream" BOOLEAN NOT NULL DEFAULT false,
+    "enablePrayerWall" BOOLEAN NOT NULL DEFAULT false,
+    "enableResourceCenter" BOOLEAN NOT NULL DEFAULT false,
+    "donationSettings" JSONB NOT NULL,
+    "liveStreamSettings" JSONB NOT NULL,
+    "visitorVisibility" JSONB NOT NULL,
+    "maxStorageMB" INTEGER NOT NULL DEFAULT 1000,
+    CONSTRAINT "TenantSettings_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO "new_TenantSettings" ("donationSettings", "enableBooks", "enableCalendar", "enableComments", "enableDonations", "enableGroupChat", "enableLiveStream", "enableMemberDirectory", "enablePodcasts", "enablePosts", "enablePrayerWall", "enableReactions", "enableResourceCenter", "enableSermons", "enableSmallGroups", "enableVolunteering", "id", "isPublic", "liveStreamSettings", "maxStorageMB", "membershipApprovalMode", "tenantId", "visitorVisibility") SELECT "donationSettings", "enableBooks", "enableCalendar", "enableComments", "enableDonations", "enableGroupChat", "enableLiveStream", "enableMemberDirectory", "enablePodcasts", "enablePosts", "enablePrayerWall", "enableReactions", "enableResourceCenter", "enableSermons", "enableSmallGroups", "enableVolunteering", "id", "isPublic", "liveStreamSettings", "maxStorageMB", "membershipApprovalMode", "tenantId", "visitorVisibility" FROM "TenantSettings";
+DROP TABLE "TenantSettings";
+ALTER TABLE "new_TenantSettings" RENAME TO "TenantSettings";
+CREATE UNIQUE INDEX "TenantSettings_tenantId_key" ON "TenantSettings"("tenantId");
+PRAGMA foreign_keys=ON;
+PRAGMA defer_foreign_keys=OFF;

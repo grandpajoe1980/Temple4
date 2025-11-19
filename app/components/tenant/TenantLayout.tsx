@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import { TenantRole as TenantRoleType, type Tenant, type User, type Notification } from '@/types';
 import {  } from '@prisma/client';
@@ -229,7 +231,7 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                         <Button variant="danger" size="sm" onClick={onNavigateToAdminConsole}>Admin Console</Button>
                     )}
                     <div className="flex items-center space-x-2">
-                         <img src={user.profile.avatarUrl} alt={user.profile.displayName} className="h-8 w-8 rounded-full"/>
+                         <img src={user.profile.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile.displayName} className="h-8 w-8 rounded-full"/>
                          <p className="font-semibold text-amber-700 text-sm hidden sm:block">{tenantDisplayName}</p>
                     </div>
                      <Button variant="secondary" size="sm" onClick={onLogout}>Logout</Button>

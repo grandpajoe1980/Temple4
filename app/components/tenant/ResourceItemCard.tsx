@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import type { EnrichedResourceItem, User, Tenant } from '@/types';
 import { FileType, ResourceVisibility } from '@/types';

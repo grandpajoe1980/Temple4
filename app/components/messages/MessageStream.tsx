@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import type { User, EnrichedConversation, EnrichedChatMessage, Tenant } from '@/types';
@@ -73,7 +73,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
          <div className="flex items-center space-x-3">
              {conversation.isDirect && otherParticipant ? (
                 // FIX: Access avatarUrl and displayName from the nested profile object.
-                <img src={otherParticipant.profile.avatarUrl} alt={otherParticipant.profile.displayName} className="w-10 h-10 rounded-full" />
+                <img src={otherParticipant.profile.avatarUrl || '/placeholder-avatar.svg'} alt={otherParticipant.profile.displayName} className="w-10 h-10 rounded-full" />
              ) : (
                 <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500 text-xl">#</div>
              )}

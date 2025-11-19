@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import React from 'react';
 import { Tenant, User, Event, Post, UserTenantMembership, TenantSettings, TenantBranding, UserProfile } from '@prisma/client';
@@ -89,19 +89,21 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
 
       {/* Header Section */}
       <div className="relative bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="h-48 bg-gray-200">
-            <img 
-                src={tenant.branding?.bannerImageUrl || `https://source.unsplash.com/random/1200x400?landscape,${tenant.id}`} 
-                alt={`${tenant.name} banner`} 
-                className="h-full w-full object-cover"
-            />
+        <div className="h-48 bg-gradient-to-r from-amber-100 to-amber-200">
+            {tenant.branding?.bannerImageUrl && (
+              <img 
+                  src={tenant.branding.bannerImageUrl} 
+                  alt={`${tenant.name} banner`} 
+                  className="h-full w-full object-cover"
+              />
+            )}
         </div>
         <div className="p-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
                 <div className="flex items-end space-x-5">
                     <div className="flex-shrink-0">
                          <img 
-                            src={tenant.branding?.logoUrl || `https://source.unsplash.com/random/100x100?logo,${tenant.id}`}
+                            src={tenant.branding?.logoUrl || '/placeholder-logo.svg'}
                             alt={`${tenant.name} logo`}
                             className="h-24 w-24 rounded-full bg-white p-1 shadow-md object-cover ring-4 ring-white -mt-16"
                         />

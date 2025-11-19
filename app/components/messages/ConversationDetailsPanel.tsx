@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useMemo } from 'react';
 // FIX: Changed 'import type' for TenantRole to a value import.
 import { TenantRole, type EnrichedConversation, type Tenant, type User, type UserTenantMembership } from '@/types';
@@ -65,7 +67,7 @@ const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ con
               onClick={() => onViewProfile(participant.id)}
             >
               <div className="flex items-center space-x-3">
-                <img src={participant.profile.avatarUrl} alt={participant.profile.displayName} className="w-8 h-8 rounded-full" />
+                <img src={participant.profile.avatarUrl || '/placeholder-avatar.svg'} alt={participant.profile.displayName} className="w-8 h-8 rounded-full" />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-gray-800">{participant.membership.displayName || participant.profile.displayName}</p>
                   <div className="flex flex-wrap gap-1 mt-0.5">

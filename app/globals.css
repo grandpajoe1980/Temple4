@@ -147,6 +147,27 @@
     color: var(--muted-foreground);
     line-height: 1.7;
   }
+  img {
+    max-width: 10%;
+    height: auto;
+    display: inline-block;
+  }
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    z-index: 50;
+    padding: 0.5rem 1rem;
+    background: #0f172a;
+    color: #f8fafc;
+    border-radius: 9999px;
+    transform: translateY(-200%);
+  }
+  .skip-link:focus {
+    transform: translateY(0);
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
+  }
   button,
   input,
   textarea,
@@ -179,6 +200,17 @@
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

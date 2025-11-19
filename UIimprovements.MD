@@ -83,8 +83,8 @@ This document inventories every screen, route, and shared UI surface in the Temp
 
 | Phase | Scope | Status | Notes |
 | --- | --- | --- | --- |
-| 0 | System audit | 🔄 In progress | Establishing tokens as pages are modernized |
-| 1 | Global shell | ⏳ Pending | Header/footer updates planned after marketing polish |
+| 0 | System audit | 🔄 In progress | Tokens + reduced-motion guardrails + media sizing sweep |
+| 1 | Global shell | 🔄 In progress | Skip link, sticky header, and footer scaffolding shipped |
 | 2 | Landing page | 🔄 In progress | Hero + testimonial upgrades underway |
 | 3 | Auth flows | ⏳ Pending | Awaiting design kit |
 | 4 | Home dashboard | ⏳ Pending | | 
@@ -97,5 +97,6 @@ This document inventories every screen, route, and shared UI surface in the Temp
 | 11 | Accessibility & performance | 🔄 Continuous | AXE + Lighthouse per route |
 
 ## Current Focus
+- Finalize Phase 1 global shell: skip link, sticky header, notification tray, and footer reused on every route.
 - Apply Phase 2 hero/search refinements in `app/components/landing/LandingPage.tsx`.
 - Validate no backend behavior changes and record lint/test results per change set.

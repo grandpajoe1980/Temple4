@@ -1745,3 +1745,35 @@ Tests added: 4
 Build status: SUCCESS ✅
 Email providers supported: 3 (Resend, SendGrid, Mock)
 
+
+## Session 15: 2025-11-19T15:03Z - Phase 1 Shell + Media Sizing Sweep
+
+### Startup Checklist
+- [x] Reviewed UIimprovements.MD to confirm Phase 1 + Phase 2 priorities
+- [x] Re-read docs/journal.md Session 14 handoff
+- [x] Synced on new requirement to shrink all `<img>` usage globally
+
+### Objectives
+1. Keep executing the UI improvement plan by starting the Phase 1 global shell work (skip link, header, footer, notification affordances).
+2. Address the image sizing bug (all images appear 10x too large) without regressing layout tokens.
+3. Preserve accessibility via reduced-motion support and consistent focus outlines.
+
+### Activities
+- Added skip link, sticky shell container, and marketing footer scaffolding inside `app/layout.tsx` so every route gains the same chrome automatically.
+- Created `SiteHeader` (client component) with brand lockup, responsive nav rails, tenant switch shortcut, NotificationBell + panel, and UserMenu handoff.
+- Added `SiteFooter` with structured CTA columns plus environment/build metadata per plan Phase 1.
+- Implemented `/api/notifications/[notificationId]` (PATCH) and `/api/notifications/mark-all` (POST) endpoints so the new header can mark notifications as read without importing Prisma client-side.
+- Refined `NotificationPanel` with contextual copy + close control and updated `Button` to ignore undefined className fragments.
+- Extended `app/globals.css` with the global 10% image rule, skip-link styling, and a `prefers-reduced-motion` override for animations/transitions.
+- Updated UIimprovements.MD progress notes (Phase 0 + Phase 1 rows + Current Focus) to document the new workstream.
+- Added `.eslintrc.js` + rewired `npm run lint` to call `eslint` directly since `next lint` was removed in Next 16.
+- Installed the missing `react-day-picker@9.11.1` dependency so `globals.css` imports resolve and dev servers compile.
+
+### Testing / Verification
+- `npm run lint` → fails because of pre-existing `react/no-unescaped-entities` + `@next/next/no-img-element` findings across legacy components (new lint config surfaces 40 errors / 42 warnings; see chunk 18e58a).
+- Manual smoke review via `npm run dev` + Playwright screenshot of `/` confirms header/footer render (artifact `global-shell.png`).
+
+### Next Steps
+- Hook NotificationBell up to real-time sockets (Phase 8 dependency) once messaging stack stabilizes.
+- Continue polishing marketing/landing hero (Phase 2) now that the shell exists.
+- Expand reduced-motion tokens into component-level animation utilities.

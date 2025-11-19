@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import Card from './ui/Card';
-import Input from './ui/Input';
-import Button from './ui/Button';
-import { useToast } from './ui/Toast';
+import Card from '../ui/Card';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import { useToast } from '../ui/Toast';
 import type { Facility, FacilityBooking } from '@/types';
 
 interface FacilityDetailPageProps {

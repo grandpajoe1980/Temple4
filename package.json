@@ -19,6 +19,12 @@
     "test:setup-users": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" test-suite/setup-test-users.ts"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.19",
+    "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/interaction": "^6.1.19",
+    "@fullcalendar/list": "^6.1.19",
+    "@fullcalendar/react": "^6.1.19",
+    "@fullcalendar/timegrid": "^6.1.19",
     "@prisma/client": "^6.19.0",
     "@radix-ui/react-tabs": "^1.1.13",
     "@tailwindcss/postcss": "^4.1.17",
@@ -30,6 +36,7 @@
     "next-auth": "^4.24.13",
     "prisma": "^6.19.0",
     "react": "^19.2.0",
+    "react-day-picker": "^9.11.1",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
     "tailwind-merge": "^3.4.0",

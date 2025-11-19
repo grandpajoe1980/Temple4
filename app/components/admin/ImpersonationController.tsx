@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ImpersonationBanner from './ImpersonationBanner';
 
@@ -16,6 +16,8 @@ const ImpersonationController = () => {
     ((session?.user as any)?.realUserEmail as string) ||
     'Administrator';
   const impersonatedName = session?.user?.name || session?.user?.email || 'User';
+
+  const bannerRef = useRef<HTMLDivElement | null>(null);
 
   const handleExit = useCallback(async () => {
     if (isEnding) {
@@ -42,12 +44,35 @@ const ImpersonationController = () => {
     }
   }, [isEnding, router]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+
+    const updateOffset = () => {
+      const height = bannerRef.current?.offsetHeight ?? 0;
+      root.style.setProperty('--impersonation-banner-offset', `${height}px`);
+    };
+
+    if (!isActive) {
+      root.style.setProperty('--impersonation-banner-offset', '0px');
+      return;
+    }
+
+    updateOffset();
+    window.addEventListener('resize', updateOffset);
+
+    return () => {
+      window.removeEventListener('resize', updateOffset);
+      root.style.setProperty('--impersonation-banner-offset', '0px');
+    };
+  }, [isActive]);
+
   if (!isActive) {
     return null;
   }
 
   return (
     <ImpersonationBanner
+      ref={bannerRef}
       originalName={realName}
       impersonatedName={impersonatedName}
       onExit={handleExit}

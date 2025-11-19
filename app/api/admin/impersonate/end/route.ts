@@ -12,25 +12,34 @@ export async function POST(request: Request) {
     }
 
     const userId = (session.user as any).realUserId || (session.user as any).id;
+    const sessionIdFromClient = (session.user as any).impersonationSessionId as string | undefined | null;
 
-    // Get active impersonation session
-    const activeSession = await getActiveImpersonation(userId);
+    let sessionIdToEnd = sessionIdFromClient ?? undefined;
 
-    if (!activeSession) {
-      return NextResponse.json({ 
-        message: 'No active impersonation session found' 
-      }, { status: 400 });
+    if (!sessionIdToEnd) {
+      // Fallback to querying the active session to handle stale client state
+      const activeSession = await getActiveImpersonation(userId);
+      if (activeSession) {
+        sessionIdToEnd = activeSession.id;
+      }
     }
 
-    const result = await endImpersonation(activeSession.id);
+    if (!sessionIdToEnd) {
+      return NextResponse.json(
+        { message: 'No active impersonation session found' },
+        { status: 400 }
+      );
+    }
 
-    if (!result.success) {
+    const result = await endImpersonation(sessionIdToEnd);
+
+    if (!result.success && result.error !== 'Session already ended') {
       return NextResponse.json({ message: result.error }, { status: 400 });
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      message: 'Impersonation session ended' 
+      message: result.success ? 'Impersonation session ended' : 'Impersonation session was already closed'
     });
   } catch (error) {
     console.error('End impersonation error:', error);

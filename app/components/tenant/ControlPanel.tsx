@@ -72,7 +72,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
       case 'Branding':
         return <BrandingTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} />;
       case 'Features':
-        return <FeaturesTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} />;
+        return <FeaturesTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} onRefresh={onRefresh} />;
       case 'Permissions':
         return currentUser ? (
           <PermissionsTab tenant={tenant} onUpdate={onUpdate} currentUser={currentUser} />

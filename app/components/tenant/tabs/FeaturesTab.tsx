@@ -9,9 +9,10 @@ interface FeaturesTabProps {
   tenant: Tenant;
   onUpdate: (tenant: Tenant) => void;
   onSave: (updates: any) => Promise<any>;
+  onRefresh?: () => void;
 }
 
-const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave }) => {
+const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave, onRefresh }) => {
   const [isSaving, setIsSaving] = React.useState(false);
   const formatLabel = (key: string) => {
     return key.replace('enable', '').replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
@@ -86,6 +87,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave }) =
             try {
               setIsSaving(true);
               await onSave({ settings: { ...tenant.settings } });
+              onRefresh?.();
               alert('Features saved');
             } catch (error: any) {
               alert(error.message || 'Failed to save features');

@@ -207,6 +207,7 @@ async function main() {
     where: { slug: 'springfield-church' },
     update: {},
     create: {
+      id: 'cmi3atear0014ums4fuftaa9r',
       name: 'Springfield Community Church',
       slug: 'springfield-church',
       creed: 'Love thy neighbor (even if they borrow your stuff without asking)',

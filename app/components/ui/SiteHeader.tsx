@@ -11,10 +11,10 @@ import Button from './Button';
 import UserMenu from './UserMenu';
 
 const navItems = [
-  { label: 'Explore', href: '/explore' },
   { label: 'Tenants', href: '/tenants' },
   { label: 'Messages', href: '/messages', authOnly: true },
   { label: 'Account', href: '/account', authOnly: true },
+  { label: 'Explore', href: '/explore' },
 ];
 
 const SiteHeader = () => {
@@ -143,6 +143,7 @@ const SiteHeader = () => {
           <nav className="hidden flex-1 items-center gap-2 text-sm font-medium text-slate-500 md:flex" aria-label="Primary">
             {navItems
               .filter((item) => (isAuthenticated ? true : !item.authOnly))
+              .filter((item) => (pathname?.startsWith('/tenants') ? item.label !== 'Tenants' : true))
               .map((item) => (
                 <Link
                   key={item.href}
@@ -196,6 +197,7 @@ const SiteHeader = () => {
         <nav className="flex items-center gap-2 overflow-x-auto text-xs font-semibold text-slate-500 md:hidden" aria-label="Mobile">
           {navItems
             .filter((item) => (isAuthenticated ? true : !item.authOnly))
+            .filter((item) => (pathname?.startsWith('/tenants') ? item.label !== 'Tenants' : true))
             .map((item) => (
               <Link
                 key={`${item.href}-mobile`}

@@ -35,14 +35,13 @@ interface TenantLayoutProps {
   onImpersonate: (user: User) => void;
   onViewProfile: (userId: string) => void;
   onNavigateToMessages: () => void;
-  onViewAccountSettings: () => void;
   onNavigateToAdminConsole: () => void;
   onRefresh: () => void;
 }
 
 type TenantPage = 'home' | 'settings' | 'posts' | 'calendar' | 'sermons' | 'podcasts' | 'books' | 'members' | 'chat' | 'donations' | 'contact' | 'volunteering' | 'smallGroups' | 'liveStream' | 'prayerWall' | 'resourceCenter';
 
-const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenant, onBackToSelect, onLogout, onImpersonate, onViewProfile, onNavigateToMessages, onViewAccountSettings, onNavigateToAdminConsole, onRefresh }) => {
+const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenant, onBackToSelect, onLogout, onImpersonate, onViewProfile, onNavigateToMessages, onNavigateToAdminConsole, onRefresh }) => {
   const [currentPage, setCurrentPage] = useState<TenantPage>('home');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
@@ -195,7 +194,7 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
     <div className="bg-gray-100 min-h-screen">
       <header className="bg-white shadow-sm sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-3">
+            <div className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
                  <div className="flex items-center space-x-4">
                     {tenant.branding.logoUrl ? (
                          <img src={tenant.branding.logoUrl} alt={`${tenant.name} Logo`} className="h-8 w-auto" />
@@ -206,35 +205,43 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                     )}
                     <h1 className="text-xl font-bold text-gray-800 hidden md:block">{tenant.name}</h1>
                  </div>
-                 <div className="flex items-center space-x-2 md:space-x-4">
-                    <button onClick={onBackToSelect} className="text-sm font-medium text-gray-600 hover:text-amber-700 hidden sm:block">
-                        &larr; Switch Tenant
-                    </button>
-                    <div className="relative">
-                        <NotificationBell
-                            unreadCount={unreadNotificationCount}
-                            onClick={() => setIsNotificationPanelOpen(prev => !prev)}
-                        />
-                        {isNotificationPanelOpen && (
-                            <NotificationPanel
-                                notifications={notifications}
-                                onClose={() => setIsNotificationPanelOpen(false)}
-                                onMarkAsRead={handleMarkNotificationAsRead}
-                                onMarkAllAsRead={handleMarkAllNotificationsAsRead}
-                                onNavigate={handleNotificationNavigate}
-                            />
+                 <div className="flex flex-col items-start gap-2 sm:items-end">
+                    <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                        {user.isSuperAdmin && (
+                            <Button variant="danger" size="sm" onClick={onNavigateToAdminConsole}>Admin Console</Button>
                         )}
+                        <div className="relative">
+                            <NotificationBell
+                                unreadCount={unreadNotificationCount}
+                                onClick={() => setIsNotificationPanelOpen(prev => !prev)}
+                            />
+                            {isNotificationPanelOpen && (
+                                <NotificationPanel
+                                    notifications={notifications}
+                                    onClose={() => setIsNotificationPanelOpen(false)}
+                                    onMarkAsRead={handleMarkNotificationAsRead}
+                                    onMarkAllAsRead={handleMarkAllNotificationsAsRead}
+                                    onNavigate={handleNotificationNavigate}
+                                />
+                            )}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                             <img src={user.profile.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile.displayName} className="h-8 w-8 rounded-full"/>
+                             <p className="font-semibold text-amber-700 text-sm hidden sm:block">{tenantDisplayName}</p>
+                        </div>
+                        <Button variant="secondary" size="sm" onClick={onLogout}>Logout</Button>
                     </div>
-                    <Button variant="secondary" size="sm" onClick={onNavigateToMessages}>Global Messages</Button>
-                    <Button variant="secondary" size="sm" onClick={onViewAccountSettings}>Account</Button>
-                    {user.isSuperAdmin && (
-                        <Button variant="danger" size="sm" onClick={onNavigateToAdminConsole}>Admin Console</Button>
-                    )}
-                    <div className="flex items-center space-x-2">
-                         <img src={user.profile.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile.displayName} className="h-8 w-8 rounded-full"/>
-                         <p className="font-semibold text-amber-700 text-sm hidden sm:block">{tenantDisplayName}</p>
+                    <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-gray-600">
+                        <button onClick={onBackToSelect} className="hover:text-amber-700 hidden sm:block">
+                            &larr; Switch Tenant
+                        </button>
+                        <button onClick={onNavigateToMessages} className="hover:text-amber-700">
+                            Global Messages
+                        </button>
+                        <a href="/explore" className="hover:text-amber-700">
+                            Explore
+                        </a>
                     </div>
-                     <Button variant="secondary" size="sm" onClick={onLogout}>Logout</Button>
                  </div>
             </div>
              <nav className="-mb-px flex space-x-6 overflow-x-auto border-t border-gray-200">

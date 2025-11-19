@@ -80,13 +80,14 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
     setMessages([]);
     fetchMessages();
 
-    const interval = setInterval(fetchMessages, 5000);
+    const interval = setInterval(fetchMessages, 60000); // Poll every 60 seconds instead of 5
     return () => clearInterval(interval);
   }, [fetchMessages]);
 
   useEffect(() => {
     if (isNearBottom) {
-      scrollToBottom();
+      // Removed auto scroll on message changes to prevent scrolling on poll
+      // scrollToBottom();
       setShowScrollToLatest(false);
     } else if (messages.length > 0) {
       setShowScrollToLatest(true);
@@ -130,6 +131,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
         const normalized = mapMessage(created);
         setMessages((currentMessages) => [...currentMessages, normalized]);
         setNewMessage('');
+        scrollToBottom(); // Scroll to bottom when sending a message
         onMarkAsRead();
       }
     } catch (error) {

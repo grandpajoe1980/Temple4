@@ -132,7 +132,6 @@ export const TEST_CONFIG = {
       { path: '/auth/reset-password', name: 'Reset Password Page' },
       { path: '/tenants', name: 'Tenant Directory' },
       { path: '/docs', name: 'Docs Hub' },
-      { path: '/docs/projectplan', name: 'Project Plan Doc' },
       { path: '/docs/security', name: 'Security Doc' },
       { path: '/docs/status', name: 'Status Doc' },
       { path: '/support', name: 'Support Page' },

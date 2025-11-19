@@ -90,7 +90,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
         <section className="grid gap-8 lg:grid-cols-[1.4fr,0.6fr]">
           <div className="rounded-3xl bg-white/90 p-8 shadow-xl ring-1 ring-slate-100">
             <p className="text-sm font-semibold text-amber-600">Dashboard Overview</p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900">Every phase from projectplan.md in one place</h2>
+            <h2 className="mt-2 text-3xl font-semibold text-slate-900">Every tenant workflow in one place</h2>
             <p className="mt-3 text-sm text-slate-600">
               Membership approvals, messaging, donations, and community care are ready whenever you are. Keep stewarding each tenant
               with confidence knowing the backend is already wired.
@@ -137,7 +137,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
         <section className="grid gap-4 md:grid-cols-3">
           {planHighlights.map((highlight) => (
             <div key={highlight.title} className="rounded-2xl bg-white/90 p-5 shadow-sm ring-1 ring-white/70">
-              <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">Project Plan</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">Platform highlights</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">{highlight.title}</p>
               <p className="text-sm text-slate-600">{highlight.detail}</p>
             </div>

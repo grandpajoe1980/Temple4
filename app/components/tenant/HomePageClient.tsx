@@ -87,7 +87,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
           </span>
-          <span className="font-bold text-lg">We're Live! Click here to join.</span>
+          <span className="font-bold text-lg">We’re Live! Click here to join.</span>
         </div>
       )}
 
@@ -137,7 +137,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
             <Card>
                 <h3 className="text-xl font-semibold text-gray-800">Welcome, {tenantDisplayName}!</h3>
                 <p className="mt-2 text-gray-600">
-                    This is the central hub for {tenant.name}. Here you'll find the latest announcements, upcoming events, and more. We're glad you're here.
+                    This is the central hub for {tenant.name}. Here you’ll find the latest announcements, upcoming events, and more. We’re glad you’re here.
                 </p>
             </Card>
 
@@ -171,7 +171,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
                 <div className="p-6 border-b border-gray-200 flex justify-between items-center">
                     <div>
                         <h3 className="text-lg font-semibold leading-6 text-gray-900">Upcoming Events</h3>
-                        <p className="mt-1 text-sm text-gray-500">What's happening soon.</p>
+                        <p className="mt-1 text-sm text-gray-500">What’s happening soon.</p>
                     </div>
                     <Button variant="secondary" size="sm" onClick={() => onNavigate('calendar')}>View Calendar</Button>
                 </div>

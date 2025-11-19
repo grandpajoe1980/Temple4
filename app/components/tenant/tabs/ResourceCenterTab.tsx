@@ -55,7 +55,7 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
       <div className="space-y-8">
         <div>
           <h3 className="text-lg font-medium leading-6 text-gray-900">Resource Center Management</h3>
-          <p className="mt-1 text-sm text-gray-500">Manage your tenant's downloadable resources and files.</p>
+          <p className="mt-1 text-sm text-gray-500">Manage your tenant’s downloadable resources and files.</p>
         </div>
         <div className="text-center py-12">
           <p className="text-gray-500">Loading resources...</p>

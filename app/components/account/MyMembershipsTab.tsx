@@ -40,7 +40,7 @@ const MyMembershipsTab: React.FC<MyMembershipsTabProps> = ({ user, onRefresh }) 
     <div className="space-y-8">
       <div>
         <h3 className="text-lg font-medium leading-6 text-gray-900">My Memberships</h3>
-        <p className="mt-1 text-sm text-gray-500">Manage your identity within each community you've joined.</p>
+        <p className="mt-1 text-sm text-gray-500">Manage your identity within each community you’ve joined.</p>
       </div>
       
       {memberships.length > 0 ? (
@@ -87,7 +87,7 @@ const MyMembershipsTab: React.FC<MyMembershipsTabProps> = ({ user, onRefresh }) 
       ) : (
         <div className="text-center py-12">
             <h3 className="text-lg font-medium text-gray-900">No Memberships</h3>
-            <p className="mt-1 text-sm text-gray-500">You haven't joined any tenants yet.</p>
+            <p className="mt-1 text-sm text-gray-500">You haven’t joined any tenants yet.</p>
         </div>
       )}
 

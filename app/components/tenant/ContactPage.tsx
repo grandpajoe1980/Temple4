@@ -219,7 +219,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
             <form onSubmit={handleSubmit} className="space-y-6">
               {initialServiceName && (
                 <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-                  You're asking about <span className="font-semibold">{initialServiceName}</span>. We'll include that in your
+                  You’re asking about <span className="font-semibold">{initialServiceName}</span>. We’ll include that in your
                   message so our team knows how to help.
                 </div>
               )}

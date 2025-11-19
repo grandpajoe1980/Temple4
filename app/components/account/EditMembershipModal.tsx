@@ -50,7 +50,7 @@ const EditMembershipModal: React.FC<EditMembershipModalProps> = ({ isOpen, onClo
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder={user.profile.displayName}
         />
-        <p className="text-xs text-gray-500 -mt-4 ml-1">Leave blank to use your global name: "{user.profile.displayName}"</p>
+        <p className="text-xs text-gray-500 -mt-4 ml-1">Leave blank to use your global name: “{user.profile.displayName}”</p>
         
         <Input 
           label="Display Title" 

@@ -25,6 +25,7 @@ import { DonationRecord, EnrichedDonationRecord, TenantRole, MembershipStatus, T
 import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
 import { listTenantEvents, mapEventDtoToClient } from './services/event-service';
+import { listTenantPosts, mapPostDtoToClient } from './services/post-service';
 
 export type TenantWithRelations = Tenant & {
   settings: TenantSettings | null;
@@ -368,25 +369,9 @@ export async function getEventsForTenant(tenantId: string, currentUserId?: strin
  * @param tenantId - The ID of the tenant
  * @returns Array of published posts with author information
  */
-export async function getPostsForTenant(tenantId: string) {
-  const posts = await prisma.post.findMany({
-    where: { tenantId, isPublished: true },
-    orderBy: { publishedAt: 'desc' },
-    include: {
-      author: {
-        include: {
-          profile: true,
-        }
-      }
-    }
-  });
-  
-  return posts.map((post: any) => ({
-    ...post,
-    type: post.type as 'BLOG' | 'ANNOUNCEMENT' | 'BOOK',
-    authorDisplayName: post.author.profile?.displayName || 'Unknown',
-    authorAvatarUrl: post.author.profile?.avatarUrl || undefined,
-  }));
+export async function getPostsForTenant(tenantId: string, currentUserId?: string) {
+  const { posts } = await listTenantPosts({ tenantId, viewerUserId: currentUserId ?? null, publishedOnly: true });
+  return posts.map(mapPostDtoToClient);
 }
 
 /**

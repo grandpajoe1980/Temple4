@@ -6,6 +6,7 @@
 import TEST_CONFIG from './test-config';
 import { TestLogger } from './test-logger';
 import { normalizeSetCookieHeader, performCredentialsLogin } from './utils';
+import { prisma } from '../lib/db';
 
 export class APITestSuite {
   private logger: TestLogger;
@@ -280,6 +281,8 @@ export class APITestSuite {
         return { response, expectedStatus: [201, 200, 401, 403] };
       }
     );
+
+    await this.testEventVisibilityRules(category);
 
     // Test sermons
     await this.testEndpoint(
@@ -639,6 +642,84 @@ export class APITestSuite {
           return { response, expectedStatus: [200, 401, 403, 404] };
         }
       );
+    }
+  }
+
+  private async testEventVisibilityRules(category: string) {
+    if (!this.testTenantId) {
+      this.logger.logSkip(category, 'Events respect visitor visibility', 'No test tenant available');
+      return;
+    }
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: this.testTenantId },
+      include: { settings: true },
+    });
+
+    if (!tenant?.settings) {
+      this.logger.logSkip(category, 'Events respect visitor visibility', 'Tenant settings missing');
+      return;
+    }
+
+    const settingsId = tenant.settings.id;
+    const originalVisibility = (tenant.settings.visitorVisibility as Record<string, boolean> | null) || {};
+    const tightenedVisibility = { ...originalVisibility, calendar: false };
+
+    try {
+      await prisma.tenantSettings.update({
+        where: { id: settingsId },
+        data: { visitorVisibility: tightenedVisibility },
+      });
+
+      this.logger.startTest(category, 'Events respect visitor visibility');
+
+      const anonymousResponse = await fetch(
+        `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/events`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+      );
+
+      if (anonymousResponse.status === 403) {
+        this.logger.logPass(category, 'Anonymous access blocked when calendar hidden');
+      } else {
+        this.logger.logFail(
+          category,
+          'Anonymous access blocked when calendar hidden',
+          `Expected 403 but received ${anonymousResponse.status}`
+        );
+      }
+
+      const { cookieHeader } = await performCredentialsLogin(
+        TEST_CONFIG.testUsers.regular.email,
+        TEST_CONFIG.testUsers.regular.password
+      );
+
+      const memberResponse = await fetch(
+        `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/events`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+          },
+        }
+      );
+
+      if (memberResponse.status === 200) {
+        this.logger.logPass(category, 'Member can still view events when calendar hidden from visitors');
+      } else {
+        this.logger.logFail(
+          category,
+          'Member can still view events when calendar hidden from visitors',
+          `Expected 200 but received ${memberResponse.status}`
+        );
+      }
+    } catch (error) {
+      this.logger.logError(category, 'Events respect visitor visibility', error as Error);
+    } finally {
+      await prisma.tenantSettings.update({
+        where: { id: settingsId },
+        data: { visitorVisibility: originalVisibility },
+      });
     }
   }
 

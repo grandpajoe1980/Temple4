@@ -1,18 +1,25 @@
 "use client"
 
 import React from 'react';
-import { Tenant, User, Event, Post, UserTenantMembership, TenantSettings, TenantBranding, UserProfile } from '@prisma/client';
-import { MembershipStatus, MembershipApprovalMode } from '@/types';
+import { Tenant, User, UserTenantMembership, TenantSettings, TenantBranding, UserProfile } from '@prisma/client';
+import { EventWithCreator, MembershipStatus, MembershipApprovalMode } from '@/types';
 import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';
 import { useRouter } from 'next/navigation';
+
+interface HomePagePost {
+  id: string;
+  title: string;
+  publishedAt: Date;
+  author: { profile: UserProfile | null } | null;
+}
 
 interface HomePageClientProps {
   tenant: Tenant & { settings: TenantSettings | null; branding: TenantBranding | null; };
   user: (User & { profile: UserProfile | null }) | null;
   membership: UserTenantMembership | null;
-  upcomingEvents: Event[];
-  recentPosts: (Post & { author: { profile: UserProfile | null } })[];
+  upcomingEvents: EventWithCreator[];
+  recentPosts: HomePagePost[];
 }
 
 export default function HomePageClient({ tenant, user, membership, upcomingEvents, recentPosts }: HomePageClientProps) {

@@ -120,6 +120,17 @@ General utility functions
 4. **Add context** to logs and errors (userId, tenantId, route)
 5. **Use TypeScript types** exported from utilities for consistency
 
+## Client/Server Boundary Pattern
+
+Use a predictable hop-by-hop flow when wiring new features:
+
+1. **Component**: Client or server component fetches data from `/api/...` (never imports Prisma helpers directly). Prefer `fetch` with forwarded cookies to preserve session context and feature visibility rules.
+2. **API route**: Thin handler that handles auth, delegates to a service, and normalizes errors via `api-response` helpers and `logger`.
+3. **Service**: Plain functions in `lib/services/*` that own Prisma queries, visibility checks, and DTO mapping. Example: `listTenantEvents` encapsulates RSVP counts and `canUserViewContent` enforcement.
+4. **Prisma**: Data access stays isolated here, wrapped by `withTenantScope` for isolation.
+
+This boundary keeps UI code DTO-based, centralizes permissions, and makes it easy to regression-test endpoints without reaching into implementation details.
+
 ## Migration Notes
 
 When updating API routes to use these utilities:

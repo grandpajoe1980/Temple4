@@ -1910,3 +1910,17 @@ Email providers supported: 3 (Resend, SendGrid, Mock)
 
 ### Notes
 - `npm run build` currently fails due to pre-existing messaging route/type issues (duplicate `conversation` identifier and missing `../messages/normalizers` import resolution); rerun once those upstream errors are addressed.
+
+## Session 24: 2025-11-20T12:15Z - Tenant events boundary hardening
+
+### Goal
+- Advance the client/server boundary work in `todo2.md` by routing tenant home/calendar traffic through the events/posts APIs and centralizing event DTO mapping.
+
+### Activities
+- Introduced `lib/services/event-service` to encapsulate event visibility checks, RSVP counts, and DTO mapping for both API routes and server components.
+- Pointed `/api/tenants/[tenantId]/events` at the shared service with structured logging/error handling instead of inline Prisma queries.
+- Updated tenant home and calendar (including the create modal view) to fetch events via the API with cookie-forwarding and DTO hydration, and to hydrate posts through the posts API.
+- Documented the boundary pattern in `lib/README.md` to standardize the component → API → service → Prisma flow.
+
+### Notes
+- Tests have not yet been rerun for this slice; a targeted API regression was added to cover event visibility rules.

@@ -24,6 +24,7 @@ import {
 import { DonationRecord, EnrichedDonationRecord, TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost, CommunityPostStatus, ContactSubmissionStatus } from '@/types';
 import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
+import { listTenantEvents, mapEventDtoToClient } from './services/event-service';
 
 export type TenantWithRelations = Tenant & {
   settings: TenantSettings | null;
@@ -357,43 +358,8 @@ export async function exportTenantData(tenantId: string): Promise<TenantDataExpo
  * @returns Array of events with enriched creator information
  */
 export async function getEventsForTenant(tenantId: string, currentUserId?: string) {
-  const events = await prisma.event.findMany({
-    where: { tenantId },
-    orderBy: { startDateTime: 'asc' },
-    include: {
-      creator: {
-        include: {
-          profile: true,
-        }
-      },
-      _count: {
-        select: {
-          rsvps: {
-            where: {
-              status: { in: ['GOING', 'INTERESTED'] }
-            }
-          }
-        }
-      },
-      ...(currentUserId
-        ? {
-            rsvps: {
-              where: { userId: currentUserId },
-              select: { status: true },
-            },
-          }
-        : {}),
-    }
-  });
-
-  return events.map((event: any) => ({
-    ...event,
-    onlineUrl: event.onlineUrl,
-    creatorDisplayName: event.creator.profile?.displayName || event.creator.email,
-    creatorAvatarUrl: event.creator.profile?.avatarUrl || null,
-    rsvpCount: event._count?.rsvps ?? 0,
-    currentUserRsvpStatus: event.rsvps?.[0]?.status ?? null,
-  }));
+  const events = await listTenantEvents({ tenantId, viewerUserId: currentUserId });
+  return events.map(mapEventDtoToClient);
 }
 
 /**

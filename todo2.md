@@ -191,7 +191,7 @@ Tasks:
 Outcome: Clear layering, fewer cross‑cutting imports, easier to change backend behavior without touching UI.
 
 Progress update:
-- Tenant home + events slice: API endpoints exist for events, posts, and member context, but `app/tenants/[tenantId]/page.tsx` and `app/tenants/[tenantId]/calendar/page.tsx` still import `getEventsForTenant`/`getPostsForTenant` directly. Next step is to route those pages through the `/api/tenants/[tenantId]/events` endpoint (via a shared event service) and pass DTOs to `HomePageClient`/`CalendarPageClient`, removing direct Prisma/lib data imports from client-facing code.
+- Tenant home + calendar now hydrate events via `/api/tenants/[tenantId]/events` with cookie-forwarded fetches and DTO mappers from a shared `event-service`; home also pulls recent posts through the posts API. The events endpoint is now backed by the shared service and a visibility regression test, and the boundary pattern is documented in `lib/README.md`.
 
 ---
 

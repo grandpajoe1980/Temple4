@@ -3,33 +3,16 @@
 import React, { useState, useMemo } from 'react';
 import Input from '../ui/Input';
 import MemberCard from './MemberCard';
-
-// Enriched member type from getMembersForTenant
-type EnrichedMember = {
-  id: string;
-  email: string;
-  password: string | null;
-  isSuperAdmin: boolean;
-  notificationPreferences: any;
-  profile: any;
-  privacySettings: any;
-  accountSettings: any;
-  membership: {
-    id: string;
-    status: any;
-    displayName: string | null;
-    roles: any[];
-  };
-};
+import type { MemberWithMembership, TenantWithRelations, UserWithProfileSettings } from '@/lib/data';
 
 interface MembersPageProps {
-  tenant: any;
-  user: any;
-  members: EnrichedMember[];
+  tenant: Pick<TenantWithRelations, 'name'>;
+  user: UserWithProfileSettings;
+  members: MemberWithMembership[];
   onViewProfile?: (userId: string) => void;
 }
 
-const MembersPage: React.FC<MembersPageProps> = ({ tenant, user, members, onViewProfile }) => {
+const MembersPage: React.FC<MembersPageProps> = ({ tenant, user: _user, members, onViewProfile }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredMembers = useMemo(() => {
@@ -64,8 +47,8 @@ const MembersPage: React.FC<MembersPageProps> = ({ tenant, user, members, onView
 
       {filteredMembers.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredMembers.map((member: any) => (
-            <MemberCard key={member.id} member={member as any} onViewProfile={() => onViewProfile?.(member.id)} />
+          {filteredMembers.map((member) => (
+            <MemberCard key={member.id} member={member} onViewProfile={() => onViewProfile?.(member.id)} />
           ))}
         </div>
       ) : (

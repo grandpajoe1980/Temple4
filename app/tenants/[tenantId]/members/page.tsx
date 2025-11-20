@@ -13,7 +13,7 @@ export default async function TenantMembersPage({ params }: { params: Promise<{ 
 
   const resolvedParams = await params;
   const tenant = await getTenantById(resolvedParams.tenantId);
-  const user = await getUserById((session.user as any).id);
+  const user = await getUserById(session.user.id as string);
 
   if (!tenant || !user) {
     redirect('/');
@@ -21,5 +21,5 @@ export default async function TenantMembersPage({ params }: { params: Promise<{ 
 
   const members = await getMembersForTenant(tenant.id);
 
-  return <TenantMembersPageClient tenant={tenant as any} user={user as any} members={members as any} />; {/* TODO: Type mismatch - see Ticket #0002 */}
+  return <TenantMembersPageClient tenant={tenant} user={user} members={members} />;
 }

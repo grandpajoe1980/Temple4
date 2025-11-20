@@ -19,22 +19,35 @@ import {
   FacilityBlackout as PrismaFacilityBlackout,
   FacilityType,
   BookingStatus,
+  UserTenantRole,
 } from '@prisma/client';
 import { TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost, CommunityPostStatus, ContactSubmissionStatus } from '@/types';
 import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
 
-type TenantWithRelations = Tenant & {
-    settings: TenantSettings | null;
-    branding: TenantBranding | null;
-    address: {
-        street: string;
-        city: string;
-        state: string;
-        country: string;
-        postalCode: string;
-    };
+export type TenantWithRelations = Tenant & {
+  settings: TenantSettings | null;
+  branding: TenantBranding | null;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+  };
 };
+
+export type UserWithProfileSettings = Prisma.UserGetPayload<{
+  include: { profile: true; privacySettings: true; accountSettings: true };
+}>;
+
+export type MemberWithMembership = UserWithProfileSettings & {
+  membership: (UserTenantMembership & { roles: UserTenantRole[] });
+};
+
+export type VolunteerNeedWithSignups = Prisma.VolunteerNeedGetPayload<{
+  include: { signups: { include: { user: { include: { profile: true } } } } };
+}>;
 
 interface ServiceOfferingInput {
   name: string;
@@ -143,7 +156,7 @@ export async function getTenantsForUser(userId: string): Promise<TenantWithBrand
  * @param tenantId - The ID of the tenant to retrieve
  * @returns Tenant with settings, branding, and address, or null if not found
  */
-export async function getTenantById(tenantId: string) {
+export async function getTenantById(tenantId: string): Promise<TenantWithRelations | null> {
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
     include: {
@@ -153,7 +166,7 @@ export async function getTenantById(tenantId: string) {
   });
   
   if (!tenant) return null;
-  
+
   // Return tenant with proper types - settings and branding are nullable in the relation
   return {
     ...tenant,
@@ -172,8 +185,8 @@ export async function getTenantById(tenantId: string) {
  * @param userId - The ID of the user to retrieve
  * @returns User with all related data, or null if not found
  */
-export async function getUserById(userId: string) {
-  return await prisma.user.findUnique({
+export async function getUserById(userId: string): Promise<UserWithProfileSettings | null> {
+  return prisma.user.findUnique({
     where: { id: userId },
     include: {
       profile: true,
@@ -1180,31 +1193,35 @@ export async function updateUserNotificationPreferences(
 // ===== MISSING FUNCTION STUBS =====
 // These functions are called by components but not yet fully implemented
 
-export async function getMembersForTenant(tenantId: string) {
-    const memberships = await prisma.userTenantMembership.findMany({
-        where: { tenantId },
+export async function getMembersForTenant(tenantId: string): Promise<MemberWithMembership[]> {
+  const memberships = await prisma.userTenantMembership.findMany({
+    where: { tenantId },
+    include: {
+      user: {
         include: {
-            user: {
-                include: {
-                    profile: true,
-                }
-            },
-            roles: true,
+          profile: true,
+          privacySettings: true,
+          accountSettings: true,
         },
-        orderBy: [
-            { user: { profile: { displayName: 'asc' } } }
-        ]
-    });
-    
-    return memberships.map((membership: any) => ({
-        ...membership.user,
-        membership: {
-            id: membership.id,
-            status: membership.status,
-            displayName: membership.displayName,
-            roles: membership.roles,
-        }
-    }));
+      },
+      roles: true,
+    },
+    orderBy: [{ user: { profile: { displayName: 'asc' } } }],
+  });
+
+  return memberships.map((membership) => ({
+    ...membership.user,
+    membership: {
+      id: membership.id,
+      userId: membership.userId,
+      tenantId: membership.tenantId,
+      status: membership.status,
+      displayName: membership.displayName,
+      createdAt: membership.createdAt,
+      updatedAt: membership.updatedAt,
+      roles: membership.roles,
+    },
+  }));
 }
 
 export async function updateMembershipStatus(userId: string, tenantId: string, status: string) {

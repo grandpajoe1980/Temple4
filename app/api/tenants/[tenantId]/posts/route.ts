@@ -1,12 +1,10 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { canUserPost, canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
 import { handleApiError, forbidden, unauthorized } from '@/lib/api-response';
 import { createRouteLogger } from '@/lib/logger';
-import { withTenantScope } from '@/lib/tenant-isolation';
+import { createTenantPost, listTenantPosts, PostPermissionError } from '@/lib/services/post-service';
 
 // 9.1 List Posts
 export async function GET(
@@ -25,55 +23,32 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '10', 10);
-    const offset = (page - 1) * limit;
 
     logger.info('Fetching posts', { userId, page, limit });
 
-    const canView = await canUserViewContent(userId, resolvedParams.tenantId, 'posts');
-    if (!canView) {
-      logger.warn('Permission denied', { userId });
-      return forbidden('You do not have permission to view posts.');
-    }
-
-    // Use tenant isolation helper to ensure tenantId is always included
-    const whereClause = withTenantScope(
-      { deletedAt: null },
-      resolvedParams.tenantId,
-      'Post'
-    );
-
-    const posts = await prisma.post.findMany({
-      where: whereClause,
-      include: {
-        author: {
-          select: {
-            id: true,
-            profile: true,
-          },
-        },
-      },
-      skip: offset,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
+    const { posts, pagination } = await listTenantPosts({
+      tenantId: resolvedParams.tenantId,
+      viewerUserId: userId ?? null,
+      page,
+      limit,
+      publishedOnly: true,
     });
 
-    const totalPosts = await prisma.post.count({ where: whereClause });
-
-    logger.info('Posts fetched successfully', { count: posts.length, totalPosts });
+    logger.info('Posts fetched successfully', { count: posts.length, totalResults: pagination.totalResults });
 
     return NextResponse.json({
       posts,
-      pagination: {
-        page,
-        limit,
-        totalPages: Math.ceil(totalPosts / limit),
-        totalResults: totalPosts,
-      }
+      pagination,
     });
   } catch (error) {
-    return handleApiError(error, { 
+    if (error instanceof PostPermissionError) {
+      logger.warn('Permission denied', { userId });
+      return forbidden(error.message);
+    }
+
+    return handleApiError(error, {
       route: 'GET /api/tenants/[tenantId]/posts',
-      tenantId: resolvedParams.tenantId 
+      tenantId: resolvedParams.tenantId
     });
   }
 }
@@ -103,7 +78,8 @@ export async function POST(
       return unauthorized();
     }
 
-    const result = postCreateSchema.safeParse(await request.json());
+    const requestBody = await request.json();
+    const result = postCreateSchema.safeParse(requestBody);
     if (!result.success) {
       logger.warn('Validation failed', { userId, errors: result.error.issues });
       return handleApiError(result.error, { 
@@ -115,20 +91,13 @@ export async function POST(
 
     const { title, body, type } = result.data;
 
-    const isAnnouncement = type === 'ANNOUNCEMENT';
-    const canPost = await canUserPost(userId, resolvedParams.tenantId, isAnnouncement);
-    if (!canPost) {
-      logger.warn('Permission denied', { userId, type });
-      return forbidden('You do not have permission to create this type of post.');
-    }
-
-    const newPost = await prisma.post.create({
+    const newPost = await createTenantPost({
+      tenantId: resolvedParams.tenantId,
+      authorUserId: userId,
       data: {
         title,
         body,
-        type: type || 'BLOG',
-        tenantId: resolvedParams.tenantId,
-        authorUserId: userId,
+        type: (type as any) || 'BLOG',
         isPublished: true,
       },
     });
@@ -140,9 +109,14 @@ export async function POST(
 
     return NextResponse.json(newPost, { status: 201 });
   } catch (error) {
-    return handleApiError(error, { 
+    if (error instanceof PostPermissionError) {
+      logger.warn('Permission denied', { userId, type: (requestBody as any)?.type });
+      return forbidden(error.message);
+    }
+
+    return handleApiError(error, {
       route: 'POST /api/tenants/[tenantId]/posts',
-      tenantId: resolvedParams.tenantId 
+      tenantId: resolvedParams.tenantId
     });
   }
 }

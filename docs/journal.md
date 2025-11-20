@@ -1924,3 +1924,16 @@ Email providers supported: 3 (Resend, SendGrid, Mock)
 
 ### Notes
 - Tests have not yet been rerun for this slice; a targeted API regression was added to cover event visibility rules.
+
+## Session 25: 2025-11-20T14:30Z - Public views on the API boundary
+
+### Goal
+- Extend the event/post API consumption pattern to public tenant slices and move post APIs onto the shared service boundary.
+
+### Activities
+- Added `lib/services/post-service` to centralize post visibility checks, DTO mapping, and creation, and refactored the posts API route to delegate to it for both GET and POST flows.
+- Updated `lib/data` and public-facing posts/events views to hydrate from the tenant API endpoints with the new DTO mappers instead of importing Prisma helpers directly.
+- Polished the boundary documentation to call out the shared post service alongside events.
+
+### Notes
+- Tests were not rerun in this session; prioritize a follow-up suite pass once additional boundary refactors land.

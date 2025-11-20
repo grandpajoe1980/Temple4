@@ -93,20 +93,37 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
     setIsSubmitting(true);
 
     try {
+      // Convert datetime-local format to ISO 8601
+      const payload = {
+        startAt: new Date(formState.startAt).toISOString(),
+        endAt: new Date(formState.endAt).toISOString(),
+        purpose: formState.purpose,
+        notes: formState.notes || undefined,
+      };
+
       const response = await fetch(`/api/tenants/${tenantId}/facilities/${facility.id}/book`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formState),
+        body: JSON.stringify(payload),
       });
 
+      const body = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
+        // Check for validation errors
+        if (body.errors) {
+          const errorMessages = Object.entries(body.errors)
+            .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+            .join('; ');
+          throw new Error(errorMessages || 'Validation failed');
+        }
         throw new Error(body.message || 'Unable to submit booking request');
       }
 
       toast.success('Booking request submitted. We will confirm availability soon.');
       setFormState({ startAt: '', endAt: '', purpose: '', notes: '' });
     } catch (error: any) {
+      console.error('Booking submission error:', error);
       toast.error(error.message || 'Unable to submit booking request.');
     } finally {
       setIsSubmitting(false);

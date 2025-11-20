@@ -8,7 +8,7 @@ import { getMembershipForUserInTenant } from '@/lib/data';
 const bookingSchema = z.object({
   startAt: z.string().datetime(),
   endAt: z.string().datetime(),
-  purpose: z.string().min(5),
+  purpose: z.string().min(1),
   eventId: z.string().optional(),
   notes: z.string().max(1000).optional().or(z.literal('')),
 });

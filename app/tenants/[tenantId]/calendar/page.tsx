@@ -21,10 +21,17 @@ export default async function TenantCalendarPage({ params }: { params: Promise<{
     redirect('/');
   }
 
-  const events = await getEventsForTenant(tenant.id);
+  const events = await getEventsForTenant(tenant.id, user.id);
   const canCreateEvent =
     user.isSuperAdmin ||
     (await hasRole(user.id, tenant.id, [TenantRole.ADMIN, TenantRole.CLERGY]));
 
-  return <CalendarPageClient events={events} tenantId={tenant.id} canCreateEvent={canCreateEvent} />;
+  return (
+    <CalendarPageClient
+      events={events}
+      tenantId={tenant.id}
+      canCreateEvent={canCreateEvent}
+      currentUserId={user.id}
+    />
+  );
 }

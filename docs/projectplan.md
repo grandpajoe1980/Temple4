@@ -218,10 +218,9 @@ This section details the application's features, broken down by development phas
     *   `EventsPage.tsx` provides a toggle between a list view and a calendar view.
     *   The `EventsCalendar.tsx` component implements the required month grid view. Clicking a day opens the `DayEventsModal.tsx`.
     *   Event creation (`EventForm.tsx`) uses a `Calendar.tsx` component, satisfying the "grid-style date picker" requirement.
-*   **Identified Gaps:**
-    *   **RSVP System:** The `EventRSVP` data model is in the plan but not yet in `types.ts` or `seed-data.ts`. The RSVP buttons on `EventCard.tsx` are placeholders.
-        *   **Next Step:** Add `EventRSVP` to `types.ts` and create mock data/functions in `seed-data.ts`.
-        *   **Next Step:** Wire up the "Going" and "Interested" buttons on `EventCard.tsx` to update the data.
+*   **RSVP System:** **COMPLETED**
+    *   `EventRSVP` now exists in `types.ts`, matches the Prisma schema, and is surfaced via `/api/tenants/[tenantId]/events/[eventId]/rsvps`.
+    *   `EventCard.tsx` consumes live RSVP counts and lets authenticated users set **Going**, **Interested**, or **Not Going**, persisting to Prisma through the API routes.
 
 ## Phase 5: Messaging System
 

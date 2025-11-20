@@ -1,20 +1,70 @@
 "use client"
 
-import React from 'react';
-import type { EventWithCreator } from '@/types';
+import React, { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import type { EventWithCreator, RSVPStatus } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 
 interface EventCardProps {
   event: EventWithCreator;
+  currentUserId?: string;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
+  const router = useRouter();
+  const [rsvpStatus, setRsvpStatus] = useState<RSVPStatus | null>(event.currentUserRsvpStatus ?? null);
+  const [rsvpCount, setRsvpCount] = useState<number>(event.rsvpCount ?? 0);
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const formatDateTime = (start: Date, end: Date) => {
     const startDate = start.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     const startTime = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     const endTime = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     return `${startDate} from ${startTime} to ${endTime}`;
+  };
+
+  const currentStatusLabel = useMemo(() => {
+    if (!rsvpStatus || rsvpStatus === 'NOT_GOING') return null;
+    return rsvpStatus === 'GOING' ? 'You are going' : 'Interested';
+  }, [rsvpStatus]);
+
+  const applyRsvpCount = (nextStatus: RSVPStatus, previousStatus: RSVPStatus | null, count: number) => {
+    const wasCounting = previousStatus === 'GOING' || previousStatus === 'INTERESTED';
+    const willCount = nextStatus === 'GOING' || nextStatus === 'INTERESTED';
+
+    if (wasCounting === willCount) return count;
+    if (willCount && !wasCounting) return count + 1;
+    if (!willCount && wasCounting) return Math.max(0, count - 1);
+    return count;
+  };
+
+  const handleRsvp = async (status: RSVPStatus) => {
+    if (!currentUserId) {
+      router.push('/auth/login');
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      const response = await fetch(`/api/tenants/${event.tenantId}/events/${event.id}/rsvps`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update RSVP');
+      }
+
+      setRsvpCount((current) => applyRsvpCount(status, rsvpStatus, current));
+      setRsvpStatus(status);
+    } catch (error) {
+      console.error('RSVP update failed', error);
+      alert('Unable to update your RSVP right now. Please try again.');
+    } finally {
+      setIsUpdating(false);
+    }
   };
   
   const LocationInfo = () => {
@@ -71,12 +121,36 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
         <Description />
       </div>
       <div className="bg-gray-50 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-            <Button variant="primary" size="sm" onClick={() => alert('RSVP: Going (not implemented).')}>Going</Button>
-            <Button variant="secondary" size="sm" onClick={() => alert('RSVP: Interested (not implemented).')}>Interested</Button>
+        <div className="flex items-center space-x-3">
+          <Button
+            variant={rsvpStatus === 'GOING' ? 'primary' : 'secondary'}
+            size="sm"
+            disabled={isUpdating}
+            onClick={() => handleRsvp('GOING')}
+          >
+            {rsvpStatus === 'GOING' ? 'Going ✓' : 'Going'}
+          </Button>
+          <Button
+            variant={rsvpStatus === 'INTERESTED' ? 'primary' : 'secondary'}
+            size="sm"
+            disabled={isUpdating}
+            onClick={() => handleRsvp('INTERESTED')}
+          >
+            {rsvpStatus === 'INTERESTED' ? 'Interested ✓' : 'Interested'}
+          </Button>
+          <Button
+            variant={rsvpStatus === 'NOT_GOING' ? 'primary' : 'ghost'}
+            size="sm"
+            disabled={isUpdating}
+            onClick={() => handleRsvp('NOT_GOING')}
+          >
+            Not Going
+          </Button>
         </div>
-        <div className="text-xs text-gray-500">
-            Created by {event.creatorDisplayName}
+        <div className="text-right text-xs text-gray-600">
+          <div className="font-semibold text-gray-900">{rsvpCount} RSVP{rsvpCount === 1 ? '' : 's'}</div>
+          <div className="text-gray-500">{currentStatusLabel || 'Update your status'}</div>
+          <div className="text-[11px] text-gray-400">Created by {event.creatorDisplayName}</div>
         </div>
       </div>
     </Card>

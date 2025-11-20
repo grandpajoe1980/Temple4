@@ -331,9 +331,10 @@ export async function exportTenantData(tenantId: string): Promise<TenantDataExpo
  * Get all events for a specific tenant, ordered by start date
  * Includes creator information with display name and avatar
  * @param tenantId - The ID of the tenant
+ * @param currentUserId - Optional user id to include the viewer's RSVP status
  * @returns Array of events with enriched creator information
  */
-export async function getEventsForTenant(tenantId: string) {
+export async function getEventsForTenant(tenantId: string, currentUserId?: string) {
   const events = await prisma.event.findMany({
     where: { tenantId },
     orderBy: { startDateTime: 'asc' },
@@ -342,15 +343,34 @@ export async function getEventsForTenant(tenantId: string) {
         include: {
           profile: true,
         }
-      }
+      },
+      _count: {
+        select: {
+          rsvps: {
+            where: {
+              status: { in: ['GOING', 'INTERESTED'] }
+            }
+          }
+        }
+      },
+      ...(currentUserId
+        ? {
+            rsvps: {
+              where: { userId: currentUserId },
+              select: { status: true },
+            },
+          }
+        : {}),
     }
   });
-  
+
   return events.map((event: any) => ({
     ...event,
     onlineUrl: event.onlineUrl,
     creatorDisplayName: event.creator.profile?.displayName || event.creator.email,
     creatorAvatarUrl: event.creator.profile?.avatarUrl || null,
+    rsvpCount: event._count?.rsvps ?? 0,
+    currentUserRsvpStatus: event.rsvps?.[0]?.status ?? null,
   }));
 }
 

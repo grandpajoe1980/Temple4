@@ -8,24 +8,26 @@ import EventsCalendar from '@/app/components/tenant/EventsCalendar';
 import Button from '@/app/components/ui/Button';
 import Modal from '@/app/components/ui/Modal';
 import EventForm from '@/app/components/tenant/EventForm';
+import DayEventsModal from '@/app/components/tenant/DayEventsModal';
 
 interface CalendarPageClientProps {
   events: EventWithCreator[];
   tenantId: string;
   canCreateEvent: boolean;
   openCreateModal?: boolean;
+  currentUserId?: string;
 }
 
-export default function CalendarPageClient({ events, tenantId, canCreateEvent, openCreateModal = false }: CalendarPageClientProps) {
+export default function CalendarPageClient({ events, tenantId, canCreateEvent, openCreateModal = false, currentUserId }: CalendarPageClientProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(openCreateModal);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
-    // TODO: Show events for the selected date in a modal or sidebar
-    console.log('Selected date:', date);
+    setIsDayModalOpen(true);
   };
 
   const handleCloseCreateModal = () => {
@@ -61,6 +63,17 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
   };
 
   const calendarEvents = useMemo(() => events, [events]);
+  const eventsForSelectedDay = useMemo(() => {
+    if (!selectedDate) return [];
+    return events.filter((event) => {
+      const eventDate = new Date(event.startDateTime);
+      return (
+        eventDate.getFullYear() === selectedDate.getFullYear() &&
+        eventDate.getMonth() === selectedDate.getMonth() &&
+        eventDate.getDate() === selectedDate.getDate()
+      );
+    });
+  }, [events, selectedDate]);
 
   return (
     <div className="space-y-4">
@@ -100,6 +113,15 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
           />
         </div>
       </Modal>
+      {selectedDate && (
+        <DayEventsModal
+          isOpen={isDayModalOpen}
+          onClose={() => setIsDayModalOpen(false)}
+          date={selectedDate}
+          events={eventsForSelectedDay}
+          currentUserId={currentUserId}
+        />
+      )}
     </div>
   );
 }

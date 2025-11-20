@@ -196,7 +196,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
         {events.length > 0 ? (
           <div className="space-y-6">
             {events.map((event: EventWithCreator) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard key={event.id} event={event} currentUserId={user.id} />
             ))}
           </div>
         ) : (
@@ -224,12 +224,13 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
           onClose={() => setDayModalOpen(false)}
           date={selectedDate}
           events={eventsForSelectedDay}
+          currentUserId={user.id}
         />
       )}
 
       {selectedEvent && (
         <Modal isOpen={Boolean(selectedEvent)} onClose={() => setSelectedEvent(null)} title={selectedEvent.title}>
-          <EventCard event={selectedEvent} />
+          <EventCard event={selectedEvent} currentUserId={user.id} />
         </Modal>
       )}
     </div>

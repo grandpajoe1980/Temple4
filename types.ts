@@ -360,6 +360,17 @@ export interface Event {
 export interface EventWithCreator extends Event {
     creatorDisplayName: string;
     creatorAvatarUrl: string | null;
+    rsvpCount: number;
+    currentUserRsvpStatus?: RSVPStatus | null;
+}
+
+export interface EventRSVP {
+  id: string;
+  eventId: string;
+  userId: string;
+  status: RSVPStatus;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface MediaItem {

@@ -8,9 +8,10 @@ interface DayEventsModalProps {
   onClose: () => void;
   date: Date;
   events: EventWithCreator[];
+  currentUserId?: string;
 }
 
-const DayEventsModal: React.FC<DayEventsModalProps> = ({ isOpen, onClose, date, events }) => {
+const DayEventsModal: React.FC<DayEventsModalProps> = ({ isOpen, onClose, date, events, currentUserId }) => {
   const formattedDate = date.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -23,7 +24,7 @@ const DayEventsModal: React.FC<DayEventsModalProps> = ({ isOpen, onClose, date, 
       {events.length > 0 ? (
         <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
           {events.map((event: any) => (
-            <EventCard key={event.id} event={event} />
+            <EventCard key={event.id} event={event} currentUserId={currentUserId} />
           ))}
         </div>
       ) : (

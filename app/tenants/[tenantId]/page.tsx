@@ -28,7 +28,7 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
     redirect(`/auth/login?callbackUrl=/tenants/${tenant.id}`);
   }
 
-  const upcomingEvents = await getEventsForTenant(tenant.id);
+  const upcomingEvents = await getEventsForTenant(tenant.id, user.id);
   const recentPosts = await getPostsForTenant(tenant.id);
 
   return (

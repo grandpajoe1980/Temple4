@@ -144,6 +144,7 @@ Tasks:
 
 Progress update:
 - Tenants landing flow now uses Prisma tenant payload types end-to-end, with `getTenantsForUser` returning tenants that include `settings` and `branding`, and the selector/client components consuming those typed objects without `as any` casts.
+- Tenant isolation helper now uses `Prisma.ModelName` typing for scoped model checks, eliminating the remaining `as any` cast in that guardrail.
 
 Outcome: Strong, predictable type safety; easier refactors.
 

@@ -1,36 +1,37 @@
 "use client"
 
-import React, { useState } from 'react';
-import type { Tenant, User } from '@prisma/client';
+import React, { useMemo, useState } from 'react';
+import type { Profile, Tenant, User } from '@prisma/client';
+import type { EnrichedMediaItem } from '@/types';
 import Button from '../ui/Button';
 import PodcastCard from './PodcastCard';
 import Modal from '../ui/Modal';
 import PodcastForm, { type PodcastFormData } from './forms/PodcastForm';
 
-// Enriched media item type from data layer
-type EnrichedPodcast = {
-  id: string;
-  description: string;
-  tenantId: string;
-  authorUserId: string;
-  type: string;
-  title: string;
-  publishedAt: Date;
-  deletedAt: Date | null;
-  embedUrl: string;
-  authorDisplayName: string;
-  authorAvatarUrl?: string;
+type SerializedEnrichedPodcast = Omit<EnrichedMediaItem, 'publishedAt'> & {
+  publishedAt: string | Date;
 };
+
+type UserWithProfile = User & { profile?: Profile | null };
 
 interface PodcastsPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
-  user: User;
-  podcasts: EnrichedPodcast[];
+  user: UserWithProfile;
+  podcasts: SerializedEnrichedPodcast[];
   canCreate: boolean;
 }
 
 const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: initialPodcasts, canCreate }) => {
-  const [podcasts, setPodcasts] = useState<EnrichedPodcast[]>(initialPodcasts);
+  const hydratedPodcasts = useMemo(
+    () =>
+      initialPodcasts.map((podcast) => ({
+        ...podcast,
+        publishedAt: podcast.publishedAt instanceof Date ? podcast.publishedAt : new Date(podcast.publishedAt),
+      })),
+    [initialPodcasts]
+  );
+
+  const [podcasts, setPodcasts] = useState<EnrichedMediaItem[]>(hydratedPodcasts);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,13 +53,13 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
         throw new Error(errorBody.message || 'Failed to create podcast');
       }
 
-      const newPodcast = await response.json();
+      const newPodcast: SerializedEnrichedPodcast = await response.json();
       setPodcasts([
         {
           ...newPodcast,
           publishedAt: new Date(newPodcast.publishedAt),
           authorDisplayName: user.name || 'You',
-          authorAvatarUrl: (user as any)?.profile?.avatarUrl,
+          authorAvatarUrl: user.profile?.avatarUrl ?? undefined,
         },
         ...podcasts,
       ]);
@@ -90,7 +91,7 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
       {podcasts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {podcasts.map((podcast) => (
-            <PodcastCard key={podcast.id} podcast={podcast as any} />
+            <PodcastCard key={podcast.id} podcast={podcast} />
           ))}
         </div>
       ) : (

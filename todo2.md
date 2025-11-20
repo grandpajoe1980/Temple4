@@ -632,7 +632,7 @@ Verify and enforce that messaging and donations never leak data across tenants.
 - Tests demonstrate that cross‑tenant leakage is not possible via API.
 - No existing passing tests regress.
 
-**Progress (Session update):** Tenant‑scoped conversation endpoints now enforce approved membership before listing or reading messages, preventing users from accessing conversations tied to tenants they do not belong to. Conversation listings also apply tenant scoping at the query level so cross‑tenant threads are filtered out before unread counts or participant data are loaded.
+**Progress (Session update):** Tenant‑scoped conversation endpoints now enforce approved membership before listing or reading messages, preventing users from accessing conversations tied to tenants they do not belong to. Conversation listings also apply tenant scoping at the query level so cross‑tenant threads are filtered out before unread counts or participant data are loaded. Message deletion now also validates approved membership before allowing a tenant‑bound chat message to be removed, closing the remaining gap for cross‑tenant participants.
 
 ---
 

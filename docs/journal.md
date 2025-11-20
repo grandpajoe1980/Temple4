@@ -1869,3 +1869,15 @@ Email providers supported: 3 (Resend, SendGrid, Mock)
 
 ### Notes
 - Automated tests were not executed in this session; follow-up runs should verify the messaging suite once available.
+
+## Session 22: 2025-11-20T09:30Z - Tenant message deletion guard
+
+### Goal
+- Close the remaining messaging gap in Ticket #0007 by enforcing tenant membership checks on message deletion.
+
+### Activities
+- Added a tenant membership gate to `/api/messages/[messageId]` so deletion attempts respect approved membership when conversations are tenant-bound.
+- Updated `todo2.md` progress to reflect the additional tenant isolation hardening.
+
+### Notes
+- Ran `npm run lint` to ensure the patch stayed within the existing linting constraints.

@@ -45,7 +45,7 @@ export function withTenantScope<T extends Record<string, any>>(
 /**
  * List of models that should always be scoped by tenantId
  */
-export const TENANT_SCOPED_MODELS = [
+export const TENANT_SCOPED_MODELS: ReadonlyArray<Prisma.ModelName> = [
   'Tenant',
   'TenantSettings',
   'TenantBranding',
@@ -68,13 +68,13 @@ export const TENANT_SCOPED_MODELS = [
   'ResourceItem',
   'ContactSubmission',
   'AuditLog', // Includes tenantId when action is tenant-specific
-] as const;
+];
 
 /**
  * Validates that a model name is tenant-scoped
  */
-export function isTenantScopedModel(modelName: string): boolean {
-  return TENANT_SCOPED_MODELS.includes(modelName as any);
+export function isTenantScopedModel(modelName: Prisma.ModelName): boolean {
+  return TENANT_SCOPED_MODELS.includes(modelName);
 }
 
 /**

@@ -115,7 +115,7 @@ function assertFacilityClient() {
  * @param userId - The ID of the user
  * @returns Array of tenants where the user has APPROVED membership status
  */
-type TenantWithBrandingAndSettings = Prisma.TenantGetPayload<{
+export type TenantWithBrandingAndSettings = Prisma.TenantGetPayload<{
   include: { settings: true; branding: true };
 }>;
 

@@ -5,11 +5,12 @@ import LandingPage from './landing/LandingPage';
 import TenantSelector from './tenant/TenantSelector';
 import UserMenu from './ui/UserMenu';
 import { Session } from 'next-auth';
+import type { TenantWithBrandingAndSettings } from '@/lib/data';
 
 interface HomePageClientProps {
   session: Session | null;
-  tenants: any[];
-  allTenants: any[];
+  tenants: TenantWithBrandingAndSettings[];
+  allTenants: TenantWithBrandingAndSettings[];
 }
 
 export default function HomePageClient({ session, tenants, allTenants }: HomePageClientProps) {

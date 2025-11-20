@@ -1804,3 +1804,17 @@ Email providers supported: 3 (Resend, SendGrid, Mock)
 
 ### Notes
 - Next step: continue the architecture pilot by moving surrounding tenant layout utilities (notifications, membership checks) onto API-backed helpers when feasible.
+
+## Session 18: 2025-11-20T04:10Z - Type alignment sweep per todo2.md
+
+### Goal
+- Tackle the top priority in `todo2.md` (Ticket #0002) by removing `as any` casts in the landing flow and aligning tenant isolation helpers with Prisma types.
+
+### Activities
+- Exported `TenantWithBrandingAndSettings` from `lib/data.ts` and applied it to the home page server component and client props so tenant lists flow with Prisma-backed typing instead of `any[]`.
+- Updated `app/page.tsx` to rely on the typed NextAuth session user ID instead of casting the session payload.
+- Tightened `lib/tenant-isolation.ts` by constraining scoped models to `Prisma.ModelName` and removing the remaining `as any` usage in the isolation guard.
+- Ran `npm run lint` to confirm no new lint errors (existing warnings about `<img>` usage remain outstanding).
+
+### Notes
+- These changes chip away at the remaining Ticket #0002 casts and reinforce the tenant isolation guardrails while keeping behavior intact.

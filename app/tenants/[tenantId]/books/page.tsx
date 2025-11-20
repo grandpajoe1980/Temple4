@@ -14,14 +14,14 @@ export default async function TenantBooksPage({ params }: { params: Promise<{ te
 
   const resolvedParams = await params;
   const tenant = await getTenantById(resolvedParams.tenantId);
-  const user = await getUserById((session.user as any).id);
+  const user = await getUserById(session.user.id);
 
   if (!tenant || !user) {
     redirect('/');
   }
 
   const books = await getBooksForTenant(tenant.id);
-  const canCreate = await can(user as any, tenant as any, 'canCreateBooks');
+  const canCreate = await can(user, tenant, 'canCreateBooks');
 
   return <BooksPage tenant={tenant} user={user} books={books} canCreate={canCreate} />;
 }

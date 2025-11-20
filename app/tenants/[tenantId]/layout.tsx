@@ -27,7 +27,7 @@ export default async function TenantLayout({
   let user = null;
 
   if (session && session.user) {
-    user = await getUserById((session.user as any).id);
+    user = await getUserById(session.user.id);
   }
 
   // If not public and not logged in (or user not found), redirect to login

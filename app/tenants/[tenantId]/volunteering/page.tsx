@@ -13,7 +13,7 @@ export default async function TenantVolunteeringPage({ params }: { params: Promi
 
   const resolvedParams = await params;
   const tenant = await getTenantById(resolvedParams.tenantId);
-  const user = await getUserById((session.user as any).id);
+  const user = await getUserById(session.user.id);
 
   if (!tenant || !user) {
     redirect('/');
@@ -21,5 +21,5 @@ export default async function TenantVolunteeringPage({ params }: { params: Promi
 
   const needs = await getVolunteerNeedsForTenant(tenant.id);
 
-  return <VolunteeringClient tenant={tenant as any} user={user as any} needs={needs as any} />; {/* TODO: Type mismatch - see Ticket #0002 */}
+  return <VolunteeringClient tenant={tenant} user={user} needs={needs} />;
 }

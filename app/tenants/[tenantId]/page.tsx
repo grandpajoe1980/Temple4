@@ -17,7 +17,7 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
   let membership = null;
 
   if (session && session.user) {
-    user = await getUserById((session.user as any).id);
+    user = await getUserById(session.user.id);
     if (user) {
       membership = await getMembershipForUserInTenant(user.id, tenant.id);
     }

@@ -14,14 +14,14 @@ export default async function TenantPodcastsPage({ params }: { params: Promise<{
 
   const resolvedParams = await params;
   const tenant = await getTenantById(resolvedParams.tenantId);
-  const user = await getUserById((session.user as any).id);
+  const user = await getUserById(session.user.id);
 
   if (!tenant || !user) {
     redirect('/');
   }
 
   const podcasts = await getPodcastsForTenant(tenant.id);
-  const canCreate = await can(user as any, tenant as any, 'canCreatePodcasts');
+  const canCreate = await can(user, tenant, 'canCreatePodcasts');
 
   return <PodcastsPage tenant={tenant} user={user} podcasts={podcasts} canCreate={canCreate} />;
 }

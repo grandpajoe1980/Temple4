@@ -3,6 +3,26 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
+
+type ConversationWithUnread =
+  Prisma.ConversationGetPayload<{
+    include: {
+      participants: {
+        include: {
+          user: { include: { profile: true } };
+          lastReadMessage: true;
+        };
+      };
+      messages: {
+        where: { isDeleted: boolean };
+        orderBy: { createdAt: 'desc' };
+        take: number;
+        include: { user: { include: { profile: true } } };
+      };
+      tenant: { select: { id: true; name: true } };
+    };
+  }> & { unreadCount?: number };
 
 // GET /api/conversations - List conversations for current user with unread counts
 export async function GET(request: NextRequest) {
@@ -12,7 +32,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
-  const userId = (session.user as any).id;
+  const userId = session.user.id;
 
   try {
     // Fetch approved tenant memberships for the current user to enforce isolation on tenant conversations
@@ -86,9 +106,9 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate unread counts for each conversation
-    const conversationsWithUnread = await Promise.all(
-      conversations.map(async (conversation: any) => {
-        const userParticipant = conversation.participants.find((p: any) => p.userId === userId);
+    const conversationsWithUnread: ConversationWithUnread[] = await Promise.all(
+      conversations.map(async (conversation) => {
+        const userParticipant = conversation.participants.find((p) => p.userId === userId);
 
         if (!userParticipant) {
           return { ...conversation, unreadCount: 0 };
@@ -136,7 +156,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
-  const userId = (session.user as any).id;
+  const userId = session.user.id;
 
   try {
     const body = await request.json();

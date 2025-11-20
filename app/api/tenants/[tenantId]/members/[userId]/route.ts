@@ -3,7 +3,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import {  } from '@prisma/client';
-import { TenantRole } from '@/types';
+import { TenantRole, MembershipStatus } from '@/types';
 import { z } from 'zod';
 
 const roleUpdateSchema = z.object({
@@ -79,6 +79,56 @@ export async function PUT(
     } catch (error) {
         console.error(`Failed to update role for user ${userId} in tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to update role' }, { status: 500 });
+    }
+}
+
+// 8.4 Update membership status (approve/reject/ban/unban)
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ tenantId: string; userId: string }> }
+) {
+    const { tenantId, userId } = await params;
+    const session = await getServerSession(authOptions);
+    const currentUserId = (session?.user as any)?.id;
+
+    if (!currentUserId) {
+        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    }
+
+    // Check if the current user is an ADMIN of this tenant
+    const currentUserMembership = await prisma.userTenantMembership.findUnique({
+        where: { userId_tenantId: { userId: currentUserId, tenantId: tenantId } },
+        include: { roles: true },
+    });
+
+    const hasPermission = currentUserMembership?.roles.some((role: any) => role.role === TenantRole.ADMIN);
+
+    if (!hasPermission) {
+        return NextResponse.json({ message: 'Forbidden: You must be an admin to change membership status.' }, { status: 403 });
+    }
+
+    try {
+        const body = await request.json();
+        const { status } = body;
+        if (!status) return NextResponse.json({ message: 'Missing status' }, { status: 400 });
+
+        const membership = await prisma.userTenantMembership.findUnique({
+            where: { userId_tenantId: { userId: userId, tenantId: tenantId } },
+        });
+
+        if (!membership) {
+            return NextResponse.json({ message: 'Member not found' }, { status: 404 });
+        }
+
+        const updated = await prisma.userTenantMembership.update({
+            where: { userId_tenantId: { userId: userId, tenantId: tenantId } },
+            data: { status: status as any },
+        });
+
+        return NextResponse.json(updated);
+    } catch (error) {
+        console.error(`Failed to update status for user ${userId} in tenant ${tenantId}:`, error);
+        return NextResponse.json({ message: 'Failed to update status' }, { status: 500 });
     }
 }
 

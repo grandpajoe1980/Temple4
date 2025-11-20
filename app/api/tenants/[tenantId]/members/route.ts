@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import {  } from '@prisma/client';
 import { TenantRole, MembershipStatus } from '@/types';
 import { prisma } from '@/lib/db';
+import { getMembersForTenant } from '@/lib/data';
 
 // 8.1 List Members
 export async function GET(
@@ -51,37 +52,14 @@ export async function GET(
         return NextResponse.json({ message: 'You do not have permission to view the member directory.' }, { status: 403 });
     }
 
-    const members = await prisma.userTenantMembership.findMany({
-      where: {
-        tenantId: tenantId,
-        status: MembershipStatus.APPROVED,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            profile: true,
-          },
-        },
-        roles: true,
-      },
-      skip: offset,
-      take: limit,
-      orderBy: {
-        user: {
-          profile: {
-            displayName: 'asc',
-          },
-        },
-      },
-    });
+    // Use shared helper to return enriched member objects (keeps the same shape as client expects)
+    const all = await getMembersForTenant(tenantId);
 
-    const totalMembers = await prisma.userTenantMembership.count({
-        where: {
-            tenantId: tenantId,
-            status: MembershipStatus.APPROVED,
-        }
-    });
+    // If pagination requested, slice the array
+    const totalMembers = all.length;
+    const start = offset;
+    const end = offset + limit;
+    const members = all.slice(start, end);
 
     return NextResponse.json({
         members,

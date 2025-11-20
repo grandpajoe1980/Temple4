@@ -15,7 +15,8 @@ const updateSchema = z.object({
   type: z.enum(FACILITY_TYPE_VALUES).optional(),
   location: z.string().max(500).optional().or(z.literal('')),
   capacity: z.number().int().positive().optional(),
-  imageUrl: z.string().url().optional().or(z.literal('')),
+  // Accept absolute URLs or relative paths starting with '/'
+  imageUrl: z.union([z.string().regex(/^(\/|https?:\/\/).*/), z.literal('')]).optional(),
   isActive: z.boolean().optional(),
   bookingRules: z.record(z.string(), z.any()).optional(),
 });

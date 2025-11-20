@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, EnrichedMember } from '@/types';
-import { getMembersForTenant } from '@/lib/data';
+// Use server API route instead of importing server-only helpers
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import EditUserProfileModal from './EditUserProfileModal';
@@ -23,7 +23,10 @@ const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, 
     const loadMembers = async () => {
       setIsLoading(true);
       try {
-        const members = await getMembersForTenant(tenant.id);
+        const res = await fetch(`/api/tenants/${tenant.id}/members`);
+        if (!res.ok) throw new Error('Failed to load members');
+        const payload = await res.json();
+        const members = Array.isArray(payload) ? payload : (payload?.members ?? []);
         setAllMembers(members as any);
       } catch (error) {
         console.error('Failed to load members:', error);
@@ -101,7 +104,7 @@ const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, 
                       </div>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {member.membership.roles.map((r: any) => r.role).join(', ')}
+                      {(member.membership?.roles ?? []).map((r: any) => r.role).join(', ')}
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                       {currentUser.isSuperAdmin && (

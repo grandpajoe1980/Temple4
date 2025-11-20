@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { Tenant, User, EnrichedSmallGroup, EnrichedMember } from '@/types';
-import { getSmallGroupsForTenant, createSmallGroup, getMembersForTenant } from '@/lib/data';
+// Use server API routes instead of importing server-only helpers
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import SmallGroupForm from '../forms/SmallGroupForm';
@@ -23,10 +23,15 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [groupsData, membersData] = await Promise.all([
-          getSmallGroupsForTenant(tenant.id),
-          getMembersForTenant(tenant.id)
+        const [groupsRes, membersRes] = await Promise.all([
+          fetch(`/api/tenants/${tenant.id}/small-groups`),
+          fetch(`/api/tenants/${tenant.id}/members`),
         ]);
+        if (!groupsRes.ok || !membersRes.ok) throw new Error('Failed to load small groups data');
+        const groupsPayload = await groupsRes.json();
+        const membersPayload = await membersRes.json();
+        const groupsData = Array.isArray(groupsPayload) ? groupsPayload : (groupsPayload?.groups ?? []);
+        const membersData = Array.isArray(membersPayload) ? membersPayload : (membersPayload?.members ?? []);
         setGroups(groupsData as any);
         setTenantMembers(membersData as any);
       } catch (error) {
@@ -39,13 +44,19 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
   }, [tenant.id, onRefresh]);
 
   const refreshGroups = async () => {
-    const groupsData = await getSmallGroupsForTenant(tenant.id);
+    const res = await fetch(`/api/tenants/${tenant.id}/small-groups`);
+    const payload = await res.json();
+    const groupsData = Array.isArray(payload) ? payload : (payload?.groups ?? []);
     setGroups(groupsData as any);
     onRefresh();
   };
 
   const handleCreateGroup = async (data: { name: string; description: string; leaderUserId: string; meetingSchedule: string; isActive: boolean }) => {
-    await createSmallGroup(tenant.id, data);
+    await fetch(`/api/tenants/${tenant.id}/small-groups`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
     await refreshGroups();
     setIsModalOpen(false);
   };
@@ -95,9 +106,9 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
                       <div className="text-gray-500">{group.meetingSchedule}</div>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {group.leader.profile.displayName}
+                      {group.leader?.profile?.displayName ?? '—'}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{group.members.length}</td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{(group.members ?? []).length}</td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${group.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                         {group.isActive ? 'Active' : 'Inactive'}

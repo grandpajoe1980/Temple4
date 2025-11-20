@@ -21,6 +21,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { uploadFile, FileCategory } from '@/lib/storage';
 import { prisma } from '@/lib/db';
 import { can } from '@/lib/permissions';
+import { getMembershipForUserInTenant } from '@/lib/data';
+import { TenantRole } from '@/types';
 import { unauthorized, forbidden, validationError, handleApiError } from '@/lib/api-response';
 
 /**
@@ -86,11 +88,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Permission check
-    const requiredPermission = CATEGORY_PERMISSIONS[category as FileCategory];
-    const hasPermission = await can(user, tenant, requiredPermission);
+    const purpose = formData.get('purpose') as string | null;
 
-    if (!hasPermission) {
-      return forbidden(`You do not have permission to upload ${category} files`);
+    if (purpose === 'facility') {
+      // Facility photos are only allowed for tenant CLERGY, tenant ADMIN, or platform superadmins
+      if ((user as any).isSuperAdmin) {
+        // allowed
+      } else {
+        const membership = await getMembershipForUserInTenant(userId, tenantId);
+        const roles = (membership as any)?.roles ?? [];
+        const isAllowedRole = roles.some((r: any) => r?.role === TenantRole.CLERGY || r?.role === TenantRole.ADMIN);
+        if (!isAllowedRole) {
+          return forbidden('You do not have permission to upload facility images');
+        }
+      }
+    } else {
+      const requiredPermission = CATEGORY_PERMISSIONS[category as FileCategory];
+      const hasPermission = await can(user, tenant, requiredPermission);
+
+      if (!hasPermission) {
+        return forbidden(`You do not have permission to upload ${category} files`);
+      }
     }
 
     // Convert file to buffer

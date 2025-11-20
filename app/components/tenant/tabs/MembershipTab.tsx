@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import type { Tenant, User, EnrichedMember, UserTenantRole } from '@/types';
 import { MembershipApprovalMode, MembershipStatus } from '@/types';
 import Button from '../../ui/Button';
-import { getMembersForTenant, updateMembershipStatus, updateMemberRolesAndTitle } from '@/lib/data';
+// Use server API routes from client components instead of importing server-only Prisma helpers
 import { can } from '@/lib/permissions';
 import EditRolesModal from './EditRolesModal';
 import Modal from '../../ui/Modal';
@@ -28,7 +28,11 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
     const loadMembers = async () => {
       setIsLoading(true);
       try {
-        const members = await getMembersForTenant(tenant.id);
+        const res = await fetch(`/api/tenants/${tenant.id}/members`);
+        if (!res.ok) throw new Error('Failed to load members');
+        const payload = await res.json();
+        // API may return either an array or an object { members, pagination }
+        const members = Array.isArray(payload) ? payload : (payload?.members ?? []);
         setAllMembers(members as any);
       } catch (error) {
         console.error('Failed to load members:', error);
@@ -63,13 +67,22 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
     }
 
     if (window.confirm(confirmMessage)) {
-      await updateMembershipStatus(membershipId, status, currentUser.id);
+      await fetch(`/api/tenants/${tenant.id}/members/${membershipId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
       onRefresh();
     }
   };
   
   const handleRolesUpdate = async (member: EnrichedMember, newRoles: UserTenantRole[]) => {
-    await updateMemberRolesAndTitle(member.membership.id, newRoles, currentUser.id);
+    // Existing server route expects an array of role names (TenantRole)
+    await fetch(`/api/tenants/${tenant.id}/members/${member.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roles: newRoles.map(r => r.role) }),
+    });
     setEditingMember(null);
     onRefresh();
   };
@@ -88,9 +101,9 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
     );
   }
 
-  const requested = allMembers.filter(m => m.membership.status === MembershipStatus.PENDING);
-  const approved = allMembers.filter(m => m.membership.status === MembershipStatus.APPROVED);
-  const banned = allMembers.filter(m => m.membership.status === MembershipStatus.BANNED);
+  const requested = allMembers.filter(m => m.membership?.status === MembershipStatus.PENDING);
+  const approved = allMembers.filter(m => m.membership?.status === MembershipStatus.APPROVED);
+  const banned = allMembers.filter(m => m.membership?.status === MembershipStatus.BANNED);
 
   const MemberTable = ({ members, title }: { members: EnrichedMember[]; title: string }) => {
     if (members.length === 0) {
@@ -139,18 +152,18 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
                            <div className="flex items-center justify-end space-x-2">
                              {member.membership.status === MembershipStatus.PENDING && canApprove && (
                                 <>
-                                  <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.membership.id, MembershipStatus.REJECTED, member.profile.displayName)}>Reject</Button>
-                                  <Button size="sm" onClick={() => handleStatusUpdate(member.membership.id, MembershipStatus.APPROVED, member.profile.displayName)}>Approve</Button>
+                                  <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.REJECTED, member.profile.displayName)}>Reject</Button>
+                                  <Button size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.APPROVED, member.profile.displayName)}>Approve</Button>
                                 </>
                              )}
                               {member.membership.status === MembershipStatus.APPROVED && canApprove && (
                                 <Button variant="secondary" size="sm" onClick={() => setEditingMember(member)}>Edit Roles</Button>
                               )}
                              {member.membership.status === MembershipStatus.APPROVED && canBan && (
-                                <Button variant="danger" size="sm" onClick={() => handleStatusUpdate(member.membership.id, MembershipStatus.BANNED, member.profile.displayName)}>Ban</Button>
+                                <Button variant="danger" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.BANNED, member.profile.displayName)}>Ban</Button>
                              )}
                               {member.membership.status === MembershipStatus.BANNED && canBan && (
-                                <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.membership.id, MembershipStatus.APPROVED, member.profile.displayName)}>Unban</Button>
+                                <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.APPROVED, member.profile.displayName)}>Unban</Button>
                              )}
                              {currentUser.isSuperAdmin && currentUser.id !== member.id && (
                                <Button variant="secondary" size="sm" onClick={() => onImpersonate(member)}>Impersonate</Button>

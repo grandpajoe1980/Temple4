@@ -34,6 +34,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
     description: '',
     location: '',
     capacity: '',
+    imageUrl: '',
   });
 
   useEffect(() => {
@@ -100,6 +101,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
       description: formState.description,
       type: formState.type,
       location: formState.location,
+      imageUrl: formState.imageUrl,
     };
 
     if (formState.capacity) {
@@ -144,7 +146,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
         </div>
         <Button onClick={() => {
           setEditingFacilityId(null);
-          setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '' });
+          setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '', imageUrl: '' });
           setIsModalOpen(true);
         }}>New Facility</Button>
       </div>
@@ -173,6 +175,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                         description: facility.description ?? '',
                         location: facility.location ?? '',
                         capacity: facility.capacity ? String(facility.capacity) : '',
+                        imageUrl: facility.imageUrl ?? '',
                       });
                       setIsModalOpen(true);
                     }}>Edit</Button>
@@ -267,6 +270,57 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
               />
             </div>
           </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700">Image</label>
+            <div className="mt-2 flex items-center gap-3">
+              <div className="flex-1">
+                <Input
+                  placeholder="Image URL (or upload below)"
+                  value={formState.imageUrl}
+                  onChange={(e) => setFormState({ ...formState, imageUrl: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="inline-block cursor-pointer rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
+                  Upload
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        const fd = new FormData();
+                        fd.append('file', file);
+                        fd.append('tenantId', tenant.id);
+                        fd.append('category', 'photos');
+                        fd.append('purpose', 'facility');
+
+                        const res = await fetch('/api/upload', { method: 'POST', body: fd });
+                        if (!res.ok) {
+                          console.error('Upload failed', await res.text());
+                          return;
+                        }
+
+                        const result = await res.json();
+                        if (result?.url) {
+                          setFormState((s) => ({ ...s, imageUrl: result.url }));
+                        }
+                      } catch (err) {
+                        console.error('Upload error', err);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+            {formState.imageUrl && (
+              <div className="mt-3 w-48 overflow-hidden rounded-md border">
+                <img src={formState.imageUrl} alt="Facility" className="h-32 w-full object-cover" />
+              </div>
+            )}
+          </div>
           <div className="flex justify-between items-center">
             <div>
               {editingFacilityId && (
@@ -279,10 +333,10 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
 
                     try {
                       const res = await fetch(`/api/tenants/${tenant.id}/facilities/${editingFacilityId}`, { method: 'DELETE' });
-                      if (res.ok) {
+                        if (res.ok) {
                         setIsModalOpen(false);
                         setEditingFacilityId(null);
-                        setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '' });
+                        setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '', imageUrl: '' });
                         await loadFacilities();
                         await loadBookings();
                         onRefresh();
@@ -310,6 +364,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                   description: formState.description,
                   type: formState.type,
                   location: formState.location,
+                  imageUrl: formState.imageUrl,
                 };
 
                 if (formState.capacity) payload.capacity = Number(formState.capacity);
@@ -322,10 +377,10 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                       body: JSON.stringify(payload),
                     });
 
-                    if (res.ok) {
+                      if (res.ok) {
                       setIsModalOpen(false);
                       setEditingFacilityId(null);
-                      setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '' });
+                      setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '', imageUrl: '' });
                       await loadFacilities();
                       await loadBookings();
                       onRefresh();
@@ -341,7 +396,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
 
                     if (res.ok) {
                       setIsModalOpen(false);
-                      setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '' });
+                      setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '', imageUrl: '' });
                       await loadFacilities();
                       await loadBookings();
                       onRefresh();

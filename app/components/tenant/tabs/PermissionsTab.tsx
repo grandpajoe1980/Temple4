@@ -14,27 +14,28 @@ interface PermissionsTabProps {
 }
 
 const PermissionsTab: React.FC<PermissionsTabProps> = ({ tenant, onUpdate, currentUser }) => {
-  const [localPermissions, setLocalPermissions] = useState(tenant.permissions);
+    const [localPermissions, setLocalPermissions] = useState(() => tenant.permissions ?? {});
   const [hasChanges, setHasChanges] = useState(false);
 
-  useEffect(() => {
-    setLocalPermissions(tenant.permissions);
-    setHasChanges(false);
-  }, [tenant.permissions]);
+    useEffect(() => {
+        setLocalPermissions(tenant.permissions ?? {});
+        setHasChanges(false);
+    }, [tenant.permissions]);
 
   const handlePermissionChange = (
     roleType: TenantRoleType,
     permission: keyof RolePermissions,
     value: boolean
   ) => {
-    setLocalPermissions(prev => {
-      const newPerms = JSON.parse(JSON.stringify(prev)); // Deep copy
-      if (!newPerms[roleType]) {
-        newPerms[roleType] = {};
-      }
-      newPerms[roleType][permission] = value;
-      return newPerms;
-    });
+        setLocalPermissions(prev => {
+            const base = prev ?? {};
+            const newPerms = JSON.parse(JSON.stringify(base)); // Deep copy
+            if (!newPerms[roleType]) {
+                newPerms[roleType] = {};
+            }
+            newPerms[roleType][permission] = value;
+            return newPerms;
+        });
     setHasChanges(true);
   };
   
@@ -86,7 +87,7 @@ const PermissionsTab: React.FC<PermissionsTabProps> = ({ tenant, onUpdate, curre
                                     <input
                                         type="checkbox"
                                         className="h-4 w-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
-                                        checked={localPermissions[roleType]?.[permission] || false}
+                                        checked={localPermissions?.[roleType]?.[permission] || false}
                                         onChange={(e) => handlePermissionChange(roleType, permission, e.target.checked)}
                                     />
                                 </td>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { User, UserProfile, UserPrivacySettings, AccountSettings } from '@prisma/client';
+import type { User, UserProfile, UserPrivacySettings, AccountSettings } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Tenant, TenantSettings } from '@prisma/client';
+import type { Tenant, TenantSettings } from '@prisma/client';
 
 interface TenantNavProps {
   tenant: Tenant & { settings: TenantSettings | null };

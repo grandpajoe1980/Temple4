@@ -3,7 +3,7 @@
 import React from 'react';
 import type { Tenant, User } from '@/types';
 import { MembershipStatus, MembershipApprovalMode } from '@/types';
-import { UserTenantMembership } from '@prisma/client';
+import type { UserTenantMembership } from '@prisma/client';
 import Button from '../ui/Button';
 
 interface PublicHeaderProps {

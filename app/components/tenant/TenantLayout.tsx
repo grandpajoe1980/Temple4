@@ -14,8 +14,7 @@ import PodcastsPage from './PodcastsPage';
 import BooksPage from './BooksPage';
 import HomePage from './HomePage';
 import ChatPage from './ChatPage';
-import { hasRole, can } from '@/lib/permissions';
-import { getMembershipForUserInTenant, getNotificationsForUser, markAllNotificationsAsRead, markNotificationAsRead } from '@/lib/data';
+// Use API endpoints from the client rather than importing server helpers
 import NotificationBell from '../notifications/NotificationBell';
 import NotificationPanel from '../notifications/NotificationPanel';
 import DonationsPage from './DonationsPage';
@@ -51,52 +50,75 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
 
   useEffect(() => {
     const loadNotifications = async () => {
-      if (user) {
-        const notifs = await getNotificationsForUser(user.id);
-        setNotifications(notifs);
+      if (!user) return;
+      try {
+        const res = await fetch('/api/notifications?limit=6', { cache: 'no-store' });
+        if (!res.ok) {
+          console.error('Failed to load notifications', res.status);
+          setNotifications([]);
+          return;
+        }
+        const data = await res.json().catch(() => ({ notifications: [] }));
+        const normalized = (data.notifications || []).map((n: any) => ({ ...n, createdAt: new Date(n.createdAt) }));
+        setNotifications(normalized);
+      } catch (err) {
+        console.error('Failed to load notifications', err);
+        setNotifications([]);
       }
     };
     loadNotifications();
   }, [user, onRefresh]);
 
   useEffect(() => {
-    const checkPermissions = async () => {
+    const fetchTenantContext = async () => {
       try {
-        const membershipData = await getMembershipForUserInTenant(user.id, tenant.id);
-        setMembership(membershipData);
-
-        // Check if user can view settings (admin or has management permissions)
-        const isAdmin = user.isSuperAdmin || await hasRole(user.id, tenant.id, [TenantRole.ADMIN]);
-        const canApprove = await can(user as any, tenant as any, 'canApproveMembership');
-        const canBan = await can(user as any, tenant as any, 'canBanMembers');
-        const canManagePrayer = await can(user as any, tenant as any, 'canManagePrayerWall');
-        const canManageResources = await can(user as any, tenant as any, 'canManageResources');
-        const canManageContact = await can(user as any, tenant as any, 'canManageContactSubmissions');
-        
-        setCanViewSettings(isAdmin || canApprove || canBan || canManagePrayer || canManageResources || canManageContact);
-        
-        // Check content creation permissions
-        const canCreatePostsPerm = await can(user as any, tenant as any, 'canCreatePosts');
-        setCanCreatePosts(canCreatePostsPerm);
-      } catch (error) {
-        console.error('Error checking permissions:', error);
+        const res = await fetch(`/api/tenants/${tenant.id}/me`, { cache: 'no-store' });
+        if (!res.ok) {
+          // If unauthorized or not found, clear membership and permissions
+          setMembership(null);
+          setCanViewSettings(false);
+          setCanCreatePosts(false);
+          return;
+        }
+        const data = await res.json();
+        setMembership(data.membership || null);
+        const perms = data.permissions || {};
+        setCanViewSettings(Boolean(perms.isAdmin || perms.canApprove || perms.canBan || perms.canManagePrayer || perms.canManageResources || perms.canManageContact));
+        setCanCreatePosts(Boolean(perms.canCreatePosts));
+      } catch (err) {
+        console.error('Error fetching tenant context:', err);
         setCanViewSettings(false);
         setCanCreatePosts(false);
       }
     };
-    
-    checkPermissions();
+    fetchTenantContext();
   }, [user, tenant]);
 
   const handleMarkNotificationAsRead = async (notificationId: string) => {
-    await markNotificationAsRead(notificationId);
-    onRefresh();
+    try {
+      const res = await fetch(`/api/notifications/${notificationId}`, { method: 'PATCH' });
+      if (!res.ok) {
+        console.error('Failed to mark notification as read', res.status);
+        return;
+      }
+      onRefresh();
+    } catch (err) {
+      console.error('Failed to mark notification as read', err);
+    }
   };
 
   const handleMarkAllNotificationsAsRead = async () => {
     if (!user) return;
-    await markAllNotificationsAsRead(user.id);
-    onRefresh();
+    try {
+      const res = await fetch('/api/notifications/mark-all-read', { method: 'POST' });
+      if (!res.ok) {
+        console.error('Failed to mark all notifications as read', res.status);
+        return;
+      }
+      onRefresh();
+    } catch (err) {
+      console.error('Failed to mark all notifications as read', err);
+    }
   };
   
   const handleNotificationNavigate = (link?: string) => {

@@ -21,6 +21,8 @@
     "test:ui:headed": "playwright test --headed",
     "test:ui:debug": "playwright test --debug",
     "test:setup-users": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" test-suite/setup-test-users.ts"
+    ,
+    "check-client-imports": "node scripts/check-client-imports.js"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.19",

@@ -6,7 +6,7 @@ import Card from '../../ui/Card';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import Input from '../../ui/Input';
-import { BookingStatus } from '@prisma/client';
+import type { BookingStatus } from '@prisma/client';
 
 interface FacilitiesTabProps {
   tenant: any;

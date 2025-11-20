@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, UserProfile, UserPrivacySettings, AccountSettings } from '@prisma/client';
+import type { User, UserProfile, UserPrivacySettings, AccountSettings } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';

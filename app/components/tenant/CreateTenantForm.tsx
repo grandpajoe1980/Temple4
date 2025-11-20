@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
-import { Tenant } from '@prisma/client';
+import type { Tenant } from '@prisma/client';
 
 // This type represents the data we collect from the form.
 export type CreateTenantData = Pick<Tenant, 'name' | 'creed' | 'description' | 'street' | 'city' | 'state' | 'country' | 'postalCode'>;

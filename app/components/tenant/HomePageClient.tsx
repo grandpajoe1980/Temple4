@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import { Tenant, User, UserTenantMembership, TenantSettings, TenantBranding, UserProfile } from '@prisma/client';
+import type { Tenant, User, UserTenantMembership, TenantSettings, TenantBranding, UserProfile } from '@prisma/client';
 import { EventWithCreator, MembershipStatus, MembershipApprovalMode } from '@/types';
 import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';

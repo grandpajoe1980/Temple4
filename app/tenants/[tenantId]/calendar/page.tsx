@@ -1,10 +1,12 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
-import { getTenantById, getUserById, getEventsForTenant } from '@/lib/data';
+import { cookies } from 'next/headers';
+import { getTenantById, getUserById } from '@/lib/data';
 import CalendarPageClient from './CalendarPageClient';
 import { hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
+import { EventResponseDto, mapEventDtoToClient } from '@/lib/services/event-service';
 
 export default async function TenantCalendarPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const session = await getServerSession(authOptions);
@@ -21,7 +23,19 @@ export default async function TenantCalendarPage({ params }: { params: Promise<{
     redirect('/');
   }
 
-  const events = await getEventsForTenant(tenant.id, user.id);
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  const cookieHeader = cookies().toString();
+
+  const eventsResponse = await fetch(`${baseUrl}/api/tenants/${tenant.id}/events`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(cookieHeader ? { cookie: cookieHeader } : {}),
+    },
+    cache: 'no-store',
+  });
+
+  const eventDtos: EventResponseDto[] = eventsResponse.ok ? await eventsResponse.json() : [];
+  const events = eventDtos.map(mapEventDtoToClient);
   const canCreateEvent =
     user.isSuperAdmin ||
     (await hasRole(user.id, tenant.id, [TenantRole.ADMIN, TenantRole.CLERGY]));

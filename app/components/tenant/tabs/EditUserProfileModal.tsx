@@ -15,35 +15,39 @@ interface EditUserProfileModalProps {
 }
 
 const EditUserProfileModal: React.FC<EditUserProfileModalProps> = ({ isOpen, onClose, member, adminUser, onSave }) => {
-  const [profile, setProfile] = useState<UserProfile>(member.profile);
+  const [profile, setProfile] = useState<UserProfile | null>(member.profile ?? null);
 
   useEffect(() => {
     if (member) {
-      setProfile(member.profile);
+      setProfile(member.profile ?? null);
     }
   }, [member]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setProfile((prev: any) => ({ ...prev, [name]: value }));
+    setProfile((prev: any) => ({ ...(prev || {}), [name]: value }));
   };
 
   const handleLanguagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const languages = e.target.value.split(',').map(lang => lang.trim()).filter(Boolean);
-    setProfile((prev: any) => ({ ...prev, languages }));
+    setProfile((prev: any) => ({ ...(prev || {}), languages }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     (async () => {
       try {
+        if (!profile) {
+          alert('No profile to update.');
+          return;
+        }
         const tenantId = member.membership?.tenantId;
         if (!tenantId) throw new Error('Tenant context missing');
 
         const res = await fetch(`/api/tenants/${tenantId}/members/${member.id}/profile`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ displayName: profile.displayName, displayTitle: profile.displayTitle }),
+          body: JSON.stringify({ displayName: profile.displayName }),
         });
 
         if (!res.ok) throw new Error('Failed to update profile');
@@ -58,13 +62,13 @@ const EditUserProfileModal: React.FC<EditUserProfileModalProps> = ({ isOpen, onC
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Edit Profile for ${member.profile.displayName}`}>
+    <Modal isOpen={isOpen} onClose={onClose} title={`Edit Profile for ${member.profile?.displayName}`}>
       <form onSubmit={handleSubmit} className="space-y-6">
         <Input 
           label="Display Name" 
           id="displayName" 
           name="displayName" 
-          value={profile.displayName} 
+          value={profile?.displayName ?? ''} 
           onChange={handleInputChange} 
           required 
         />
@@ -73,7 +77,7 @@ const EditUserProfileModal: React.FC<EditUserProfileModalProps> = ({ isOpen, onC
           id="avatarUrl" 
           name="avatarUrl" 
           type="url"
-          value={profile.avatarUrl || ''} 
+          value={profile?.avatarUrl || ''} 
           onChange={handleInputChange} 
         />
         <div>
@@ -85,7 +89,7 @@ const EditUserProfileModal: React.FC<EditUserProfileModalProps> = ({ isOpen, onC
             name="bio"
             rows={4}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
-            value={profile.bio || ''}
+            value={profile?.bio || ''}
             onChange={handleInputChange}
           />
         </div>
@@ -94,14 +98,14 @@ const EditUserProfileModal: React.FC<EditUserProfileModalProps> = ({ isOpen, onC
             label="City" 
             id="locationCity" 
             name="locationCity" 
-            value={profile.locationCity || ''} 
+            value={profile?.locationCity || ''} 
             onChange={handleInputChange} 
           />
           <Input 
             label="Country" 
             id="locationCountry" 
             name="locationCountry" 
-            value={profile.locationCountry || ''} 
+            value={profile?.locationCountry || ''} 
             onChange={handleInputChange} 
           />
         </div>
@@ -109,7 +113,7 @@ const EditUserProfileModal: React.FC<EditUserProfileModalProps> = ({ isOpen, onC
           label="Languages (comma-separated)" 
           id="languages" 
           name="languages" 
-          value={(profile.languages || []).join(', ')} 
+          value={Array.isArray(profile?.languages) ? (profile!.languages as string[]).join(', ') : (typeof profile?.languages === 'string' ? profile!.languages : '')} 
           onChange={handleLanguagesChange} 
           placeholder="e.g., English, Spanish"
         />

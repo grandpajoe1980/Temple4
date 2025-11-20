@@ -64,7 +64,7 @@ const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, mem
           required
         >
           {members.map(member => (
-            <option key={member.id} value={member.id}>{member.profile.displayName}</option>
+            <option key={member.id} value={member.id}>{member.profile?.displayName ?? ''}</option>
           ))}
         </select>
       </div>

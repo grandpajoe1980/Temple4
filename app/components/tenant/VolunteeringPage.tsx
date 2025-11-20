@@ -1,8 +1,11 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { TenantWithRelations, UserWithProfileSettings, VolunteerNeedWithSignups } from '@/lib/data';
 import VolunteerNeedCard from './VolunteerNeedCard';
+import Button from '../ui/Button';
+import Modal from '../ui/Modal';
+import VolunteerNeedForm from './forms/VolunteerNeedForm';
 
 interface VolunteeringPageProps {
   tenant: Pick<TenantWithRelations, 'id' | 'name'>;
@@ -12,13 +15,35 @@ interface VolunteeringPageProps {
 }
 
 const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs, onRefresh }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCreateNeed = async (data: { title: string; description: string; date: Date; slotsNeeded: number; location?: string }) => {
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/volunteer-needs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || 'Failed to create volunteer need');
+      }
+      setIsModalOpen(false);
+      onRefresh?.();
+    } catch (err: any) {
+      console.error('Failed to create volunteer need', err);
+      alert(err?.message || 'Failed to create volunteer need');
+    }
+  };
+
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Volunteer Opportunities</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Find ways to get involved and serve at {tenant.name}.
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Volunteer Opportunities</h2>
+          <p className="mt-1 text-sm text-gray-500">Find ways to get involved and serve at {tenant.name}.</p>
+        </div>
+        <Button onClick={() => setIsModalOpen(true)}>+ New</Button>
       </div>
 
       {needs.length > 0 ? (
@@ -30,11 +55,13 @@ const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs
       ) : (
         <div className="text-center bg-white p-12 rounded-lg shadow-sm">
           <h3 className="text-lg font-medium text-gray-900">No Opportunities Available</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            There are no volunteer opportunities listed at this time. Please check back later.
-          </p>
+          <p className="mt-1 text-sm text-gray-500">There are no volunteer opportunities listed at this time. Please check back later.</p>
         </div>
       )}
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Volunteer Need">
+        <VolunteerNeedForm onSubmit={handleCreateNeed} onCancel={() => setIsModalOpen(false)} />
+      </Modal>
     </div>
   );
 };

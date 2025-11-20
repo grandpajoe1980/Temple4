@@ -11,7 +11,16 @@ interface NotificationSettingsTabProps {
 }
 
 const NotificationSettingsTab: React.FC<NotificationSettingsTabProps> = ({ user, onRefresh }) => {
-  const [prefs, setPrefs] = useState<NotificationPreferences>(user.notificationPreferences);
+  const defaultPrefs: NotificationPreferences = {
+    email: {
+      newAnnouncement: false,
+      newEvent: false,
+      directMessage: false,
+      groupChatMessage: false,
+      membershipUpdate: false,
+    }
+  };
+  const [prefs, setPrefs] = useState<NotificationPreferences>(user.notificationPreferences ?? defaultPrefs);
 
   const handleToggleChange = (
     category: keyof NotificationPreferences,
@@ -19,12 +28,12 @@ const NotificationSettingsTab: React.FC<NotificationSettingsTabProps> = ({ user,
     value: boolean
   ) => {
     setPrefs(prev => ({
-      ...prev,
+      ... (prev || defaultPrefs),
       [category]: {
-        ...prev[category],
+        ...((prev && prev[category]) || defaultPrefs[category]),
         [key]: value,
       }
-    }));
+    } as NotificationPreferences));
   };
 
   const handleSubmit = (e: React.FormEvent) => {

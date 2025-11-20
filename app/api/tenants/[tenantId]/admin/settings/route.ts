@@ -39,7 +39,8 @@ export async function GET(
 const settingsSchema = z.object({
     isPublic: z.boolean().optional(),
     // Add other settings fields here
-    permissions: z.record(z.record(z.boolean())).optional(),
+    // permissions is a map of string -> map of string -> boolean
+    permissions: z.record(z.string(), z.record(z.string(), z.boolean())).optional(),
 });
 
 // 17.2 Update Tenant Settings

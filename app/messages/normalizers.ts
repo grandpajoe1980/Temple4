@@ -78,9 +78,9 @@ export function mapUserForMessaging(user: MessagesPageUser): User {
       locationCity: user.profile?.locationCity ?? undefined,
       locationCountry: user.profile?.locationCountry ?? undefined,
       languages: Array.isArray(user.profile?.languages)
-        ? user.profile.languages
+        ? user.profile?.languages
         : user.profile?.languages
-        ? [user.profile.languages]
+        ? [user.profile?.languages]
         : [],
     },
     privacySettings: user.privacySettings ?? baseUserDefaults.privacySettings,
@@ -119,9 +119,9 @@ export function normalizeConversation(
         locationCity: participantUser.profile?.locationCity ?? undefined,
         locationCountry: participantUser.profile?.locationCountry ?? undefined,
         languages: Array.isArray(participantUser.profile?.languages)
-          ? participantUser.profile.languages
+          ? participantUser.profile?.languages
           : participantUser.profile?.languages
-          ? [participantUser.profile.languages]
+          ? [participantUser.profile?.languages]
           : [],
       },
       privacySettings: (participantUser as any).privacySettings ?? baseUserDefaults.privacySettings,

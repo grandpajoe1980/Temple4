@@ -95,19 +95,20 @@ export interface User {
   email: string;
   password: string | null; // NOTE: For mock login simulation, made compatible with Prisma
   isSuperAdmin: boolean;
-  profile: UserProfile;
-  privacySettings: UserPrivacySettings;
-  accountSettings: AccountSettings;
-  notificationPreferences: NotificationPreferences;
+  profile: UserProfile | null;
+  privacySettings?: UserPrivacySettings | null;
+  accountSettings?: AccountSettings | null;
+  notificationPreferences?: NotificationPreferences | any | null;
 }
 
 export interface UserProfile {
   displayName: string;
-  avatarUrl?: string;
-  bio?: string;
-  locationCity?: string;
-  locationCountry?: string;
-  languages?: string[];
+  avatarUrl?: string | null;
+  bio?: string | null;
+  locationCity?: string | null;
+  locationCountry?: string | null;
+  // Some server payloads serialize languages as a comma-separated string or null; allow either shape
+  languages?: string[] | string | null;
 }
 
 export interface UserPrivacySettings {
@@ -115,10 +116,10 @@ export interface UserPrivacySettings {
 }
 
 export interface AccountSettings {
-  timezonePreference?: string;
-  dateFormat?: string;
-  timeFormat?: string;
-  languagePreference?: string;
+  timezonePreference?: string | null;
+  dateFormat?: string | null;
+  timeFormat?: string | null;
+  languagePreference?: string | null;
 }
 
 
@@ -517,6 +518,7 @@ export interface VolunteerNeed {
   description: string;
   date: Date;
   slotsNeeded: number;
+  location?: string;
 }
 
 export interface VolunteerSignup {

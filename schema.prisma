@@ -583,6 +583,7 @@ model VolunteerNeed {
   description String
   date        DateTime
   slotsNeeded Int
+  location    String?
   signups     VolunteerSignup[]
 }
 

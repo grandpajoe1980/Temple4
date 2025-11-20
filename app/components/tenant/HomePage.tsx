@@ -150,7 +150,7 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
     );
   }
 
-  const tenantDisplayName = membership?.displayName || user.profile.displayName;
+  const tenantDisplayName = membership?.displayName || user.profile?.displayName;
   const donationLink = tenant.branding.customLinks.find((link: any) => link.label.toLowerCase() === 'donate');
   const { enableLiveStream, liveStreamSettings } = tenant.settings;
   const isLive = enableLiveStream && liveStreamSettings.isLive;

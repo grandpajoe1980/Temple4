@@ -142,7 +142,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
           body: JSON.stringify({
             amount,
             currency: settings.currency,
-            displayName: user.profile.displayName,
+            displayName: user.profile?.displayName,
             isAnonymousOnLeaderboard: isAnonymous,
             message,
           }),

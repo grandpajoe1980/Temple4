@@ -66,7 +66,7 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ tenant, currentUs
   const filteredMembers = useMemo(() => {
     if (!searchTerm) return members;
     // FIX: Access displayName from the nested profile object.
-    return members.filter(m => m.profile.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
+    return members.filter(m => m.profile?.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [members, searchTerm]);
 
 
@@ -117,8 +117,8 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ tenant, currentUs
               <div key={member.id} className="flex items-center justify-between p-2 rounded hover:bg-gray-50">
                 <div className="flex items-center space-x-3">
                   {/* FIX: Access avatarUrl and displayName from the nested profile object. */}
-                  <img src={member.profile.avatarUrl || '/placeholder-avatar.svg'} alt={member.profile.displayName} className="w-8 h-8 rounded-full" />
-                  <span className="text-sm text-gray-800">{member.profile.displayName}</span>
+                  <img src={member.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={member.profile?.displayName} className="w-8 h-8 rounded-full" />
+                  <span className="text-sm text-gray-800">{member.profile?.displayName}</span>
                 </div>
                 <input
                   type="checkbox"

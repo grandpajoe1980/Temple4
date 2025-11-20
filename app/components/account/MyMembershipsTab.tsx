@@ -66,7 +66,7 @@ const MyMembershipsTab: React.FC<MyMembershipsTabProps> = ({ user, onRefresh }) 
                                 <div className="text-gray-500">{tenant.creed}</div>
                             </td>
                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                {membership.displayName || `${user.profile.displayName} (Global)`}
+                                {membership.displayName || `${user.profile?.displayName ?? ''} (Global)`}
                             </td>
                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                 {primaryRole?.displayTitle || 'Not set'}

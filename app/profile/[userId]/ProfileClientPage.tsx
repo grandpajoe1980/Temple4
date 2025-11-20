@@ -65,12 +65,12 @@ export default function ProfileClientPage({ user: initialUser }: ProfileClientPa
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
           <img
-            src={user.profile.avatarUrl || '/default-avatar.png'}
-            alt={user.profile.displayName || user.email}
+            src={user.profile?.avatarUrl || '/default-avatar.png'}
+            alt={user.profile?.displayName || user.email}
             className="w-24 h-24 rounded-full"
           />
           <div>
-            <h1 className="text-3xl font-bold">{user.profile.displayName}</h1>
+            <h1 className="text-3xl font-bold">{user.profile?.displayName}</h1>
             <p className="text-gray-500">{user.email}</p>
           </div>
         </div>
@@ -81,7 +81,7 @@ export default function ProfileClientPage({ user: initialUser }: ProfileClientPa
 
       {!isEditing ? (
         <div className="bg-white p-6 rounded-lg shadow">
-            <p>{user.profile.bio}</p>
+            <p>{user.profile?.bio}</p>
             {/* Display other public profile info here */}
         </div>
       ) : (

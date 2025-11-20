@@ -21,7 +21,7 @@ export default async function TenantCalendarNewPage({ params }: { params: Promis
     redirect('/');
   }
 
-  const events = await getEventsForTenant(tenant.id);
+  const events = await getEventsForTenant(tenant.id, user.id);
   const canCreateEvent =
     user.isSuperAdmin ||
     (await hasRole(user.id, tenant.id, [TenantRole.ADMIN, TenantRole.CLERGY]));
@@ -32,6 +32,7 @@ export default async function TenantCalendarNewPage({ params }: { params: Promis
       tenantId={tenant.id}
       canCreateEvent={canCreateEvent}
       openCreateModal
+      currentUserId={user.id}
     />
   );
 }

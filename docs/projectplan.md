@@ -41,7 +41,7 @@ One global user account, many tenants. Users can:
 
 # 2. Roles and Permissions
 
-This section defines the conceptual model, which has been successfully implemented in `types.ts` and the permission-checking logic in `lib/permissions.ts`.
+This section defines the conceptual model, which has been implemented in both `types.ts` and the Prisma-backed permission-checking logic in `lib/permissions.ts`.
 
 ## 2.1 Global Roles
 
@@ -72,38 +72,37 @@ Platform Super Admin overrides all tenant-level restrictions.
 
 # 3. Multi-Tenancy Model
 
-The core multi-tenancy logic is implemented and managed within `App.tsx` through state, with tenant selection and creation flows connecting to the `TenantLayout.tsx` component, which serves as the dashboard for a selected tenant. Tenant data is isolated via props and functions in `seed-data.ts`.
+Multi-tenancy is enforced at the data layer via Prisma. Tenant isolation and membership-aware access checks are centralized in helpers like `getTenantContext` within `lib/tenant-context.ts`, which loads tenant settings/branding and validates membership before tenant-scoped pages render. Route handling now lives in the Next.js `app` directory (e.g., `app/tenants/[tenantId]`), not the legacy `App.tsx` state container. No `seed-data.ts` file exists in the current codebase; data flows through the Prisma client.
 
 ---
 
 # 4. Data Model (Conceptual)
 
-The conceptual data model has been largely implemented in `types.ts`. Future work will involve migrating this to a formal Prisma schema. Models for **Donations** and **Contact Forms** need to be added.
+The conceptual data model lives in both `types.ts` and the Prisma schema (`schema.prisma`). Core objects (users, tenants, membership, content, messaging, audit) are already represented in the database schema. Donation and contact submission models are present in `schema.prisma`, and related tenant settings are persisted via Prisma rather than temporary seed structures.
 
 ## 4.1-4.7 Core Models (User, Tenant, Content, etc.)
 
 *   **Status:** COMPLETED
-*   **Implementation:** All core models for users, tenants, membership, content, events, messaging, and notifications have been defined in `types.ts` and are used throughout the application via `seed-data.ts`.
+*   **Implementation:** All core models for users, tenants, membership, content, events, messaging, and notifications have been defined in `types.ts` and persisted in the Prisma schema. Application data access flows through Prisma helpers in `lib/data.ts`, not `seed-data.ts`.
 
 ## 4.8 Donations (Fully Detailed)
 
 *   **Status:** COMPLETED
 *   **Implementation:**
     *   `DonationSettings` and `DonationRecord` interfaces are defined in `types.ts`.
-    *   Mock donation data is included in `seed-data.ts` for at least one tenant.
-    *   Functions in `seed-data.ts` manage donation settings and records.
+    *   Donation settings are stored on the tenant record (see `donationSettings` and `enableDonations` in `schema.prisma`), and donation entries persist in the `DonationRecord` model rather than mock seed data.
 
 ## 4.9 Impersonation & Audit
 
 *   **Status:** COMPLETED
-*   **Implementation:** The `AuditLog` type is defined in `types.ts`, and the `logAuditEvent` function in `seed-data.ts` is used across the app for key actions. Impersonation is handled in `App.tsx` and the `ImpersonationBanner.tsx` component. The Admin Console UI to view logs is complete.
+*   **Implementation:** The `AuditLog` type is defined in `types.ts` and persisted via Prisma (`schema.prisma`). Audit events are recorded with the `logAuditEvent` helper in `lib/audit.ts`. Impersonation is surfaced through dedicated API routes and client components like `ImpersonationController`/`ImpersonationBanner` in `app/components/admin`, rather than legacy `App.tsx` state.
 
 ## 4.10 Small Groups & Ministries
 
 *   **Status:** COMPLETED
 *   **Implementation:**
     *   `SmallGroup` and `SmallGroupMembership` models defined in `types.ts`.
-    *   Mock data and management functions created in `seed-data.ts`.
+    *   Prisma models back small group data; CRUD flows use Next.js routes and components (`app/tenants/[tenantId]/small-groups`, `SmallGroupsTab.tsx`, `SmallGroupsPage.tsx`).
     *   Control Panel tab (`SmallGroupsTab.tsx`) and member-facing discovery page (`SmallGroupsPage.tsx`) are complete. The full lifecycle of creating, finding, and joining groups is functional.
 *   **Identified Gaps:** Dedicated detail pages for each group with a discussion/post area are a potential future enhancement.
 
@@ -112,7 +111,7 @@ The conceptual data model has been largely implemented in `types.ts`. Future wor
 *   **Status:** COMPLETED
 *   **Implementation:**
     *   `VolunteerNeed` and `VolunteerSignup` models defined in `types.ts`.
-    *   Mock data and management functions created in `seed-data.ts`.
+    *   Prisma models persist volunteer needs and signups; API routes under `app/api/volunteer-needs` support creation and updates.
     *   A "Volunteering" tab in the Control Panel allows admins to create and view needs.
     *   A "Volunteering" page in the tenant layout allows members to browse and sign up for opportunities.
 
@@ -219,10 +218,9 @@ This section details the application's features, broken down by development phas
     *   `EventsPage.tsx` provides a toggle between a list view and a calendar view.
     *   The `EventsCalendar.tsx` component implements the required month grid view. Clicking a day opens the `DayEventsModal.tsx`.
     *   Event creation (`EventForm.tsx`) uses a `Calendar.tsx` component, satisfying the "grid-style date picker" requirement.
-*   **Identified Gaps:**
-    *   **RSVP System:** The `EventRSVP` data model is in the plan but not yet in `types.ts` or `seed-data.ts`. The RSVP buttons on `EventCard.tsx` are placeholders.
-        *   **Next Step:** Add `EventRSVP` to `types.ts` and create mock data/functions in `seed-data.ts`.
-        *   **Next Step:** Wire up the "Going" and "Interested" buttons on `EventCard.tsx` to update the data.
+*   **RSVP System:** **COMPLETED**
+    *   `EventRSVP` now exists in `types.ts`, matches the Prisma schema, and is surfaced via `/api/tenants/[tenantId]/events/[eventId]/rsvps`.
+    *   `EventCard.tsx` consumes live RSVP counts and lets authenticated users set **Going**, **Interested**, or **Not Going**, persisting to Prisma through the API routes.
 
 ## Phase 5: Messaging System
 

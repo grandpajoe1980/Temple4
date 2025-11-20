@@ -15,10 +15,8 @@ export async function GET(request: NextRequest) {
   const userId = (session.user as any).id;
 
   try {
-    const memberTenants = new Set<string>();
-
-    // Fetch tenant memberships for the current user to enforce isolation on tenant conversations
-    const memberships = await prisma.userTenantMembership.findMany({
+    // Fetch approved tenant memberships for the current user to enforce isolation on tenant conversations
+    const memberTenants = await prisma.userTenantMembership.findMany({
       where: {
         userId,
         status: 'APPROVED'
@@ -26,7 +24,17 @@ export async function GET(request: NextRequest) {
       select: { tenantId: true }
     });
 
-    memberships.forEach(membership => memberTenants.add(membership.tenantId));
+    const memberTenantIds = memberTenants.map(membership => membership.tenantId);
+
+    // Build a tenant-aware filter so users only see conversations in tenants they belong to
+    const tenantFilter = memberTenantIds.length > 0
+      ? {
+          OR: [
+            { tenantId: null },
+            { tenantId: { in: memberTenantIds } }
+          ]
+        }
+      : { tenantId: null };
 
     // Fetch conversations where user is a participant
     const conversations = await prisma.conversation.findMany({
@@ -35,7 +43,8 @@ export async function GET(request: NextRequest) {
           some: {
             userId: userId
           }
-        }
+        },
+        ...tenantFilter
       },
       include: {
         participants: {
@@ -76,16 +85,11 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Filter out tenant-scoped conversations the user is not a valid member of
-    const accessibleConversations = conversations.filter(conversation =>
-      !conversation.tenantId || memberTenants.has(conversation.tenantId)
-    );
-
     // Calculate unread counts for each conversation
     const conversationsWithUnread = await Promise.all(
-      accessibleConversations.map(async (conversation: any) => {
+      conversations.map(async (conversation: any) => {
         const userParticipant = conversation.participants.find((p: any) => p.userId === userId);
-        
+
         if (!userParticipant) {
           return { ...conversation, unreadCount: 0 };
         }

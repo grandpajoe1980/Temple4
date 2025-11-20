@@ -951,6 +951,218 @@ async function main() {
   });
   console.log('✅ Created notifications');
 
+  console.log('\n✅ Created notifications');
+
+  // --- Add facility data for Springfield Community Church ---
+  console.log('\n🏛️ Adding facilities for Springfield Community Church...');
+  await prisma.facility.createMany({
+    data: [
+      {
+        tenantId: springfieldChurch.id,
+        name: 'Main Sanctuary',
+        description: 'Primary worship space with pulpit, seating for 200, and AV system.',
+        type: 'HALL',
+        capacity: 200,
+        imageUrl: 'https://i.imgur.com/8Km9tLL.jpg',
+      },
+      {
+        tenantId: springfieldChurch.id,
+        name: 'Fellowship Hall',
+        description: 'Multi-purpose hall for meals, meetings and events. Seats 150.',
+        type: 'HALL',
+        capacity: 150,
+        imageUrl: 'https://i.imgur.com/0y0y0y0.jpg',
+      },
+      {
+        tenantId: springfieldChurch.id,
+        name: 'Youth Room',
+        description: 'Small meeting room for youth group and classes.',
+        type: 'ROOM',
+        capacity: 30,
+        imageUrl: 'https://i.pravatar.cc/300?img=5',
+      },
+    ],
+  });
+  console.log('✅ Springfield facilities added');
+
+  // --- Game of Thrones themed tenant seed (hotlinked images from fandom) ---
+  console.log('\n⚔️ Creating Game of Thrones themed tenant and members...');
+
+  const gotCharacters = [
+    { email: 'jon@got.example', password: 'winter123', displayName: 'Jon Snow', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/d/d0/JonSnow8x06.PNG/revision/latest?cb=20190714094440' },
+    { email: 'daenerys@got.example', password: 'dragon123', displayName: 'Daenerys Targaryen', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/91/Dany_Drogon_Jorah_S3_Ep1.jpg/revision/latest?cb=20130402130943' },
+    { email: 'tyrion@got.example', password: 'clever123', displayName: 'Tyrion Lannister', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/d/d2/Tyrion_S2Promo.jpg/revision/latest?cb=20120323183758' },
+    { email: 'sansa@got.example', password: 'lady123', displayName: 'Sansa Stark', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/4/4d/Sansa_Season6.png/revision/latest?cb=20160610123456' },
+    { email: 'arya@got.example', password: 'needle123', displayName: 'Arya Stark', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/1/1b/Arya_S8.png/revision/latest?cb=20190423165940' },
+    { email: 'bran@got.example', password: 'seer123', displayName: 'Bran Stark', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/7/7b/Bran_S8.png/revision/latest?cb=20190423165942' },
+    { email: 'cersei@got.example', password: 'queen123', displayName: 'Cersei Lannister', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/5/51/Winter_is_Coming_Jaime_and_Cersei.png/revision/latest?cb=20130605013757' },
+    { email: 'jaime@got.example', password: 'kingslayer', displayName: 'Jaime Lannister', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/d/d8/No_One_23.jpg/revision/latest?cb=20160614171036' },
+    { email: 'samwell@got.example', password: 'maester123', displayName: 'Samwell Tarly', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/0/05/GOT_Season_5_02.jpg/revision/latest?cb=20150409231553' },
+    { email: 'brienne@got.example', password: 'oathkeeper', displayName: 'Brienne of Tarth', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/a/a9/S8_Brienne_Profil.jpg/revision/latest?cb=20190423165941' },
+    { email: 'jorah@got.example', password: 'exile123', displayName: 'Jorah Mormont', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/91/Dany_Drogon_Jorah_S3_Ep1.jpg/revision/latest?cb=20130402130943' },
+    { email: 'theon@got.example', password: 'reek123', displayName: 'Theon Greyjoy', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/8/81/Theon_Greyjoy.png/revision/latest?cb=20110302142633' },
+    { email: 'davos@got.example', password: 'onion123', displayName: 'Davos Seaworth', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/7/7a/707_Qhono_Davos_Podrick_Theon_Jon_Varys_Tyrion_Bronn.jpg/revision/latest?cb=20170828114500' },
+    { email: 'melisandre@got.example', password: 'redwoman', displayName: 'Melisandre', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/9a/The_Red_Woman_08.jpg/revision/latest?cb=20160421170246' },
+    { email: 'stannis@got.example', password: 'iron123', displayName: 'Stannis Baratheon', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/1/11/Book_of_the_Stranger_14.jpg/revision/latest?cb=20160512165557' },
+    { email: 'petyr@got.example', password: 'littlefinger', displayName: 'Petyr Baelish', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/5/55/Roman_Papsuev_-_Petyr_Baelish.png/revision/latest?cb=20230701112254' },
+    { email: 'varys@got.example', password: 'whispers', displayName: 'Varys', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/e/e4/Varys_S2.jpg/revision/latest?cb=20120324133826' },
+    { email: 'drogo@got.example', password: 'khaleesi', displayName: 'Khal Drogo', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/9f/Khal_Drogo_Profile.jpg/revision/latest?cb=20110302150000' },
+    { email: 'margaery@got.example', password: 'rose123', displayName: 'Margaery Tyrell', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/b/b5/Margaery_Tyrell_S6.png/revision/latest?cb=20210722163311' },
+    { email: 'olenna@got.example', password: 'thorn123', displayName: 'Olenna Tyrell', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/3/33/Olenna_Tyrell_Profile.jpg/revision/latest?cb=20160512170000' },
+  ];
+
+  for (const char of gotCharacters) {
+    const hashed = await bcrypt.hash(char.password, 10);
+    const user = await prisma.user.upsert({
+      where: { email: char.email },
+      update: {},
+      create: {
+        email: char.email,
+        password: hashed,
+        profile: { create: { displayName: char.displayName, avatarUrl: char.avatarUrl, locationCity: 'Westeros' } },
+        privacySettings: { create: { showAffiliations: true } },
+        accountSettings: { create: { timezonePreference: 'UTC', languagePreference: 'en-US' } },
+        notificationPreferences: {
+          email: {
+            newAnnouncement: true,
+            newEvent: true,
+            directMessage: true,
+            groupChatMessage: true,
+            membershipUpdate: true,
+          },
+        },
+      },
+      include: { profile: true },
+    });
+    createdUsers[char.email] = user;
+    console.log(`✅ GOT user created: ${char.displayName}`);
+  }
+
+  // Create GOT tenant
+  const gotTenant = await prisma.tenant.upsert({
+    where: { slug: 'game-of-thrones' },
+    update: {},
+    create: {
+      name: 'Game of Thrones Fellowship',
+      slug: 'game-of-thrones',
+      creed: 'United by story, fellowship, and fan community.',
+      street: 'Castle Way',
+      city: 'Winterfell',
+      state: 'The North',
+      country: 'Westeros',
+      postalCode: '00001',
+      contactEmail: 'info@got-fellowship.example',
+      phoneNumber: '+000-000-0000',
+      description: 'A fan fellowship celebrating the world of Westeros with events, discussions and creative groups.',
+      branding: {
+        create: {
+          primaryColor: '#2B3A67',
+          accentColor: '#C6A25C',
+          logoUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/d/dd/HBO.png/revision/latest?cb=20230112120342',
+          bannerImageUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/91/Daenerys_202.jpg/revision/latest?cb=20120221232427',
+        },
+      },
+      settings: {
+        create: {
+          isPublic: true,
+          membershipApprovalMode: 'OPEN',
+          enableCalendar: true,
+          enablePosts: true,
+          enableMemberDirectory: true,
+          enableGroupChat: true,
+          enableComments: true,
+          enableReactions: true,
+          enableServices: true,
+          enableSmallGroups: true,
+          enableResourceCenter: true,
+          donationSettings: { enableRecurring: false, suggestedAmounts: [10, 25, 50], paymentMethods: ['card'] },
+          liveStreamSettings: { platform: 'youtube', channelUrl: null },
+          visitorVisibility: { calendar: true, posts: true, prayerWall: false },
+        },
+      },
+    },
+  });
+
+  // Create service offerings for GOT fellowship
+  await prisma.serviceOffering.createMany({
+    data: [
+      { tenantId: gotTenant.id, name: 'Lore Discussion Evenings', description: 'Weekly moderated lore discussion and Q&A sessions.', category: 'EDUCATION', isPublic: true, requiresBooking: false, order: 1 },
+      { tenantId: gotTenant.id, name: 'Costume & Prop Rentals', description: 'On-site costume and prop lending for events and contests.', category: 'FACILITY', isPublic: true, requiresBooking: true, pricing: 'Donation', order: 2 },
+      { tenantId: gotTenant.id, name: 'Fan Workshop — Worldbuilding', description: 'Hands-on workshops about worldbuilding, craft, and prop making.', category: 'EDUCATION', isPublic: true, requiresBooking: true, order: 3 },
+    ],
+  });
+
+  // Upsert memberships and roles for GOT users
+  for (let i = 0; i < gotCharacters.length; i++) {
+    const char = gotCharacters[i];
+    const user = createdUsers[char.email];
+    const membership = await prisma.userTenantMembership.upsert({
+      where: { userId_tenantId: { userId: user.id, tenantId: gotTenant.id } },
+      update: { displayName: user.profile?.displayName },
+      create: { tenantId: gotTenant.id, userId: user.id, status: 'APPROVED', displayName: user.profile?.displayName },
+    });
+
+    // Assign roles with variety
+    const roles = [];
+    if (i === 0) roles.push({ role: 'ADMIN', title: 'Lord Commander', primary: true });
+    else if (i < 4) roles.push({ role: 'STAFF', title: 'Organizer', primary: true });
+    else roles.push({ role: 'MEMBER', title: 'Member', primary: true });
+
+    for (const r of roles) {
+      await prisma.userTenantRole.create({ data: { membershipId: membership.id, role: r.role as any, displayTitle: r.title, isPrimary: r.primary } });
+    }
+  }
+
+  // Create at least 3 posts, events, resources, media items for GOT tenant
+  const gotPosts = [
+    { type: 'ANNOUNCEMENT', title: 'Feast of Houses — Fan Meetup', body: 'Join us for a themed feast and house competitions.', authorEmail: 'jon@got.example' },
+    { type: 'BLOG', title: 'A Reader\'s Guide to Westeros', body: 'Weekly deep dives into the lore and histories.', authorEmail: 'tyrion@got.example' },
+    { type: 'ANNOUNCEMENT', title: 'Costume Contest Rules', body: 'Rules and registration for the upcoming costume contest.', authorEmail: 'margaery@got.example' },
+  ];
+  for (const p of gotPosts) {
+    const author = createdUsers[p.authorEmail];
+    await prisma.post.create({ data: { tenantId: gotTenant.id, authorUserId: author.id, type: p.type, title: p.title, body: p.body, isPublished: true, publishedAt: new Date() } });
+  }
+
+  const gotEvents = [
+    { title: 'Feast of Houses', description: 'A themed community feast with house competitions.', start: new Date('2025-12-06T18:00:00'), end: new Date('2025-12-06T22:00:00'), creator: 'jon@got.example' },
+    { title: 'Lore Discussion: The Long Night', description: 'Panel discussion and Q&A.', start: new Date('2025-12-10T19:00:00'), end: new Date('2025-12-10T21:00:00'), creator: 'daenerys@got.example' },
+    { title: 'Costume Workshop', description: 'Build and prep for the costume contest.', start: new Date('2025-12-03T10:00:00'), end: new Date('2025-12-03T13:00:00'), creator: 'margaery@got.example' },
+  ];
+  for (const e of gotEvents) {
+    const creator = createdUsers[e.creator];
+    await prisma.event.create({ data: { tenantId: gotTenant.id, createdByUserId: creator.id, title: e.title, description: e.description, startDateTime: e.start, endDateTime: e.end, locationText: 'Great Hall' } });
+  }
+
+  const gotResources = [
+    { title: 'House Sigils PDF', description: 'Printable house sigils for decorations.', fileUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/0/0f/House_sigils_sample.pdf', uploader: 'tyrion@got.example' },
+    { title: 'Lore Night Slides', description: 'Slides for the Long Night discussion.', fileUrl: 'https://example.com/got/lore-slides.pdf', uploader: 'jon@got.example' },
+    { title: 'Costume Checklist', description: 'Checklist and suppliers for costume builds.', fileUrl: 'https://example.com/got/costume-checklist.pdf', uploader: 'margaery@got.example' },
+  ];
+  for (const r of gotResources) {
+    const upl = createdUsers[r.uploader];
+    await prisma.resourceItem.create({ data: { tenantId: gotTenant.id, uploaderUserId: upl.id, title: r.title, description: r.description, fileUrl: r.fileUrl, fileType: 'PDF', visibility: 'PUBLIC' } });
+  }
+
+  const gotMedia = [
+    { type: 'PODCAST_AUDIO', title: 'Tales From Westeros - Ep1', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', author: 'tyrion@got.example' },
+    { type: 'SERMON_VIDEO', title: 'Fireside Chat: The North', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', author: 'jon@got.example' },
+    { type: 'PODCAST_AUDIO', title: 'Costume Makers Roundtable', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', author: 'margaery@got.example' },
+  ];
+  for (const m of gotMedia) {
+    const au = createdUsers[m.author];
+    await prisma.mediaItem.create({ data: { tenantId: gotTenant.id, authorUserId: au.id, type: m.type, title: m.title, description: '', embedUrl: m.embedUrl, publishedAt: new Date() } });
+  }
+
+  // Conversations/messages — a few sample threads
+  const convoA = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, participants: { create: [{ userId: createdUsers['jon@got.example'].id }, { userId: createdUsers['daenerys@got.example'].id }] } } });
+  await prisma.chatMessage.createMany({ data: [ { conversationId: convoA.id, userId: createdUsers['jon@got.example'].id, text: 'Ready for the Feast of Houses?', createdAt: new Date() }, { conversationId: convoA.id, userId: createdUsers['daenerys@got.example'].id, text: 'I will bring dragons (metaphorically).', createdAt: new Date() }, { conversationId: convoA.id, userId: createdUsers['jon@got.example'].id, text: 'Metaphorical dragons are still impressive.', createdAt: new Date() } ] });
+
+  const committee = await prisma.conversation.create({ data: { tenantId: gotTenant.id, name: 'Feast Planning Committee', isDirectMessage: false, participants: { create: [ { userId: createdUsers['tyrion@got.example'].id }, { userId: createdUsers['margaery@got.example'].id }, { userId: createdUsers['varys@got.example'].id } ] } } });
+  await prisma.chatMessage.createMany({ data: [ { conversationId: committee.id, userId: createdUsers['tyrion@got.example'].id, text: 'We need better napkin placement.', createdAt: new Date() }, { conversationId: committee.id, userId: createdUsers['margaery@got.example'].id, text: 'I will coordinate decor and judges.', createdAt: new Date() }, { conversationId: committee.id, userId: createdUsers['varys@got.example'].id, text: 'I have informants in the kitchens.', createdAt: new Date() } ] });
+
+  console.log('🎭 Game of Thrones tenant and sample content seeded.');
+
   console.log('\n🎉 Springfield Community Church seed completed!');
   console.log('📍 Tenant Slug: springfield-church');
   console.log('\n👑 PLATFORM ADMINISTRATOR:');

@@ -162,7 +162,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
                         <li key={post.id} className="p-4 hover:bg-gray-50 cursor-pointer" onClick={() => onNavigate(`posts/${post.id}`)}>
                             <div className="text-sm font-semibold text-gray-800">{post.title}</div>
                             <div className="text-xs text-gray-500 mt-1">
-                                By {post.author.profile?.displayName} on {new Date(post.publishedAt).toLocaleDateString()}
+                              By {post.author?.profile?.displayName ?? 'Unknown'} on {new Date(post.publishedAt).toLocaleDateString()}
                             </div>
                         </li>
                     )) : (

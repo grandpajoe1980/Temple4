@@ -24,7 +24,14 @@ export default async function TenantCalendarNewPage({ params }: { params: Promis
   }
 
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-  const cookieHeader = cookies().toString();
+  let cookieHeader = '';
+  try {
+    const cookieStore = await cookies();
+    const all = (cookieStore as any).getAll ? (cookieStore as any).getAll() : [];
+    cookieHeader = Array.isArray(all) ? all.map((c: any) => `${c.name}=${c.value}`).join('; ') : (cookieStore?.toString?.() || '');
+  } catch (e) {
+    cookieHeader = '';
+  }
 
   const eventsResponse = await fetch(`${baseUrl}/api/tenants/${tenant.id}/events`, {
     headers: {

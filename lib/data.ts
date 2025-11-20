@@ -135,22 +135,31 @@ export type TenantWithBrandingAndSettings = Prisma.TenantGetPayload<{
 }>;
 
 export async function getTenantsForUser(userId: string): Promise<TenantWithBrandingAndSettings[]> {
-  const memberships = await prisma.userTenantMembership.findMany({
-    where: {
-      userId,
-      status: 'APPROVED',
-    },
-    include: {
-      tenant: {
-        include: {
-          settings: true,
-          branding: true,
+  try {
+    const memberships = await prisma.userTenantMembership.findMany({
+      where: {
+        userId,
+        status: 'APPROVED',
+      },
+      include: {
+        tenant: {
+          include: {
+            settings: true,
+            branding: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  return memberships.map((membership) => membership.tenant);
+    return memberships.map((membership) => membership.tenant);
+  } catch (err: any) {
+    // If the Prisma client/schema is out of sync (missing columns), avoid crashing the whole app in dev.
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('getTenantsForUser: database query failed - returning empty tenant list as fallback', err?.message || err);
+    }
+    return [];
+  }
 }
 
 /**

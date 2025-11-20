@@ -222,8 +222,8 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
             </button>
           </div>
         )}
-        {messages.map((msg) => {
-           const userCanDelete = deletePermissions[msg.id] ?? msg.userId === currentUser.id || currentUser.isSuperAdmin;
+          {messages.map((msg) => {
+            const userCanDelete = (deletePermissions[msg.id] ?? (msg.userId === currentUser.id)) || currentUser.isSuperAdmin;
            const isOwnMessage = msg.userId === currentUser.id;
            return (
             <div

@@ -6,6 +6,22 @@
 
 ---
 
+## Session 4: 2025-11-20T03:15 - Authenticated Test Harness and DB Reset
+
+### Activities
+- Applied all Prisma migrations and reseeded the SQLite database to restore missing tables and baseline Springfield test data.
+- Fixed the messaging client import path to use the shared normalizers module, resolving the runtime module resolution error on `/messages`.
+- Added `test-suite/utils.ts` with helpers to parse multi-cookie `Set-Cookie` headers and perform credential logins with CSRF tokens; updated all test suites and the runner to use the normalized session cookies.
+- Verified credential login via helper to ensure `next-auth.session-token` is captured for subsequent authenticated requests.
+
+### Testing
+- `npm run test:suite` (latest run): 86 total; 71 passed; 9 failed; 6 errors; remaining gaps are tenant creation/content creation validation, community posts requiring auth, facilities endpoints returning 500, and upload tests still unauthenticated.【63cf83†L1-L35】【0c50d7†L1-L25】
+- `npx ts-node -O '{"module":"CommonJS"}' -e "const {performCredentialsLogin}=require('./test-suite/utils'); (async()=>{const {cookieHeader}=await performCredentialsLogin('homer@simpson.com','doh123'); console.log(cookieHeader);})();"` to confirm session cookies returned after CSRF-assisted login.【435830†L1-L7】
+
+### Notes / Next Steps
+- Authenticated cookies now flow through feature/API/upload suites; membership flows and profile pages run with real sessions instead of anonymous calls.
+- Remaining failing tests stem from validation/authorization responses (400/401/403) on tenant creation and content creation plus file upload auth gaps; facilities admin endpoints currently return 500 and need follow-up.
+
 ## Session 2: 2025-11-17T18:02 - Systematic Implementation Following todo.md
 
 ### Startup Checklist (Per Instructions)

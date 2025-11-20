@@ -10,6 +10,7 @@ import { FeatureTestSuite } from './feature-tests';
 import { UploadTestSuite } from './upload-tests';
 import { EmailTestSuite } from './email-tests';
 import TEST_CONFIG from './test-config';
+import { normalizeSetCookieHeader, performCredentialsLogin } from './utils';
 
 async function checkServerAvailability(): Promise<boolean> {
   try {
@@ -77,10 +78,13 @@ async function main() {
             redirect: 'manual',
           });
 
-          const cookies = loginResponse.headers.get('set-cookie');
-          if (cookies) {
+          const { cookieHeader } = await performCredentialsLogin(
+            TEST_CONFIG.testUsers.admin.email,
+            TEST_CONFIG.testUsers.admin.password
+          );
+          if (cookieHeader) {
             const membersResponse = await fetch(`${TEST_CONFIG.apiBaseUrl}/tenants/${springfieldTenantId}/members`, {
-              headers: { Cookie: cookies },
+              headers: { Cookie: cookieHeader },
             });
             
             if (membersResponse.ok) {

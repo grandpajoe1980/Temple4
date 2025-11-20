@@ -7,7 +7,7 @@ import MessageStream from './MessageStream';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import NewMessageModal from './NewMessageModal';
-import { normalizeConversation } from '../messages/normalizers';
+import { normalizeConversation } from '@/app/messages/normalizers';
 
 interface MessagesPageProps {
   currentUser: User;

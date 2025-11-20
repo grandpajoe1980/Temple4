@@ -5,6 +5,7 @@
 
 import TEST_CONFIG from './test-config';
 import { TestLogger } from './test-logger';
+import { performCredentialsLogin } from './utils';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -43,24 +44,13 @@ export class UploadTestSuite {
       category,
       'Setup: Login and get tenant',
       async () => {
-        // Login
-        const loginResponse = await fetch(`${TEST_CONFIG.apiBaseUrl}/auth/callback/credentials`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            email: TEST_CONFIG.testUsers.admin.email,
-            password: TEST_CONFIG.testUsers.admin.password,
-            callbackUrl: `${TEST_CONFIG.baseUrl}/`,
-            json: 'true',
-          }),
-          redirect: 'manual',
-        });
+        const { loginResponse, cookieHeader } = await performCredentialsLogin(
+          TEST_CONFIG.testUsers.admin.email,
+          TEST_CONFIG.testUsers.admin.password
+        );
 
         if (loginResponse.ok || loginResponse.status === 302) {
-          const setCookie = loginResponse.headers.get('set-cookie');
-          if (setCookie) {
-            this.authToken = setCookie;
-          }
+          this.authToken = cookieHeader;
         }
 
         // Get tenant list

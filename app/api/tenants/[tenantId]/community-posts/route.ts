@@ -103,11 +103,11 @@ export async function POST(
 
     try {
         const membership = await getMembershipForUserInTenant(userId, resolvedParams.tenantId);
-        if (!membership) {
+        if (!membership || membership.status !== 'APPROVED') {
             return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
-        const tenant = await prisma.tenant.findUnique({ 
+        const tenant = await prisma.tenant.findUnique({
             where: { id: resolvedParams.tenantId },
             include: { settings: true }
         });
@@ -123,11 +123,6 @@ export async function POST(
         const user = await prisma.user.findUnique({ where: { id: userId } });
         if (!user) {
             return NextResponse.json({ message: 'User not found' }, { status: 404 });
-        }
-
-        const canCreate = await can(user, tenant, 'canManagePrayerWall');
-        if (!canCreate) {
-            return NextResponse.json({ message: 'You do not have permission to create a prayer request.' }, { status: 403 });
         }
 
         const newPost = await prisma.communityPost.create({

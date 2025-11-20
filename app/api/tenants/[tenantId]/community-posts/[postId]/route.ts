@@ -29,12 +29,21 @@ export async function PUT(
     }
 
     try {
-        const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
+        const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, include: { settings: true } });
         if (!tenant) {
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
 
-        const canUpdate = await can(userId, tenant, 'canManagePrayerWall');
+        if (!tenant.settings?.enablePrayerWall) {
+            return NextResponse.json({ message: 'Prayer wall is not enabled for this tenant' }, { status: 403 });
+        }
+
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return NextResponse.json({ message: 'User not found' }, { status: 404 });
+        }
+
+        const canUpdate = await can(user, tenant, 'canManagePrayerWall');
         if (!canUpdate) {
             return NextResponse.json({ message: 'You do not have permission to manage the prayer wall.' }, { status: 403 });
         }

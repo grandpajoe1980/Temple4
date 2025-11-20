@@ -3,9 +3,33 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, EnrichedCommunityPost } from '@/types';
 import { CommunityPostStatus } from '@/types';
-import { getCommunityPostsForTenant, updateCommunityPostStatus } from '@/lib/data';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
+
+async function fetchCommunityPosts(tenantId: string, includePrivate?: boolean) {
+  const search = includePrivate ? '?includePrivate=true' : '';
+  const response = await fetch(`/api/tenants/${tenantId}/community-posts${search}`, { cache: 'no-store' });
+
+  if (!response.ok) {
+    throw new Error('Unable to load community posts');
+  }
+
+  return response.json();
+}
+
+async function updateCommunityPostStatus(tenantId: string, postId: string, status: CommunityPostStatus) {
+  const response = await fetch(`/api/tenants/${tenantId}/community-posts/${postId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Unable to update post status');
+  }
+
+  return response.json();
+}
 
 interface PrayerWallTabProps {
   tenant: Tenant;
@@ -25,7 +49,7 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
     const loadPosts = async () => {
       setIsLoading(true);
       try {
-        const posts = await getCommunityPostsForTenant(tenant.id, true);
+        const posts = await fetchCommunityPosts(tenant.id, true);
         setAllPosts(posts as any);
       } catch (error) {
         console.error('Failed to load prayer wall posts:', error);
@@ -38,7 +62,7 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
 
   const handleStatusChange = async (postId: string, newStatus: CommunityPostStatus) => {
     if (window.confirm(`Are you sure you want to change this post's status to ${newStatus}?`)) {
-        await updateCommunityPostStatus(postId, newStatus);
+        await updateCommunityPostStatus(tenant.id, postId, newStatus);
         onRefresh();
     }
   };
@@ -47,7 +71,7 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
     // For now, we'll just set the status to something that hides it. A real delete would be better.
      if (window.confirm(`Are you sure you want to delete this post? This cannot be undone.`)) {
         // This is a mock for delete. A real implementation would remove the record.
-        await updateCommunityPostStatus(postId, 'DELETED' as any);
+        await updateCommunityPostStatus(tenant.id, postId, 'DELETED' as any);
         onRefresh();
     }
   }

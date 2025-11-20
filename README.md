@@ -289,3 +289,45 @@ For issues or questions:
 2. Review documentation in `test-suite/`
 3. Check server logs
 4. Open an issue on GitHub
+
+## Troubleshooting: Proxy and SSL
+
+If you're behind a corporate proxy or encountering SSL certificate validation errors during `npm install` or `npx prisma generate`, the repository includes a helper script to temporarily clear proxy settings and disable Node.js TLS certificate validation for the current PowerShell session.
+
+NOTE: Disabling TLS certificate validation is insecure. Only use this for local troubleshooting and in trusted networks. Prefer configuring trusted certificates or using an authenticated corporate CA instead.
+
+Windows PowerShell (recommended) — temporary (current session only):
+
+```powershell
+# Clear proxy and disable TLS validation for this PowerShell session
+.
+\scripts\clear-proxy-and-disable-ssl.ps1
+
+# Now run install or generate commands in the same session
+npm install
+npx prisma generate
+```
+
+Windows PowerShell (permanent environment variable; use with caution):
+
+```powershell
+# Clear proxy and set NODE_TLS_REJECT_UNAUTHORIZED permanently (use with care)
+.
+\scripts\clear-proxy-and-disable-ssl.ps1 -Permanent
+```
+
+Quick manual commands (PowerShell):
+
+```powershell
+# Remove environment variables in current session only
+Remove-Item Env:HTTP_PROXY -ErrorAction SilentlyContinue
+Remove-Item Env:HTTPS_PROXY -ErrorAction SilentlyContinue
+Remove-Item Env:NO_PROXY -ErrorAction SilentlyContinue
+# Reset WinHTTP proxy
+netsh winhttp reset proxy
+# Temporarily disable Node TLS in current session
+$env:NODE_TLS_REJECT_UNAUTHORIZED='0'
+```
+
+If you need help reverting these changes or configuring safe alternatives (trusted certificates, local CA, or per-client TLS settings), contact your system administrator or the project maintainers.
+

@@ -397,6 +397,11 @@ export async function getMembershipForUserInTenant(userId: string, tenantId: str
         tenantId,
       }
     },
+    include: {
+      roles: {
+        select: { role: true },
+      },
+    },
   });
 }
 

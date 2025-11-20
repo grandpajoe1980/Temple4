@@ -53,8 +53,18 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
     setIsLoading(true);
     try {
       const response = await fetch(`/api/tenants/${tenant.id}/facilities`);
-      const data = await response.json();
-      setFacilities(data ?? []);
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        console.error('Failed to load facilities', response.status, text);
+        setFacilities([]);
+        return;
+      }
+
+      // read text first to handle empty responses without throwing
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : [];
+      setFacilities(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to load facilities', error);
     } finally {

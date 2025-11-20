@@ -27,19 +27,34 @@ const facilitySchema = z.object({
 });
 
 export async function GET(request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
-  const { tenantId } = await params;
-  const session = await getServerSession(authOptions);
-  const userId = (session?.user as any)?.id ?? null;
-  let includeInactive = false;
+  try {
+    const { tenantId } = await params;
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as any)?.id ?? null;
+    let includeInactive = false;
 
-  if (userId) {
-    const membership = await getMembershipForUserInTenant(userId, tenantId);
-    includeInactive = membership?.status === 'APPROVED' && membership.roles.some((role: { role: TenantRole }) => role.role === TenantRole.ADMIN);
+    if (userId) {
+      try {
+        const membership = await getMembershipForUserInTenant(userId, tenantId);
+        const roles = (membership as any)?.roles;
+        includeInactive = membership?.status === 'APPROVED' && Array.isArray(roles) && roles.some((role: any) => role?.role === TenantRole.ADMIN);
+      } catch (err) {
+        // Log and continue with includeInactive=false
+        // eslint-disable-next-line no-console
+        console.error('Error loading membership for facilities GET', err);
+        includeInactive = false;
+      }
+    }
+
+    const facilities = await getFacilitiesForTenant(tenantId, { includeInactive });
+
+    return NextResponse.json(facilities);
+  } catch (err: any) {
+    // Ensure we always return a JSON error response and log the issue
+    // eslint-disable-next-line no-console
+    console.error('Facilities GET failed', err);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
-
-  const facilities = await getFacilitiesForTenant(tenantId, { includeInactive });
-
-  return NextResponse.json(facilities);
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ tenantId: string }> }) {

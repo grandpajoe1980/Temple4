@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState, useMemo } from 'react';
-import type { EnrichedDonationRecord } from '@/types';
+import React, { useEffect, useMemo, useState } from 'react';
+import type { DonationSettings, EnrichedDonationRecord } from '@/types';
 import { getDonationsForTenant, addDonationRecord } from '@/lib/data';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -9,23 +9,54 @@ import Input from '../ui/Input';
 import ToggleSwitch from '../ui/ToggleSwitch';
 
 interface DonationsPageProps {
-  tenant: any; // Has architectural issues, needs refactoring
-  user: any;
+  tenant: {
+    id: string;
+    name: string;
+    settings: { donationSettings: DonationSettings };
+  };
+  user: {
+    id: string;
+    profile: { displayName: string };
+  };
   onRefresh?: () => void;
 }
 
 interface LeaderboardProps {
-    tenant: any;
+    tenant: DonationsPageProps['tenant'];
+    donations: EnrichedDonationRecord[];
 }
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ tenant }) => {
+const leaderboardTimeframeFilter = (
+    donations: EnrichedDonationRecord[],
+    timeframe: DonationSettings['leaderboardTimeframe'],
+) => {
+    if (timeframe === 'ALL_TIME') return donations;
+
+    const now = new Date();
+    const startDate = new Date(now);
+    if (timeframe === 'YEARLY') {
+        startDate.setMonth(0, 1);
+        startDate.setHours(0, 0, 0, 0);
+    }
+    if (timeframe === 'MONTHLY') {
+        startDate.setDate(1);
+        startDate.setHours(0, 0, 0, 0);
+    }
+
+    return donations.filter((donation) => donation.donatedAt >= startDate);
+};
+
+const Leaderboard: React.FC<LeaderboardProps> = ({ tenant, donations }) => {
     const timeframe = tenant.settings.donationSettings.leaderboardTimeframe;
-    const donations = useMemo(() => (getDonationsForTenant as any)(tenant.id), [tenant.id, timeframe]);
-    
+    const filteredDonations = useMemo(
+        () => leaderboardTimeframeFilter(donations, timeframe),
+        [donations, timeframe],
+    );
+
     const aggregatedDonations = useMemo(() => {
         const userTotals: { [key: string]: { total: number; name: string; avatar?: string } } = {};
 
-        donations.forEach((donation: any) => {
+        filteredDonations.forEach((donation) => {
             if (donation.isAnonymousOnLeaderboard) {
                 return;
             }
@@ -40,7 +71,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tenant }) => {
             .sort((a, b) => b.total - a.total)
             .slice(0, 10);
 
-    }, [donations]);
+    }, [filteredDonations]);
 
     return (
         <Card title={`Top Donors (${timeframe.replace('_', ' ').toLowerCase()})`}>
@@ -74,6 +105,24 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
   const [message, setMessage] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [donations, setDonations] = useState<EnrichedDonationRecord[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    getDonationsForTenant(tenant.id)
+      .then((records) => {
+        if (isMounted) {
+          setDonations(records);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to load donations', error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [tenant.id]);
 
   const handleDonate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,16 +131,22 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
         alert('Please enter a valid donation amount.');
         return;
     }
-    (addDonationRecord as any)(tenant.id, {
+    addDonationRecord(tenant.id, {
         userId: user.id,
         displayName: user.profile.displayName,
         amount,
         currency: settings.currency,
         message,
         isAnonymousOnLeaderboard: isAnonymous,
-    });
-    onRefresh?.();
-    setIsSubmitted(true);
+    })
+      .then(() => {
+        onRefresh?.();
+        setIsSubmitted(true);
+      })
+      .catch((error) => {
+        console.error('Failed to submit donation', error);
+        alert('Failed to submit donation. Please try again later.');
+      });
   };
   
   if (isSubmitted) {
@@ -128,7 +183,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Select an Amount ({settings.currency})</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {settings.suggestedAmounts.map((amount: any) => (
+                {settings.suggestedAmounts.map((amount: number) => (
                   <button type="button" key={amount} onClick={() => setSelectedAmount(amount)}
                     className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === amount ? 'bg-amber-100 border-amber-500 text-amber-800' : 'bg-white border-gray-300 hover:border-amber-400'}`}
                   >
@@ -198,7 +253,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
         </div>
         <div className="lg:col-span-1">
              {settings.leaderboardEnabled && (
-                <Leaderboard tenant={tenant} />
+                <Leaderboard tenant={tenant} donations={donations} />
             )}
         </div>
       </div>

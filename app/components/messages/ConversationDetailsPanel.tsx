@@ -25,15 +25,15 @@ const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ con
         membership: null,
       }))
       .filter((p): p is EnrichedParticipant => p !== null)
-    .sort((a,b) => {
+      .sort((a, b) => {
         const roleOrder = { [TenantRole.ADMIN]: 0, [TenantRole.STAFF]: 1, [TenantRole.CLERGY]: 1, [TenantRole.MODERATOR]: 2, [TenantRole.MEMBER]: 3 };
         const aRole = a.roles[0] || TenantRole.MEMBER;
         const bRole = b.roles[0] || TenantRole.MEMBER;
         if (roleOrder[aRole] < roleOrder[bRole]) return -1;
         if (roleOrder[aRole] > roleOrder[bRole]) return 1;
         return a.profile.displayName.localeCompare(b.profile.displayName);
-    });
-  }, [conversation.participants, tenant.id]);
+      });
+  }, [conversation.participants]);
 
   const roleColors: { [key: string]: string } = {
     ADMIN: 'bg-red-100 text-red-800',

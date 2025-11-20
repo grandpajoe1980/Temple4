@@ -30,7 +30,7 @@ const PrayerPostCard: React.FC<PrayerPostCardProps> = ({ post }) => {
                 <img className="h-8 w-8 rounded-full" src={post.authorAvatarUrl} alt={post.authorDisplayName} />
                 <div>
                     <p className="text-sm font-medium text-gray-800">{post.authorDisplayName}</p>
-                    <p className="text-xs text-gray-500">{post.createdAt.toLocaleDateString()}</p>
+               <p className="text-xs text-gray-500">{(post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt)).toLocaleDateString()}</p>
                 </div>
             </div>
             <Button variant="secondary" size="sm">

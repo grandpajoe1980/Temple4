@@ -1,12 +1,16 @@
 import React from 'react';
+import Link from 'next/link';
 import type { PostWithAuthor } from '@/types';
 import Card from '../ui/Card';
+import CommentsSection, { CurrentUser } from './CommentsSection';
 
 interface PostCardProps {
   post: PostWithAuthor;
+  tenantId: string;
+  currentUser: CurrentUser;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, tenantId, currentUser }) => {
   const postTypeStyles = {
     ANNOUNCEMENT: 'bg-blue-100 text-blue-800',
     BLOG: 'bg-green-100 text-green-800',
@@ -41,13 +45,16 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         </div>
         <div className="bg-gray-50 px-6 py-3 flex items-center justify-between text-sm">
             <div className="flex items-center space-x-3">
-                <img className="h-8 w-8 rounded-full" src={post.authorAvatarUrl} alt={post.authorDisplayName} />
-                <span className="font-medium text-gray-800">{post.authorDisplayName}</span>
+                <Link href={`/profile/${post.authorUserId}`} className="flex items-center space-x-2">
+                  <img className="h-8 w-8 rounded-full" src={post.authorAvatarUrl || '/placeholder-avatar.svg'} alt={post.authorDisplayName} />
+                  <span className="font-medium text-gray-800 hover:text-amber-700">{post.authorDisplayName}</span>
+                </Link>
             </div>
             <time dateTime={post.publishedAt.toISOString()} className="text-gray-500">
                 {post.publishedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </time>
         </div>
+        <CommentsSection tenantId={tenantId} postId={post.id} currentUser={currentUser} />
     </Card>
   );
 };

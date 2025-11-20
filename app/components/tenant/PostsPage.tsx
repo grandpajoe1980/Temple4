@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import type { PostInput, PostWithAuthor } from '@/types';
-import type { Tenant, User } from '@prisma/client';
+import type { Tenant } from '@prisma/client';
+import type { CurrentUser } from './CommentsSection';
 import Button from '../ui/Button';
 import PostCard from './PostCard';
 import Modal from '../ui/Modal';
@@ -11,7 +12,7 @@ import { useToast } from '../ui/Toast';
 
 interface PostsPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
-  user: User;
+  user: CurrentUser;
   posts: PostWithAuthor[];
   canCreate: boolean;
 }
@@ -67,7 +68,7 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
       {posts.length > 0 ? (
         <div className="space-y-6">
           {posts.map((post: any) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.id} post={post} tenantId={tenant.id} currentUser={user} />
           ))}
         </div>
       ) : (

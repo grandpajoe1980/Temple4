@@ -1881,3 +1881,16 @@ Email providers supported: 3 (Resend, SendGrid, Mock)
 
 ### Notes
 - Ran `npm run lint` to ensure the patch stayed within the existing linting constraints.
+
+## Session 23: 2025-11-20T10:45Z - Donation endpoint tenant isolation
+
+### Goal
+- Close the remaining Ticket #0007 gap by enforcing tenant membership on donation settings and leaderboard/recording endpoints.
+
+### Activities
+- Wrapped donation settings and record routes in `getTenantContext` to ensure private tenants are inaccessible to non-members and to return consistent 404/403 responses for unauthorized access.
+- Required approved membership for member-only leaderboards and for donation submissions when the tenant is not public.
+- Documented the donation hardening in `todo2.md` under Ticket #0007.
+
+### Notes
+- `npm run build` currently fails due to pre-existing messaging route/type issues (duplicate `conversation` identifier and missing `../messages/normalizers` import resolution); rerun once those upstream errors are addressed.

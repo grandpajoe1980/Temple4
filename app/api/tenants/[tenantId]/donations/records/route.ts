@@ -4,7 +4,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
-import { DonationSettings } from '@/types';
+import { DonationSettings, MembershipStatus } from '@/types';
+import { getTenantContext } from '@/lib/tenant-context';
 
 const donationRecordSchema = z.object({
   amount: z.number().positive('Amount must be positive'),
@@ -24,28 +25,33 @@ export async function GET(
   const userId = (session?.user as any)?.id;
 
   try {
-    // Check if donations are enabled
-    const tenantSettings = await prisma.tenantSettings.findUnique({
-      where: { tenantId },
-      select: {
-        enableDonations: true,
-        donationSettings: true,
-      }
-    });
+    const context = await getTenantContext(tenantId, userId);
 
-    if (!tenantSettings || !tenantSettings.enableDonations) {
+    if (!context) {
+      return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+    }
+
+    if (!context.tenant.settings?.enableDonations) {
       return NextResponse.json(
         { message: 'Donations are not enabled for this tenant' },
         { status: 403 }
       );
     }
 
-    const donationSettings = tenantSettings.donationSettings as any as DonationSettings;
+    const donationSettings = context.tenant.settings
+      ?.donationSettings as DonationSettings | null;
+
+    if (!donationSettings) {
+      return NextResponse.json({ message: 'Donation settings not found' }, { status: 404 });
+    }
 
     // Check leaderboard visibility
     if (donationSettings.leaderboardVisibility === 'MEMBERS_ONLY') {
       const canView = await canUserViewContent(userId, tenantId, 'posts');
-      if (!canView) {
+      const isApprovedMember =
+        context.membership?.status === MembershipStatus.APPROVED;
+
+      if (!canView || !isApprovedMember) {
         return NextResponse.json(
           { message: 'You must be a member to view the donation leaderboard' },
           { status: 403 }
@@ -119,23 +125,33 @@ export async function POST(
   const userId = (session?.user as any)?.id;
 
   try {
-    // Check if donations are enabled
-    const tenantSettings = await prisma.tenantSettings.findUnique({
-      where: { tenantId },
-      select: {
-        enableDonations: true,
-        donationSettings: true,
-      }
-    });
+    const context = await getTenantContext(tenantId, userId);
 
-    if (!tenantSettings || !tenantSettings.enableDonations) {
+    if (!context) {
+      return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+    }
+
+    if (!context.tenant.settings?.enableDonations) {
       return NextResponse.json(
         { message: 'Donations are not enabled for this tenant' },
         { status: 403 }
       );
     }
 
-    const donationSettings = tenantSettings.donationSettings as any as DonationSettings;
+    const donationSettings = context.tenant.settings
+      ?.donationSettings as DonationSettings | null;
+
+    if (!donationSettings) {
+      return NextResponse.json({ message: 'Donation settings not found' }, { status: 404 });
+    }
+
+    const isApprovedMember = context.membership?.status === MembershipStatus.APPROVED;
+    if (!context.isPublic && !isApprovedMember) {
+      return NextResponse.json(
+        { message: 'Membership approval is required to donate to this tenant' },
+        { status: 403 }
+      );
+    }
 
     // Validate input
     const body = await request.json();

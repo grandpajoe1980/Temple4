@@ -633,6 +633,7 @@ Verify and enforce that messaging and donations never leak data across tenants.
 - No existing passing tests regress.
 
 **Progress (Session update):** Tenant‑scoped conversation endpoints now enforce approved membership before listing or reading messages, preventing users from accessing conversations tied to tenants they do not belong to. Conversation listings also apply tenant scoping at the query level so cross‑tenant threads are filtered out before unread counts or participant data are loaded. Message deletion now also validates approved membership before allowing a tenant‑bound chat message to be removed, closing the remaining gap for cross‑tenant participants.
+**Progress (Session update):** Donation settings and leaderboard/recording endpoints now resolve tenant access through `getTenantContext`, require approved membership for private tenants, and block member‑only leaderboards unless the requester belongs to the tenant, closing the remaining tenant isolation gaps in donations.
 
 ---
 

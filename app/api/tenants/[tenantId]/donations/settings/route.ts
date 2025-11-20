@@ -4,9 +4,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { hasRole } from '@/lib/permissions';
 import { z } from 'zod';
-import { DonationSettings } from '@/types';
-import {  } from '@prisma/client';
-import { TenantRole } from '@/types';
+import { DonationSettings, MembershipStatus, TenantRole } from '@/types';
+import { getTenantContext } from '@/lib/tenant-context';
 
 const donationSettingsSchema = z.object({
   mode: z.enum(['EXTERNAL', 'INTEGRATED']),
@@ -29,28 +28,33 @@ export async function GET(
   const session = await getServerSession(authOptions);
 
   try {
-    // Check if donations are enabled for this tenant
-    const tenantSettings = await prisma.tenantSettings.findUnique({
-      where: { tenantId },
-      select: {
-        enableDonations: true,
-        donationSettings: true,
-      }
-    });
+    const context = await getTenantContext(tenantId, (session?.user as any)?.id);
 
-    if (!tenantSettings) {
+    if (!context) {
       return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
     }
 
-    if (!tenantSettings.enableDonations) {
+    if (!context.tenant.settings?.enableDonations) {
       return NextResponse.json(
         { message: 'Donations are not enabled for this tenant' },
         { status: 403 }
       );
     }
 
-    // Parse and validate donation settings
-    const donationSettings = tenantSettings.donationSettings as any as DonationSettings;
+    const donationSettings = context.tenant.settings
+      ?.donationSettings as DonationSettings | null;
+
+    if (!donationSettings) {
+      return NextResponse.json({ message: 'Donation settings not found' }, { status: 404 });
+    }
+
+    const isApprovedMember = context.membership?.status === MembershipStatus.APPROVED;
+    if (!context.isPublic && !isApprovedMember) {
+      return NextResponse.json(
+        { message: 'You must be an approved member to view donation settings' },
+        { status: 403 }
+      );
+    }
 
     return NextResponse.json(donationSettings);
   } catch (error) {

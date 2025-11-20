@@ -21,7 +21,7 @@ import {
   BookingStatus,
   UserTenantRole,
 } from '@prisma/client';
-import { TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost, CommunityPostStatus, ContactSubmissionStatus } from '@/types';
+import { DonationRecord, EnrichedDonationRecord, TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost, CommunityPostStatus, ContactSubmissionStatus } from '@/types';
 import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
 
@@ -1488,12 +1488,19 @@ export async function getBooksForTenant(tenantId: string) {
     }));
 }
 
-export async function getDonationsForTenant(tenantId: string) {
+export type DonationRecordInput = Omit<DonationRecord, 'tenantId' | 'donatedAt' | 'id'> & {
+    userAvatarUrl?: string;
+};
+
+export async function getDonationsForTenant(tenantId: string): Promise<EnrichedDonationRecord[]> {
     // TODO: Implement donations fetching
     return [];
 }
 
-export async function addDonationRecord(tenantId: string, donationData: any) {
+export async function addDonationRecord(
+    tenantId: string,
+    donationData: DonationRecordInput,
+): Promise<EnrichedDonationRecord | null> {
     // TODO: Implement donation record creation
     return null;
 }

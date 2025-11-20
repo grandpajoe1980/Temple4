@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { User, UserProfile, UserPrivacySettings, AccountSettings } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -25,7 +25,10 @@ export default function ProfileClientPage({ user: initialUser }: ProfileClientPa
   const [user, setUser] = useState(initialUser);
   const [isEditing, setIsEditing] = useState(false);
 
-  const canEdit = session?.user && ((session.user as any).id === user.id || (session.user as any).isSuperAdmin);
+  const canEdit = useMemo(
+    () => Boolean(session?.user && (session.user.id === user.id || session.user.isSuperAdmin)),
+    [session?.user, user.id],
+  );
 
   const handleUpdate = async (updatedData: Partial<{ profile: UserProfile, privacySettings: UserPrivacySettings, accountSettings: AccountSettings }>) => {
     if (!canEdit) return;

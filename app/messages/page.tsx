@@ -3,6 +3,7 @@ import { authOptions } from '../api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { getUserByEmail, getConversationsForUser } from '@/lib/data';
 import MessagesPageClient from './MessagesPageClient';
+import { mapUserForMessaging, normalizeConversation } from './normalizers';
 
 export default async function Page() {
   const session = await getServerSession(authOptions);
@@ -12,12 +13,17 @@ export default async function Page() {
   }
   
   const user = await getUserByEmail(session.user.email);
-  
+
   if (!user) {
     redirect('/auth/login');
   }
-  
+
   const conversations = await getConversationsForUser(user.id);
-  
-  return <MessagesPageClient user={user as any} initialConversations={conversations as any} />;
+
+  const mappedUser = mapUserForMessaging(user);
+  const enrichedConversations = conversations.map((conversation) =>
+    normalizeConversation(conversation, mappedUser.id)
+  );
+
+  return <MessagesPageClient user={mappedUser} initialConversations={enrichedConversations} />;
 }

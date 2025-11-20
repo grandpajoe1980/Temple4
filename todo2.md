@@ -146,6 +146,7 @@ Progress update:
 - Tenants landing flow now uses Prisma tenant payload types end-to-end, with `getTenantsForUser` returning tenants that include `settings` and `branding`, and the selector/client components consuming those typed objects without `as any` casts.
 - Tenant isolation helper now uses `Prisma.ModelName` typing for scoped model checks, eliminating the remaining `as any` cast in that guardrail.
 - Podcasts client view now consumes Prisma-backed media DTOs with explicit Date hydration and profile-backed author avatars, removing the `as any` casts in `PodcastsPage`.
+- Messages view now maps server-fetched user and conversation data into typed DTOs before hydrating the client component, eliminating the `as any` casts on `app/messages/page.tsx`.
 
 Outcome: Strong, predictable type safety; easier refactors.
 

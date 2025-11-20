@@ -177,6 +177,13 @@ Tasks:
      - `lib/services/contentService.ts`, etc.
    - Route handlers should call these services; components should call APIs, not Prisma.
 
+4. Preferred pattern (documented):
+   - Shape for new work on high‑traffic slices such as tenant home/events:
+     - **Service layer**: Add `lib/services/eventService.ts` (and similar) that encapsulates Prisma queries and RSVP/visibility logic in plain functions callable from both API routes and server components.
+     - **API route**: Keep `/api/tenants/[tenantId]/events` thin, delegating data access and permission checks to the service, and normalizing responses via `withErrorHandling` and `ApiResponse` helpers.
+     - **Client/server boundary**: Have `app/tenants/[tenantId]/page.tsx` and `app/tenants/[tenantId]/calendar/page.tsx` consume the API (via `fetch`/`useSWR` or server `fetch`) instead of importing `getEventsForTenant` directly. Pass DTOs to client components (no Prisma types on the client).
+     - **Docs**: Capture the pattern in `lib/README.md` (component → API route → service → Prisma) with a short code sample so future slices reuse it.
+
 4. Extend docs:
    - In `lib/README.md` or `backend.md`, add a short section describing:
      - “Preferred pattern”: Component → API route → service → Prisma.
@@ -184,7 +191,7 @@ Tasks:
 Outcome: Clear layering, fewer cross‑cutting imports, easier to change backend behavior without touching UI.
 
 Progress update:
-- Tenant home + events slice now fetch data through `/api/tenants/[tenantId]/events`, `/api/tenants/[tenantId]/posts`, and a new `/api/tenants/[tenantId]/members/me` endpoint instead of importing Prisma helpers in client components; the events API now returns creator + RSVP context so the UI keeps existing capabilities while respecting the API boundary.
+- Tenant home + events slice: API endpoints exist for events, posts, and member context, but `app/tenants/[tenantId]/page.tsx` and `app/tenants/[tenantId]/calendar/page.tsx` still import `getEventsForTenant`/`getPostsForTenant` directly. Next step is to route those pages through the `/api/tenants/[tenantId]/events` endpoint (via a shared event service) and pass DTOs to `HomePageClient`/`CalendarPageClient`, removing direct Prisma/lib data imports from client-facing code.
 
 ---
 
@@ -698,3 +705,12 @@ Perform a focused, bounded accessibility and UX pass on **navigation + key auth/
 ---
 
 If you tell me which of these you want to tackle first (e.g., “start with type alignment” or “fix test suite”), I can draft the exact `tickets/00xx-*.md` file contents in your house style, ready to commit.
+
+---
+
+## Remaining client/server boundary hardening work (session summary)
+
+- Tenant home + calendar pages still rely on `getEventsForTenant`/`getPostsForTenant`; reroute both through `/api/tenants/[tenantId]/events` (and posts API where applicable) using a shared `eventService` to hydrate creator/RSVP context.
+- Codify the component → API route → service → Prisma pattern in `lib/README.md` with a short example so new slices follow the boundary automatically.
+- Add DTO mappers in the new service layer to ensure client components receive serialized, client-safe shapes (no Prisma types on the client).
+- Add a lightweight regression/integration test around `/api/tenants/[tenantId]/events` covering public vs member visibility to lock in the boundary once the pages switch to the API.

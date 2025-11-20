@@ -29,31 +29,48 @@ export async function GET(
         tenantId: resolvedParams.tenantId,
         deletedAt: null, // Filter out soft-deleted events
         ...(from && to && {
-            startDateTime: {
-                gte: new Date(from),
-                lte: new Date(to),
-            },
+          startDateTime: {
+            gte: new Date(from),
+            lte: new Date(to),
+          },
         }),
       },
       include: {
+        creator: {
+          include: {
+            profile: true,
+          },
+        },
         _count: {
           select: {
             rsvps: {
               where: {
-                status: { in: ['GOING', 'INTERESTED'] }
-              }
+                status: { in: ['GOING', 'INTERESTED'] },
+              },
+            },
+          },
+        },
+        ...(userId
+          ? {
+              rsvps: {
+                where: { userId },
+                select: { status: true },
+              },
             }
-          }
-        }
+          : {}),
       },
       orderBy: { startDateTime: 'asc' },
     });
 
-    // Transform to include RSVP counts
+    // Transform to include RSVP counts and creator details
     const eventsWithCounts = events.map((event: any) => ({
       ...event,
+      creatorDisplayName: event.creator.profile?.displayName || event.creator.email,
+      creatorAvatarUrl: event.creator.profile?.avatarUrl || null,
       rsvpCount: event._count.rsvps,
+      currentUserRsvpStatus: event.rsvps?.[0]?.status ?? null,
       _count: undefined, // Remove the _count field from response
+      rsvps: undefined,
     }));
 
     return NextResponse.json(eventsWithCounts);

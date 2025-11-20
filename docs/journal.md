@@ -1777,3 +1777,30 @@ Email providers supported: 3 (Resend, SendGrid, Mock)
 - Hook NotificationBell up to real-time sockets (Phase 8 dependency) once messaging stack stabilizes.
 - Continue polishing marketing/landing hero (Phase 2) now that the shell exists.
 - Expand reduced-motion tokens into component-level animation utilities.
+
+## Session 16: 2025-11-20T00:00Z - Type alignment on Tenants landing
+
+### Goal
+- Advance the top priority from `todo2.md` (Ticket #0002) by removing `as any` casts on the tenants landing flow and aligning it with Prisma types.
+
+### Activities
+- Updated `getTenantsForUser` to include `settings` and `branding` relations and return typed Prisma payloads instead of loosely typed tenants.
+- Refactored `app/tenants/page.tsx` to rely on the typed session user ID, Prisma include validator, and strongly typed tenant data passed to the client.
+- Updated `TenantsPageClient` and `TenantSelector` to consume Prisma tenant payloads directly, removing `as any` usage and redundant casting of tenant settings.
+
+### Notes
+- This removes several casts called out under Ticket #0002 and moves the tenants directory toward Prisma-as-source-of-truth type safety.
+- Did not run automated tests this session; the change is limited to typing and data shape alignment.
+
+## Session 17: 2025-11-20T02:40Z - Client/server boundary pilot for tenant home & events
+
+### Goal
+- Advance the next priority in `todo2.md` by routing tenant home + events traffic through API endpoints instead of client-side Prisma helpers.
+
+### Activities
+- Added `/api/tenants/[tenantId]/members/me` to expose the current user’s membership record to client components without direct Prisma imports.
+- Enriched `/api/tenants/[tenantId]/events` to return creator display data, RSVP counts, and viewer RSVP status alongside event timing.
+- Updated `HomePage` and `EventsPage` client components to fetch membership, events, and posts via API calls (with date normalization) while preserving existing create and RSVP flows.
+
+### Notes
+- Next step: continue the architecture pilot by moving surrounding tenant layout utilities (notifications, membership checks) onto API-backed helpers when feasible.

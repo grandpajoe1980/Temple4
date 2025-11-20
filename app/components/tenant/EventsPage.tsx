@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, Event, EventWithCreator } from '@/types';
-import { getEventsForTenant, addEvent as saveEvent } from '@/lib/data';
 import Button from '../ui/Button';
 import EventCard from './EventCard';
 import { can } from '@/lib/permissions';
@@ -37,8 +36,14 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
     const loadEvents = async () => {
       setIsLoading(true);
       try {
-        const eventData = await getEventsForTenant(tenant.id);
-        setEvents(eventData);
+        const response = await fetch(`/api/tenants/${tenant.id}/events`);
+        const eventData: EventWithCreator[] = await response.json();
+        const normalizedEvents = eventData.map((event) => ({
+          ...event,
+          startDateTime: new Date(event.startDateTime),
+          endDateTime: new Date(event.endDateTime),
+        }));
+        setEvents(normalizedEvents);
       } catch (error) {
         console.error('Failed to load events:', error);
       } finally {
@@ -53,14 +58,30 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
   const handleCreateEvent = async (eventData: Omit<Event, 'id' | 'tenantId' | 'createdByUserId'>) => {
     setIsSubmitting(true);
     try {
-      await saveEvent({
-        ...eventData,
-        tenantId: tenant.id,
-        createdByUserId: user.id,
+      const response = await fetch(`/api/tenants/${tenant.id}/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...eventData,
+          startDateTime: eventData.startDateTime.toISOString(),
+          endDateTime: eventData.endDateTime.toISOString(),
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to create event');
+      }
+
       // Reload events after creating
-      const updatedEvents = await getEventsForTenant(tenant.id);
-      setEvents(updatedEvents);
+      const updatedEventsResponse = await fetch(`/api/tenants/${tenant.id}/events`);
+      const updatedEvents: EventWithCreator[] = await updatedEventsResponse.json();
+      setEvents(
+        updatedEvents.map((event) => ({
+          ...event,
+          startDateTime: new Date(event.startDateTime),
+          endDateTime: new Date(event.endDateTime),
+        }))
+      );
       setIsModalOpen(false);
       toast.success('Event created successfully!');
     } catch (error) {

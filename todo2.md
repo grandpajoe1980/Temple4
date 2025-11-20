@@ -142,6 +142,9 @@ Tasks:
    - For major data helpers in `lib/data.ts`, add tests that:
      - Instantiate Prisma objects (or mocks) and ensure mapping functions produce the expected DTO shape.
 
+Progress update:
+- Tenants landing flow now uses Prisma tenant payload types end-to-end, with `getTenantsForUser` returning tenants that include `settings` and `branding`, and the selector/client components consuming those typed objects without `as any` casts.
+
 Outcome: Strong, predictable type safety; easier refactors.
 
 ---
@@ -176,6 +179,9 @@ Tasks:
      - “Preferred pattern”: Component → API route → service → Prisma.
 
 Outcome: Clear layering, fewer cross‑cutting imports, easier to change backend behavior without touching UI.
+
+Progress update:
+- Tenant home + events slice now fetch data through `/api/tenants/[tenantId]/events`, `/api/tenants/[tenantId]/posts`, and a new `/api/tenants/[tenantId]/members/me` endpoint instead of importing Prisma helpers in client components; the events API now returns creator + RSVP context so the UI keeps existing capabilities while respecting the API boundary.
 
 ---
 

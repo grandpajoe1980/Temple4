@@ -118,6 +118,19 @@ Prior work in WORK-JOURNAL.md shows:
 **Technical Decisions:**
 - Moved to async params (Next.js 16 requirement)
 - Used type assertions (as any) for Prisma/custom type mismatches temporarily
+
+---
+
+## Session 3: 2025-11-20T02:55 - Ticket #0003 Progress (Messaging Types)
+
+### Activities
+- Reviewed `todo2.md` top priorities and selected Ticket #0003 scope for messaging (removing `as any` on auth/tenant data).
+- Added `app/messages/normalizers.ts` to map Prisma payloads into UI DTOs for users, conversations, and messages.
+- Updated `app/messages/page.tsx` to hydrate the client with typed DTOs instead of `as any` casts.
+- Adjusted `app/components/messages/MessagesPage.tsx` to rely on the shared normalizer for newly created/fetched conversations.
+
+### Testing
+- `npm run test:suite` (fails: dev server not running in automation environment; suite aborts before execution). Plan: rerun after starting dev server or adapt harness to bootstrap server automatically.
 - Removed legacy Vite/CRA files that conflicted with Next.js App Router
 - Commented out Google Fonts due to network restrictions
 

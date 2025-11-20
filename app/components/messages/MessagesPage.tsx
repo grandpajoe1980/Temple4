@@ -1,12 +1,13 @@
 "use client"
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { User, EnrichedConversation, EnrichedChatMessage } from '@/types';
+import type { User, EnrichedConversation } from '@/types';
 import ConversationList from './ConversationList';
 import MessageStream from './MessageStream';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import NewMessageModal from './NewMessageModal';
+import { normalizeConversation } from '../messages/normalizers';
 
 interface MessagesPageProps {
   currentUser: User;
@@ -16,52 +17,6 @@ interface MessagesPageProps {
   initialActiveConversationId?: string | null;
 }
 
-function normalizeMessage(rawMessage: any): EnrichedChatMessage {
-  const user = rawMessage.user ?? rawMessage;
-  return {
-    ...rawMessage,
-    userDisplayName: user.profile?.displayName || user.email || 'Unknown user',
-    userAvatarUrl: user.profile?.avatarUrl || undefined,
-    createdAt: new Date(rawMessage.createdAt),
-  };
-}
-
-function normalizeConversation(conversation: any, currentUserId: string): EnrichedConversation {
-  const participants = (conversation.participants || []).map((participant: any) => {
-    const user = participant.user ?? participant;
-    return {
-      ...user,
-      profile: user.profile ?? participant.user?.profile ?? {},
-    };
-  });
-
-  const derivedIsDirect =
-    conversation.isDirect ??
-    conversation.isDirectMessage ??
-    (!conversation.name && participants.length <= 2);
-  const isDirect = Boolean(derivedIsDirect);
-  const otherParticipant = isDirect
-    ? participants.find((participant: any) => participant.id !== currentUserId)
-    : null;
-
-  const lastMessageRaw = conversation.lastMessage || conversation.messages?.[0];
-  const lastMessage = lastMessageRaw ? normalizeMessage(lastMessageRaw) : undefined;
-
-  return {
-    ...conversation,
-    participants,
-    isDirect,
-    displayName:
-      conversation.displayName ||
-      conversation.name ||
-      (isDirect && otherParticipant
-        ? otherParticipant.profile?.displayName || otherParticipant.email || 'Direct Message'
-        : 'Group Conversation'),
-    lastMessage,
-    unreadCount: conversation.unreadCount ?? 0,
-  };
-}
-
 const MessagesPage: React.FC<MessagesPageProps> = ({
   currentUser,
   initialConversations,
@@ -69,9 +24,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({
   onViewProfile,
   initialActiveConversationId
 }) => {
-  const [conversations, setConversations] = useState<EnrichedConversation[]>(() =>
-    initialConversations.map((conversation) => normalizeConversation(conversation, currentUser.id))
-  );
+  const [conversations, setConversations] = useState<EnrichedConversation[]>(initialConversations);
   const [searchTerm, setSearchTerm] = useState('');
   const [isNewMessageModalOpen, setIsNewMessageModalOpen] = useState(false);
   const [newlyCreatedConvId, setNewlyCreatedConvId] = useState<string | null>(null);

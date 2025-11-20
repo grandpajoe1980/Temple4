@@ -1,13 +1,19 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import type { Tenant, User, UserTenantMembership } from '@/types';
-import { getEventsForTenant, getMembershipForUserInTenant, getPostsForTenant, requestToJoinTenant } from '@/lib/data';
+import type { EventWithCreator, Tenant, User, UserTenantMembership } from '@/types';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import { MembershipStatus, MembershipApprovalMode } from '@/types';
 
 type TenantPage = 'home' | 'settings' | 'posts' | 'calendar' | 'sermons' | 'podcasts' | 'books' | 'members' | 'chat' | 'donations' | 'contact' | 'volunteering' | 'smallGroups' | 'liveStream';
+
+type PostListItem = {
+  id: string;
+  title: string;
+  publishedAt: Date;
+  author?: { profile?: { displayName?: string | null } | null } | null;
+};
 
 interface HomePageProps {
   tenant: Tenant;
@@ -18,15 +24,28 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh }) => {
   const [membership, setMembership] = useState<UserTenantMembership | null>(null);
-  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
-  const [recentPosts, setRecentPosts] = useState<any[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = useState<EventWithCreator[]>([]);
+  const [recentPosts, setRecentPosts] = useState<PostListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
     const loadData = async () => {
-      const membershipData = await getMembershipForUserInTenant(user.id, tenant.id);
+      setIsLoading(true);
+
+      const membershipResponse = await fetch(`/api/tenants/${tenant.id}/members/me`);
+
+      if (!isMounted) return;
+
+      if (membershipResponse.status === 401) {
+        setMembership(null);
+        setIsLoading(false);
+        return;
+      }
+
+      const membershipPayload = await membershipResponse.json();
+      const membershipData: UserTenantMembership | null = membershipPayload.membership ?? null;
 
       if (!isMounted) return;
 
@@ -37,13 +56,36 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
         return;
       }
 
-      const allEvents = await getEventsForTenant(tenant.id);
-      const allPosts = await getPostsForTenant(tenant.id);
+      const [eventsResponse, postsResponse] = await Promise.all([
+        fetch(`/api/tenants/${tenant.id}/events`),
+        fetch(`/api/tenants/${tenant.id}/posts?limit=3`),
+      ]);
+
+      const eventsData: EventWithCreator[] = await eventsResponse.json();
+      const postsPayload: { posts?: Array<{ id: string; title: string; publishedAt?: string; createdAt?: string; author?: { profile?: { displayName?: string | null } | null } | null }> } = await postsResponse.json();
 
       if (!isMounted) return;
 
-      setUpcomingEvents(allEvents.filter((e: any) => e.startDateTime > new Date()).slice(0, 3));
-      setRecentPosts(allPosts.slice(0, 3));
+      const normalizedEvents = eventsData
+        .map((event) => ({
+          ...event,
+          startDateTime: new Date(event.startDateTime),
+          endDateTime: new Date(event.endDateTime),
+        }))
+        .filter((event) => event.startDateTime > new Date())
+        .slice(0, 3);
+
+      const normalizedPosts = (postsPayload.posts ?? [])
+        .map<PostListItem>((post) => ({
+          id: post.id,
+          title: post.title,
+          author: post.author ?? null,
+          publishedAt: new Date(post.publishedAt ?? post.createdAt ?? new Date().toISOString()),
+        }))
+        .slice(0, 3);
+
+      setUpcomingEvents(normalizedEvents);
+      setRecentPosts(normalizedPosts);
       setIsLoading(false);
     };
 
@@ -55,9 +97,10 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
   }, [tenant.id, user.id]);
 
   const handleJoin = async () => {
-    await requestToJoinTenant(user.id, tenant.id);
-    const updatedMembership = await getMembershipForUserInTenant(user.id, tenant.id);
-    setMembership(updatedMembership);
+    await fetch(`/api/tenants/${tenant.id}/join`, { method: 'POST' });
+    const updatedMembershipResponse = await fetch(`/api/tenants/${tenant.id}/members/me`);
+    const updatedMembershipPayload = await updatedMembershipResponse.json();
+    setMembership(updatedMembershipPayload.membership ?? null);
     onRefresh();
   };
 

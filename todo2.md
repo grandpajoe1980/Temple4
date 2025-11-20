@@ -180,6 +180,9 @@ Tasks:
 
 Outcome: Clear layering, fewer cross‑cutting imports, easier to change backend behavior without touching UI.
 
+Progress update:
+- Tenant home + events slice now fetch data through `/api/tenants/[tenantId]/events`, `/api/tenants/[tenantId]/posts`, and a new `/api/tenants/[tenantId]/members/me` endpoint instead of importing Prisma helpers in client components; the events API now returns creator + RSVP context so the UI keeps existing capabilities while respecting the API boundary.
+
 ---
 
 ### 3.3 Bring the tests from 88.5% → “green” where practical

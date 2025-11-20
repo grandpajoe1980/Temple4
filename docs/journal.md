@@ -1791,3 +1791,16 @@ Email providers supported: 3 (Resend, SendGrid, Mock)
 ### Notes
 - This removes several casts called out under Ticket #0002 and moves the tenants directory toward Prisma-as-source-of-truth type safety.
 - Did not run automated tests this session; the change is limited to typing and data shape alignment.
+
+## Session 17: 2025-11-20T02:40Z - Client/server boundary pilot for tenant home & events
+
+### Goal
+- Advance the next priority in `todo2.md` by routing tenant home + events traffic through API endpoints instead of client-side Prisma helpers.
+
+### Activities
+- Added `/api/tenants/[tenantId]/members/me` to expose the current user’s membership record to client components without direct Prisma imports.
+- Enriched `/api/tenants/[tenantId]/events` to return creator display data, RSVP counts, and viewer RSVP status alongside event timing.
+- Updated `HomePage` and `EventsPage` client components to fetch membership, events, and posts via API calls (with date normalization) while preserving existing create and RSVP flows.
+
+### Notes
+- Next step: continue the architecture pilot by moving surrounding tenant layout utilities (notifications, membership checks) onto API-backed helpers when feasible.

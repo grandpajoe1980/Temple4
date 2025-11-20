@@ -75,3 +75,42 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ te
 
   return NextResponse.json(updated);
 }
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ tenantId: string; facilityId: string }> }) {
+  const { tenantId, facilityId } = await params;
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as any)?.id ?? null;
+
+  if (!userId) {
+    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  }
+
+  const tenant = await getTenantById(tenantId);
+  const user = await getUserById(userId);
+
+  if (!tenant || !user) {
+    return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+  }
+
+  const canManage = (await can(user, tenant as any, 'canManageFacilities')) || (await hasRole(userId, tenantId, [TenantRole.ADMIN]));
+
+  if (!canManage) {
+    return NextResponse.json({ message: 'You do not have permission to manage facilities.' }, { status: 403 });
+  }
+
+  try {
+    // delete facility (will cascade bookings/blackouts because of DB relations)
+    const { deleteFacility } = await import('@/lib/data');
+    const ok = await deleteFacility(tenantId, facilityId);
+
+    if (!ok) {
+      return NextResponse.json({ message: 'Facility not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Deleted' }, { status: 200 });
+  } catch (err: any) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to delete facility', err);
+    return NextResponse.json({ message: 'Unable to delete facility' }, { status: 500 });
+  }
+}

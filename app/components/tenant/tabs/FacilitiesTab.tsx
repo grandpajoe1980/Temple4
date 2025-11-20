@@ -26,6 +26,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [bookings, setBookings] = useState<FacilityBooking[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingFacilityId, setEditingFacilityId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [formState, setFormState] = useState({
     name: '',
@@ -141,7 +142,11 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
           <h3 className="text-xl font-semibold text-gray-900">Facilities</h3>
           <p className="text-gray-600 text-sm">Create and manage facilities and booking requests.</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>New Facility</Button>
+        <Button onClick={() => {
+          setEditingFacilityId(null);
+          setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '' });
+          setIsModalOpen(true);
+        }}>New Facility</Button>
       </div>
 
       <Card>
@@ -158,7 +163,20 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                     <p className="text-sm font-semibold text-gray-900">{facility.name}</p>
                     <p className="text-xs text-gray-600">{facility.type}</p>
                   </div>
-                  {!facility.isActive && <span className="text-xs text-red-600">Inactive</span>}
+                  <div className="flex items-center gap-3">
+                    {!facility.isActive && <span className="text-xs text-red-600">Inactive</span>}
+                    <Button size="sm" onClick={() => {
+                      setEditingFacilityId(facility.id);
+                      setFormState({
+                        name: facility.name ?? '',
+                        type: facility.type ?? 'ROOM',
+                        description: facility.description ?? '',
+                        location: facility.location ?? '',
+                        capacity: facility.capacity ? String(facility.capacity) : '',
+                      });
+                      setIsModalOpen(true);
+                    }}>Edit</Button>
+                  </div>
                 </div>
               </li>
             ))}
@@ -206,7 +224,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
         )}
       </Card>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Facility">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingFacilityId ? 'Edit Facility' : 'Create Facility'}>
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium text-gray-700">Name</label>
@@ -249,11 +267,95 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
               />
             </div>
           </div>
-          <div className="flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreate}>Create</Button>
+          <div className="flex justify-between items-center">
+            <div>
+              {editingFacilityId && (
+                <Button
+                  variant="danger"
+                  onClick={async () => {
+                    // confirm delete
+                    // eslint-disable-next-line no-restricted-globals
+                    if (!confirm('Delete this facility? This will remove related bookings.')) return;
+
+                    try {
+                      const res = await fetch(`/api/tenants/${tenant.id}/facilities/${editingFacilityId}`, { method: 'DELETE' });
+                      if (res.ok) {
+                        setIsModalOpen(false);
+                        setEditingFacilityId(null);
+                        setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '' });
+                        await loadFacilities();
+                        await loadBookings();
+                        onRefresh();
+                      } else {
+                        console.error('Failed to delete facility', await res.text());
+                      }
+                    } catch (err) {
+                      console.error('Failed to delete facility', err);
+                    }
+                  }}
+                >
+                  Delete
+                </Button>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button variant="secondary" onClick={() => { setIsModalOpen(false); setEditingFacilityId(null); }}>
+                Cancel
+              </Button>
+              <Button onClick={async () => {
+                // Save (create or update)
+                const payload: any = {
+                  name: formState.name,
+                  description: formState.description,
+                  type: formState.type,
+                  location: formState.location,
+                };
+
+                if (formState.capacity) payload.capacity = Number(formState.capacity);
+
+                try {
+                  if (editingFacilityId) {
+                    const res = await fetch(`/api/tenants/${tenant.id}/facilities/${editingFacilityId}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(payload),
+                    });
+
+                    if (res.ok) {
+                      setIsModalOpen(false);
+                      setEditingFacilityId(null);
+                      setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '' });
+                      await loadFacilities();
+                      await loadBookings();
+                      onRefresh();
+                    } else {
+                      console.error('Failed to update facility', await res.text());
+                    }
+                  } else {
+                    const res = await fetch(`/api/tenants/${tenant.id}/facilities`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(payload),
+                    });
+
+                    if (res.ok) {
+                      setIsModalOpen(false);
+                      setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '' });
+                      await loadFacilities();
+                      await loadBookings();
+                      onRefresh();
+                    } else {
+                      console.error('Failed to create facility', await res.text());
+                    }
+                  }
+                } catch (err) {
+                  console.error('Failed to save facility', err);
+                }
+              }}>
+                {editingFacilityId ? 'Save' : 'Create'}
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>

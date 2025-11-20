@@ -588,6 +588,17 @@ export async function updateFacility(tenantId: string, facilityId: string, data:
   });
 }
 
+export async function deleteFacility(tenantId: string, facilityId: string): Promise<boolean> {
+  assertFacilityClient();
+
+  const existing = await prisma.facility.findFirst({ where: { id: facilityId, tenantId } });
+
+  if (!existing) return false;
+  // Soft-delete: mark facility as inactive so it is hidden by default
+  await prisma.facility.update({ where: { id: existing.id }, data: { isActive: false } });
+  return true;
+}
+
 export async function checkFacilityAvailability(
   tenantId: string,
   facilityId: string,

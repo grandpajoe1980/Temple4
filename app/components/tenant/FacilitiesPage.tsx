@@ -25,6 +25,8 @@ const fallbackImages: Record<string, string> = {
 };
 
 export default function FacilitiesPage({ tenant, facilities, isMember }: FacilitiesPageProps) {
+  // Always hide inactive facilities on the public facilities listing page.
+  const visibleFacilities = facilities.filter((f) => f.isActive);
   return (
     <div className="space-y-8">
       <div className="space-y-3">
@@ -47,7 +49,7 @@ export default function FacilitiesPage({ tenant, facilities, isMember }: Facilit
         </div>
       )}
 
-      {facilities.length === 0 ? (
+      {visibleFacilities.length === 0 ? (
         <Card>
           <div className="py-12 text-center">
             <p className="text-lg font-semibold text-gray-700">No facilities are published yet.</p>
@@ -56,7 +58,7 @@ export default function FacilitiesPage({ tenant, facilities, isMember }: Facilit
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {facilities.map((facility) => (
+          {visibleFacilities.map((facility) => (
             <Card key={facility.id}>
               <div className="flex flex-col h-full gap-4">
                 <div className="relative h-40 w-full overflow-hidden rounded-lg bg-gray-100">

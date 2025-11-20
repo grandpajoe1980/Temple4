@@ -3,6 +3,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
+import { requireTenantAccess } from '@/lib/tenant-isolation';
 
 const messageCreateSchema = z.object({
   content: z.string().min(1, 'Message content is required').max(5000, 'Message too long'),
@@ -27,6 +28,29 @@ export async function GET(
   const userId = (session.user as { id: string }).id;
 
   try {
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { tenantId: true }
+    });
+
+    if (conversation?.tenantId) {
+      const membership = await prisma.userTenantMembership.findUnique({
+        where: {
+          userId_tenantId: {
+            userId,
+            tenantId: conversation.tenantId
+          }
+        },
+        select: { status: true }
+      });
+
+      try {
+        requireTenantAccess(membership, conversation.tenantId, userId);
+      } catch (error) {
+        return NextResponse.json({ message: 'You are not a member of this tenant' }, { status: 403 });
+      }
+    }
+
     // First check if the user is a participant in this conversation
     const participant = await prisma.conversationParticipant.findFirst({
       where: {
@@ -95,6 +119,29 @@ export async function POST(
   const userId = (session.user as { id: string }).id;
 
   try {
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { tenantId: true }
+    });
+
+    if (conversation?.tenantId) {
+      const membership = await prisma.userTenantMembership.findUnique({
+        where: {
+          userId_tenantId: {
+            userId,
+            tenantId: conversation.tenantId
+          }
+        },
+        select: { status: true }
+      });
+
+      try {
+        requireTenantAccess(membership, conversation.tenantId, userId);
+      } catch (error) {
+        return NextResponse.json({ message: 'You are not a member of this tenant' }, { status: 403 });
+      }
+    }
+
     // Check if the user is a participant in this conversation
     const participant = await prisma.conversationParticipant.findFirst({
       where: {
@@ -209,6 +256,29 @@ export async function PATCH(
   const userId = (session.user as { id: string }).id;
 
   try {
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { tenantId: true }
+    });
+
+    if (conversation?.tenantId) {
+      const membership = await prisma.userTenantMembership.findUnique({
+        where: {
+          userId_tenantId: {
+            userId,
+            tenantId: conversation.tenantId
+          }
+        },
+        select: { status: true }
+      });
+
+      try {
+        requireTenantAccess(membership, conversation.tenantId, userId);
+      } catch (error) {
+        return NextResponse.json({ message: 'You are not a member of this tenant' }, { status: 403 });
+      }
+    }
+
     const participant = await prisma.conversationParticipant.findFirst({
       where: {
         conversationId,

@@ -1831,3 +1831,16 @@ Email providers supported: 3 (Resend, SendGrid, Mock)
 
 ### Notes
 - Automated tests were not run for this small typing-only change; behavior is unchanged aside from safer typing.
+
+## Session 20: 2025-11-20T07:10Z - Tenant isolation guard for conversations
+
+### Goal
+- Address the top-priority security item in `todo2.md` (Ticket #0007) by enforcing tenant membership on messaging endpoints.
+
+### Activities
+- Updated `/api/conversations` listing to filter out tenant-scoped conversations unless the requester holds an approved membership for the tenant.
+- Added membership guards to `/api/conversations/[id]/messages` (GET/POST/PATCH) so message reads, sends, and read receipts all verify tenant access before proceeding.
+- Documented the progress in `todo2.md` under Ticket #0007.
+
+### Notes
+- Tests were not run in this short hardening pass; behavior changes are limited to additional access checks.

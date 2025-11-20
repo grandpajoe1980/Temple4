@@ -15,6 +15,19 @@ export async function GET(request: NextRequest) {
   const userId = (session.user as any).id;
 
   try {
+    const memberTenants = new Set<string>();
+
+    // Fetch tenant memberships for the current user to enforce isolation on tenant conversations
+    const memberships = await prisma.userTenantMembership.findMany({
+      where: {
+        userId,
+        status: 'APPROVED'
+      },
+      select: { tenantId: true }
+    });
+
+    memberships.forEach(membership => memberTenants.add(membership.tenantId));
+
     // Fetch conversations where user is a participant
     const conversations = await prisma.conversation.findMany({
       where: {
@@ -63,9 +76,14 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Filter out tenant-scoped conversations the user is not a valid member of
+    const accessibleConversations = conversations.filter(conversation =>
+      !conversation.tenantId || memberTenants.has(conversation.tenantId)
+    );
+
     // Calculate unread counts for each conversation
     const conversationsWithUnread = await Promise.all(
-      conversations.map(async (conversation: any) => {
+      accessibleConversations.map(async (conversation: any) => {
         const userParticipant = conversation.participants.find((p: any) => p.userId === userId);
         
         if (!userParticipant) {

@@ -5,6 +5,7 @@
 
 import TEST_CONFIG from './test-config';
 import { TestLogger } from './test-logger';
+import { normalizeSetCookieHeader, performCredentialsLogin } from './utils';
 
 export class APITestSuite {
   private logger: TestLogger;
@@ -58,26 +59,16 @@ export class APITestSuite {
       category,
       'POST /api/auth/callback/credentials',
       async () => {
-        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/auth/callback/credentials`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            email: TEST_CONFIG.testUsers.regular.email,
-            password: TEST_CONFIG.testUsers.regular.password,
-            callbackUrl: `${TEST_CONFIG.baseUrl}/`,
-            json: 'true',
-          }),
-          redirect: 'manual',
-        });
-        
-        if (response.ok || response.status === 302) {
-          const setCookie = response.headers.get('set-cookie');
-          if (setCookie) {
-            this.authToken = setCookie;
-          }
+        const { loginResponse, cookieHeader } = await performCredentialsLogin(
+          TEST_CONFIG.testUsers.regular.email,
+          TEST_CONFIG.testUsers.regular.password
+        );
+
+        if (loginResponse.ok || loginResponse.status === 302) {
+          this.authToken = cookieHeader;
         }
-        
-        return { response, expectedStatus: [200, 302] };
+
+        return { response: loginResponse, expectedStatus: [200, 302] };
       }
     );
 

@@ -5,6 +5,7 @@
 
 import TEST_CONFIG from './test-config';
 import { TestLogger } from './test-logger';
+import { performCredentialsLogin } from './utils';
 
 export class FeatureTestSuite {
   private logger: TestLogger;
@@ -69,25 +70,13 @@ export class FeatureTestSuite {
     this.logger.startTest(category, 'User Login Flow');
     try {
       // NextAuth uses credentials provider at /api/auth/callback/credentials
-      const loginResponse = await fetch(`${TEST_CONFIG.apiBaseUrl}/auth/callback/credentials`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          email: TEST_CONFIG.testUsers.regular.email,
-          password: TEST_CONFIG.testUsers.regular.password,
-          callbackUrl: `${TEST_CONFIG.baseUrl}/`,
-          json: 'true',
-        }),
-        redirect: 'manual',
-      });
+      const { loginResponse, cookieHeader } = await performCredentialsLogin(
+        TEST_CONFIG.testUsers.regular.email,
+        TEST_CONFIG.testUsers.regular.password
+      );
 
-      // NextAuth returns 200 on success with session cookie
       if (loginResponse.ok || loginResponse.status === 302) {
-        // Store session cookies for subsequent requests
-        const setCookie = loginResponse.headers.get('set-cookie');
-        if (setCookie) {
-          this.authToken = setCookie; // Store cookie for session-based auth
-        }
+        this.authToken = cookieHeader;
         this.logger.logPass(category, 'User Login Flow', { hasSession: !!this.authToken });
       } else {
         this.logger.logFail(

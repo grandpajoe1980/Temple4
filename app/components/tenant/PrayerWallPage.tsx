@@ -1,12 +1,36 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { getCommunityPostsForTenant, addCommunityPost } from '@/lib/data';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import PrayerPostCard from './PrayerPostCard';
 import SubmitPrayerPostForm from './forms/SubmitPrayerPostForm';
 import { CommunityPostStatus, CommunityPostType } from '@/types';
+
+async function fetchCommunityPosts(tenantId: string) {
+  const response = await fetch(`/api/tenants/${tenantId}/community-posts`, { cache: 'no-store' });
+
+  if (!response.ok) {
+    throw new Error('Unable to load community posts');
+  }
+
+  return response.json();
+}
+
+async function createCommunityPost(tenantId: string, data: { type: CommunityPostType; body: string; isAnonymous: boolean; authorUserId?: string | null; }) {
+  const response = await fetch(`/api/tenants/${tenantId}/community-posts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message || 'Unable to submit community post');
+  }
+
+  return response.json();
+}
 
 interface PrayerWallPageProps {
   tenant: any; // Has architectural issues, needs refactoring
@@ -23,7 +47,7 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
     const loadPosts = async () => {
       setIsLoading(true);
       try {
-        const allPosts = await getCommunityPostsForTenant(tenant.id, false);
+        const allPosts = await fetchCommunityPosts(tenant.id);
         const publishedPosts = allPosts.filter(p => p.status === CommunityPostStatus.PUBLISHED);
         setPosts(publishedPosts);
       } catch (error) {
@@ -36,8 +60,7 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
   }, [tenant.id, onRefresh]);
 
   const handleCreatePost = async (data: { type: CommunityPostType; body: string; isAnonymous: boolean }) => {
-    await addCommunityPost({
-      tenantId: tenant.id,
+    await createCommunityPost(tenant.id, {
       authorUserId: data.isAnonymous ? null : user.id,
       ...data,
     });
@@ -49,7 +72,7 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
         : 'Your request has been submitted for review.'
     );
     // Reload posts
-    const allPosts = await getCommunityPostsForTenant(tenant.id, false);
+    const allPosts = await fetchCommunityPosts(tenant.id);
     const publishedPosts = allPosts.filter(p => p.status === CommunityPostStatus.PUBLISHED);
     setPosts(publishedPosts);
   };

@@ -13,6 +13,7 @@ export async function GET(
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
     const resolvedParams = await params;
+    const includePrivate = new URL(request.url).searchParams.get('includePrivate') === 'true';
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -23,7 +24,7 @@ export async function GET(
     try {
         // Allow authenticated users to view - membership check removed
         // Members get full view, non-members might get limited view based on tenant settings
-        const tenant = await prisma.tenant.findUnique({ 
+        const tenant = await prisma.tenant.findUnique({
             where: { id: resolvedParams.tenantId },
             include: { settings: true }
         });
@@ -36,18 +37,40 @@ export async function GET(
             return NextResponse.json({ message: 'Prayer wall is not enabled for this tenant' }, { status: 403 });
         }
 
-        // Return published community posts
+        let statusFilter: { status?: CommunityPostStatus } = { status: CommunityPostStatus.PUBLISHED };
+
+        if (includePrivate) {
+            const user = await prisma.user.findUnique({ where: { id: userId } });
+            if (!user) {
+                return NextResponse.json({ message: 'User not found' }, { status: 404 });
+            }
+
+            const canViewAllPosts = await can(user, tenant, 'canManagePrayerWall');
+            if (!canViewAllPosts) {
+                return NextResponse.json({ message: 'You do not have permission to manage the prayer wall.' }, { status: 403 });
+            }
+
+            statusFilter = {};
+        }
+
+        // Return community posts based on visibility
         const posts = await prisma.communityPost.findMany({
             where: {
                 tenantId: resolvedParams.tenantId,
-                status: 'PUBLISHED',
+                ...statusFilter,
             },
             orderBy: {
                 createdAt: 'desc',
             },
         });
 
-        return NextResponse.json(posts);
+        const enrichedPosts = posts.map((post) => ({
+            ...post,
+            authorDisplayName: post.isAnonymous ? 'Anonymous' : post.authorUserId || 'Unknown',
+            authorAvatarUrl: undefined,
+        }));
+
+        return NextResponse.json(enrichedPosts);
     } catch (error) {
         console.error(`Failed to fetch community posts for tenant ${resolvedParams.tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to fetch community posts' }, { status: 500 });

@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import type { Tenant, RolePermissions, User } from '@/types';
 import { TenantRoleType } from '@/types';
 import Button from '../../ui/Button';
-import { updateTenantPermissions } from '@/lib/data';
 import { adminPermissions } from '@/constants';
 
 interface PermissionsTabProps {
@@ -39,12 +38,23 @@ const PermissionsTab: React.FC<PermissionsTabProps> = ({ tenant, onUpdate, curre
     setHasChanges(true);
   };
   
-  const handleSaveChanges = () => {
-    updateTenantPermissions(tenant.id, localPermissions, currentUser.id);
-    onUpdate({ ...tenant, permissions: localPermissions });
-    setHasChanges(false);
-    alert('Permissions saved successfully!');
-  };
+    const handleSaveChanges = async () => {
+        try {
+            const res = await fetch(`/api/tenants/${tenant.id}/admin/settings`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ permissions: localPermissions }),
+            });
+            if (!res.ok) throw new Error('Failed to save permissions');
+            const updated = await res.json();
+            onUpdate({ ...tenant, permissions: localPermissions });
+            setHasChanges(false);
+            alert('Permissions saved successfully!');
+        } catch (err: any) {
+            console.error('Error saving permissions', err);
+            alert(err?.message || 'Failed to save permissions');
+        }
+    };
 
   const formatLabel = (key: string) => {
     return key.replace('can', '').replace(/([A-Z])/g, ' $1').trim();

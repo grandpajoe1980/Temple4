@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { hasRole } from '@/lib/permissions';
 import { z } from 'zod';
-import {  } from '@prisma/client';
 import { TenantRole } from '@/types';
 
 // 17.1 Get Tenant Settings
@@ -40,6 +39,7 @@ export async function GET(
 const settingsSchema = z.object({
     isPublic: z.boolean().optional(),
     // Add other settings fields here
+    permissions: z.record(z.record(z.boolean())).optional(),
 });
 
 // 17.2 Update Tenant Settings
@@ -66,12 +66,26 @@ export async function PUT(
             return NextResponse.json({ message: 'You do not have permission to update tenant settings.' }, { status: 403 });
         }
 
-        const updatedSettings = await prisma.tenantSettings.update({
-            where: { tenantId: tenantId },
-            data: result.data,
-        });
+        // If permissions present, persist to Tenant.permissions
+        let updatedSettings = null;
+        if (result.data.permissions !== undefined) {
+            await prisma.tenant.update({
+                where: { id: tenantId },
+                data: { permissions: result.data.permissions },
+            });
+        }
 
-        return NextResponse.json(updatedSettings);
+        // Update tenant settings fields (if any)
+        const settingsUpdateData: any = { ...result.data };
+        delete settingsUpdateData.permissions;
+        if (Object.keys(settingsUpdateData).length > 0) {
+            updatedSettings = await prisma.tenantSettings.update({
+                where: { tenantId: tenantId },
+                data: settingsUpdateData,
+            });
+        }
+
+        return NextResponse.json(updatedSettings ?? { success: true });
     } catch (error) {
         console.error(`Failed to update tenant settings for tenant ${tenantId}:`, error);
         return NextResponse.json({ message: 'Failed to update tenant settings' }, { status: 500 });

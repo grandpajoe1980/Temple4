@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import type { User, EnrichedMember, UserProfile } from '@/types';
-import { adminUpdateUserProfile } from '@/lib/data';
 import Modal from '../../ui/Modal';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
@@ -36,9 +35,26 @@ const EditUserProfileModal: React.FC<EditUserProfileModalProps> = ({ isOpen, onC
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    adminUpdateUserProfile(member.id, profile);
-    onSave();
-    alert('Profile updated by admin.');
+    (async () => {
+      try {
+        const tenantId = member.membership?.tenantId;
+        if (!tenantId) throw new Error('Tenant context missing');
+
+        const res = await fetch(`/api/tenants/${tenantId}/members/${member.id}/profile`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ displayName: profile.displayName, displayTitle: profile.displayTitle }),
+        });
+
+        if (!res.ok) throw new Error('Failed to update profile');
+
+        onSave();
+        alert('Profile updated by admin.');
+      } catch (err) {
+        console.error(err);
+        alert('Failed to update profile.');
+      }
+    })();
   };
 
   return (

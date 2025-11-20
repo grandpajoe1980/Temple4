@@ -1,8 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import type { EventResponseDto } from '@/lib/services/event-service';
-import { mapEventDtoToClient } from '@/lib/services/event-service';
+// Map server event DTOs locally to avoid importing server-only helpers
 import type { EventWithCreator, Tenant } from '@/types';
 import EventCard from '../tenant/EventCard';
 
@@ -25,10 +24,26 @@ const PublicEventsView: React.FC<PublicEventsViewProps> = ({ tenant }) => {
           return;
         }
 
-        const payload: EventResponseDto[] = await response.json();
+        const payload = await response.json();
         if (!isMounted) return;
 
-        const normalized = payload.map((event) => mapEventDtoToClient(event));
+        const normalized = (payload || []).map((event: any) => ({
+          id: event.id,
+          tenantId: event.tenantId,
+          createdByUserId: event.createdByUserId,
+          title: event.title,
+          description: event.description,
+          startDateTime: new Date(event.startDateTime),
+          endDateTime: new Date(event.endDateTime),
+          locationText: event.locationText,
+          isOnline: event.isOnline,
+          onlineUrl: event.onlineUrl ?? null,
+          deletedAt: null,
+          creatorDisplayName: event.creatorDisplayName,
+          creatorAvatarUrl: event.creatorAvatarUrl ?? undefined,
+          rsvpCount: event.rsvpCount ?? 0,
+          currentUserRsvpStatus: event.currentUserRsvpStatus ?? null,
+        } as any));
 
         setEvents(normalized);
       } catch (error) {

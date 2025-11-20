@@ -24,15 +24,22 @@ function checkFile(filePath) {
   const lines = content.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    // Prisma runtime import
-    if (/import\s+(?!type)\s*\{[^}]+\}\s+from\s+['"]@prisma\/client['"]/.test(line)) {
+    // skip type-only imports
+    if (/^\s*import\s+type\s+/.test(line)) continue;
+
+    const m = line.match(/from\s+['"]([^'"]+)['"]\s*;?$/);
+    if (!m) continue;
+    const source = m[1];
+
+    // Flag imports from server-only modules:
+    // - Prisma client
+    // - any path under '@/lib' (data, permissions, services, etc.)
+    if (source === '@prisma/client' || /^@\/lib(?:\/|$)/.test(source)) {
       violations.push({ line: i + 1, text: line.trim() });
       continue;
     }
-    // lib runtime import (not type-only)
-    if (/import\s+(?!type)\s*.*from\s+['"]@\/lib\/.+['"]/.test(line) || /from\s+['"]\.\.\/\.\./.test(line)) {
-      // the second part is a conservative check; primary check is for '@/lib'
-      if (/import\s+type/.test(line)) continue;
+    // Flag other server-only absolute aliases if added in future
+    if (/^@\/(?:server|services|data|permissions)\b/.test(source)) {
       violations.push({ line: i + 1, text: line.trim() });
       continue;
     }

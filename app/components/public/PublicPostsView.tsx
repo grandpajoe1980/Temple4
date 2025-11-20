@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import type { Tenant, PostWithAuthor } from '@/types';
-import type { PostResponseDto } from '@/lib/services/post-service';
-import { mapPostDtoToClient } from '@/lib/services/post-service';
+// Map post DTOs locally to avoid importing server-only helpers
 
 interface PublicPostsViewProps {
   tenant: Tenant;
@@ -24,10 +23,22 @@ const PublicPostsView: React.FC<PublicPostsViewProps> = ({ tenant }) => {
           return;
         }
 
-        const payload: { posts: PostResponseDto[] } = await response.json();
+        const payload = await response.json();
         if (!isMounted) return;
 
-        const normalized = (payload.posts || []).map((post) => mapPostDtoToClient(post));
+        const normalized = (payload.posts || []).map((post: any) => ({
+          id: post.id,
+          tenantId: post.tenantId,
+          authorUserId: post.authorUserId,
+          type: post.type,
+          title: post.title,
+          body: post.body,
+          isPublished: post.isPublished,
+          publishedAt: post.publishedAt ? new Date(post.publishedAt) : new Date(post.createdAt),
+          authorDisplayName: post.authorDisplayName,
+          authorAvatarUrl: post.authorAvatarUrl ?? undefined,
+        } as any));
+
         setPosts(normalized);
       } catch (error) {
         setPosts([]);

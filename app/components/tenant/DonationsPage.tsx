@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import type { DonationSettings, EnrichedDonationRecord } from '@/types';
-import { getDonationsForTenant, addDonationRecord } from '@/lib/data';
+// Use server API routes instead of importing server-only helpers
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
@@ -109,15 +109,18 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
 
   useEffect(() => {
     let isMounted = true;
-    getDonationsForTenant(tenant.id)
-      .then((records) => {
-        if (isMounted) {
-          setDonations(records);
-        }
-      })
-      .catch((error) => {
+    (async () => {
+      try {
+        const res = await fetch(`/api/tenants/${tenant.id}/donations/records`);
+        if (!res.ok) throw new Error('Failed to load donations');
+        const data = await res.json();
+        // API returns { leaderboard, timeframe }
+        const records = data.leaderboard || [];
+        if (isMounted) setDonations(records.map((r: any) => ({ ...r, donatedAt: new Date(r.donatedAt) })));
+      } catch (error) {
         console.error('Failed to load donations', error);
-      });
+      }
+    })();
 
     return () => {
       isMounted = false;
@@ -131,22 +134,27 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
         alert('Please enter a valid donation amount.');
         return;
     }
-    addDonationRecord(tenant.id, {
-        userId: user.id,
-        displayName: user.profile.displayName,
-        amount,
-        currency: settings.currency,
-        message,
-        isAnonymousOnLeaderboard: isAnonymous,
-    })
-      .then(() => {
+    (async () => {
+      try {
+        const res = await fetch(`/api/tenants/${tenant.id}/donations/records`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount,
+            currency: settings.currency,
+            displayName: user.profile.displayName,
+            isAnonymousOnLeaderboard: isAnonymous,
+            message,
+          }),
+        });
+        if (!res.ok) throw new Error('Failed to submit donation');
         onRefresh?.();
         setIsSubmitted(true);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Failed to submit donation', error);
         alert('Failed to submit donation. Please try again later.');
-      });
+      }
+    })();
   };
   
   if (isSubmitted) {

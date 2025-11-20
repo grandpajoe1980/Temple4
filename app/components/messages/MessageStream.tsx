@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import type { User, EnrichedConversation, EnrichedChatMessage, Tenant } from '@/types';
 import Button from '../ui/Button';
-import { can, canDeleteMessage } from '@/lib/permissions';
 import { normalizeMessage, type MessageWithUser } from '@/app/messages/normalizers';
 
 interface MessageStreamProps {
@@ -62,6 +61,12 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
         });
       }
 
+      // Use server-provided per-message canDelete boolean when available
+      const perms = Object.fromEntries(
+        normalizedMessages.map((m) => [m.id, (m as any).canDelete ?? (m.userId === currentUser.id)])
+      );
+      setDeletePermissions(perms);
+
       onMarkAsRead();
     } catch (error) {
       console.error('Failed to load messages', error);
@@ -108,33 +113,23 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
 
   useEffect(() => {
     if (tenant && conversation.name?.toLowerCase() === '#announcements') {
-      can(currentUser, tenant, 'canPostInAnnouncementChannels')
-        .then(setCanSendAnnouncements)
-        .catch(() => setCanSendAnnouncements(false));
+      // Fetch server-computed permissions
+      (async () => {
+        try {
+          const res = await fetch(`/api/tenants/${tenant.id}/me`);
+          if (!res.ok) return setCanSendAnnouncements(false);
+          const json = await res.json();
+          setCanSendAnnouncements(Boolean(json?.permissions?.canPostInAnnouncementChannels));
+        } catch (e) {
+          setCanSendAnnouncements(false);
+        }
+      })();
       return;
     }
     setCanSendAnnouncements(true);
   }, [conversation.name, currentUser, tenant]);
 
-  useEffect(() => {
-    if (!tenant || messages.length === 0) {
-      setDeletePermissions({});
-      return;
-    }
-
-    const evaluatePermissions = async () => {
-      const entries = await Promise.all(
-        messages.map(async (msg) => {
-          const canDelete = await canDeleteMessage(currentUser, msg, conversation, tenant);
-          return [msg.id, canDelete] as const;
-        })
-      );
-
-      setDeletePermissions(Object.fromEntries(entries));
-    };
-
-    void evaluatePermissions();
-  }, [conversation, currentUser, messages, tenant]);
+  // deletePermissions are now set from the server when messages are fetched.
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();

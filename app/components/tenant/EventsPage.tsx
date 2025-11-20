@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, Event, EventWithCreator } from '@/types';
 import Button from '../ui/Button';
 import EventCard from './EventCard';
-import { can } from '@/lib/permissions';
+// Use server-provided permissions via API instead of importing server helpers
 import Modal from '../ui/Modal';
 import EventForm from './EventForm';
 import EventsCalendar from './EventsCalendar';
@@ -52,8 +52,24 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
     };
     loadEvents();
   }, [tenant.id]);
-  
-  const canCreate = (can as any)(user, tenant, 'canCreateEvents');
+  const [permissions, setPermissions] = React.useState<any>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(`/api/tenants/${tenant.id}/me`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (mounted) setPermissions(data.permissions || null);
+      } catch (err) {
+        console.error('Failed to load permissions', err);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [tenant.id]);
+
+  const canCreate = Boolean(permissions?.canCreateEvents);
 
   const handleCreateEvent = async (eventData: Omit<Event, 'id' | 'tenantId' | 'createdByUserId'>) => {
     setIsSubmitting(true);

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { User, UserTenantMembership, Tenant } from '@/types';
-import { updateMembershipProfile } from '@/lib/data';
+
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -34,9 +34,21 @@ const EditMembershipModal: React.FC<EditMembershipModalProps> = ({ isOpen, onClo
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateMembershipProfile(user.id, membership.id, { displayName });
-    onSave();
-    alert('Membership profile updated!');
+    (async () => {
+      try {
+        const res = await fetch(`/api/tenants/${tenant.id}/members/${user.id}/profile`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ displayName }),
+        });
+        if (!res.ok) throw new Error('Failed to update membership');
+        onSave();
+        alert('Membership profile updated!');
+      } catch (err) {
+        console.error(err);
+        alert('Failed to update membership profile');
+      }
+    })();
   };
 
   return (

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { EnrichedSmallGroup, User } from '@/types';
-import { joinSmallGroup, leaveSmallGroup } from '@/lib/data';
+// Use tenant-scoped small-group APIs instead of server helpers
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 
@@ -21,13 +21,31 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
   const isUserMember = members.some(m => m.user?.id === currentUser.id);
 
   const handleJoin = async () => {
-    await joinSmallGroup(group.id, currentUser.id);
-    onUpdate();
+    try {
+      const res = await fetch(`/api/tenants/${group.tenantId}/small-groups/${group.id}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id }),
+      });
+      if (!res.ok) throw new Error('Failed to join group');
+      onUpdate();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to join group.');
+    }
   };
 
   const handleLeave = async () => {
-    await leaveSmallGroup(group.id, currentUser.id);
-    onUpdate();
+    try {
+      const res = await fetch(`/api/tenants/${group.tenantId}/small-groups/${group.id}/members/${currentUser.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok && res.status !== 204) throw new Error('Failed to leave group');
+      onUpdate();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to leave group.');
+    }
   };
   
   const ActionButton = () => {

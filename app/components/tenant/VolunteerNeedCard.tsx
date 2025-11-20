@@ -1,14 +1,13 @@
 "use client"
 
 import React from 'react';
-import { signUpForNeed, cancelSignUp } from '@/lib/data';
-import type { UserWithProfileSettings, VolunteerNeedWithSignups } from '@/lib/data';
+import type { User, EnrichedVolunteerNeed } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 
 interface VolunteerNeedCardProps {
-  need: VolunteerNeedWithSignups;
-  currentUser: UserWithProfileSettings;
+  need: EnrichedVolunteerNeed;
+  currentUser: User;
   onUpdate: () => void;
 }
 
@@ -17,13 +16,25 @@ const VolunteerNeedCard: React.FC<VolunteerNeedCardProps> = ({ need, currentUser
   const isFull = need.signups.length >= need.slotsNeeded;
 
   const handleSignUp = async () => {
-    await signUpForNeed(need.id, currentUser.id);
-    onUpdate();
+    try {
+      const res = await fetch(`/api/volunteer-needs/${need.id}/signups`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to sign up');
+      onUpdate();
+    } catch (err) {
+      console.error('Sign up failed', err);
+      alert('Failed to sign up for this need');
+    }
   };
 
   const handleCancel = async () => {
-    await cancelSignUp(need.id, currentUser.id);
-    onUpdate();
+    try {
+      const res = await fetch(`/api/volunteer-needs/${need.id}/signups`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to cancel signup');
+      onUpdate();
+    } catch (err) {
+      console.error('Cancel signup failed', err);
+      alert('Failed to cancel signup');
+    }
   };
 
   const SignupButton = () => {

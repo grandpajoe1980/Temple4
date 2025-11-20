@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import type { User, NotificationPreferences } from '@/types';
-import { updateUserNotificationPreferences } from '@/lib/data';
 import Button from '../ui/Button';
 import ToggleSwitch from '../ui/ToggleSwitch';
 
@@ -30,9 +29,21 @@ const NotificationSettingsTab: React.FC<NotificationSettingsTabProps> = ({ user,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateUserNotificationPreferences(user.id, prefs);
-    onRefresh();
-    alert('Notification settings updated successfully!');
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/me', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notificationPreferences: prefs }),
+        });
+        if (!res.ok) throw new Error('Failed to update notification preferences');
+        onRefresh();
+        alert('Notification settings updated successfully!');
+      } catch (err) {
+        console.error(err);
+        alert('Failed to update notification settings. Please try again.');
+      }
+    })();
   };
 
   return (

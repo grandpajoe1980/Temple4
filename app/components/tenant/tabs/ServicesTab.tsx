@@ -2,12 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { ServiceCategory, ServiceOffering, Tenant } from '@/types';
-import {
-  createServiceOffering,
-  deleteServiceOffering,
-  getServiceOfferingsForTenant,
-  updateServiceOffering,
-} from '@/lib/data';
 import Button from '../../ui/Button';
 import Card from '../../ui/Card';
 import Modal from '../../ui/Modal';
@@ -74,7 +68,9 @@ export default function ServicesTab({ tenant, onRefresh }: ServicesTabProps) {
     const loadServices = async () => {
       setIsLoading(true);
       try {
-        const data = await getServiceOfferingsForTenant(tenant.id, { includePrivate: true });
+        const res = await fetch(`/api/tenants/${tenant.id}/services`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to load services');
+        const data = await res.json();
         setServices((data as any) ?? []);
       } catch (error) {
         console.error('Failed to load services', error);
@@ -87,30 +83,62 @@ export default function ServicesTab({ tenant, onRefresh }: ServicesTabProps) {
   }, [tenant.id]);
 
   const handleRefresh = async () => {
-    const data = await getServiceOfferingsForTenant(tenant.id, { includePrivate: true });
-    setServices((data as any) ?? []);
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/services`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Failed to load services');
+      const data = await res.json();
+      setServices((data as any) ?? []);
+    } catch (err) {
+      console.error('Failed to load services', err);
+    }
     onRefresh();
   };
 
   const handleCreate = async (payload: Partial<ServiceOffering>) => {
-    await createServiceOffering(tenant.id, payload as any);
-    setIsModalOpen(false);
-    await handleRefresh();
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/services`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Failed to create service');
+      setIsModalOpen(false);
+      await handleRefresh();
+    } catch (err) {
+      console.error('Failed to create service', err);
+      alert('Failed to create service');
+    }
   };
 
   const handleUpdate = async (payload: Partial<ServiceOffering>) => {
     if (!editingService) return;
-    await updateServiceOffering(tenant.id, editingService.id, payload as any);
-    setEditingService(null);
-    setIsModalOpen(false);
-    await handleRefresh();
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/services/${editingService.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Failed to update service');
+      setEditingService(null);
+      setIsModalOpen(false);
+      await handleRefresh();
+    } catch (err) {
+      console.error('Failed to update service', err);
+      alert('Failed to update service');
+    }
   };
 
   const handleDelete = async (serviceId: string) => {
     const confirmed = window.confirm('Are you sure you want to remove this service?');
     if (!confirmed) return;
-    await deleteServiceOffering(tenant.id, serviceId);
-    await handleRefresh();
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/services/${serviceId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete service');
+      await handleRefresh();
+    } catch (err) {
+      console.error('Failed to delete service', err);
+      alert('Failed to delete service');
+    }
   };
 
   const openCreateModal = (template?: typeof defaultServiceTemplates[number]) => {

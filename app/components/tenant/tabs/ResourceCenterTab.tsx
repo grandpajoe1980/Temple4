@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { Tenant, User, EnrichedResourceItem, ResourceItem } from '@/types';
-import { getResourceItemsForTenant, addResourceItem, deleteResourceItem } from '@/lib/data';
+// Use API endpoints instead of importing server helpers
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import ResourceForm from '../forms/ResourceForm';
@@ -22,8 +22,10 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
     const loadResources = async () => {
       setIsLoading(true);
       try {
-        const items = await getResourceItemsForTenant(tenant.id, true);
-        setResources(items);
+        const res = await fetch(`/api/tenants/${tenant.id}/resources`);
+        const items = res.ok ? await res.json() : [];
+        const normalized = (items || []).map((r: any) => ({ ...r, createdAt: r.createdAt ? new Date(r.createdAt) : new Date() }));
+        setResources(normalized);
       } catch (error) {
         console.error('Failed to load resources:', error);
       } finally {
@@ -34,19 +36,30 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
   }, [tenant.id, onRefresh]);
 
   const handleCreateResource = async (data: Omit<ResourceItem, 'id' | 'createdAt' | 'tenantId' | 'uploaderUserId'>) => {
-    await addResourceItem({
-      ...data,
-      tenantId: tenant.id,
-      uploaderUserId: currentUser.id,
-    });
-    onRefresh();
-    setIsModalOpen(false);
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/resources`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create resource');
+      onRefresh();
+      setIsModalOpen(false);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to add resource');
+    }
   };
 
   const handleDelete = async (resourceId: string) => {
-    if (window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) {
-      await deleteResourceItem(resourceId, currentUser.id);
+    if (!window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/resources/${resourceId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete resource');
       onRefresh();
+    } catch (e) {
+      console.error(e);
+      alert('Failed to delete resource');
     }
   };
 

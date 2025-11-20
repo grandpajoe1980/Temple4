@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import type { Tenant, User, EnrichedVolunteerNeed } from '@/types';
-import { getVolunteerNeedsForTenant, addVolunteerNeed } from '@/lib/data';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import VolunteerNeedForm from '../forms/VolunteerNeedForm';
@@ -20,22 +19,46 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
 
   useEffect(() => {
     const loadNeeds = async () => {
-      const data = await getVolunteerNeedsForTenant(tenant.id);
-      setNeeds(data as any); // TODO: Type mismatch - see Ticket #0002
+      try {
+        const res = await fetch(`/api/tenants/${tenant.id}/volunteer-needs`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to load volunteer needs');
+        const data = await res.json();
+        setNeeds(data as any);
+      } catch (err) {
+        console.error('Failed to load volunteer needs', err);
+        setNeeds([]);
+      }
     };
     loadNeeds();
   }, [tenant.id]);
 
   const refreshNeeds = async () => {
-    const data = await getVolunteerNeedsForTenant(tenant.id);
-    setNeeds(data as any); // TODO: Type mismatch - see Ticket #0002
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/volunteer-needs`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Failed to load volunteer needs');
+      const data = await res.json();
+      setNeeds(data as any);
+    } catch (err) {
+      console.error('Failed to load volunteer needs', err);
+      setNeeds([]);
+    }
     onRefresh();
   };
 
   const handleCreateNeed = async (data: { title: string; description: string; date: Date; slotsNeeded: number }) => {
-    await addVolunteerNeed(tenant.id, data);
-    await refreshNeeds();
-    setIsModalOpen(false);
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/volunteer-needs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create volunteer need');
+      await refreshNeeds();
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error('Failed to create volunteer need', err);
+      alert('Failed to create volunteer need');
+    }
   };
 
   const toggleExpand = (needId: string) => {

@@ -5,7 +5,7 @@ import type { Tenant, User, EnrichedMember, UserTenantRole } from '@/types';
 import { MembershipApprovalMode, MembershipStatus } from '@/types';
 import Button from '../../ui/Button';
 // Use server API routes from client components instead of importing server-only Prisma helpers
-import { can } from '@/lib/permissions';
+// Permissions are fetched from the server via the tenant context endpoint
 import EditRolesModal from './EditRolesModal';
 import Modal from '../../ui/Modal';
 
@@ -43,8 +43,28 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
     loadMembers();
   }, [tenant.id, onRefresh]);
 
-  const canApprove = (can as any)(currentUser, tenant, 'canApproveMembership');
-  const canBan = (can as any)(currentUser, tenant, 'canBanMembers');
+  const [permissions, setPermissions] = useState<Record<string, boolean> | null>(null);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const res = await fetch(`/api/tenants/${tenant.id}/me`, { cache: 'no-store' });
+        if (!res.ok) {
+          setPermissions(null);
+          return;
+        }
+        const data = await res.json();
+        setPermissions(data.permissions ?? null);
+      } catch (err) {
+        console.error('Failed to load tenant permissions', err);
+        setPermissions(null);
+      }
+    };
+    fetchPermissions();
+  }, [tenant.id]);
+
+  const canApprove = Boolean(permissions?.canApproveMembership);
+  const canBan = Boolean(permissions?.canBanMembers);
 
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onUpdate({

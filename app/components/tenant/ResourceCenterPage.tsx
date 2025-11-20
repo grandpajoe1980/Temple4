@@ -1,17 +1,15 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import type { ResourceItem, EnrichedResourceItem } from '@/types';
-import { getResourceItemsForTenant, getMembershipForUserInTenant, addResourceItem } from '@/lib/data';
-import { can } from '@/lib/permissions';
+import type { ResourceItem, EnrichedResourceItem, Tenant, User } from '@/types';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import ResourceForm from './forms/ResourceForm';
 import ResourceItemCard from './ResourceItemCard';
 
 interface ResourceCenterPageProps {
-  tenant: any; // Has architectural issues, needs refactoring
-  user: any;
+  tenant: Tenant;
+  user: User;
   onRefresh?: () => void;
 }
 
@@ -20,16 +18,29 @@ const ResourceCenterPage: React.FC<ResourceCenterPageProps> = ({ tenant, user, o
   const [resources, setResources] = useState<EnrichedResourceItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
+  const [canUpload, setCanUpload] = useState(false);
+  const [permissions, setPermissions] = useState<Record<string, boolean> | null>(null);
   
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const membership = await getMembershipForUserInTenant(user.id, tenant.id);
-        const memberStatus = membership?.status === 'APPROVED';
+        // Fetch server-computed tenant context (membership + permissions)
+        const meRes = await fetch(`/api/tenants/${tenant.id}/me`);
+        const meJson = meRes.ok ? await meRes.json() : null;
+        const memberStatus = !!meJson?.membership && meJson.membership.status === 'APPROVED';
         setIsMember(memberStatus);
-        const resourceData = await getResourceItemsForTenant(tenant.id, memberStatus);
-        setResources(resourceData);
+        setPermissions(meJson?.permissions ?? null);
+        setCanUpload(Boolean(meJson?.permissions?.canUploadResources));
+
+        // Fetch resources via API route (server enforces visibility)
+        const resourcesRes = await fetch(`/api/tenants/${tenant.id}/resources`);
+        const resourceData = resourcesRes.ok ? await resourcesRes.json() : [];
+        const normalized = (resourceData || []).map((r: any) => ({
+          ...r,
+          createdAt: r.createdAt ? new Date(r.createdAt) : new Date(),
+        }));
+        setResources(normalized);
       } catch (error) {
         console.error('Failed to load resources:', error);
       } finally {
@@ -39,20 +50,28 @@ const ResourceCenterPage: React.FC<ResourceCenterPageProps> = ({ tenant, user, o
     loadData();
   }, [tenant.id, user.id, onRefresh]);
 
-  const canUpload = (can as any)(user, tenant, 'canUploadResources');
-
+  // handle create resource via API
   const handleCreateResource = async (data: Omit<ResourceItem, 'id' | 'createdAt' | 'tenantId' | 'uploaderUserId'>) => {
-    await addResourceItem({
-      ...data,
-      tenantId: tenant.id,
-      uploaderUserId: user.id,
-    });
-    onRefresh?.();
-    setIsModalOpen(false);
-    alert('Resource uploaded successfully!');
-    // Reload resources
-    const resourceData = await getResourceItemsForTenant(tenant.id, isMember);
-    setResources(resourceData);
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/resources`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.message || 'Failed to create resource');
+      }
+      const created = await res.json();
+      const createdNorm = { ...created, createdAt: created.createdAt ? new Date(created.createdAt) : new Date() };
+      setResources(prev => [createdNorm, ...prev]);
+      onRefresh?.();
+      setIsModalOpen(false);
+      alert('Resource uploaded successfully!');
+    } catch (error) {
+      console.error('Failed to upload resource:', error);
+      alert('Failed to upload resource');
+    }
   };
 
   if (isLoading) {
@@ -90,7 +109,7 @@ const ResourceCenterPage: React.FC<ResourceCenterPageProps> = ({ tenant, user, o
       {resources.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {resources.map(resource => (
-            <ResourceItemCard key={resource.id} resource={resource} currentUser={user} tenant={tenant} onUpdate={() => onRefresh?.()} />
+            <ResourceItemCard key={resource.id} resource={resource} currentUser={user} tenant={tenant} permissions={permissions ?? undefined} onUpdate={() => onRefresh?.()} />
           ))}
         </div>
       ) : (

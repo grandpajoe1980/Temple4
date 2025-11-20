@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { TenantRole as TenantRoleType, type Tenant, type User, type Notification } from '@/types';
-import {  } from '@prisma/client';
 import { TenantRole } from '@/types';
 import Button from '../ui/Button';
 import ControlPanel from './ControlPanel';

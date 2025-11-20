@@ -84,9 +84,35 @@ export async function GET(
       },
     });
 
+    // Fetch full conversation details (including tenant) to evaluate permissions
+    const conversationDetails = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: { tenant: true },
+    });
+
+    // Get current user object for permission checks
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    // Compute per-message canDelete flag server-side
+    const messagesWithPermissions = await Promise.all(
+      messages.map(async (m) => {
+        let canDelete = false;
+        try {
+          if (user && conversationDetails && conversationDetails.tenant) {
+            // Importing canDeleteMessage is acceptable on server side
+            const { canDeleteMessage } = await import('@/lib/permissions');
+            canDelete = await canDeleteMessage(user as any, m as any, conversationDetails as any, conversationDetails.tenant as any);
+          }
+        } catch (e) {
+          console.warn('canDelete evaluation failed', e);
+        }
+        return { ...m, canDelete };
+      })
+    );
+
     // Update last read message to the latest message
-    if (messages.length > 0) {
-      const latestMessage = messages[messages.length - 1];
+    if (messagesWithPermissions.length > 0) {
+      const latestMessage = messagesWithPermissions[messagesWithPermissions.length - 1];
       await prisma.conversationParticipant.update({
         where: {
           id: participant.id,
@@ -97,7 +123,7 @@ export async function GET(
       });
     }
 
-    return NextResponse.json(messages);
+    return NextResponse.json(messagesWithPermissions);
   } catch (error) {
     console.error(`Failed to fetch messages for conversation ${conversationId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch messages' }, { status: 500 });

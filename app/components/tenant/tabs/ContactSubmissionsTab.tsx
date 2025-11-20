@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Tenant, User, ContactSubmission } from '@/types';
 import { ContactSubmissionStatus } from '@/types';
-import { getContactSubmissionsForTenant, updateContactSubmissionStatus, respondToContactSubmission } from '@/lib/data';
+// Use tenant admin API endpoints instead of server helpers
 import Button from '../../ui/Button';
 import RespondSubmissionModal from '../forms/RespondSubmissionModal';
 
@@ -23,8 +23,12 @@ const ContactSubmissionsTab: React.FC<ContactSubmissionsTabProps> = ({ tenant, c
     const loadSubmissions = async () => {
       setIsLoading(true);
       try {
-        const submissions = await getContactSubmissionsForTenant(tenant.id);
-        setAllSubmissions(submissions as unknown as ContactSubmission[]);
+        const res = await fetch(`/api/tenants/${tenant.id}/admin/contact-submissions`);
+        if (!res.ok) throw new Error('Failed to load submissions');
+        const submissions = await res.json();
+        // Normalize dates
+        const normalized = submissions.map((s: any) => ({ ...s, createdAt: new Date(s.createdAt) }));
+        setAllSubmissions(normalized as ContactSubmission[]);
       } catch (error) {
         console.error('Failed to load contact submissions:', error);
       } finally {
@@ -35,16 +39,36 @@ const ContactSubmissionsTab: React.FC<ContactSubmissionsTabProps> = ({ tenant, c
   }, [tenant.id, onRefresh]);
 
   const handleStatusChange = async (submissionId: string, newStatus: ContactSubmissionStatus) => {
-    await updateContactSubmissionStatus(submissionId, newStatus, currentUser.id);
-    onRefresh();
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/admin/contact-submissions/${submissionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+      onRefresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update submission status.');
+    }
   };
   
   const handleRespond = async (responseText: string) => {
     if (!respondingTo) return;
-    await respondToContactSubmission(respondingTo.id, responseText, currentUser.id, tenant.name);
-    setRespondingTo(null);
-    onRefresh();
-    alert('Response sent!');
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/admin/contact-submissions/${respondingTo.id}/respond`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ response: responseText }),
+      });
+      if (!res.ok) throw new Error('Failed to send response');
+      setRespondingTo(null);
+      onRefresh();
+      alert('Response sent!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to send response.');
+    }
   };
 
   const filteredSubmissions = useMemo(() => {

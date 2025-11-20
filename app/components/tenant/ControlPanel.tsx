@@ -20,7 +20,7 @@ import LiveStreamTab from './tabs/LiveStreamTab';
 import PrayerWallTab from './tabs/PrayerWallTab';
 import ResourceCenterTab from './tabs/ResourceCenterTab';
 import ContactSubmissionsTab from './tabs/ContactSubmissionsTab';
-import { hasRole, can } from '@/lib/permissions';
+
 
 interface ControlPanelProps {
   tenant: any; // Has architectural issues, needs refactoring
@@ -32,10 +32,25 @@ interface ControlPanelProps {
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, currentUser, onImpersonate, onRefresh }) => {
-  const isAdmin = useMemo(
-    () => !!currentUser && (currentUser.isSuperAdmin || (hasRole as any)(currentUser, tenant.id, [TenantRole.ADMIN])),
-    [currentUser, tenant.id]
-  );
+  const [permissions, setPermissions] = React.useState<Record<string, boolean> | null>(null);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!currentUser) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/tenants/${tenant.id}/me`);
+        if (!res.ok) return;
+        const json = await res.json();
+        setPermissions(json?.permissions ?? null);
+        const membership = json?.membership ?? null;
+        const admin = currentUser.isSuperAdmin || (membership && membership.roles && membership.roles.some((r: any) => r.role === TenantRole.ADMIN));
+        setIsAdmin(Boolean(admin));
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, [currentUser, tenant.id]);
 
   const availableTabs = useMemo(() => {
     return CONTROL_PANEL_TABS.filter(tab => {
@@ -48,15 +63,15 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
       }
       switch (tab) {
         case 'Membership & Moderation':
-          return can(currentUser, tenant, 'canApproveMembership') || can(currentUser, tenant, 'canBanMembers');
+          return Boolean(permissions?.canApproveMembership) || Boolean(permissions?.canBanMembers);
         case 'Prayer Wall':
-          return can(currentUser, tenant, 'canManagePrayerWall');
+          return Boolean(permissions?.canManagePrayerWall);
         case 'Resource Center':
-          return can(currentUser, tenant, 'canManageResources');
+          return Boolean(permissions?.canManageResources);
         case 'Contact Submissions':
-            return can(currentUser, tenant, 'canManageContactSubmissions');
+            return Boolean(permissions?.canManageContactSubmissions);
         case 'Facilities':
-          return can(currentUser, tenant, 'canManageFacilities');
+          return Boolean(permissions?.canManageFacilities);
         default:
           return false; // Hide all other tabs from non-admins
       }

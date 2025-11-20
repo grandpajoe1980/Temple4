@@ -12,7 +12,7 @@ import PodcastsPage from '../tenant/PodcastsPage';
 import BooksPage from '../tenant/BooksPage';
 import NotificationBell from '../notifications/NotificationBell';
 import NotificationPanel from '../notifications/NotificationPanel';
-import { getNotificationsForUser, markAllNotificationsAsRead, markNotificationAsRead } from '@/lib/data';
+
 
 
 interface PublicTenantPageProps {
@@ -32,11 +32,26 @@ const PublicTenantPage: React.FC<PublicTenantPageProps> = ({ tenant, currentUser
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
 
   useEffect(() => {
-    if (currentUser) {
-        getNotificationsForUser(currentUser.id).then(setNotifications);
-    } else {
+    let isActive = true;
+    const load = async () => {
+      if (!currentUser) {
         setNotifications([]);
-    }
+        return;
+      }
+      try {
+        const res = await fetch('/api/notifications?limit=6', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to fetch notifications');
+        const data = await res.json();
+        const normalized = (data.notifications || []).map((n: any) => ({ ...n, createdAt: new Date(n.createdAt) }));
+        if (!isActive) return;
+        setNotifications(normalized);
+      } catch (e) {
+        console.error(e);
+        if (isActive) setNotifications([]);
+      }
+    };
+    load();
+    return () => { isActive = false; };
   }, [currentUser, onRefresh]);
   
   const availableTabs = useMemo(() => {
@@ -51,15 +66,23 @@ const PublicTenantPage: React.FC<PublicTenantPageProps> = ({ tenant, currentUser
 
   const [activeTab, setActiveTab] = useState<PublicPage>(availableTabs.length > 0 ? availableTabs[0].key : 'posts');
 
-  const handleMarkNotificationAsRead = (notificationId: string) => {
-    markNotificationAsRead(notificationId);
-    onRefresh();
+  const handleMarkNotificationAsRead = async (notificationId: string) => {
+    try {
+      await fetch(`/api/notifications/${notificationId}`, { method: 'PATCH' });
+      onRefresh();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const handleMarkAllNotificationsAsRead = () => {
+  const handleMarkAllNotificationsAsRead = async () => {
     if (!currentUser) return;
-    markAllNotificationsAsRead(currentUser.id);
-    onRefresh();
+    try {
+      await fetch('/api/notifications/mark-all-read', { method: 'POST' });
+      onRefresh();
+    } catch (e) {
+      console.error(e);
+    }
   };
   
   const handleNotificationNavigate = (link?: string) => {

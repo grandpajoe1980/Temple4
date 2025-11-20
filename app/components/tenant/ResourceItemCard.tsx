@@ -3,8 +3,6 @@
 import React from 'react';
 import type { EnrichedResourceItem, User, Tenant } from '@/types';
 import { FileType, ResourceVisibility } from '@/types';
-import { can } from '@/lib/permissions';
-import { deleteResourceItem } from '@/lib/data';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 
@@ -12,6 +10,7 @@ interface ResourceItemCardProps {
   resource: EnrichedResourceItem;
   currentUser: User;
   tenant: Tenant;
+  permissions?: Record<string, boolean> | undefined;
   onUpdate: () => void;
 }
 
@@ -52,13 +51,23 @@ const FileTypeIcon: React.FC<{ type: FileType }> = ({ type }) => {
   return iconMap[type] || iconMap[FileType.OTHER];
 };
 
-const ResourceItemCard: React.FC<ResourceItemCardProps> = ({ resource, currentUser, tenant, onUpdate }) => {
-  const canManage = (can as any)(currentUser, tenant, 'canManageResources');
+const ResourceItemCard: React.FC<ResourceItemCardProps> = ({ resource, currentUser, tenant, permissions, onUpdate }) => {
+  const canManage = Boolean(permissions?.canManageResources ?? false);
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) {
-      deleteResourceItem(resource.id, currentUser.id);
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/resources/${resource.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.message || 'Failed to delete resource');
+      }
       onUpdate();
+    } catch (error) {
+      console.error('Failed to delete resource:', error);
+      alert('Failed to delete resource');
     }
   };
   
@@ -85,19 +94,19 @@ const ResourceItemCard: React.FC<ResourceItemCardProps> = ({ resource, currentUs
       <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>{resource.uploaderDisplayName}</span>
-          <span>{resource.createdAt.toLocaleDateString()}</span>
+          <span>{new Date(resource.createdAt).toLocaleDateString()}</span>
         </div>
-        <div className="mt-3 flex items-center space-x-2">
-            <a href={resource.fileUrl} download className="w-full">
-                <Button className="w-full">Download</Button>
-            </a>
-            {canManage && (
-                <Button variant="danger" size="sm" onClick={handleDelete} className="!p-2.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
-                    </svg>
-                </Button>
-            )}
+          <div className="mt-3 flex items-center space-x-2">
+          <a href={resource.fileUrl} download className="w-full">
+            <Button className="w-full">Download</Button>
+          </a>
+          {canManage && (
+            <Button variant="danger" size="sm" onClick={handleDelete} className="!p-2.5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
+              </svg>
+            </Button>
+          )}
         </div>
       </div>
     </Card>

@@ -3,6 +3,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canDeleteMessage } from '@/lib/permissions';
+import { requireTenantAccess } from '@/lib/tenant-isolation';
 
 // DELETE /api/messages/[messageId] - Soft delete a message
 export async function DELETE(
@@ -36,6 +37,27 @@ export async function DELETE(
 
     if (!message) {
       return NextResponse.json({ message: 'Message not found' }, { status: 404 });
+    }
+
+    if (message.conversation.tenantId) {
+      const membership = await prisma.userTenantMembership.findUnique({
+        where: {
+          userId_tenantId: {
+            userId,
+            tenantId: message.conversation.tenantId
+          }
+        },
+        select: { status: true }
+      });
+
+      try {
+        requireTenantAccess(membership, message.conversation.tenantId, userId);
+      } catch (error) {
+        return NextResponse.json(
+          { message: 'You are not a member of this tenant' },
+          { status: 403 }
+        );
+      }
     }
 
     // Check if user is a participant in the conversation

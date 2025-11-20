@@ -3,12 +3,16 @@
 import { useRouter } from 'next/navigation';
 import TenantSelector from '../components/tenant/TenantSelector';
 import Button from '../components/ui/Button';
-import type { Tenant } from '@/types';
+import type { Prisma } from '@prisma/client';
+
+type TenantWithRelations = Prisma.TenantGetPayload<{
+  include: { settings: true; branding: true };
+}>;
 
 interface TenantsPageClientProps {
   isAuthenticated: boolean;
-  memberTenants: Tenant[];
-  allTenants: Tenant[];
+  memberTenants: TenantWithRelations[];
+  allTenants: TenantWithRelations[];
 }
 
 export default function TenantsPageClient({ isAuthenticated, memberTenants, allTenants }: TenantsPageClientProps) {

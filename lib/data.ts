@@ -115,18 +115,27 @@ function assertFacilityClient() {
  * @param userId - The ID of the user
  * @returns Array of tenants where the user has APPROVED membership status
  */
-export async function getTenantsForUser(userId: string): Promise<Tenant[]> {
+type TenantWithBrandingAndSettings = Prisma.TenantGetPayload<{
+  include: { settings: true; branding: true };
+}>;
+
+export async function getTenantsForUser(userId: string): Promise<TenantWithBrandingAndSettings[]> {
   const memberships = await prisma.userTenantMembership.findMany({
     where: {
-      userId: userId,
+      userId,
       status: 'APPROVED',
     },
     include: {
-      tenant: true,
+      tenant: {
+        include: {
+          settings: true,
+          branding: true,
+        },
+      },
     },
   });
 
-  return memberships.map((membership: { tenant: Tenant; }) => membership.tenant);
+  return memberships.map((membership) => membership.tenant);
 }
 
 /**

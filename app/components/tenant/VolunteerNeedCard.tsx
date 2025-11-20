@@ -1,14 +1,14 @@
 "use client"
 
 import React from 'react';
-import type { EnrichedVolunteerNeed, User } from '@/types';
 import { signUpForNeed, cancelSignUp } from '@/lib/data';
+import type { UserWithProfileSettings, VolunteerNeedWithSignups } from '@/lib/data';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 
 interface VolunteerNeedCardProps {
-  need: EnrichedVolunteerNeed;
-  currentUser: User;
+  need: VolunteerNeedWithSignups;
+  currentUser: UserWithProfileSettings;
   onUpdate: () => void;
 }
 

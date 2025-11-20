@@ -1,14 +1,13 @@
 "use client";
 
 import React from 'react';
-import type { Tenant, User } from '@prisma/client';
-import type { EnrichedVolunteerNeed } from '@/types';
+import type { TenantWithRelations, UserWithProfileSettings, VolunteerNeedWithSignups } from '@/lib/data';
 import VolunteerNeedCard from './VolunteerNeedCard';
 
 interface VolunteeringPageProps {
-  tenant: Pick<Tenant, 'name'>;
-  user: User;
-  needs: EnrichedVolunteerNeed[];
+  tenant: Pick<TenantWithRelations, 'id' | 'name'>;
+  user: UserWithProfileSettings;
+  needs: VolunteerNeedWithSignups[];
   onRefresh?: () => void;
 }
 
@@ -24,8 +23,8 @@ const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs
 
       {needs.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {needs.map((need: any) => (
-            <VolunteerNeedCard key={need.id} need={need} currentUser={user as any} onUpdate={() => onRefresh?.()} />
+          {needs.map((need) => (
+            <VolunteerNeedCard key={need.id} need={need} currentUser={user} onUpdate={() => onRefresh?.()} />
           ))}
         </div>
       ) : (

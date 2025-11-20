@@ -59,7 +59,8 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   return (
     <nav className="-mb-px flex space-x-6 overflow-x-auto border-t border-gray-200">
       {navItems.map((item) => {
-        const isEnabled = !item.feature || (tenant.settings && (tenant.settings as any)[item.feature]);
+        const isEnabled =
+          !item.feature || (tenant.settings ? Boolean(tenant.settings[item.feature as keyof TenantSettings]) : false);
         if (!isEnabled) return null;
         if (item.adminOnly && !canViewSettings) return null;
 

@@ -18,7 +18,7 @@ export default async function TenantServiceDetailPage({
 
   const session = await getServerSession(authOptions);
   const membership = session?.user
-    ? await getMembershipForUserInTenant((session.user as any).id, tenant.id)
+    ? await getMembershipForUserInTenant(session.user.id, tenant.id)
     : null;
 
   const includePrivate = membership?.status === 'APPROVED';

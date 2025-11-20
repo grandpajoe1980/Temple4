@@ -1305,22 +1305,22 @@ export async function createSmallGroup(tenantId: string, groupData: any) {
     return null;
 }
 
-export async function getVolunteerNeedsForTenant(tenantId: string) {
-    return await prisma.volunteerNeed.findMany({
-        where: { tenantId },
+export async function getVolunteerNeedsForTenant(tenantId: string): Promise<VolunteerNeedWithSignups[]> {
+  return prisma.volunteerNeed.findMany({
+    where: { tenantId },
+    include: {
+      signups: {
         include: {
-            signups: {
-                include: {
-                    user: {
-                        include: {
-                            profile: true,
-                        }
-                    }
-                }
-            }
+          user: {
+            include: {
+              profile: true,
+            },
+          },
         },
-        orderBy: { date: 'asc' },
-    });
+      },
+    },
+    orderBy: { date: 'asc' },
+  });
 }
 
 export async function addVolunteerNeed(tenantId: string, needData: any) {

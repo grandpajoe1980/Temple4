@@ -2,11 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import VolunteeringPage from '@/app/components/tenant/VolunteeringPage';
+import type { TenantWithRelations, UserWithProfileSettings, VolunteerNeedWithSignups } from '@/lib/data';
 
 interface VolunteeringClientProps {
-  tenant: any;
-  user: any;
-  needs: any[];
+  tenant: TenantWithRelations;
+  user: UserWithProfileSettings;
+  needs: VolunteerNeedWithSignups[];
 }
 
 export default function VolunteeringClient({ tenant, user, needs }: VolunteeringClientProps) {

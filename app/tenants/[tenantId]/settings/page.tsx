@@ -16,7 +16,7 @@ export default async function TenantSettingsPage({ params }: { params: Promise<{
 
   const resolvedParams = await params;
   const tenant = await getTenantById(resolvedParams.tenantId);
-  const user = await getUserById((session.user as any).id);
+  const user = await getUserById(session.user.id);
 
   if (!tenant || !user) {
     redirect('/');

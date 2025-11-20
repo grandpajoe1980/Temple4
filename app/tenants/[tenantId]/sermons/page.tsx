@@ -14,14 +14,14 @@ export default async function TenantSermonsPage({ params }: { params: Promise<{ 
 
   const resolvedParams = await params;
   const tenant = await getTenantById(resolvedParams.tenantId);
-  const user = await getUserById((session.user as any).id);
+  const user = await getUserById(session.user.id);
 
   if (!tenant || !user) {
     redirect('/');
   }
 
   const sermons = await getSermonsForTenant(tenant.id);
-  const canCreate = await can(user as any, tenant as any, 'canCreateSermons');
+  const canCreate = await can(user, tenant, 'canCreateSermons');
 
   return <SermonsPage tenant={tenant} user={user} sermons={sermons} canCreate={canCreate} />;
 }

@@ -2,6 +2,7 @@ import { User, Tenant, ChatMessage, Conversation, UserTenantMembership } from '@
 import { TenantRole } from '@/types';
 import { prisma } from './db';
 import { TenantFeaturePermissions } from '@/types';
+import type { TenantWithRelations, UserWithProfileSettings } from './data';
 
 // Define RolePermissions based on your application's logic, as it's not in Prisma schema
 export interface RolePermissions {
@@ -80,7 +81,11 @@ function getRoleType(role: TenantRole): TenantRoleType | 'ADMIN' {
  * @param permission The permission to check for (e.g., 'canCreatePosts').
  * @returns {boolean} True if the user has the permission, false otherwise.
  */
-export async function can(user: User, tenant: Tenant, permission: keyof RolePermissions): Promise<boolean> {
+export async function can(
+  user: User | UserWithProfileSettings,
+  tenant: Tenant | TenantWithRelations,
+  permission: keyof RolePermissions
+): Promise<boolean> {
   // Super Admins can do anything.
   if (user.isSuperAdmin) {
     return true;

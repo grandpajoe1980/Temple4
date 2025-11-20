@@ -63,7 +63,9 @@ export const authOptions: AuthOptions = {
         token.realUserId = user.id as string;
         token.realUserEmail = user.email;
         token.realUserName = user.name;
-        token.isSuperAdmin = (user as any).isSuperAdmin;
+        if ('isSuperAdmin' in user) {
+          token.isSuperAdmin = Boolean((user as { isSuperAdmin?: boolean }).isSuperAdmin);
+        }
       }
 
       const realUserId = token.realUserId || (typeof token.id === 'string' ? token.id : undefined);
@@ -99,16 +101,16 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.effectiveUserId ?? token.id;
-        (session.user as any).realUserId = token.realUserId ?? token.effectiveUserId ?? token.id;
+        session.user.id = token.effectiveUserId ?? token.id;
+        session.user.realUserId = token.realUserId ?? token.effectiveUserId ?? token.id;
         session.user.email = (token.email as string) ?? null;
         session.user.name = (token.name as string) ?? null;
-        (session.user as any).realUserEmail = token.realUserEmail ?? null;
-        (session.user as any).realUserName = token.realUserName ?? session.user.name;
-        (session.user as any).isSuperAdmin = Boolean(token.isSuperAdmin);
-        (session.user as any).impersonatedUserId = token.impersonatedUserId ?? null;
-        (session.user as any).impersonationActive = Boolean(token.impersonatedUserId);
-        (session.user as any).impersonationSessionId = token.impersonationSessionId ?? null;
+        session.user.realUserEmail = token.realUserEmail ?? null;
+        session.user.realUserName = token.realUserName ?? session.user.name;
+        session.user.isSuperAdmin = Boolean(token.isSuperAdmin);
+        session.user.impersonatedUserId = token.impersonatedUserId ?? null;
+        session.user.impersonationActive = Boolean(token.impersonatedUserId);
+        session.user.impersonationSessionId = token.impersonationSessionId ?? null;
       }
       return session;
     }

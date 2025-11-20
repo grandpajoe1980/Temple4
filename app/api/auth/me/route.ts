@@ -6,11 +6,11 @@ import { prisma } from '@/lib/db';
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user || !(session.user as any).id) {
+  if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
   }
 
-  const userId = (session.user as any).id;
+  const userId = session.user.id;
 
   try {
     const user = await prisma.user.findUnique({

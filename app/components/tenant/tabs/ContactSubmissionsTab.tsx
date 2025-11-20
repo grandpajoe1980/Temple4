@@ -24,7 +24,7 @@ const ContactSubmissionsTab: React.FC<ContactSubmissionsTabProps> = ({ tenant, c
       setIsLoading(true);
       try {
         const submissions = await getContactSubmissionsForTenant(tenant.id);
-        setAllSubmissions(submissions);
+        setAllSubmissions(submissions as unknown as ContactSubmission[]);
       } catch (error) {
         console.error('Failed to load contact submissions:', error);
       } finally {

@@ -101,6 +101,7 @@ export const getInitialTenant = (): Omit<Tenant, 'id' | 'name' | 'slug' | 'creed
     enableGroupChat: true,
     enableComments: true,
     enableReactions: true,
+    enableServices: true,
     enableDonations: false,
     enableVolunteering: true,
     enableSmallGroups: true,

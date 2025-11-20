@@ -38,7 +38,7 @@ export enum ApiErrorCode {
  */
 export function handleApiError(
   error: unknown,
-  context?: { route?: string; userId?: string; tenantId?: string }
+  context?: { route?: string; userId?: string; tenantId?: string; [key: string]: string | undefined }
 ): NextResponse {
   // Log error with context for observability
   const logContext = context ? `[${Object.entries(context).filter(([_, v]) => v).map(([k, v]) => `${k}:${v}`).join(', ')}]` : '';

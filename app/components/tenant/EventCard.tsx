@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { EventWithCreator, RSVPStatus } from '@/types';
+import type { EventWithCreator } from '@/types';
+import { RSVPStatus } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 
@@ -126,7 +127,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
             variant={rsvpStatus === 'GOING' ? 'primary' : 'secondary'}
             size="sm"
             disabled={isUpdating}
-            onClick={() => handleRsvp('GOING')}
+            onClick={() => handleRsvp(RSVPStatus.GOING)}
           >
             {rsvpStatus === 'GOING' ? 'Going ✓' : 'Going'}
           </Button>
@@ -134,7 +135,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
             variant={rsvpStatus === 'INTERESTED' ? 'primary' : 'secondary'}
             size="sm"
             disabled={isUpdating}
-            onClick={() => handleRsvp('INTERESTED')}
+            onClick={() => handleRsvp(RSVPStatus.INTERESTED)}
           >
             {rsvpStatus === 'INTERESTED' ? 'Interested ✓' : 'Interested'}
           </Button>
@@ -142,7 +143,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
             variant={rsvpStatus === 'NOT_GOING' ? 'primary' : 'ghost'}
             size="sm"
             disabled={isUpdating}
-            onClick={() => handleRsvp('NOT_GOING')}
+            onClick={() => handleRsvp(RSVPStatus.NOT_GOING)}
           >
             Not Going
           </Button>

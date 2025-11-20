@@ -16,9 +16,10 @@ export async function GET(
     tenantId: resolvedParams.tenantId 
   });
   
+  let userId: string | undefined;
   try {
     const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id;
+    userId = (session?.user as any)?.id;
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
@@ -69,16 +70,18 @@ export async function POST(
     tenantId: resolvedParams.tenantId 
   });
 
+  let userId: string | undefined;
+  let requestBody: unknown;
   try {
     const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id;
+    userId = (session?.user as any)?.id;
 
     if (!userId) {
       logger.warn('Unauthenticated request');
       return unauthorized();
     }
 
-    const requestBody = await request.json();
+    requestBody = await request.json();
     const result = postCreateSchema.safeParse(requestBody);
     if (!result.success) {
       logger.warn('Validation failed', { userId, errors: result.error.issues });

@@ -196,7 +196,7 @@ export async function POST(
     });
 
     // Get conversation details for notification
-    const conversation = await prisma.conversation.findUnique({
+    const conversationDetails = await prisma.conversation.findUnique({
       where: { id: conversationId },
       include: {
         participants: {
@@ -216,14 +216,14 @@ export async function POST(
     });
 
     // Create notifications for other participants
-    if (conversation) {
-      const notifications = conversation.participants.map((p: any) => ({
+    if (conversationDetails) {
+      const notifications = conversationDetails.participants.map((p: any) => ({
         userId: p.userId,
         actorUserId: userId,
         type: 'NEW_DIRECT_MESSAGE' as const,
-        message: conversation.isDirectMessage 
+        message: conversationDetails.isDirectMessage 
           ? 'sent you a message'
-          : `sent a message in ${conversation.name || conversation.tenant?.name || 'group chat'}`,
+          : `sent a message in ${conversationDetails.name || conversationDetails.tenant?.name || 'group chat'}`,
         link: `/messages/${conversationId}`,
       }));
 

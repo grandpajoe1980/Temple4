@@ -77,7 +77,11 @@ export function mapUserForMessaging(user: MessagesPageUser): User {
       bio: user.profile?.bio ?? undefined,
       locationCity: user.profile?.locationCity ?? undefined,
       locationCountry: user.profile?.locationCountry ?? undefined,
-      languages: user.profile?.languages ?? [],
+      languages: Array.isArray(user.profile?.languages)
+        ? user.profile.languages
+        : user.profile?.languages
+        ? [user.profile.languages]
+        : [],
     },
     privacySettings: user.privacySettings ?? baseUserDefaults.privacySettings,
     accountSettings: user.accountSettings ?? baseUserDefaults.accountSettings,
@@ -114,12 +118,16 @@ export function normalizeConversation(
         bio: participantUser.profile?.bio ?? undefined,
         locationCity: participantUser.profile?.locationCity ?? undefined,
         locationCountry: participantUser.profile?.locationCountry ?? undefined,
-        languages: participantUser.profile?.languages ?? [],
+        languages: Array.isArray(participantUser.profile?.languages)
+          ? participantUser.profile.languages
+          : participantUser.profile?.languages
+          ? [participantUser.profile.languages]
+          : [],
       },
-      privacySettings: participantUser.privacySettings ?? baseUserDefaults.privacySettings,
-      accountSettings: participantUser.accountSettings ?? baseUserDefaults.accountSettings,
+      privacySettings: (participantUser as any).privacySettings ?? baseUserDefaults.privacySettings,
+      accountSettings: (participantUser as any).accountSettings ?? baseUserDefaults.accountSettings,
       notificationPreferences:
-        (participantUser.notificationPreferences as NotificationPreferences | null | undefined) ??
+        ((participantUser as any).notificationPreferences as NotificationPreferences | null | undefined) ??
         baseUserDefaults.notificationPreferences,
     };
   });
@@ -136,12 +144,12 @@ export function normalizeConversation(
     isDirect,
     participants,
     displayName:
-      conversation.displayName ||
-      conversation.name ||
+      (conversation as any).displayName ||
+      (conversation as any).name ||
       (isDirect && otherParticipant
         ? otherParticipant.profile?.displayName || otherParticipant.email || 'Direct Message'
         : 'Group Conversation'),
     lastMessage,
-    unreadCount: conversation.unreadCount ?? 0,
-  };
+    unreadCount: (conversation as any).unreadCount ?? 0,
+  } as unknown as EnrichedConversation;
 }

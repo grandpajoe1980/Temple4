@@ -19,5 +19,10 @@ export default async function TenantDonationsPage({ params }: { params: Promise<
     redirect('/');
   }
 
-  return <DonationsPage tenant={tenant} user={user} />;
+  const safeUser = {
+    id: user.id,
+    profile: user.profile ?? { displayName: user.email },
+  };
+
+  return <DonationsPage tenant={tenant} user={safeUser} />;
 }

@@ -17,11 +17,11 @@ const updateSchema = z.object({
   capacity: z.number().int().positive().optional(),
   imageUrl: z.string().url().optional().or(z.literal('')),
   isActive: z.boolean().optional(),
-  bookingRules: z.record(z.any()).optional(),
+  bookingRules: z.record(z.string(), z.any()).optional(),
 });
 
-export async function GET(_req: Request, { params }: { params: { tenantId: string; facilityId: string } }) {
-  const { tenantId, facilityId } = params;
+export async function GET(_req: Request, { params }: { params: Promise<{ tenantId: string; facilityId: string }> }) {
+  const { tenantId, facilityId } = await params;
   const facility = await getFacilityById(tenantId, facilityId, true);
 
   if (!facility) {
@@ -31,8 +31,8 @@ export async function GET(_req: Request, { params }: { params: { tenantId: strin
   return NextResponse.json(facility);
 }
 
-export async function PATCH(request: Request, { params }: { params: { tenantId: string; facilityId: string } }) {
-  const { tenantId, facilityId } = params;
+export async function PATCH(request: Request, { params }: { params: Promise<{ tenantId: string; facilityId: string }> }) {
+  const { tenantId, facilityId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id ?? null;
 

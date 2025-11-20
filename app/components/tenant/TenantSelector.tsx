@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useMemo, useState } from 'react';
-import type { Prisma } from '@prisma/client';
+import type { TenantSettings } from '@/types';
+import type { TenantWithRelations } from '@/lib/data';
 import Button from '../ui/Button';
-
-type TenantWithRelations = Prisma.TenantGetPayload<{
-  include: { settings: true; branding: true };
-}>;
 
 interface TenantSelectorProps {
   tenants: TenantWithRelations[];
@@ -15,7 +12,7 @@ interface TenantSelectorProps {
 }
 
 type FeatureKey = keyof Pick<
-  Prisma.TenantSettings,
+  TenantSettings,
   | 'enableCalendar'
   | 'enableGroupChat'
   | 'enableDonations'

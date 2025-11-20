@@ -989,33 +989,41 @@ async function main() {
   console.log('\n⚔️ Creating Game of Thrones themed tenant and members...');
 
   const gotCharacters = [
-    { email: 'jon@got.example', password: 'winter123', displayName: 'Jon Snow', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/d/d0/JonSnow8x06.PNG/revision/latest?cb=20190714094440' },
-    { email: 'daenerys@got.example', password: 'dragon123', displayName: 'Daenerys Targaryen', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/91/Dany_Drogon_Jorah_S3_Ep1.jpg/revision/latest?cb=20130402130943' },
-    { email: 'tyrion@got.example', password: 'clever123', displayName: 'Tyrion Lannister', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/d/d2/Tyrion_S2Promo.jpg/revision/latest?cb=20120323183758' },
-    { email: 'sansa@got.example', password: 'lady123', displayName: 'Sansa Stark', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/4/4d/Sansa_Season6.png/revision/latest?cb=20160610123456' },
-    { email: 'arya@got.example', password: 'needle123', displayName: 'Arya Stark', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/1/1b/Arya_S8.png/revision/latest?cb=20190423165940' },
-    { email: 'bran@got.example', password: 'seer123', displayName: 'Bran Stark', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/7/7b/Bran_S8.png/revision/latest?cb=20190423165942' },
-    { email: 'cersei@got.example', password: 'queen123', displayName: 'Cersei Lannister', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/5/51/Winter_is_Coming_Jaime_and_Cersei.png/revision/latest?cb=20130605013757' },
-    { email: 'jaime@got.example', password: 'kingslayer', displayName: 'Jaime Lannister', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/d/d8/No_One_23.jpg/revision/latest?cb=20160614171036' },
-    { email: 'samwell@got.example', password: 'maester123', displayName: 'Samwell Tarly', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/0/05/GOT_Season_5_02.jpg/revision/latest?cb=20150409231553' },
-    { email: 'brienne@got.example', password: 'oathkeeper', displayName: 'Brienne of Tarth', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/a/a9/S8_Brienne_Profil.jpg/revision/latest?cb=20190423165941' },
-    { email: 'jorah@got.example', password: 'exile123', displayName: 'Jorah Mormont', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/91/Dany_Drogon_Jorah_S3_Ep1.jpg/revision/latest?cb=20130402130943' },
-    { email: 'theon@got.example', password: 'reek123', displayName: 'Theon Greyjoy', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/8/81/Theon_Greyjoy.png/revision/latest?cb=20110302142633' },
-    { email: 'davos@got.example', password: 'onion123', displayName: 'Davos Seaworth', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/7/7a/707_Qhono_Davos_Podrick_Theon_Jon_Varys_Tyrion_Bronn.jpg/revision/latest?cb=20170828114500' },
-    { email: 'melisandre@got.example', password: 'redwoman', displayName: 'Melisandre', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/9a/The_Red_Woman_08.jpg/revision/latest?cb=20160421170246' },
-    { email: 'stannis@got.example', password: 'iron123', displayName: 'Stannis Baratheon', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/1/11/Book_of_the_Stranger_14.jpg/revision/latest?cb=20160512165557' },
-    { email: 'petyr@got.example', password: 'littlefinger', displayName: 'Petyr Baelish', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/5/55/Roman_Papsuev_-_Petyr_Baelish.png/revision/latest?cb=20230701112254' },
-    { email: 'varys@got.example', password: 'whispers', displayName: 'Varys', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/e/e4/Varys_S2.jpg/revision/latest?cb=20120324133826' },
-    { email: 'drogo@got.example', password: 'khaleesi', displayName: 'Khal Drogo', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/9f/Khal_Drogo_Profile.jpg/revision/latest?cb=20110302150000' },
-    { email: 'margaery@got.example', password: 'rose123', displayName: 'Margaery Tyrell', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/b/b5/Margaery_Tyrell_S6.png/revision/latest?cb=20210722163311' },
-    { email: 'olenna@got.example', password: 'thorn123', displayName: 'Olenna Tyrell', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/3/33/Olenna_Tyrell_Profile.jpg/revision/latest?cb=20160512170000' },
+    { email: 'jon@got.example', password: 'winter123', displayName: 'Jon Snow', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/d/d0/JonSnow8x06.PNG/revision/latest?cb=20190714094440', bio: 'Raised at Winterfell; committed to protecting the realms of men.', locationCity: 'Winterfell', locationCountry: 'Westeros' },
+    { email: 'daenerys@got.example', password: 'dragon123', displayName: 'Daenerys Targaryen', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/91/Dany_Drogon_Jorah_S3_Ep1.jpg/revision/latest?cb=20130402130943', bio: 'Breaker of chains, seeker of justice and dragons.', locationCity: 'Dragonstone', locationCountry: 'Westeros' },
+    { email: 'tyrion@got.example', password: 'clever123', displayName: 'Tyrion Lannister', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/d/d2/Tyrion_S2Promo.jpg/revision/latest?cb=20120323183758', bio: 'Witty scholar and strategist; fond of books and wine.', locationCity: "King's Landing", locationCountry: 'Westeros' },
+    { email: 'sansa@got.example', password: 'lady123', displayName: 'Sansa Stark', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/4/4d/Sansa_Season6.png/revision/latest?cb=20160610123456', bio: 'Political mind and steward of northern traditions.', locationCity: 'Winterfell', locationCountry: 'Westeros' },
+    { email: 'arya@got.example', password: 'needle123', displayName: 'Arya Stark', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/1/1b/Arya_S8.png/revision/latest?cb=20190423165940', bio: 'Skilled and resourceful; on a journey of her own.', locationCity: 'The Riverlands', locationCountry: 'Westeros' },
+    { email: 'bran@got.example', password: 'seer123', displayName: 'Bran Stark', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/7/7b/Bran_S8.png/revision/latest?cb=20190423165942', bio: 'The mystic who remembers the past and sees beyond.', locationCity: 'Winterfell', locationCountry: 'Westeros' },
+    { email: 'cersei@got.example', password: 'queen123', displayName: 'Cersei Lannister', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/5/51/Winter_is_Coming_Jaime_and_Cersei.png/revision/latest?cb=20130605013757', bio: 'A cunning and determined leader from House Lannister.', locationCity: "King's Landing", locationCountry: 'Westeros' },
+    { email: 'jaime@got.example', password: 'kingslayer', displayName: 'Jaime Lannister', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/d/d8/No_One_23.jpg/revision/latest?cb=20160614171036', bio: 'Knight with a complicated past; protector and warrior.', locationCity: "King's Landing", locationCountry: 'Westeros' },
+    { email: 'samwell@got.example', password: 'maester123', displayName: 'Samwell Tarly', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/0/05/GOT_Season_5_02.jpg/revision/latest?cb=20150409231553', bio: 'Scholar and lit lover; keeper of knowledge and recipes.', locationCity: 'Horn Hill', locationCountry: 'Westeros' },
+    { email: 'brienne@got.example', password: 'oathkeeper', displayName: 'Brienne of Tarth', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/a/a9/S8_Brienne_Profil.jpg/revision/latest?cb=20190423165941', bio: 'Honorable warrior sworn to keep promises and protect the innocent.', locationCity: 'Tarth', locationCountry: 'Westeros' },
+    { email: 'jorah@got.example', password: 'exile123', displayName: 'Jorah Mormont', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/91/Dany_Drogon_Jorah_S3_Ep1.jpg/revision/latest?cb=20130402130943', bio: 'Loyal yet exiled knight seeking redemption.', locationCity: 'Bear Island', locationCountry: 'Westeros' },
+    { email: 'theon@got.example', password: 'reek123', displayName: 'Theon Greyjoy', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/8/81/Theon_Greyjoy.png/revision/latest?cb=20110302142633', bio: 'A man torn between families and seeking to find his place.', locationCity: 'Pyke', locationCountry: 'Westeros' },
+    { email: 'davos@got.example', password: 'onion123', displayName: 'Davos Seaworth', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/7/7a/707_Qhono_Davos_Podrick_Theon_Jon_Varys_Tyrion_Bronn.jpg/revision/latest?cb=20170828114500', bio: 'Practical and honest; a smuggler turned trusted advisor.', locationCity: 'White Harbor', locationCountry: 'Westeros' },
+    { email: 'melisandre@got.example', password: 'redwoman', displayName: 'Melisandre', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/9a/The_Red_Woman_08.jpg/revision/latest?cb=20160421170246', bio: 'Mysterious priestess with a prophetic calling.', locationCity: 'Asshai', locationCountry: 'Essos' },
+    { email: 'stannis@got.example', password: 'iron123', displayName: 'Stannis Baratheon', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/1/11/Book_of_the_Stranger_14.jpg/revision/latest?cb=20160512165557', bio: 'Staunch leader with a rigid sense of duty.', locationCity: 'Dragonstone', locationCountry: 'Westeros' },
+    { email: 'petyr@got.example', password: 'littlefinger', displayName: 'Petyr Baelish', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/5/55/Roman_Papsuev_-_Petyr_Baelish.png/revision/latest?cb=20230701112254', bio: 'A schemer and merchant of whispers.', locationCity: 'The Fingers', locationCountry: 'Westeros' },
+    { email: 'varys@got.example', password: 'whispers', displayName: 'Varys', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/e/e4/Varys_S2.jpg/revision/latest?cb=20120324133826', bio: 'Master of whispers; information broker across the realms.', locationCity: "King's Landing", locationCountry: 'Westeros' },
+    { email: 'drogo@got.example', password: 'khaleesi', displayName: 'Khal Drogo', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/9/9f/Khal_Drogo_Profile.jpg/revision/latest?cb=20110302150000', bio: 'Fearsome khal of the Dothraki khalasar.', locationCity: 'Dothraki Sea', locationCountry: 'Essos' },
+    { email: 'margaery@got.example', password: 'rose123', displayName: 'Margaery Tyrell', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/b/b5/Margaery_Tyrell_S6.png/revision/latest?cb=20210722163311', bio: 'Charming and politically savvy; master of public relations.', locationCity: 'Highgarden', locationCountry: 'Westeros' },
+    { email: 'olenna@got.example', password: 'thorn123', displayName: 'Olenna Tyrell', avatarUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/3/33/Olenna_Tyrell_Profile.jpg/revision/latest?cb=20160512170000', bio: 'Sharp-tongued matriarch and respected elder.', locationCity: 'Highgarden', locationCountry: 'Westeros' },
   ];
 
   for (const char of gotCharacters) {
     const hashed = await bcrypt.hash(char.password, 10);
     const user = await prisma.user.upsert({
       where: { email: char.email },
-      update: {},
+      update: {
+        // ensure existing users get their profile avatar and bio updated
+        profile: {
+          upsert: {
+            create: { displayName: char.displayName, avatarUrl: char.avatarUrl, locationCity: char.locationCity || 'Westeros', locationCountry: char.locationCountry || null, bio: (char as any).bio || null },
+            update: { avatarUrl: char.avatarUrl, displayName: char.displayName, bio: (char as any).bio || undefined, locationCity: char.locationCity || undefined, locationCountry: char.locationCountry || undefined },
+          },
+        },
+      },
       create: {
         email: char.email,
         password: hashed,
@@ -1091,6 +1099,73 @@ async function main() {
       { tenantId: gotTenant.id, name: 'Fan Workshop — Worldbuilding', description: 'Hands-on workshops about worldbuilding, craft, and prop making.', category: 'EDUCATION', isPublic: true, requiresBooking: true, order: 3 },
     ],
   });
+
+  // Add facilities for GOT tenant
+  await prisma.facility.createMany({
+    data: [
+      { tenantId: gotTenant.id, name: 'Great Hall', description: 'Large hall for feasts and gatherings.', type: 'HALL', capacity: 300, imageUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/4/47/GreatHall_Winterfell.jpg/revision/latest?cb=20131201000000' },
+      { tenantId: gotTenant.id, name: 'Library of Lore', description: 'Extensive collection of books, scrolls and maps.', type: 'ROOM', capacity: 80, imageUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/2/2a/Library_Winterfell.jpg/revision/latest?cb=20131201000001' },
+      { tenantId: gotTenant.id, name: 'Training Yard', description: 'Space for workshops, costuming and rehearsal.', type: 'OTHER', capacity: 60, imageUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/7/70/Training_Yard.jpg/revision/latest?cb=20131201000002' },
+    ],
+  });
+
+  // Create Small Groups for GOT tenant
+  const gotSmallGroups = [
+    { name: 'House Readers', description: 'Weekly book club exploring lore and in-universe histories.', leaderEmail: 'tyrion@got.example', members: ['margaery@got.example', 'petyr@got.example', 'varys@got.example'] },
+    { name: 'Combat Choreography', description: 'Practice sessions for staged combat and prop safety.', leaderEmail: 'brienne@got.example', members: ['jaime@got.example', 'jon@got.example', 'jorah@got.example'] },
+    { name: 'Costume Makers', description: 'Sewing, armor-building and prop-making workshops.', leaderEmail: 'margaery@got.example', members: ['olenna@got.example', 'daenerys@got.example', 'melisandre@got.example'] },
+  ];
+
+  for (const g of gotSmallGroups) {
+    const leader = createdUsers[g.leaderEmail];
+    const group = await prisma.smallGroup.create({ data: { tenantId: gotTenant.id, name: g.name, description: g.description, leaderUserId: leader.id, meetingSchedule: 'Bi-weekly', isActive: true } });
+    await prisma.smallGroupMembership.create({ data: { groupId: group.id, userId: leader.id, role: 'LEADER' } });
+    for (const m of g.members) {
+      const member = createdUsers[m];
+      if (member) await prisma.smallGroupMembership.create({ data: { groupId: group.id, userId: member.id, role: 'MEMBER' } });
+    }
+  }
+
+  // Add more resource items and books for GOT tenant
+  const gotExtraResources = [
+    { title: 'Annotated Song of Ice and Fire - Fan Edition', description: 'Community-compiled annotations and discussion prompts.', fileUrl: 'https://example.com/got/annotated-soiaf.pdf', uploader: 'tyrion@got.example' },
+    { title: 'House Sigils High-Res Pack', description: 'High-resolution sigils for printing and decorations.', fileUrl: 'https://static.wikia.nocookie.net/gameofthrones/images/0/0f/House_sigils_sample.pdf', uploader: 'margaery@got.example' },
+    { title: 'Costume Patterns Vol.1', description: 'Basic sewing patterns for beginner cosplayers.', fileUrl: 'https://example.com/got/costume-patterns.pdf', uploader: 'margaery@got.example' },
+  ];
+  for (const r of gotExtraResources) {
+    const upl = createdUsers[r.uploader];
+    if (upl) await prisma.resourceItem.create({ data: { tenantId: gotTenant.id, uploaderUserId: upl.id, title: r.title, description: r.description, fileUrl: r.fileUrl, fileType: 'PDF', visibility: 'PUBLIC' } });
+  }
+
+  // Add GOT books (as BOOK posts)
+  const gotBooks = [
+    { title: 'Fellowship Compendium', body: 'A fan-compiled companion guide to our events and lore sessions.', author: 'tyrion@got.example' },
+    { title: 'Feasts & Recipes of Westeros', body: 'A community cookbook inspired by the series.', author: 'davos@got.example' },
+    { title: 'Constructing Costumes', body: 'Techniques and tutorials for realistic costume work.', author: 'margaery@got.example' },
+  ];
+  for (const b of gotBooks) {
+    const au = createdUsers[b.author];
+    if (au) await prisma.post.create({ data: { tenantId: gotTenant.id, authorUserId: au.id, type: 'BOOK', title: b.title, body: b.body, isPublished: true, publishedAt: new Date() } });
+  }
+
+  // Add more chat messages and threads between GOT members
+  const tAndV = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, participants: { create: [{ userId: createdUsers['tyrion@got.example'].id }, { userId: createdUsers['varys@got.example'].id }] } } });
+  await prisma.chatMessage.createMany({ data: [
+    { conversationId: tAndV.id, userId: createdUsers['tyrion@got.example'].id, text: 'Varys, your informants have anything on the costume contest judges?', createdAt: new Date() },
+    { conversationId: tAndV.id, userId: createdUsers['varys@got.example'].id, text: 'Pleasantly predictable. I have suggestions; meet me at the library.', createdAt: new Date() },
+  ] });
+
+  const aryaSansa = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, participants: { create: [{ userId: createdUsers['arya@got.example'].id }, { userId: createdUsers['sansa@got.example'].id }] } } });
+  await prisma.chatMessage.createMany({ data: [
+    { conversationId: aryaSansa.id, userId: createdUsers['arya@got.example'].id, text: 'Sansa, I found a pattern for a cloak you might like.', createdAt: new Date() },
+    { conversationId: aryaSansa.id, userId: createdUsers['sansa@got.example'].id, text: 'Send it over; we can adapt it for the Winterfell theme.', createdAt: new Date() },
+  ] });
+
+  const jonSam = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, participants: { create: [{ userId: createdUsers['jon@got.example'].id }, { userId: createdUsers['samwell@got.example'].id }] } } });
+  await prisma.chatMessage.createMany({ data: [
+    { conversationId: jonSam.id, userId: createdUsers['samwell@got.example'].id, text: 'Jon, I found new references in the old annals about the Long Night.', createdAt: new Date() },
+    { conversationId: jonSam.id, userId: createdUsers['jon@got.example'].id, text: 'Bring them to the Lore Discussion; we should prepare talking points.', createdAt: new Date() },
+  ] });
 
   // Upsert memberships and roles for GOT users
   for (let i = 0; i < gotCharacters.length; i++) {

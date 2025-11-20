@@ -15,7 +15,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
 
   if (userId) {
     const membership = await getMembershipForUserInTenant(userId, tenantId);
-    const isAdmin = membership?.roles.some((role) => role.role === TenantRole.ADMIN);
+    const isAdmin = membership?.roles.some((role: { role: TenantRole }) => role.role === TenantRole.ADMIN);
 
     if (isAdmin && viewAll) {
       statuses = [BookingStatus.REQUESTED, BookingStatus.APPROVED, BookingStatus.REJECTED, BookingStatus.CANCELLED];

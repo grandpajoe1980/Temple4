@@ -66,7 +66,7 @@ export function mapEventDtoToClient(event: EventResponseDto): EventWithCreator {
     creatorDisplayName: event.creatorDisplayName,
     creatorAvatarUrl: event.creatorAvatarUrl,
     rsvpCount: event.rsvpCount,
-    currentUserRsvpStatus: event.currentUserRsvpStatus,
+    currentUserRsvpStatus: event.currentUserRsvpStatus as any,
   };
 }
 

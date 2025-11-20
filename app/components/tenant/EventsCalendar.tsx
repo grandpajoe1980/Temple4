@@ -25,7 +25,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
         title: event.title,
         start: event.startDateTime,
         end: event.endDateTime,
-        allDay: Boolean(event.isAllDay),
+        allDay: Boolean((event as any).isAllDay),
         extendedProps: { event },
       })),
     [events]

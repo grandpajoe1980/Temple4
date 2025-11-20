@@ -2,6 +2,7 @@
 
 import React from 'react';
 import type { MemberWithMembership } from '@/lib/data';
+import type { UserTenantRole } from '@/types';
 import Card from '../ui/Card';
 
 interface MemberCardProps {
@@ -18,7 +19,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
     MEMBER: 'bg-gray-100 text-gray-800',
   };
 
-  const primaryRole = member.membership.roles.find((roleInfo) => roleInfo.isPrimary) || member.membership.roles[0];
+  const primaryRole = member.membership.roles.find((roleInfo: UserTenantRole) => roleInfo.isPrimary) || member.membership.roles[0];
   const displayName = member.membership.displayName || member.profile?.displayName || member.email;
 
   return (
@@ -34,7 +35,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
           <p className="mt-1 text-sm text-amber-700 truncate">{primaryRole.displayTitle}</p>
         )}
         <div className="mt-3 flex flex-wrap justify-center gap-1.5">
-          {member.membership.roles.map((roleInfo) => (
+          {member.membership.roles.map((roleInfo: UserTenantRole) => (
             <span
               key={roleInfo.id}
               className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${

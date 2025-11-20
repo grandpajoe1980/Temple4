@@ -150,13 +150,13 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                 </div>
             )
         }
-        return <ControlPanel tenant={tenant} onUpdate={onUpdateTenant} currentUser={user} onImpersonate={onImpersonate} onRefresh={onRefresh} />;
+        return <ControlPanel tenant={tenant} onUpdate={onUpdateTenant} onSave={async (updates: any) => { onUpdateTenant({ ...tenant, ...updates }); return Promise.resolve(); }} currentUser={user} onImpersonate={onImpersonate} onRefresh={onRefresh} />;
       case 'posts':
         return <PostsPage tenant={tenant as any} user={user as any} posts={[]} canCreate={canCreatePosts} />;
       case 'calendar':
         return <EventsPage tenant={tenant} user={user} />;
       case 'members':
-        return <MembersPage tenant={tenant} user={user} members={[]} onViewProfile={onViewProfile} />;
+        return <MembersPage tenant={tenant} user={user as any} members={[]} onViewProfile={onViewProfile} />;
       case 'sermons':
         return <SermonsPage tenant={tenant} user={user as any} sermons={[]} canCreate={false} />;
       case 'podcasts':

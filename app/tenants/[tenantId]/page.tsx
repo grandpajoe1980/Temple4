@@ -76,7 +76,7 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
   const eventDtos: EventResponseDto[] = eventsResponse && eventsResponse.ok ? await eventsResponse.json() : [];
   const upcomingEvents = eventDtos.map(mapEventDtoToClient);
 
-  const postsJson = postsResponse.ok ? await postsResponse.json().catch(() => ({ posts: [] })) : { posts: [] };
+  const postsJson = postsResponse && postsResponse.ok ? await postsResponse.json().catch(() => ({ posts: [] })) : { posts: [] };
   const recentPosts = (postsJson.posts || []).map((post: any) => ({
     ...post,
     author: post.author ?? null,

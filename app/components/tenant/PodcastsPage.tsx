@@ -1,8 +1,7 @@
 "use client"
 
 import React, { useMemo, useState } from 'react';
-import type { Profile, Tenant, User } from '@prisma/client';
-import type { EnrichedMediaItem } from '@/types';
+import type { EnrichedMediaItem, Tenant, User } from '@/types';
 import Button from '../ui/Button';
 import PodcastCard from './PodcastCard';
 import Modal from '../ui/Modal';
@@ -12,7 +11,7 @@ type SerializedEnrichedPodcast = Omit<EnrichedMediaItem, 'publishedAt'> & {
   publishedAt: string | Date;
 };
 
-type UserWithProfile = User & { profile?: Profile | null };
+type UserWithProfile = User & { profile?: any | null };
 
 interface PodcastsPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
@@ -58,8 +57,8 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
         {
           ...newPodcast,
           publishedAt: new Date(newPodcast.publishedAt),
-          authorDisplayName: user.name || 'You',
-          authorAvatarUrl: user.profile?.avatarUrl ?? undefined,
+          authorDisplayName: user.profile?.displayName || user.email || 'You',
+          authorAvatarUrl: (user.profile as any)?.avatarUrl ?? undefined,
         },
         ...podcasts,
       ]);

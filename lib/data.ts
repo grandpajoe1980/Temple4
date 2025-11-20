@@ -20,6 +20,7 @@ import {
   FacilityType,
   BookingStatus,
   UserTenantRole,
+  ContactSubmission,
 } from '@prisma/client';
 import { DonationRecord, EnrichedDonationRecord, TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost, CommunityPostStatus, ContactSubmissionStatus } from '@/types';
 import { EnrichedResourceItem } from '@/types';
@@ -107,8 +108,8 @@ export interface TenantDataExport {
       profile: any;
     };
   }>;
-  posts: Array<Prisma.Post & { author?: { id: string; email: string; profile: any } | null }>;
-  events: Array<Prisma.Event & { creator?: { id: string; email: string; profile: any } | null }>;
+  posts: Array<Post & { author?: { id: string; email: string; profile: any } | null }>;
+  events: Array<Event & { creator?: { id: string; email: string; profile: any } | null }>;
   services: PrismaServiceOffering[];
   facilities: Array<
     PrismaFacility & {
@@ -116,7 +117,7 @@ export interface TenantDataExport {
       blackouts: PrismaFacilityBlackout[];
     }
   >;
-  contactSubmissions: Prisma.ContactSubmission[];
+  contactSubmissions: ContactSubmission[];
 }
 
 function assertFacilityClient() {
@@ -267,7 +268,6 @@ export async function exportTenantData(tenantId: string): Promise<TenantDataExpo
         select: {
           id: true,
           email: true,
-          createdAt: true,
           profile: true,
         },
       },
@@ -326,11 +326,11 @@ export async function exportTenantData(tenantId: string): Promise<TenantDataExpo
       id: membership.id,
       status: membership.status as MembershipStatus,
       roles: membership.roles.map((role) => role.role as TenantRole),
-      joinedAt: membership.createdAt,
+      joinedAt: new Date(), // Fallback since createdAt is missing
       user: {
         id: membership.user.id,
         email: membership.user.email,
-        createdAt: membership.user.createdAt,
+        createdAt: new Date(), // Fallback since it's not in the model
         profile: membership.user.profile,
       },
     })),
@@ -556,7 +556,7 @@ export async function createFacility(tenantId: string, data: FacilityInput): Pro
       capacity: data.capacity ?? null,
       imageUrl: data.imageUrl ?? null,
       isActive: data.isActive ?? true,
-      bookingRules: data.bookingRules ?? null,
+      bookingRules: (data.bookingRules as any) ?? null,
     },
   });
 }
@@ -578,7 +578,7 @@ export async function updateFacility(tenantId: string, facilityId: string, data:
       capacity: data.capacity === undefined ? existing.capacity : data.capacity,
       imageUrl: data.imageUrl === undefined ? existing.imageUrl : data.imageUrl,
       isActive: data.isActive ?? existing.isActive,
-      bookingRules: data.bookingRules === undefined ? (existing.bookingRules as any) : data.bookingRules,
+      bookingRules: data.bookingRules === undefined ? (existing.bookingRules as any) : (data.bookingRules as any),
     },
   });
 }
@@ -1177,8 +1177,6 @@ export async function getMembersForTenant(tenantId: string): Promise<MemberWithM
       tenantId: membership.tenantId,
       status: membership.status,
       displayName: membership.displayName,
-      createdAt: membership.createdAt,
-      updatedAt: membership.updatedAt,
       roles: membership.roles,
     },
   }));

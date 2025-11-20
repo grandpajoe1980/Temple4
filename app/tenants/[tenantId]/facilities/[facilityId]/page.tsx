@@ -8,9 +8,9 @@ import type { Facility, FacilityBlackout, FacilityBooking } from '@/types';
 export default async function FacilityDetail({
   params,
 }: {
-  params: { tenantId: string; facilityId: string };
+  params: Promise<{ tenantId: string; facilityId: string }>;
 }) {
-  const { tenantId, facilityId } = params;
+  const { tenantId, facilityId } = await params;
   const tenant = await getTenantById(tenantId);
 
   if (!tenant) {
@@ -32,6 +32,7 @@ export default async function FacilityDetail({
     ...facility,
     createdAt: facility.createdAt.toISOString(),
     updatedAt: facility.updatedAt.toISOString(),
+    bookingRules: (facility.bookingRules as Record<string, any> | null) ?? null,
     bookings: (facility.bookings ?? []).map((booking) => ({
       ...booking,
       startAt: booking.startAt.toISOString(),

@@ -48,7 +48,7 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
       setIsLoading(true);
       try {
         const allPosts = await fetchCommunityPosts(tenant.id);
-        const publishedPosts = allPosts.filter(p => p.status === CommunityPostStatus.PUBLISHED);
+        const publishedPosts = allPosts.filter((p: any) => p.status === CommunityPostStatus.PUBLISHED);
         setPosts(publishedPosts);
       } catch (error) {
         console.error('Failed to load prayer wall posts:', error);
@@ -73,7 +73,7 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
     );
     // Reload posts
     const allPosts = await fetchCommunityPosts(tenant.id);
-    const publishedPosts = allPosts.filter(p => p.status === CommunityPostStatus.PUBLISHED);
+    const publishedPosts = allPosts.filter((p: any) => p.status === CommunityPostStatus.PUBLISHED);
     setPosts(publishedPosts);
   };
 

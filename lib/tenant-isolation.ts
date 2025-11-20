@@ -58,7 +58,6 @@ export const TENANT_SCOPED_MODELS: ReadonlyArray<Prisma.ModelName> = [
   'Book',
   'Podcast',
   'Conversation',
-  'DonationSettings',
   'DonationRecord',
   'VolunteerNeed',
   'VolunteerSignup',
@@ -96,7 +95,7 @@ export function auditTenantIsolation(
   }
 
   // Skip if model doesn't need tenant scoping
-  if (!isTenantScopedModel(modelName)) {
+  if (!isTenantScopedModel(modelName as Prisma.ModelName)) {
     return;
   }
 

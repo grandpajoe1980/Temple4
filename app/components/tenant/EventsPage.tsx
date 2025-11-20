@@ -195,7 +195,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
                 fixedWeeks
                 modifiers={{ hasEvents: dayPickerEvents }}
                 modifiersClassNames={{ hasEvents: 'rdp-day-has-events' }}
-                captionLayout="buttons"
+                captionLayout="dropdown"
                 className="rdp-modern"
               />
               <p className="text-xs text-gray-500 mt-3">

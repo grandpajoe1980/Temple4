@@ -23,18 +23,18 @@ const facilitySchema = z.object({
   capacity: z.number().int().positive().optional(),
   imageUrl: z.string().url().optional().or(z.literal('')),
   isActive: z.boolean().optional(),
-  bookingRules: z.record(z.any()).optional(),
+  bookingRules: z.record(z.string(), z.any()).optional(),
 });
 
-export async function GET(request: Request, { params }: { params: { tenantId: string } }) {
-  const { tenantId } = params;
+export async function GET(request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
+  const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id ?? null;
   let includeInactive = false;
 
   if (userId) {
     const membership = await getMembershipForUserInTenant(userId, tenantId);
-    includeInactive = membership?.status === 'APPROVED' && membership.roles.some((role) => role.role === TenantRole.ADMIN);
+    includeInactive = membership?.status === 'APPROVED' && membership.roles.some((role: { role: TenantRole }) => role.role === TenantRole.ADMIN);
   }
 
   const facilities = await getFacilitiesForTenant(tenantId, { includeInactive });
@@ -42,8 +42,8 @@ export async function GET(request: Request, { params }: { params: { tenantId: st
   return NextResponse.json(facilities);
 }
 
-export async function POST(request: Request, { params }: { params: { tenantId: string } }) {
-  const { tenantId } = params;
+export async function POST(request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
+  const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id ?? null;
 

@@ -90,7 +90,7 @@ export async function listTenantPosts(options: ListTenantPostsOptions) {
     'Post'
   );
 
-  const paginationOptions = limit
+  const paginationOptions: { skip?: number; take?: number } = limit
     ? {
         skip: (page - 1) * limit,
         take: limit,

@@ -24,7 +24,6 @@ const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ con
         roles: [] as TenantRole[],
         membership: null,
       }))
-      .filter((p): p is EnrichedParticipant => p !== null)
       .sort((a, b) => {
         const roleOrder = { [TenantRole.ADMIN]: 0, [TenantRole.STAFF]: 1, [TenantRole.CLERGY]: 1, [TenantRole.MODERATOR]: 2, [TenantRole.MEMBER]: 3 };
         const aRole = a.roles[0] || TenantRole.MEMBER;

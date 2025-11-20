@@ -23,5 +23,10 @@ export default async function TenantPodcastsPage({ params }: { params: Promise<{
   const podcasts = await getPodcastsForTenant(tenant.id);
   const canCreate = await can(user, tenant, 'canCreatePodcasts');
 
-  return <PodcastsPage tenant={tenant} user={user} podcasts={podcasts} canCreate={canCreate} />;
+  const safeUser = {
+    ...user,
+    profile: user.profile ?? { displayName: user.email },
+  };
+
+  return <PodcastsPage tenant={tenant} user={safeUser as any} podcasts={podcasts} canCreate={canCreate} />;
 }

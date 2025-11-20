@@ -65,10 +65,10 @@ const VolunteerNeedCard: React.FC<VolunteerNeedCardProps> = ({ need, currentUser
             {need.signups.length > 0 ? (
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                     {need.signups.map(({ user }) => (
-                        <div key={user.id} className="flex items-center space-x-2 bg-gray-100 rounded-full pr-3 py-1">
-                            <img src={user.profile.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile.displayName} className="w-6 h-6 rounded-full"/>
-                            <span className="text-sm text-gray-800">{user.profile.displayName}</span>
-                        </div>
+                      <div key={user.id} className="flex items-center space-x-2 bg-gray-100 rounded-full pr-3 py-1">
+                        <img src={(user.profile as any)?.avatarUrl || '/placeholder-avatar.svg'} alt={(user.profile as any)?.displayName || user.email} className="w-6 h-6 rounded-full"/>
+                        <span className="text-sm text-gray-800">{(user.profile as any)?.displayName || user.email}</span>
+                      </div>
                     ))}
                 </div>
             ) : (

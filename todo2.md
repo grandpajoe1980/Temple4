@@ -296,7 +296,392 @@ Given the current state (successful build, seeded data, 88.5% tests passing), mo
 
 ---
 
-If you’d like, I can next help you:
+Here’s a focused set of concrete tickets you can drop into `tickets/` (or your issue tracker). Each includes:
 
-- Turn this into concrete issues/tickets per area (type system, tests, accessibility, etc.).
-- Or zoom into a specific feature (e.g., messaging, donations) and propose very detailed refactors and tests just for that slice.
+- Narrow scope + guardrails to avoid regressions or “big refactors.”
+- Clear “Definition of Done” / metrics of success.
+- Alignment with the existing plan in `docs/todo.md` and Ticket #0002.
+
+You can adapt the numbering to your existing scheme (`00xx-*.md`).
+
+---
+
+## Ticket 0003 – Eliminate Remaining `as any` Casts (Phase 1: High‑Risk Surfaces Only)
+
+**Status:** OPEN  
+**Area:** Type system, maintainability  
+**Depends on:** Ticket #0002 – Type System Alignment
+
+### Goal
+
+Remove the remaining high‑impact `as any` casts while keeping the build green and behavior unchanged.
+
+### Scope
+
+- Only touch components and files where `as any` directly affect:
+  - Auth/identity (user, memberships, roles).
+  - Tenant boundary (tenant pages, members/volunteering views).
+- Do NOT attempt to redesign the entire typing strategy in one go.
+
+### Tasks
+
+1. **Inventory casts (target list)**
+   - Use `grep` / IDE search for `as any` and `TODO: Type mismatch - see Ticket #0002`.
+   - Produce a markdown checklist inside this ticket with:
+     - `[ ]` `app/tenants/[tenantId]/members/page.tsx`
+     - `[ ]` `app/tenants/[tenantId]/volunteering/page.tsx`
+     - `[ ]` `app/messages/page.tsx`
+     - `[ ]` `app/explore/page.tsx`
+     - `[ ]` `lib/auth.ts`
+     - `[ ]` Any other file where `as any` touches user/tenant/role data.
+
+2. **Replace casts with explicit types**
+   - For each file in the checklist:
+     - Replace `as any` on domain data with:
+       - Either Prisma types (`User`, `Tenant`, `UserTenantMembership`, etc.).
+       - Or explicit DTO interfaces declared in `types.ts` (or a nearby `types` file).
+     - If a transformation is required (e.g., nested Prisma includes → flat UI shape), add a dedicated mapper function in `lib/data.ts` or a small helper nearby.
+
+3. **Keep behavior identical**
+   - Do not change:
+     - Route URLs.
+     - Business logic conditions.
+   - Only adjust type annotations and mapping functions.
+
+4. **Update Ticket #0002**
+   - Record which `as any` locations have been removed as “Phase 1 complete” in Ticket #0002.
+
+### Guardrails
+
+- Do NOT:
+  - Introduce new `any` or `unknown` anywhere.
+  - Change public APIs, route signatures, or Prisma schema.
+  - Move files or reorganize folders as part of this ticket.
+- After each change, run:
+  - `npm run lint` (if configured).
+  - `npm run build`.
+
+### Definition of Done
+
+- All `as any` casts that directly affect auth/tenant/role data are removed or replaced by explicit types.
+- `npm run build` passes (TypeScript still 0 errors).
+- All 61 tests still run with:
+  - 54 passing.
+  - 6 failing, 1 skipped (unchanged baseline).
+- Ticket #0002 updated to reflect which casts remain (if any).
+
+---
+
+## Ticket 0004 – Lock In Client/Server Boundaries for Tenant Home & Events (Pilot Only)
+
+**Status:** OPEN  
+**Area:** Architecture, maintainability  
+**Depends on:** None (build is already green)
+
+### Goal
+
+Pilot a clean pattern for client/server separation on **one small vertical slice** (tenant home + events), without touching the rest of the app.
+
+### Scope
+
+- Only these routes/components:
+  - `app/tenants/[tenantId]/page.tsx` (tenant home).
+  - `app/tenants/[tenantId]/events/page.tsx` (events list page).
+  - Any small shared components they directly use for listing events.
+- Do NOT propagate changes beyond this vertical slice.
+
+### Tasks
+
+1. **Snapshot current behavior**
+   - In dev:
+     - Navigate to a seeded tenant’s home and events pages.
+     - Capture:
+       - URLs used (including query params).
+       - Data shown (title, dates, counts).
+   - Note current behavior in this ticket.
+
+2. **Create/verify dedicated API for events**
+   - Confirm there is a `GET /api/tenants/[tenantId]/events` route with:
+     - Proper tenant isolation (`tenantId` scoped).
+     - Permission checks (public vs member‑only, soft deletes).
+   - If missing or incomplete:
+     - Implement/fix it **using existing patterns**:
+       - `withErrorHandling` from `lib/api-response.ts`.
+       - `getTenantContext` / tenant isolation helpers.
+       - `lib/logger.ts` for key logs.
+
+3. **Update pages to use API (not internal data functions)**
+   - Tenant events page:
+     - Use `fetch('/api/tenants/.../events')` from a server component or a client component with `useEffect`.
+     - Remove any direct imports of internal data helpers (e.g., from `lib/data.ts`) in that page.
+   - Tenant home page:
+     - If it shows a small subset of events, consume the same API (or a slimmed down version) instead of calling lib directly.
+
+4. **Add a small test for the new pattern**
+   - Add or extend an integration test in `test-suite/api-tests.ts`:
+     - Assert that `GET /api/tenants/{tenantId}/events` returns the expected event structure and respects tenancy and visibility.
+
+### Guardrails
+
+- Do NOT:
+  - Rename or move the `app/tenants` directory.
+  - Change route params (`[tenantId]` vs `[slug]`).
+  - Refactor other domains (posts, messaging, donations) as part of this ticket.
+- Any new helper must:
+  - Live in `lib/` (or a clearly named service file).
+  - Be documented briefly in `lib/README.md` if it’s a reusable pattern.
+
+### Definition of Done
+
+- Tenant home & events pages use a clear API boundary:
+  - No direct Prisma or `lib/data` calls from those pages.
+- `GET /api/tenants/{tenantId}/events` is:
+  - Fully tested (basic success + a permission/visibility case).
+- `npm run build` and `npm run test:suite` pass with baseline results.
+
+---
+
+## Ticket 0005 – Make Failing Feature Tests Explicit and Stable
+
+**Status:** OPEN  
+**Area:** Testing, correctness  
+**Depends on:** Existing test suite
+
+### Goal
+
+Turn the 6 failing tests into either:
+
+- Passing tests verifying real behavior, or  
+- Deliberately skipped tests with documented reasons and pointers to future work.
+
+### Scope
+
+- Only the known failing tests:
+  - Search flow (401).
+  - Membership flow (404).
+  - Content creation flows (post, event, sermon) – 401s.
+  - `GET /api/tenants/[tenantId]/community-posts` – 401.
+
+### Tasks
+
+1. **Classify each failure**
+   - For each of the 6 failing tests:
+     - Identify the exact test function name and file (e.g., `feature-tests.ts`).
+     - Note:
+       - Expected status (e.g., 200) vs actual (e.g., 401).
+       - Whether the UI / API actually works manually in dev.
+
+2. **Fix genuine missing behavior**
+   - If manual testing shows the feature is incomplete (e.g., search or membership queue is not wired correctly):
+     - Implement just enough backend/route logic for the test to reflect the intended behavior.
+     - Keep changes minimal and confined to that route/flow.
+
+3. **Fix auth/session setup where it’s a harness issue**
+   - If the feature works in manual testing but fails in tests due to session/cookies:
+     - Adjust `test-suite/setup-test-users.ts` / `test-config.ts` and test helpers to establish auth correctly.
+     - If impossible due to HTTP‑only cookie constraints:
+       - Mark those tests `skip` with a comment:
+         - Why (test harness limitation).
+         - What future work would make them viable.
+
+4. **Document final status**
+   - Update `test-suite/COMPLETION-SUMMARY.md` with:
+     - A small table: test name → status (PASS / SKIP w/ reason).
+     - Clear note that all remaining failures, if any, are intentional skips.
+
+### Guardrails
+
+- Do NOT:
+  - Change the semantics for 401 vs 403 vs 404 in production code unless clearly wrong.
+  - Loosen assertions to “just check 200” without verifying the response shape.
+- Any test you skip must:
+  - Have a comment referencing either:
+    - A future ticket (e.g., “See ticket 000X for real search implementation”).
+    - Or the explicit harness limitation.
+
+### Definition of Done
+
+- `npm run test:suite` produces:
+  - 0 unexpected failures.
+  - Any remaining non‑passing tests are clearly marked `skip` with rationale.
+- `test-suite/COMPLETION-SUMMARY.md` reflects updated, accurate status.
+- No production behavior was degraded; manual smoke test of:
+  - Login, tenant view, creating content from UI.
+
+---
+
+## Ticket 0006 – Roll Out Standard Error Handling to All Tenant APIs
+
+**Status:** OPEN  
+**Area:** Error handling, consistency  
+**Depends on:** `lib/api-response.ts` (already implemented)
+
+### Goal
+
+Ensure all tenant‑scoped API routes use the standardized error/response pattern from `lib/api-response.ts`.
+
+### Scope
+
+- All `app/api/tenants/[tenantId]/**/route.ts` files.
+- Does not include global non‑tenant APIs (e.g. `/api/auth/[...nextauth]`).
+
+### Tasks
+
+1. **Route inventory**
+   - List all tenant‑scoped API route files under `app/api/tenants/[tenantId]`.
+   - Add them as a checklist in this ticket.
+
+2. **Apply `withErrorHandling` wrapper**
+   - For each route:
+     - Wrap the handler with `withErrorHandling` (or related helpers) as used in the posts API example.
+     - Replace raw `new Response(...)` / bare `return NextResponse.json({ error: ... })` error paths with:
+       - `unauthorized()`, `forbidden()`, `notFound()`, `validationError()`, or generic `internalServerError()` from `lib/api-response.ts` as appropriate.
+
+3. **Align status codes**
+   - Confirm:
+     - Unauthenticated → 401.
+     - Authenticated but not permitted → 403.
+     - Not found (tenant, resource) → 404.
+   - Log unexpected errors via `handleApiError` and logger integration.
+
+4. **Quick regression tests**
+   - Extend or add a small set of tests in `test-suite/api-tests.ts`:
+     - For a few representative tenant routes (posts, events, donations):
+       - Assert on status codes and error shapes for not‑authed / not‑permitted / not‑found cases.
+
+### Guardrails
+
+- No business logic changes:
+  - Do not change conditions determining who is allowed to do what.
+  - Only standardize error paths and HTTP codes.
+- Do not change route URLs or params.
+
+### Definition of Done
+
+- Every tenant‑scoped API route:
+  - Uses `withErrorHandling` (or the same standardized pattern).
+  - Returns structured error payloads consistent with `lib/api-response.ts`.
+- Tests for at least 3 representative endpoints confirm error behavior.
+- `npm run build` and `npm run test:suite` pass baseline.
+
+---
+
+## Ticket 0007 – Tenant Isolation Audit for Messaging & Donations
+
+**Status:** OPEN  
+**Area:** Security, correctness  
+**Depends on:** `lib/tenant-isolation.ts`, existing Prisma schema
+
+### Goal
+
+Verify and enforce that messaging and donations never leak data across tenants.
+
+### Scope
+
+- Messaging models/routes:
+  - `Conversation`, `ConversationParticipant`, `ChatMessage`.
+  - Relevant routes under `app/api/conversations` and tenant messaging.
+- Donations models/routes:
+  - `DonationSettings`, `DonationRecord`.
+  - Routes under `app/api/tenants/[tenantId]/donations/**`.
+
+### Tasks
+
+1. **Query review**
+   - Inspect Prisma queries in messaging and donation routes and services.
+   - For each query, verify:
+     - It includes `tenantId` in the `where` clause where appropriate.
+     - Or uses a helper that enforces tenancy.
+
+2. **Introduce/use helper where needed**
+   - Where routes access messaging/donations without explicit tenant scoping:
+     - Use `getTenantContext` or a small helper in `lib/tenant-isolation.ts` to:
+       - Resolve tenant.
+       - Confirm membership and permissions.
+       - Inject `tenantId` into queries.
+
+3. **Add targeted tests**
+   - Extend `permissions-tests.ts` or `api-tests.ts` to verify:
+     - A user from Tenant A cannot:
+       - Read conversations or donations from Tenant B.
+       - See cross‑tenant records even if IDs are guessed.
+   - Use seeded data (Springfield tenant and others) where possible.
+
+### Guardrails
+
+- Do NOT:
+  - Change the messaging or donation feature surface (no new routes, no removal).
+  - Implement new multi‑tenant messaging semantics; focus is isolation/security.
+- If a query cannot be easily tenant‑scoped:
+  - Document it in this ticket and propose a follow‑up ticket rather than “quick hacks.”
+
+### Definition of Done
+
+- All messaging and donation queries involving tenant‑scoped data:
+  - Either use explicit `tenantId` filters.
+  - Or are clearly validated as safe (documented exceptions).
+- Tests demonstrate that cross‑tenant leakage is not possible via API.
+- No existing passing tests regress.
+
+---
+
+## Ticket 0008 – Accessibility & UX Sweep for Core Navigation and Forms
+
+**Status:** OPEN  
+**Area:** Accessibility, UX  
+**Depends on:** None
+
+### Goal
+
+Perform a focused, bounded accessibility and UX pass on **navigation + key auth/tenant forms**, without refactoring the entire UI.
+
+### Scope
+
+- Global navigation and Tenant navigation layout:
+  - `app/layout.tsx`
+  - `app/tenants/[tenantId]/layout.tsx`
+  - Any primary nav components under `app/components`.
+- Auth forms:
+  - Login, register, forgot password, reset password.
+- Tenant join/approve flow forms.
+
+### Tasks
+
+1. **Checklist against basic a11y criteria**
+   - For the targeted pages/components, check:
+     - Visible focus states on interactive elements.
+     - Logical tab order.
+     - Proper `<label>` and `htmlFor` / ARIA relationships for form controls.
+     - `role="dialog"` and focus trapping for modals, if any.
+
+2. **Fix obvious gaps**
+   - Add:
+     - Missing labels / `aria-label`.
+     - `aria-describedby` for error messages on fields.
+     - Keyboard handlers where clicks are required (e.g. Space/Enter on “button‑like” links).
+   - Ensure toasts and inline errors:
+     - Are perceivable by screen readers when feasible (e.g. `aria-live` where appropriate).
+
+3. **Document scope & findings**
+   - In `ui.md` or `DEVELOPER-GUIDE.md`, add a small section:
+     - What has been explicitly checked.
+     - Known remaining gaps (e.g., complex modals not yet audited).
+
+### Guardrails
+
+- No major redesign; visual look and layout should remain recognizable.
+- Avoid adding dependencies; use existing component primitives.
+- Don’t attempt to make **all** pages WCAG‑perfect in this ticket—keep it to the defined scope.
+
+### Definition of Done
+
+- Core navigation and auth/tenant forms:
+  - Are keyboard navigable.
+  - Have proper labels for all inputs.
+  - Provide readable focus outlines.
+- Any changes are documented succinctly in UI docs.
+- `npm run build` and `npm run test:suite` still pass baseline.
+
+---
+
+If you tell me which of these you want to tackle first (e.g., “start with type alignment” or “fix test suite”), I can draft the exact `tickets/00xx-*.md` file contents in your house style, ready to commit.

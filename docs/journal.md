@@ -1818,3 +1818,16 @@ Email providers supported: 3 (Resend, SendGrid, Mock)
 
 ### Notes
 - These changes chip away at the remaining Ticket #0002 casts and reinforce the tenant isolation guardrails while keeping behavior intact.
+
+## Session 19: 2025-11-20T06:00Z - Podcast typing cleanup
+
+### Goal
+- Continue the Ticket #0002 priority by replacing `as any` casts in the podcasts flow with Prisma-aligned types and hydrated dates.
+
+### Activities
+- Updated `PodcastsPage` to consume `EnrichedMediaItem` DTOs with normalized `publishedAt` dates so the client render path stays type-safe.
+- Added profile-aware typing for the current user so avatar URLs populate without casting and new podcast entries merge correctly into state.
+- Reflected the progress in `todo2.md` under the type system alignment track.
+
+### Notes
+- Automated tests were not run for this small typing-only change; behavior is unchanged aside from safer typing.

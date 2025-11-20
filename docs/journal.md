@@ -1844,3 +1844,15 @@ Email providers supported: 3 (Resend, SendGrid, Mock)
 
 ### Notes
 - Tests were not run in this short hardening pass; behavior changes are limited to additional access checks.
+
+## Session 21: 2025-11-20T08:05Z - Tenant-scoped conversation query filter
+
+### Goal
+- Continue Ticket #0007 by applying tenant-aware filters before fetching conversation data to prevent cross-tenant leakage.
+
+### Activities
+- Restricted `/api/conversations` to only fetch conversations belonging to tenants where the requester has approved membership (or no tenant), eliminating cross-tenant threads before unread counts and participant details load.
+- Updated `todo2.md` progress to capture the tightened tenant-scoped filtering work.
+
+### Notes
+- Automated tests were not executed in this session; follow-up runs should verify the messaging suite once available.

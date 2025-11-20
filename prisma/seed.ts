@@ -250,6 +250,7 @@ async function main() {
           enableSmallGroups: true,
           enableLiveStream: true,
           enablePrayerWall: true,
+          autoApprovePrayerWall: false,
           enableResourceCenter: true,
           donationSettings: {
             enableRecurring: true,

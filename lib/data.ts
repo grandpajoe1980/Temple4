@@ -850,6 +850,7 @@ export async function createTenant(tenantDetails: Omit<Tenant, 'id' | 'slug' | '
                     enableSmallGroups: true,
                     enableLiveStream: true,
                     enablePrayerWall: true,
+                    autoApprovePrayerWall: false,
                     enableResourceCenter: true,
                     visitorVisibility: {},
                     donationSettings: {},

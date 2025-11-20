@@ -107,7 +107,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
         return <LiveStreamTab tenant={tenant} onUpdate={onUpdate} onSave={onSave} />;
       case 'Prayer Wall':
         return currentUser ? (
-          <PrayerWallTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
+          <PrayerWallTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} onUpdate={onUpdate} onSave={onSave} />
         ) : null;
       case 'Resource Center':
         return currentUser ? (

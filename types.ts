@@ -242,6 +242,7 @@ export interface TenantSettings {
   enableSmallGroups: boolean;
   enableLiveStream: boolean;
   enablePrayerWall: boolean;
+  autoApprovePrayerWall: boolean;
   enableResourceCenter: boolean;
   donationSettings: DonationSettings;
   liveStreamSettings: LiveStreamSettings;

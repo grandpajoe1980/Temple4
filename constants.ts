@@ -106,6 +106,7 @@ export const getInitialTenant = (): Omit<Tenant, 'id' | 'name' | 'slug' | 'creed
     enableSmallGroups: true,
     enableLiveStream: false,
     enablePrayerWall: false,
+    autoApprovePrayerWall: false,
     enableResourceCenter: false,
     donationSettings: {
       mode: 'EXTERNAL',

@@ -5,17 +5,21 @@ import type { Tenant, User, EnrichedCommunityPost } from '@/types';
 import { CommunityPostStatus } from '@/types';
 import { getCommunityPostsForTenant, updateCommunityPostStatus } from '@/lib/data';
 import Button from '../../ui/Button';
+import ToggleSwitch from '../../ui/ToggleSwitch';
 
 interface PrayerWallTabProps {
   tenant: Tenant;
   currentUser: User;
   onRefresh: () => void;
+  onUpdate: (tenant: Tenant) => void;
+  onSave: (updates: any) => Promise<any>;
 }
 
-const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRefresh }) => {
+const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRefresh, onUpdate, onSave }) => {
   const [allPosts, setAllPosts] = useState<EnrichedCommunityPost[]>([]);
   const [statusFilter, setStatusFilter] = useState<CommunityPostStatus | 'ALL'>('ALL');
   const [isLoading, setIsLoading] = useState(true);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -48,6 +52,29 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
     }
   }
 
+  const handleAutoApproveToggle = (enabled: boolean) => {
+    onUpdate({
+      ...tenant,
+      settings: {
+        ...tenant.settings,
+        autoApprovePrayerWall: enabled,
+      },
+    });
+  };
+
+  const handleSaveSettings = async () => {
+    setIsSavingSettings(true);
+    try {
+      await onSave({ settings: { ...tenant.settings } });
+      onRefresh();
+      alert('Prayer wall settings saved');
+    } catch (error: any) {
+      alert(error.message || 'Failed to save prayer wall settings');
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
   const filteredPosts = useMemo(() => {
     if (statusFilter === 'ALL') {
       return allPosts;
@@ -76,6 +103,20 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
       <div>
         <h3 className="text-lg font-medium leading-6 text-gray-900">Prayer Wall Moderation</h3>
         <p className="mt-1 text-sm text-gray-500">Manage all prayer requests and tangible needs submitted by members.</p>
+      </div>
+
+      <div className="space-y-4 rounded-lg bg-white p-4 shadow-sm border border-gray-200">
+        <ToggleSwitch
+          label="Auto-approve community posts"
+          description="When enabled, new prayer requests are published immediately without moderator approval."
+          enabled={tenant.settings.autoApprovePrayerWall}
+          onChange={handleAutoApproveToggle}
+        />
+        <div className="text-right">
+          <Button onClick={handleSaveSettings} disabled={isSavingSettings}>
+            {isSavingSettings ? 'Saving...' : 'Save Prayer Wall Settings'}
+          </Button>
+        </div>
       </div>
 
       <div className="border-b border-gray-200">

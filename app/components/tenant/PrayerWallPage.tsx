@@ -43,7 +43,11 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
     });
     onRefresh?.();
     setIsModalOpen(false);
-    alert('Your request has been submitted for review.');
+    alert(
+      tenant.settings?.autoApprovePrayerWall
+        ? 'Your request has been posted to the prayer wall.'
+        : 'Your request has been submitted for review.'
+    );
     // Reload posts
     const allPosts = await getCommunityPostsForTenant(tenant.id, false);
     const publishedPosts = allPosts.filter(p => p.status === CommunityPostStatus.PUBLISHED);

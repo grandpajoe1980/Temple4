@@ -112,7 +112,9 @@ export async function POST(
                 tenantId: resolvedParams.tenantId,
                 authorUserId: result.data.isAnonymous ? null : userId,
                 ...result.data,
-                status: 'PENDING_APPROVAL', // Or PUBLISHED, depending on tenant settings
+                status: tenant.settings?.autoApprovePrayerWall
+                    ? CommunityPostStatus.PUBLISHED
+                    : CommunityPostStatus.PENDING_APPROVAL,
             },
         });
 

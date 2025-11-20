@@ -339,6 +339,7 @@ model TenantSettings {
   enableSmallGroups        Boolean                @default(false)
   enableLiveStream         Boolean                @default(false)
   enablePrayerWall         Boolean                @default(false)
+  autoApprovePrayerWall    Boolean                @default(false)
   enableResourceCenter     Boolean                @default(false)
   donationSettings         Json // DonationSettings
   liveStreamSettings       Json // LiveStreamSettings

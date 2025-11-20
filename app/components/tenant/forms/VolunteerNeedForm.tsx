@@ -5,7 +5,7 @@ import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 
 interface VolunteerNeedFormProps {
-  onSubmit: (data: { title: string; description: string; date: Date; slotsNeeded: number }) => void;
+  onSubmit: (data: { title: string; description: string; date: Date; slotsNeeded: number; location?: string }) => void;
   onCancel: () => void;
 }
 
@@ -14,6 +14,7 @@ const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCance
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [slotsNeeded, setSlotsNeeded] = useState(1);
+  const [location, setLocation] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +27,7 @@ const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCance
       description,
       date: new Date(date),
       slotsNeeded,
+      location,
     });
   };
 
@@ -52,6 +54,15 @@ const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCance
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
+      <Input
+        label="Location"
+        id="location"
+        name="location"
+        value={location}
+        onChange={(e) => setLocation(e.target.value)}
+        required={false}
+      />
+
       <div className="grid grid-cols-2 gap-6">
         <Input
           label="Date"

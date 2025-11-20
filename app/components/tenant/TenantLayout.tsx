@@ -129,7 +129,7 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
     // Tenant navigation is already handled by being in the layout
   };
   
-  const tenantDisplayName = membership?.displayName || user.profile.displayName;
+  const tenantDisplayName = membership?.displayName || user.profile?.displayName;
   const unreadNotificationCount = notifications.filter(n => !n.isRead).length;
 
   // If the user lands on the settings page without permission (e.g., from a stale URL), redirect them.
@@ -247,7 +247,7 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                             )}
                         </div>
                         <div className="flex items-center space-x-2">
-                             <img src={user.profile.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile.displayName} className="h-8 w-8 rounded-full"/>
+                             <img src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
                              <p className="font-semibold text-amber-700 text-sm hidden sm:block">{tenantDisplayName}</p>
                         </div>
                         <Button variant="secondary" size="sm" onClick={onLogout}>Logout</Button>

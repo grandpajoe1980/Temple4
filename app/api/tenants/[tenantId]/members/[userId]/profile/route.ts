@@ -50,15 +50,28 @@ export async function PATCH(
       return NextResponse.json({ message: 'Membership not found' }, { status: 404 });
     }
 
-    const updated = await prisma.userTenantMembership.update({
+    // Update membership displayName if provided
+    const updatedMembership = await prisma.userTenantMembership.update({
       where: { userId_tenantId: { userId, tenantId } },
       data: {
         displayName: result.data.displayName ?? membership.displayName,
-        displayTitle: result.data.displayTitle ?? membership.displayTitle,
       },
     });
 
-    return NextResponse.json(updated);
+    // If a displayTitle was provided, persist it to the primary UserTenantRole record (if present)
+    if (result.data.displayTitle !== undefined) {
+      const primaryRole = await prisma.userTenantRole.findFirst({
+        where: { membershipId: membership.id, isPrimary: true },
+      });
+      if (primaryRole) {
+        await prisma.userTenantRole.update({
+          where: { id: primaryRole.id },
+          data: { displayTitle: result.data.displayTitle ?? primaryRole.displayTitle },
+        });
+      }
+    }
+
+    return NextResponse.json(updatedMembership);
   } catch (error) {
     console.error(`Failed to update membership profile for ${userId} in tenant ${tenantId}:`, error);
     return NextResponse.json({ message: 'Failed to update membership profile' }, { status: 500 });

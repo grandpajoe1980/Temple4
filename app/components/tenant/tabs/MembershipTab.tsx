@@ -156,10 +156,10 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                           <div className="flex items-center">
                             <div className="h-10 w-10 flex-shrink-0">
-                              <img className="h-10 w-10 rounded-full" src={member.profile.avatarUrl || '/placeholder-avatar.svg'} alt={member.profile.displayName} />
+                              <img className="h-10 w-10 rounded-full" src={member.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={member.profile?.displayName} />
                             </div>
                             <div className="ml-4">
-                              <div className="font-medium text-gray-900">{member.profile.displayName}</div>
+                              <div className="font-medium text-gray-900">{member.profile?.displayName}</div>
                               <div className="text-gray-500">{member.email}</div>
                             </div>
                           </div>
@@ -172,18 +172,18 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
                            <div className="flex items-center justify-end space-x-2">
                              {member.membership.status === MembershipStatus.PENDING && canApprove && (
                                 <>
-                                  <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.REJECTED, member.profile.displayName)}>Reject</Button>
-                                  <Button size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.APPROVED, member.profile.displayName)}>Approve</Button>
+                                  <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.REJECTED, member.profile?.displayName)}>Reject</Button>
+                                  <Button size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.APPROVED, member.profile?.displayName)}>Approve</Button>
                                 </>
                              )}
                               {member.membership.status === MembershipStatus.APPROVED && canApprove && (
                                 <Button variant="secondary" size="sm" onClick={() => setEditingMember(member)}>Edit Roles</Button>
                               )}
                              {member.membership.status === MembershipStatus.APPROVED && canBan && (
-                                <Button variant="danger" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.BANNED, member.profile.displayName)}>Ban</Button>
+                                <Button variant="danger" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.BANNED, member.profile?.displayName)}>Ban</Button>
                              )}
                               {member.membership.status === MembershipStatus.BANNED && canBan && (
-                                <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.APPROVED, member.profile.displayName)}>Unban</Button>
+                                <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.APPROVED, member.profile?.displayName)}>Unban</Button>
                              )}
                              {currentUser.isSuperAdmin && currentUser.id !== member.id && (
                                <Button variant="secondary" size="sm" onClick={() => onImpersonate(member)}>Impersonate</Button>

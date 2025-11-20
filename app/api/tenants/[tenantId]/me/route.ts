@@ -4,7 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/db';
 import { getTenantContext } from '@/lib/tenant-context';
 import { hasRole, can } from '@/lib/permissions';
-import { TenantRole } from '@prisma/client';
+import { TenantRole } from '@/types';
 
 export async function GET(
   request: Request,

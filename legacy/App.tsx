@@ -418,7 +418,7 @@ const App: React.FC = () => {
                   <p className="text-sm text-gray-500">
                     {currentUser.isSuperAdmin ? 'Super Admin' : 'Logged in as'}
                   </p>
-                  <p className="font-semibold text-amber-700">{currentUser.profile.displayName}</p>
+                  <p className="font-semibold text-amber-700">{currentUser.profile?.displayName}</p>
                 </div>
                  <Button variant="secondary" onClick={() => handleViewMessages()}>Messages</Button>
                  <Button variant="secondary" onClick={handleViewAccountSettings}>Account</Button>

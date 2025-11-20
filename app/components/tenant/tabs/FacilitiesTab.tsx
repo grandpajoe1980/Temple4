@@ -6,7 +6,7 @@ import Card from '../../ui/Card';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import Input from '../../ui/Input';
-import type { BookingStatus } from '@prisma/client';
+import { BookingStatus } from '@prisma/client';
 
 interface FacilitiesTabProps {
   tenant: any;
@@ -116,7 +116,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
 
     if (response.ok) {
       setIsModalOpen(false);
-      setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '' });
+      setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '', imageUrl: '' });
       await loadFacilities();
       await loadBookings();
       onRefresh();

@@ -43,7 +43,7 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ currentUser, onClose,
     return allOtherUsers.filter(
       u =>
         // FIX: Access displayName from the nested profile object.
-        u.profile.displayName.toLowerCase().includes(lowercasedTerm) ||
+        u.profile?.displayName.toLowerCase().includes(lowercasedTerm) ||
         u.email.toLowerCase().includes(lowercasedTerm)
     );
   }, [allOtherUsers, searchTerm]);
@@ -70,9 +70,9 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ currentUser, onClose,
               >
                 <div className="flex items-center space-x-4">
                   {/* FIX: Access avatarUrl and displayName from the nested profile object. */}
-                  <img src={user.profile.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile.displayName} className="w-10 h-10 rounded-full" />
+                  <img src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile?.displayName} className="w-10 h-10 rounded-full" />
                   <div>
-                    <p className="font-semibold text-gray-800">{user.profile.displayName}</p>
+                    <p className="font-semibold text-gray-800">{user.profile?.displayName}</p>
                     <p className="text-sm text-gray-500">{user.email}</p>
                   </div>
                 </div>

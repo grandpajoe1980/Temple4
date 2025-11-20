@@ -30,7 +30,7 @@ const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ con
         const bRole = b.roles[0] || TenantRole.MEMBER;
         if (roleOrder[aRole] < roleOrder[bRole]) return -1;
         if (roleOrder[aRole] > roleOrder[bRole]) return 1;
-        return a.profile.displayName.localeCompare(b.profile.displayName);
+        return (a.profile?.displayName ?? '').localeCompare(b.profile?.displayName ?? '');
       });
   }, [conversation.participants]);
 
@@ -67,9 +67,9 @@ const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ con
               onClick={() => onViewProfile(participant.id)}
             >
               <div className="flex items-center space-x-3">
-                <img src={participant.profile.avatarUrl || '/placeholder-avatar.svg'} alt={participant.profile.displayName} className="w-8 h-8 rounded-full" />
+                <img src={participant.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={participant.profile?.displayName ?? ''} className="w-8 h-8 rounded-full" />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-800">{participant.membership?.displayName || participant.profile.displayName}</p>
+                  <p className="text-sm font-semibold text-gray-800">{participant.membership?.displayName ?? participant.profile?.displayName ?? ''}</p>
                   <div className="flex flex-wrap gap-1 mt-0.5">
                     {participant.roles.map(role => (
                        <span key={role} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${roleColors[role] || 'bg-gray-100 text-gray-800'}`}>

@@ -13,6 +13,7 @@ const volunteerNeedSchema = z.object({
   date: z.string().datetime(),
   slotsNeeded: z.number().int().positive('At least one slot is required'),
   eventId: z.string().optional(),
+  location: z.string().max(200).optional(),
 });
 
 // GET /api/tenants/[tenantId]/volunteer-needs - List volunteer needs
@@ -159,7 +160,7 @@ export async function POST(
       );
     }
 
-    const { title, description, date, slotsNeeded, eventId } = result.data;
+    const { title, description, date, slotsNeeded, eventId, location } = result.data;
 
     // If eventId provided, verify it exists and belongs to this tenant
     if (eventId) {
@@ -184,6 +185,7 @@ export async function POST(
         date: new Date(date),
         slotsNeeded,
         eventId,
+        location,
       },
       include: {
         signups: true

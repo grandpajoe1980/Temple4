@@ -41,7 +41,7 @@ const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, 
     if (!searchTerm) return allMembers;
     const lower = searchTerm.toLowerCase();
     return allMembers.filter(
-      m => m.profile.displayName.toLowerCase().includes(lower) || m.email.toLowerCase().includes(lower)
+      m => m.profile?.displayName.toLowerCase().includes(lower) || m.email.toLowerCase().includes(lower)
     );
   }, [allMembers, searchTerm]);
 
@@ -95,10 +95,10 @@ const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, 
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                       <div className="flex items-center">
                         <div className="h-10 w-10 flex-shrink-0">
-                          <img className="h-10 w-10 rounded-full" src={member.profile.avatarUrl || '/placeholder-avatar.svg'} alt={member.profile.displayName} />
+                          <img className="h-10 w-10 rounded-full" src={member.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={member.profile?.displayName} />
                         </div>
                         <div className="ml-4">
-                          <div className="font-medium text-gray-900">{member.profile.displayName}</div>
+                          <div className="font-medium text-gray-900">{member.profile?.displayName}</div>
                           <div className="text-gray-500">{member.email}</div>
                         </div>
                       </div>

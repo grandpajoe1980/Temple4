@@ -45,7 +45,7 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
     onRefresh();
   };
 
-  const handleCreateNeed = async (data: { title: string; description: string; date: Date; slotsNeeded: number }) => {
+  const handleCreateNeed = async (data: { title: string; description: string; date: Date; slotsNeeded: number; location?: string }) => {
     try {
       const res = await fetch(`/api/tenants/${tenant.id}/volunteer-needs`, {
         method: 'POST',
@@ -54,7 +54,7 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
       });
       if (!res.ok) throw new Error('Failed to create volunteer need');
       await refreshNeeds();
-      setIsModalOpen(false);
+        setIsModalOpen(false);
     } catch (err) {
       console.error('Failed to create volunteer need', err);
       alert('Failed to create volunteer need');
@@ -72,7 +72,7 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
           <h3 className="text-lg font-medium leading-6 text-gray-900">Volunteer Management</h3>
           <p className="mt-1 text-sm text-gray-500">Create and manage volunteer opportunities for your members.</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>+ Create Need</Button>
+        <Button onClick={() => setIsModalOpen(true)}>+ New</Button>
       </div>
 
       <div className="space-y-4">
@@ -97,9 +97,9 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
                     <ul className="divide-y divide-gray-200">
                       {need.signups.map(({ user, signup }: any) => (
                         <li key={signup.id} className="py-2 flex items-center space-x-3">
-                          <img src={user.profile.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile.displayName} className="w-8 h-8 rounded-full" />
+                          <img src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile?.displayName} className="w-8 h-8 rounded-full" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{user.profile.displayName}</p>
+                            <p className="text-sm font-medium text-gray-900">{user.profile?.displayName}</p>
                             <p className="text-xs text-gray-500">{user.email}</p>
                           </div>
                         </li>

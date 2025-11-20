@@ -1,17 +1,21 @@
 "use client";
 
 import React, { useMemo, useState } from 'react';
-import type { Tenant, TenantSettings } from '@/types';
+import type { Prisma } from '@prisma/client';
 import Button from '../ui/Button';
 
+type TenantWithRelations = Prisma.TenantGetPayload<{
+  include: { settings: true; branding: true };
+}>;
+
 interface TenantSelectorProps {
-  tenants: Tenant[];
+  tenants: TenantWithRelations[];
   onSelect: (tenantId: string) => void;
   onCreateNew: () => void;
 }
 
 type FeatureKey = keyof Pick<
-  TenantSettings,
+  Prisma.TenantSettings,
   | 'enableCalendar'
   | 'enableGroupChat'
   | 'enableDonations'
@@ -35,7 +39,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
   const filteredTenants = useMemo(() => {
     const lowerQuery = query.trim().toLowerCase();
     return tenants
-      .filter((tenant: any) => {
+      .filter((tenant) => {
         if (!lowerQuery) return true;
         const safeAddress = tenant.address ?? {
           street: tenant.street,
@@ -50,7 +54,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
           .toLowerCase();
         return searchBlob.includes(lowerQuery);
       })
-      .sort((a: any, b: any) => a.name.localeCompare(b.name));
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, [tenants, query]);
 
   return (
@@ -88,7 +92,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
             No temples match that search yet. Try another phrase or create a new tenant.
           </div>
         ) : (
-          filteredTenants.map((tenant: any) => {
+          filteredTenants.map((tenant) => {
             const safeAddress = tenant.address ?? {
               street: tenant.street,
               city: tenant.city,
@@ -96,12 +100,12 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
               country: tenant.country,
               postalCode: tenant.postalCode,
             };
-            const tenantSettings = (tenant?.settings ?? null) as Partial<TenantSettings> | null;
+            const tenantSettings = tenant?.settings ?? null;
             const activeFeatures = Object.entries(featureMap)
               .filter(([key]) => Boolean(tenantSettings?.[key as FeatureKey]))
               .map(([, label]) => label)
               .slice(0, 3);
-            const isPublic = (tenantSettings?.isPublic as boolean | undefined) ?? false;
+            const isPublic = tenantSettings?.isPublic ?? false;
 
             return (
               <button

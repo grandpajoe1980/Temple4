@@ -142,6 +142,9 @@ Tasks:
    - For major data helpers in `lib/data.ts`, add tests that:
      - Instantiate Prisma objects (or mocks) and ensure mapping functions produce the expected DTO shape.
 
+Progress update:
+- Tenants landing flow now uses Prisma tenant payload types end-to-end, with `getTenantsForUser` returning tenants that include `settings` and `branding`, and the selector/client components consuming those typed objects without `as any` casts.
+
 Outcome: Strong, predictable type safety; easier refactors.
 
 ---

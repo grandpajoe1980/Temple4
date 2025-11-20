@@ -2,28 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import MembersPage from '@/app/components/tenant/MembersPage';
-
-type EnrichedMember = {
-  id: string;
-  email: string;
-  password: string | null;
-  isSuperAdmin: boolean;
-  notificationPreferences: any;
-  profile: any;
-  privacySettings: any;
-  accountSettings: any;
-  membership: {
-    id: string;
-    status: any;
-    displayName: string | null;
-    roles: any[];
-  };
-};
+import type { MemberWithMembership, TenantWithRelations, UserWithProfileSettings } from '@/lib/data';
 
 interface TenantMembersPageClientProps {
-  tenant: any;
-  user: any;
-  members: EnrichedMember[];
+  tenant: TenantWithRelations;
+  user: UserWithProfileSettings;
+  members: MemberWithMembership[];
 }
 
 export default function TenantMembersPageClient({ tenant, user, members }: TenantMembersPageClientProps) {

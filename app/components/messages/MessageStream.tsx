@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import type { User, EnrichedConversation, EnrichedChatMessage, Tenant } from '@/types';
 import Button from '../ui/Button';
 import { can, canDeleteMessage } from '@/lib/permissions';
+import { normalizeMessage, type MessageWithUser } from '@/app/messages/normalizers';
 
 interface MessageStreamProps {
   currentUser: User;
@@ -15,16 +16,6 @@ interface MessageStreamProps {
   onMarkAsRead: () => void;
 }
 
-const mapMessage = (message: any): EnrichedChatMessage => {
-  const user = message.user ?? message;
-  return {
-    ...message,
-    userDisplayName: user.profile?.displayName || user.email || 'Unknown user',
-    userAvatarUrl: user.profile?.avatarUrl || undefined,
-    createdAt: new Date(message.createdAt),
-  };
-};
-
 const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation, onViewProfile, tenant, isDetailsPanelOpen, onToggleDetailsPanel, onMarkAsRead }) => {
   const [messages, setMessages] = useState<EnrichedChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -33,6 +24,8 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [showScrollToLatest, setShowScrollToLatest] = useState(false);
+  const [canSendAnnouncements, setCanSendAnnouncements] = useState(true);
+  const [deletePermissions, setDeletePermissions] = useState<Record<string, boolean>>({});
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -57,8 +50,8 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
         return;
       }
 
-      const data = await response.json();
-      const normalizedMessages = (data as any[]).map(mapMessage);
+      const data: MessageWithUser[] = await response.json();
+      const normalizedMessages = data.map(normalizeMessage);
       setMessages(normalizedMessages);
 
       if (normalizedMessages.length > 0) {
@@ -108,10 +101,40 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
       return true;
     }
     if (tenant && conversation.name?.toLowerCase() === '#announcements') {
-      return can(currentUser as any, tenant as any, 'canPostInAnnouncementChannels');
+      return canSendAnnouncements;
     }
     return true;
-  }, [currentUser, conversation, tenant]);
+  }, [conversation.isDirect, conversation.name, tenant, canSendAnnouncements]);
+
+  useEffect(() => {
+    if (tenant && conversation.name?.toLowerCase() === '#announcements') {
+      can(currentUser, tenant, 'canPostInAnnouncementChannels')
+        .then(setCanSendAnnouncements)
+        .catch(() => setCanSendAnnouncements(false));
+      return;
+    }
+    setCanSendAnnouncements(true);
+  }, [conversation.name, currentUser, tenant]);
+
+  useEffect(() => {
+    if (!tenant || messages.length === 0) {
+      setDeletePermissions({});
+      return;
+    }
+
+    const evaluatePermissions = async () => {
+      const entries = await Promise.all(
+        messages.map(async (msg) => {
+          const canDelete = await canDeleteMessage(currentUser, msg, conversation, tenant);
+          return [msg.id, canDelete] as const;
+        })
+      );
+
+      setDeletePermissions(Object.fromEntries(entries));
+    };
+
+    void evaluatePermissions();
+  }, [conversation, currentUser, messages, tenant]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,12 +149,12 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
         body: JSON.stringify({ content: newMessage.trim() }),
       });
 
-      if (response.ok) {
-        const created = await response.json();
-        const normalized = mapMessage(created);
-        setMessages((currentMessages) => [...currentMessages, normalized]);
-        setNewMessage('');
-        scrollToBottom(); // Scroll to bottom when sending a message
+        if (response.ok) {
+          const created: MessageWithUser = await response.json();
+          const normalized = normalizeMessage(created);
+          setMessages((currentMessages) => [...currentMessages, normalized]);
+          setNewMessage('');
+          scrollToBottom(); // Scroll to bottom when sending a message
         onMarkAsRead();
       }
     } catch (error) {
@@ -200,7 +223,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
           </div>
         )}
         {messages.map((msg) => {
-           const userCanDelete = canDeleteMessage(currentUser as any, msg as any, conversation as any, tenant as any);
+           const userCanDelete = deletePermissions[msg.id] ?? msg.userId === currentUser.id || currentUser.isSuperAdmin;
            const isOwnMessage = msg.userId === currentUser.id;
            return (
             <div

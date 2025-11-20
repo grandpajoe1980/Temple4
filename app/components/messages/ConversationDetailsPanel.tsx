@@ -3,7 +3,6 @@
 import React, { useMemo } from 'react';
 // FIX: Changed 'import type' for TenantRole to a value import.
 import { TenantRole, type EnrichedConversation, type Tenant, type User, type UserTenantMembership } from '@/types';
-import { getMembershipForUserInTenant } from '@/lib/data';
 
 interface ConversationDetailsPanelProps {
   conversation: EnrichedConversation;
@@ -13,17 +12,19 @@ interface ConversationDetailsPanelProps {
 
 interface EnrichedParticipant extends User {
   roles: TenantRole[];
-  membership: UserTenantMembership;
+  membership?: UserTenantMembership | null;
 }
 
 const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ conversation, tenant, onViewProfile }) => {
   const enrichedParticipants = useMemo((): EnrichedParticipant[] => {
     // TODO: Fetch membership data properly via API
-    return conversation.participants.map(p => ({
-        ...p,
+    return conversation.participants
+      .map((participant) => ({
+        ...participant,
         roles: [] as TenantRole[],
-        membership: {} as any,
-    } as EnrichedParticipant)).filter((p): p is EnrichedParticipant => p !== null)
+        membership: null,
+      }))
+      .filter((p): p is EnrichedParticipant => p !== null)
     .sort((a,b) => {
         const roleOrder = { [TenantRole.ADMIN]: 0, [TenantRole.STAFF]: 1, [TenantRole.CLERGY]: 1, [TenantRole.MODERATOR]: 2, [TenantRole.MEMBER]: 3 };
         const aRole = a.roles[0] || TenantRole.MEMBER;
@@ -69,7 +70,7 @@ const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ con
               <div className="flex items-center space-x-3">
                 <img src={participant.profile.avatarUrl || '/placeholder-avatar.svg'} alt={participant.profile.displayName} className="w-8 h-8 rounded-full" />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-800">{participant.membership.displayName || participant.profile.displayName}</p>
+                  <p className="text-sm font-semibold text-gray-800">{participant.membership?.displayName || participant.profile.displayName}</p>
                   <div className="flex flex-wrap gap-1 mt-0.5">
                     {participant.roles.map(role => (
                        <span key={role} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${roleColors[role] || 'bg-gray-100 text-gray-800'}`}>

@@ -30,10 +30,15 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ tenant, currentUs
         }
 
         const data = await response.json();
-        const normalizedMembers = (data.members || []).map((member: any) => ({
-          id: member.user.id,
-          profile: member.user.profile || {},
-        }));
+        const normalizedMembers = (data.members || []).map((member: any) => {
+          // The API sometimes returns members as { user: { ... } }
+          // and sometimes as the user object directly (server-side helpers).
+          const user = member?.user ?? member;
+          return {
+            id: user?.id,
+            profile: user?.profile || {},
+          };
+        });
 
         setMembers(normalizedMembers);
         setSelectedParticipants((prev) => {
@@ -65,8 +70,8 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ tenant, currentUs
   
   const filteredMembers = useMemo(() => {
     if (!searchTerm) return members;
-    // FIX: Access displayName from the nested profile object.
-    return members.filter(m => m.profile?.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
+    const q = searchTerm.toLowerCase();
+    return members.filter(m => (m.profile?.displayName || '').toLowerCase().includes(q));
   }, [members, searchTerm]);
 
 

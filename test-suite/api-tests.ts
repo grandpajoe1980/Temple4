@@ -454,6 +454,51 @@ export class APITestSuite {
         return { response, expectedStatus: [200, 401] };
       }
     );
+
+    // Test creating a tenant-scoped channel and verify participants created
+    if (this.testTenantId) {
+      await this.testEndpoint(
+        category,
+        'POST /api/conversations - create tenant channel',
+        async () => {
+          const channelName = `test-channel-${Date.now()}`;
+          const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/conversations`, {
+            method: 'POST',
+            headers: this.getAuthHeaders(),
+            body: JSON.stringify({ tenantId: this.testTenantId, name: channelName, participantIds: [] }),
+          });
+
+          if (response.ok) {
+            const body = await response.json();
+            // basic validation: conversation id and participants present
+            if (body && body.id && Array.isArray(body.participants)) {
+              // Fetch tenant members to compare counts (approved only)
+              const membersRes = await fetch(`${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/members`, {
+                method: 'GET',
+                headers: this.getAuthHeaders(),
+              });
+              const membersBody = membersRes.ok ? await membersRes.json() : { members: [] };
+              const approvedCount = (membersBody.members || []).length;
+
+              // Ensure at least 1 participant and at least the creator
+              const participantCount = body.participants.length;
+              if (participantCount < 1) {
+                throw new Error('Channel created with no participants');
+              }
+
+              // If members endpoint returned results, ensure participantCount matches approvedCount
+              if (approvedCount > 0 && participantCount !== approvedCount) {
+                throw new Error(`Participant count ${participantCount} does not match approved members ${approvedCount}`);
+              }
+            } else {
+              throw new Error('Invalid conversation response');
+            }
+          }
+
+          return { response, expectedStatus: [201, 200, 401, 403] };
+        }
+      );
+    }
   }
 
   private async testUserEndpoints() {

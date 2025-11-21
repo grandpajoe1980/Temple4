@@ -171,27 +171,24 @@ export async function POST(request: NextRequest) {
 
     const { tenantId, name, participantIds } = result.data;
 
-    // Ensure creator is included in participants
-    const allParticipantIds = Array.from(new Set([userId, ...participantIds]));
+    // If tenantId provided, ensure creator is an approved member and
+    // auto-add all APPROVED tenant members as participants for a channel.
+    let allParticipantIds: string[] = [];
 
-    // If tenantId provided, verify user is a member
     if (tenantId) {
-      const membership = await prisma.userTenantMembership.findUnique({
-        where: {
-          userId_tenantId: {
-            userId,
-            tenantId
-          }
-        }
-      });
-
-      if (!membership || membership.status !== 'APPROVED') {
-        return NextResponse.json(
-          { error: 'You must be an approved member of this tenant to create a conversation' },
-          { status: 403 }
-        );
+      try {
+        // Use shared helper to create channel and add all approved tenant members
+        const conv = await (await import('@/lib/data')).createChannelWithAllMembers(tenantId, userId, { name });
+        if (!conv) throw new Error('Failed to create channel');
+        return NextResponse.json(conv, { status: 201 });
+      } catch (err: any) {
+        console.error('Failed to create tenant channel:', err?.message || err);
+        return NextResponse.json({ error: 'Failed to create channel' }, { status: 500 });
       }
     }
+
+    // Non-tenant conversation: use provided participant ids + creator
+    allParticipantIds = Array.from(new Set([userId, ...(participantIds || [])]));
 
     // Create conversation with participants
     const conversation = await prisma.conversation.create({

@@ -1039,6 +1039,74 @@ export async function getConversationsForUser(userId: string) {
     });
 }
 
+/**
+ * Create a tenant-scoped channel and add all APPROVED tenant members
+ * as ConversationParticipant rows in a single transaction.
+ * Returns the created conversation with participant user profiles included.
+ */
+export async function createChannelWithAllMembers(
+  tenantId: string,
+  actorUserId: string,
+  data: { name?: string }
+) {
+  // Verify actor is an approved member
+  const membership = await prisma.userTenantMembership.findUnique({
+    where: { userId_tenantId: { userId: actorUserId, tenantId } }
+  });
+
+  if (!membership || membership.status !== 'APPROVED') {
+    throw new Error('Actor must be an approved tenant member to create a channel');
+  }
+
+  // Fetch approved member ids
+  const approved = await prisma.userTenantMembership.findMany({
+    where: { tenantId, status: 'APPROVED' },
+    select: { userId: true }
+  });
+
+  const userIds = Array.from(new Set(approved.map((m) => m.userId)));
+  if (!userIds.includes(actorUserId)) userIds.push(actorUserId);
+
+  // Create conversation and participants in a transaction
+  const result = await prisma.$transaction(async (tx) => {
+    const conversation = await tx.conversation.create({
+      data: {
+        tenantId,
+        name: data.name,
+        isDirectMessage: false,
+      }
+    });
+
+    // Create participant rows
+    const participantRecords = userIds.map((uid) => ({ conversationId: conversation.id, userId: uid }));
+    await Promise.all(participantRecords.map((rec) => tx.conversationParticipant.create({ data: rec })));
+
+    // Return the fully-enriched conversation
+    const created = await tx.conversation.findUnique({
+      where: { id: conversation.id },
+      include: {
+        participants: {
+          include: {
+            user: { include: { profile: true } },
+            lastReadMessage: true,
+          }
+        },
+        messages: {
+          where: { isDeleted: false },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          include: { user: { include: { profile: true } } }
+        },
+        tenant: { select: { id: true, name: true } }
+      }
+    });
+
+    return created;
+  });
+
+  return result;
+}
+
 export async function getMessagesForConversation(conversationId: string) {
     return await prisma.chatMessage.findMany({
         where: {

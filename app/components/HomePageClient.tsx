@@ -48,8 +48,8 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
           <div>
             <div className="flex flex-col items-center gap-6">
               <div className="flex items-center gap-4">
-                <TempleLogo className="h-12 w-12 text-amber-600" />
-                <h1 className="text-4xl font-extrabold tracking-tight text-amber-600">TEMPLE</h1>
+                <TempleLogo className="text-4xl md:text-6xl h-[1em] w-[1em] text-amber-600" />
+                <h1 className="text-4xl md:text-6xl font-sans font-thin uppercase tracking-tight text-amber-600">TEMPLE</h1>
               </div>
 
               <form onSubmit={handleSubmit} className="w-full max-w-2xl">

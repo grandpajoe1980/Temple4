@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&display=swap');
 @import "tw-animate-css";
 @import "react-day-picker/style.css";
 
@@ -140,6 +141,12 @@
     font-weight: 700;
     letter-spacing: -0.02em;
     color: #0f172a;
+  }
+  .font-temple {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
   p {
     color: #475569;

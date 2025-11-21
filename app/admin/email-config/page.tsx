@@ -16,18 +16,17 @@ export default function EmailConfigPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/admin/email-config')
+    fetch('/api/admin/email-config', { credentials: 'same-origin' })
       .then((r) => r.json())
       .then((data) => {
-        if (data?.ok !== undefined) {
-          // api-response wrapper
-          setConfig(data.data);
-          if (data.data?.provider) setProvider(data.data.provider);
-          if (data.data?.settings) setForm(data.data.settings);
-        } else {
-          setConfig(data);
-          if (data?.provider) setProvider(data.provider);
-          if (data?.settings) setForm(data.settings);
+        // Normalize responses that may be wrapped as { data: payload } or the raw payload itself
+        const payload = data?.ok !== undefined ? data.data : (data?.data ? data.data : data);
+        if (!payload) return;
+        setConfig(payload);
+        if (payload.provider) setProvider(payload.provider);
+        if (payload.settings) {
+          setForm(payload.settings);
+          if (payload.settings.authMode) setAuthMode(payload.settings.authMode);
         }
       })
       .catch(() => {});
@@ -41,12 +40,32 @@ export default function EmailConfigPage() {
     e.preventDefault();
     setMessage(null);
     const body = { provider, settings: { ...form, authMode } };
-    const res = await fetch('/api/admin/email-config', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } });
+    const res = await fetch('/api/admin/email-config', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' });
     const data = await res.json();
-    if (data?.ok !== undefined ? data.ok : res.ok) {
+    const ok = data?.ok !== undefined ? data.ok : res.ok;
+    if (ok) {
+      // refresh the latest saved config so the UI reflects persisted values
+      try {
+        const r = await fetch('/api/admin/email-config', { credentials: 'same-origin' });
+        const latest = await r.json();
+        const payload = latest?.ok !== undefined ? latest.data : (latest?.data ? latest.data : latest);
+        if (payload) {
+          setConfig(payload);
+          if (payload.provider) setProvider(payload.provider);
+          if (payload.settings) {
+            setForm(payload.settings);
+            if (payload.settings.authMode) setAuthMode(payload.settings.authMode);
+          }
+        }
+      } catch (err) {
+        // ignore refresh errors but still show saved
+      }
+
       setMessage('Saved');
     } else {
-      setMessage('Failed to save');
+      // try to surface an error message from the server
+      const errMsg = data?.error || data?.message || 'Failed to save';
+      setMessage(errMsg);
     }
   }
 
@@ -68,6 +87,7 @@ export default function EmailConfigPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ to: clean }),
+        credentials: 'same-origin',
       });
 
       const data = await res.json();

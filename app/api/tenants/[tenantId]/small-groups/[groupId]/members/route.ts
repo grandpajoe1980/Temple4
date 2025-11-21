@@ -95,23 +95,42 @@ export async function POST(
         }
 
         // Check if user is already a member
-        const existingMembership = await prisma.smallGroupMembership.findFirst({
-            where: { groupId: groupId, userId: userId }
+        const existingMembership = await prisma.smallGroupMembership.findUnique({
+            where: { groupId_userId: { groupId: groupId, userId: userId } }
         });
 
         if (existingMembership) {
             return NextResponse.json({ message: 'User is already a member of this group.' }, { status: 409 });
         }
 
-        const newMember = await prisma.smallGroupMembership.create({
-            data: {
-                groupId: groupId,
-                userId: userId,
-                role: 'MEMBER', // Defaults to member, leaders can change this later
-            }
-        });
+        // If leader is adding someone, create APPROVED membership immediately
+        if (isLeader && currentUserId !== userId) {
+            const created = await prisma.smallGroupMembership.create({
+                data: {
+                    groupId,
+                    userId,
+                    role: 'MEMBER',
+                    status: 'APPROVED',
+                    addedByUserId: currentUserId,
+                }
+            });
+            return NextResponse.json(created, { status: 201 });
+        }
 
-        return NextResponse.json(newMember, { status: 201 });
+        // Otherwise this is a self-join; verify tenant membership
+        const tenantMembership = await getMembershipForUserInTenant(userId, tenantId);
+        if (!tenantMembership || tenantMembership.status !== 'APPROVED') {
+            return NextResponse.json({ message: 'You must be an approved tenant member to join groups' }, { status: 403 });
+        }
+
+        // Use shared business logic to create membership respecting joinPolicy
+        const membership = await (async () => {
+            // reuse the helper in lib/data.ts
+            const { joinSmallGroup } = await Promise.resolve(require('@/lib/data'));
+            return joinSmallGroup(tenantId, groupId, userId);
+        })();
+
+        return NextResponse.json(membership, { status: 201 });
     } catch (error) {
         console.error(`Failed to add member to group ${groupId}:`, error);
         return NextResponse.json({ message: 'Failed to add member' }, { status: 500 });

@@ -7,17 +7,32 @@ import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
 
 interface SmallGroupFormProps {
-  onSubmit: (data: { name: string; description: string; leaderUserId: string; meetingSchedule: string; isActive: boolean }) => void;
+  onSubmit: (data: { name: string; description: string; leaderUserId: string; meetingSchedule: string; isActive: boolean; isHidden?: boolean }) => void;
   onCancel: () => void;
   members: EnrichedMember[];
+  // optional initial values for edit
+  initial?: { id?: string; name?: string; description?: string; leaderUserId?: string; meetingSchedule?: string; isActive?: boolean; isHidden?: boolean };
+  isEdit?: boolean;
+  onDelete?: () => void;
 }
 
-const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, members }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [leaderUserId, setLeaderUserId] = useState(members[0]?.id || '');
-  const [meetingSchedule, setMeetingSchedule] = useState('');
-  const [isActive, setIsActive] = useState(true);
+const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, members, initial, isEdit, onDelete }) => {
+  const [name, setName] = useState(initial?.name ?? '');
+  const [description, setDescription] = useState(initial?.description ?? '');
+  const [leaderUserId, setLeaderUserId] = useState(initial?.leaderUserId ?? members[0]?.id ?? '');
+  const [meetingSchedule, setMeetingSchedule] = useState(initial?.meetingSchedule ?? '');
+  const [isActive, setIsActive] = useState(initial?.isActive ?? true);
+  const [isHidden, setIsHidden] = useState(initial?.isHidden ?? false);
+
+  React.useEffect(() => {
+    // keep local state in sync if initial changes (when opening edit modal)
+    setName(initial?.name ?? '');
+    setDescription(initial?.description ?? '');
+    setLeaderUserId(initial?.leaderUserId ?? members[0]?.id ?? '');
+    setMeetingSchedule(initial?.meetingSchedule ?? '');
+    setIsActive(initial?.isActive ?? true);
+    setIsHidden(initial?.isHidden ?? false);
+  }, [initial, members]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +40,7 @@ const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, mem
       alert('Please fill out all required fields.');
       return;
     }
-    onSubmit({ name, description, leaderUserId, meetingSchedule, isActive });
+    onSubmit({ name, description, leaderUserId, meetingSchedule, isActive, isHidden });
   };
 
   return (
@@ -83,13 +98,31 @@ const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, mem
         enabled={isActive}
         onChange={setIsActive}
       />
-      <div className="flex justify-end items-center space-x-4 pt-4 border-t border-gray-200">
-        <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit">
-          Create Group
-        </Button>
+      <ToggleSwitch
+        label="Group is Hidden"
+        description="Hidden groups are not shown in public discovery; members and admins can still access them."
+        enabled={isHidden}
+        onChange={setIsHidden}
+      />
+      <div className="flex justify-between items-center space-x-4 pt-4 border-t border-gray-200">
+        <div>
+          {isEdit && onDelete && (
+            <Button type="button" variant="danger" onClick={async () => {
+              if (!confirm('Delete this group? This cannot be undone.')) return;
+              await onDelete();
+            }}>
+              Delete
+            </Button>
+          )}
+        </div>
+        <div className="flex items-center space-x-4">
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">
+            {isEdit ? 'Save Changes' : 'Create Group'}
+          </Button>
+        </div>
       </div>
     </form>
   );

@@ -403,6 +403,85 @@ async function main() {
       isPublished: true,
     },
   ];
+  
+    // --- Seed: Small Groups ---
+    console.log('\n📚 Creating sample small groups...');
+  
+    // Neighborhood Book Club - leader: ned@flanders.com
+    const bookClub = await prisma.smallGroup.upsert({
+      where: { slug: 'neighborhood-book-club' },
+      update: {},
+      create: {
+        tenantId: springfieldChurch.id,
+        name: 'Neighborhood Book Club',
+        slug: 'neighborhood-book-club',
+        description: 'Monthly book discussion; all are welcome.',
+        leaderUserId: createdUsers['ned@flanders.com'].id,
+        joinPolicy: 'APPROVAL',
+        isPublic: true,
+        capacity: 20,
+        tags: JSON.stringify(['books','discussion','monthly']),
+        createdByUserId: createdUsers['ned@flanders.com'].id,
+      },
+    });
+  
+    // Ensure leader is a member (approved)
+    try {
+      await prisma.smallGroupMembership.create({
+        data: {
+          groupId: bookClub.id,
+          userId: createdUsers['ned@flanders.com'].id,
+          role: 'LEADER',
+          status: 'APPROVED',
+          addedByUserId: createdUsers['ned@flanders.com'].id,
+        }
+      });
+    } catch (e) {
+      // ignore unique constraint errors
+    }
+  
+    // Young Families Playgroup - leader: marge@simpson.com
+    const playgroup = await prisma.smallGroup.upsert({
+      where: { slug: 'young-families-playgroup' },
+      update: {},
+      create: {
+        tenantId: springfieldChurch.id,
+        name: 'Young Families Playgroup',
+        slug: 'young-families-playgroup',
+        description: 'Weekly meetups for families with young children.',
+        leaderUserId: createdUsers['marge@simpson.com'].id,
+        joinPolicy: 'OPEN',
+        isPublic: false,
+        capacity: 12,
+        tags: JSON.stringify(['families','playgroup']),
+        createdByUserId: createdUsers['marge@simpson.com'].id,
+      },
+    });
+  
+    // Add a few members
+    const addMembership = async (groupId: string, userEmail: string, role = 'MEMBER') => {
+      const user = createdUsers[userEmail];
+      if (!user) return;
+      try {
+        await prisma.smallGroupMembership.create({
+          data: {
+            groupId,
+            userId: user.id,
+            role: role as any,
+            status: 'APPROVED',
+            addedByUserId: createdUsers['marge@flanders.com'].id,
+          }
+        });
+      } catch (e) {
+        // ignore
+      }
+    };
+  
+    await addMembership(playgroup.id, 'homer@simpson.com');
+    await addMembership(playgroup.id, 'bart@simpson.com');
+    await addMembership(playgroup.id, 'lisa@simpson.com');
+  
+    console.log('✅ Sample small groups created.');
 
   for (const postData of posts) {
     const author = createdUsers[postData.authorEmail];

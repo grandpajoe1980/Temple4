@@ -1341,32 +1341,188 @@ export async function getSmallGroupsForTenant(tenantId: string) {
     
     // Fetch leaders separately for enrichment
     const enrichedGroups = await Promise.all(groups.map(async (group: any) => {
-        const leader = await prisma.user.findUnique({
+      let leader = null;
+      if (group.leaderUserId) {
+        try {
+          leader = await prisma.user.findUnique({
             where: { id: group.leaderUserId },
             include: {
-                profile: true,
-                privacySettings: true,
-                accountSettings: true,
+              profile: true,
+              privacySettings: true,
+              accountSettings: true,
             }
-        });
+          });
+        } catch (err) {
+          // Defensive: if Prisma validation or other error occurs, log and continue without leader
+          // This prevents a single bad group row from crashing the tenant page.
+          // eslint-disable-next-line no-console
+          console.error(`Failed to load leader for group ${group.id}:`, err);
+          leader = null;
+        }
+      }
         
         return {
-            ...group,
-            leader: leader!,
-            members: group.members.map((m: any) => ({
-                ...m.user,
-                groupRole: m.role,
-                joinedAt: m.joinedAt,
-            }))
+          ...group,
+          leader: leader || null,
+          members: group.members.map((m: any) => ({
+            ...m.user,
+            groupRole: m.role,
+            joinedAt: m.joinedAt,
+          }))
         };
     }));
     
     return enrichedGroups;
 }
 
-export async function createSmallGroup(tenantId: string, groupData: any) {
-    // TODO: Implement small group creation
-    return null;
+export async function getSmallGroupById(groupId: string) {
+  const group = await prisma.smallGroup.findUnique({
+    where: { id: groupId },
+    include: {
+      members: {
+        include: {
+          user: { include: { profile: true } }
+        }
+      }
+    }
+  });
+
+  if (!group) return null;
+
+  const leader = group.leaderUserId
+    ? await prisma.user.findUnique({ where: { id: group.leaderUserId }, include: { profile: true } })
+    : null;
+
+  return {
+    ...group,
+    leader,
+    members: group.members.map((m: any) => ({
+      ...m.user,
+      groupRole: m.role,
+      joinedAt: m.joinedAt,
+      status: m.status,
+      leftAt: m.leftAt,
+    })),
+  };
+}
+
+export async function createSmallGroup(tenantId: string, groupData: any, createdByUserId?: string) {
+  // Minimal validation / defaults
+  if (!groupData || !groupData.name) {
+    throw new Error('Small group must include a name');
+  }
+
+  const data: any = {
+    tenantId,
+    name: groupData.name,
+    description: groupData.description ?? null,
+    slug: groupData.slug ?? null,
+    category: groupData.category ?? null,
+    imageUrl: groupData.imageUrl ?? null,
+    dayOfWeek: groupData.dayOfWeek ?? null,
+    startTime: groupData.startTime ?? null,
+    frequency: groupData.frequency ?? null,
+    format: groupData.format ?? null,
+    locationName: groupData.locationName ?? null,
+    locationAddress: groupData.locationAddress ?? null,
+    onlineMeetingLink: groupData.onlineMeetingLink ?? null,
+    leaderUserId: groupData.leaderUserId ?? null,
+    meetingSchedule: groupData.meetingSchedule ?? null,
+    status: groupData.status ?? undefined,
+    joinPolicy: groupData.joinPolicy ?? undefined,
+    capacity: groupData.capacity ?? null,
+    ageFocus: groupData.ageFocus ?? null,
+    language: groupData.language ?? null,
+    hasChildcare: groupData.hasChildcare ?? false,
+    tags: groupData.tags ?? null,
+    isPublic: groupData.isPublic ?? false,
+    isActive: groupData.isActive ?? true,
+    createdByUserId: createdByUserId ?? null,
+  };
+
+  const group = await prisma.smallGroup.create({ data });
+
+  // If a leader user was provided, ensure they are added as an APPROVED member with role LEADER
+  if (group.leaderUserId) {
+    try {
+      await prisma.smallGroupMembership.create({
+        data: {
+          groupId: group.id,
+          userId: group.leaderUserId,
+          role: 'LEADER',
+          status: 'APPROVED',
+          addedByUserId: createdByUserId ?? group.leaderUserId,
+        }
+      });
+    } catch (e) {
+      // ignore unique constraint errors if membership already exists
+    }
+  }
+
+  return group;
+}
+
+export async function joinSmallGroup(tenantId: string, groupId: string, userId: string) {
+  const group = await prisma.smallGroup.findUnique({ where: { id: groupId } });
+  if (!group) throw new Error('Group not found');
+  if (group.tenantId !== tenantId) throw new Error('Tenant mismatch');
+
+  // Check capacity
+  if (group.capacity && group.capacity > 0) {
+    const approvedCount = await prisma.smallGroupMembership.count({ where: { groupId, status: 'APPROVED' } });
+    if (approvedCount >= group.capacity) {
+      throw new Error('Group is full');
+    }
+  }
+
+  // If user already has membership, return it
+  const existing = await prisma.smallGroupMembership.findUnique({ where: { groupId_userId: { groupId, userId } } });
+  if (existing) return existing;
+
+  const status = group.joinPolicy === 'OPEN' ? 'APPROVED' : 'PENDING';
+
+  const membership = await prisma.smallGroupMembership.create({
+    data: {
+      groupId,
+      userId,
+      role: 'MEMBER',
+      status,
+      addedByUserId: userId,
+    }
+  });
+
+  // If membership is approved and capacity reached, update group status to FULL
+  if (status === 'APPROVED' && group.capacity && group.capacity > 0) {
+    const approvedCount = await prisma.smallGroupMembership.count({ where: { groupId, status: 'APPROVED' } });
+    if (approvedCount >= group.capacity) {
+      await prisma.smallGroup.update({ where: { id: groupId }, data: { status: 'FULL' } });
+    }
+  }
+
+  return membership;
+}
+
+export async function approveSmallGroupMember(groupId: string, userId: string, approverId?: string) {
+  const membership = await prisma.smallGroupMembership.findUnique({ where: { groupId_userId: { groupId, userId } } });
+  if (!membership) throw new Error('Membership not found');
+
+  const updated = await prisma.smallGroupMembership.update({
+    where: { id: membership.id },
+    data: { status: 'APPROVED', addedByUserId: approverId ?? membership.addedByUserId },
+  });
+
+  // Re-check capacity and mark group as FULL if necessary
+  const group = await prisma.smallGroup.findUnique({ where: { id: groupId } });
+  if (group && group.capacity && group.capacity > 0) {
+    const approvedCount = await prisma.smallGroupMembership.count({ where: { groupId, status: 'APPROVED' } });
+    if (approvedCount >= group.capacity) {
+      await prisma.smallGroup.update({ where: { id: groupId }, data: { status: 'FULL' } });
+    } else if (group.status === 'FULL' && approvedCount < group.capacity) {
+      await prisma.smallGroup.update({ where: { id: groupId }, data: { status: 'OPEN' } });
+    }
+  }
+
+  return updated;
 }
 
 export async function getVolunteerNeedsForTenant(tenantId: string): Promise<VolunteerNeedWithSignups[]> {
@@ -1612,12 +1768,6 @@ export async function addCommunityPost(postData: any) {
     // Expected fields: tenantId, authorUserId (can be null for anonymous), type, body, isAnonymous
     return null;
 }
-
-export async function joinSmallGroup(groupId: string, userId: string) {
-    // TODO: Implement small group join
-    return null;
-}
-
 export async function leaveSmallGroup(groupId: string, userId: string) {
     // TODO: Implement small group leave
     return null;

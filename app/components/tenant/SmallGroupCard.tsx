@@ -10,9 +10,10 @@ interface SmallGroupCardProps {
   group: EnrichedSmallGroup;
   currentUser: User;
   onUpdate: () => void;
+  onOpen?: () => void;
 }
 
-const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onUpdate }) => {
+const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onUpdate, onOpen }) => {
   const members = Array.isArray(group.members) ? group.members.filter(m => m && m.user && m.user.id) : [];
   if (process.env.NODE_ENV === 'development' && Array.isArray(group.members) && group.members.length !== members.length) {
     // eslint-disable-next-line no-console
@@ -27,8 +28,38 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: currentUser.id }),
       });
-      if (!res.ok) throw new Error('Failed to join group');
-      onUpdate();
+      if (res.status === 201) {
+        // Parse created membership so we can decide whether user can view immediately
+        let created: any = null;
+        try { created = await res.json(); } catch (_) { created = null; }
+        onUpdate();
+        if (created && created.status === 'APPROVED') {
+          // Open the group detail immediately so user can view without refresh
+          if (onOpen) onOpen();
+        } else {
+          alert('Join request submitted. Waiting for leader approval.');
+        }
+        return;
+      }
+      if (res.status === 409) {
+        // Already a member
+        onUpdate();
+        alert('You are already a member of this group.');
+        return;
+      }
+      if (res.status === 403) {
+        alert('You are not allowed to join this group.');
+        return;
+      }
+      // try to read error message from body
+      let bodyMsg = '';
+      try {
+        const json = await res.json();
+        bodyMsg = json?.message || JSON.stringify(json);
+      } catch (e) {
+        bodyMsg = await res.text();
+      }
+      throw new Error(`Failed to join group: ${bodyMsg}`);
     } catch (err) {
       console.error(err);
       alert('Failed to join group.');
@@ -62,6 +93,11 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
       <div className="p-6 flex-grow">
         <h3 className="text-xl font-semibold text-gray-900">{group.name}</h3>
         <p className="text-sm font-medium text-amber-600 mt-1">{group.meetingSchedule}</p>
+        <div className="mt-2">
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${group.isHidden ? 'bg-yellow-100 text-yellow-800' : (group.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800')}`}>
+            {group.isHidden ? 'Hidden' : (group.isActive ? 'Active' : 'Inactive')}
+          </span>
+        </div>
         <p className="mt-4 text-sm text-gray-600 flex-grow">
           {group.description}
         </p>
@@ -73,8 +109,8 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
                   className="w-10 h-10 rounded-full"
                 />
                 <div>
-                    <p className="text-xs text-gray-500">Leader</p>
-                    <p className="text-sm font-medium text-gray-800">{group.leader.profile?.displayName || group.leader.email || 'Leader'}</p>
+                  <p className="text-xs text-gray-500">Leader</p>
+                  <p className="text-sm font-medium text-gray-800">{group.leader?.profile?.displayName || group.leader?.email || 'Leader'}</p>
                 </div>
             </div>
         </div>
@@ -102,7 +138,10 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
         </div>
       </div>
        <div className="bg-gray-50 px-6 py-4 text-right">
-        <ActionButton />
+        <div className="flex items-center justify-end space-x-2">
+          <Button variant="ghost" onClick={() => onOpen && onOpen()}>View</Button>
+          <ActionButton />
+        </div>
       </div>
     </Card>
   );

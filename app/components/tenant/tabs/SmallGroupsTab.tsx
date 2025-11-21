@@ -17,6 +17,7 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
   const [groups, setGroups] = useState<EnrichedSmallGroup[]>([]);
   const [tenantMembers, setTenantMembers] = useState<EnrichedMember[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
@@ -32,7 +33,8 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
         const membersPayload = await membersRes.json();
         const groupsData = Array.isArray(groupsPayload) ? groupsPayload : (groupsPayload?.groups ?? []);
         const membersData = Array.isArray(membersPayload) ? membersPayload : (membersPayload?.members ?? []);
-        setGroups(groupsData as any);
+        // Show only active groups in the admin table (archived groups are hidden)
+        setGroups((groupsData as any).filter((g: any) => g.isActive !== false));
         setTenantMembers(membersData as any);
       } catch (error) {
         console.error('Failed to load small groups data:', error);
@@ -47,11 +49,11 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
     const res = await fetch(`/api/tenants/${tenant.id}/small-groups`);
     const payload = await res.json();
     const groupsData = Array.isArray(payload) ? payload : (payload?.groups ?? []);
-    setGroups(groupsData as any);
+    setGroups((groupsData as any).filter((g: any) => g.isActive !== false));
     onRefresh();
   };
 
-  const handleCreateGroup = async (data: { name: string; description: string; leaderUserId: string; meetingSchedule: string; isActive: boolean }) => {
+  const handleCreateGroup = async (data: { name: string; description: string; leaderUserId: string; meetingSchedule: string; isActive: boolean; isHidden?: boolean }) => {
     await fetch(`/api/tenants/${tenant.id}/small-groups`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -59,6 +61,39 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
     });
     await refreshGroups();
     setIsModalOpen(false);
+  };
+
+  const handleUpdateGroup = async (data: { name: string; description: string; leaderUserId: string; meetingSchedule: string; isActive: boolean; isHidden?: boolean }) => {
+    if (!editingGroup) return;
+    await fetch(`/api/tenants/${tenant.id}/small-groups/${editingGroup.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    await refreshGroups();
+    setIsModalOpen(false);
+    setEditingGroup(null);
+  };
+
+  const handleDeleteGroup = async () => {
+    if (!editingGroup) return;
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/small-groups/${editingGroup.id}`, { method: 'DELETE' });
+      if (!res.ok && res.status !== 204) {
+        let body: any = null;
+        try { body = await res.json(); } catch (_) { body = await res.text().catch(() => null); }
+        const msg = body && typeof body === 'object' ? (body.message || JSON.stringify(body)) : (body || res.statusText || `HTTP ${res.status}`);
+        console.error('Delete failed:', msg);
+        alert(`Failed to delete group: ${msg}`);
+        return;
+      }
+      await refreshGroups();
+      setIsModalOpen(false);
+      setEditingGroup(null);
+    } catch (err) {
+      console.error('Delete request failed', err);
+      alert('Failed to delete group');
+    }
   };
 
   if (isLoading) {
@@ -85,7 +120,7 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
         <Button onClick={() => setIsModalOpen(true)}>+ Create Group</Button>
       </div>
       
-       <div className="flow-root">
+      <div className="flow-root">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <table className="min-w-full divide-y divide-gray-300">
@@ -110,12 +145,20 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{(group.members ?? []).length}</td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${group.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                        {group.isActive ? 'Active' : 'Inactive'}
-                      </span>
+                      {
+                        (() => {
+                          const label = group.isHidden ? 'Hidden' : (group.isActive ? 'Active' : 'Inactive');
+                          const cls = group.isHidden ? 'bg-yellow-100 text-yellow-800' : (group.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800');
+                          return (
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>
+                              {label}
+                            </span>
+                          );
+                        })()
+                      }
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                       <Button variant="secondary" size="sm">Edit</Button>
+                       <Button variant="secondary" size="sm" onClick={() => { setEditingGroup(group); setIsModalOpen(true); }}>Edit</Button>
                     </td>
                   </tr>
                 ))}
@@ -125,11 +168,22 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Small Group">
+      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingGroup(null); }} title={editingGroup ? 'Edit Small Group' : 'Create Small Group'}>
         <SmallGroupForm
-          onSubmit={handleCreateGroup}
-          onCancel={() => setIsModalOpen(false)}
+          onSubmit={editingGroup ? handleUpdateGroup : handleCreateGroup}
+          onCancel={() => { setIsModalOpen(false); setEditingGroup(null); }}
           members={tenantMembers}
+          initial={editingGroup ? {
+            id: editingGroup.id,
+            name: editingGroup.name,
+            description: editingGroup.description,
+            leaderUserId: editingGroup.leaderUserId || editingGroup.leader?.id,
+            meetingSchedule: editingGroup.meetingSchedule,
+            isActive: editingGroup.isActive,
+            isHidden: editingGroup.isHidden,
+          } : undefined}
+          isEdit={!!editingGroup}
+          onDelete={handleDeleteGroup}
         />
       </Modal>
     </div>

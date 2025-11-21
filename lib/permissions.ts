@@ -3,6 +3,7 @@ import { TenantRole } from '@/types';
 import { prisma } from './db';
 import { TenantFeaturePermissions } from '@/types';
 import type { TenantWithRelations, UserWithProfileSettings } from './data';
+import { SmallGroupMemberRole } from '@prisma/client';
 
 // Define RolePermissions based on your application's logic, as it's not in Prisma schema
 export interface RolePermissions {
@@ -237,5 +238,38 @@ export async function canDeleteMessage(
       return true;
     }
   }
+  return false;
+}
+
+/**
+ * Checks whether a given user is a leader (or co-leader) for a small group.
+ * Returns true when the user is the explicit `leaderUserId` on the group,
+ * has a membership role of `LEADER` or `CO_LEADER` for the group, or is a tenant admin.
+ */
+export async function isGroupLeader(userId: string, groupId: string): Promise<boolean> {
+  // Load group to get tenant context and leaderUserId
+  const group = await prisma.smallGroup.findUnique({ where: { id: groupId } });
+  if (!group) return false;
+
+  // Direct leader field on SmallGroup
+  if (group.leaderUserId && group.leaderUserId === userId) return true;
+
+  // Check membership role within the group
+  const membership = await prisma.smallGroupMembership.findUnique({
+    where: { groupId_userId: { groupId, userId } },
+  });
+
+  if (membership && (membership.role === SmallGroupMemberRole.LEADER || membership.role === SmallGroupMemberRole.CO_LEADER)) {
+    if (membership.status === 'APPROVED') return true;
+  }
+
+  // Tenant-level admins are considered group leaders for management actions
+  try {
+    const isAdmin = await hasRole(userId, group.tenantId, [TenantRole.ADMIN]);
+    if (isAdmin) return true;
+  } catch (e) {
+    // ignore and return false below
+  }
+
   return false;
 }

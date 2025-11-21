@@ -124,6 +124,32 @@ export async function POST(request: NextRequest) {
       file.name
     );
 
+    // For photo uploads, create a MediaItem record so they can be listed in the gallery
+    if (category === 'photos') {
+      try {
+        const mediaItem = await prisma.mediaItem.create({
+          data: {
+            tenantId,
+            authorUserId: userId,
+            type: 'PHOTO',
+            title: file.name,
+            description: '',
+            embedUrl: '',
+            storageKey: result.storageKey,
+            mimeType: result.mimeType,
+            fileSize: result.fileSize,
+            uploadedAt: result.uploadedAt,
+          },
+        });
+
+        return NextResponse.json({ ...result, mediaItem }, { status: 201 });
+      } catch (e) {
+        console.error('Failed to create mediaItem for photo upload', e);
+        // Return upload result even if DB insertion fails
+        return NextResponse.json(result, { status: 201 });
+      }
+    }
+
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
     // Handle specific storage errors

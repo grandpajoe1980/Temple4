@@ -862,6 +862,7 @@ export async function createTenant(tenantDetails: Omit<Tenant, 'id' | 'slug' | '
                     enablePosts: true,
                     enableSermons: true,
                     enablePodcasts: true,
+                enablePhotos: true,
                     enableBooks: true,
                     enableDonations: true,
                     enableVolunteering: true,
@@ -1435,6 +1436,30 @@ export async function getPodcastsForTenant(tenantId: string) {
         authorDisplayName: podcast.author.profile?.displayName || 'Unknown',
         authorAvatarUrl: podcast.author.profile?.avatarUrl || undefined,
     }));
+}
+
+export async function getPhotosForTenant(tenantId: string) {
+  const photos = await prisma.mediaItem.findMany({
+    where: {
+      tenantId,
+      type: 'PHOTO',
+      deletedAt: null,
+    },
+    orderBy: { uploadedAt: 'desc' },
+    include: {
+      author: {
+        include: {
+          profile: true,
+        }
+      }
+    }
+  });
+
+  return photos.map((photo: any) => ({
+    ...photo,
+    authorDisplayName: photo.author?.profile?.displayName || 'Unknown',
+    authorAvatarUrl: photo.author?.profile?.avatarUrl || undefined,
+  }));
 }
 
 export async function getBooksForTenant(tenantId: string) {

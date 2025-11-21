@@ -132,7 +132,7 @@ export async function getTenantContext(
  */
 export function canViewContent(
   context: TenantContext,
-  contentType: 'posts' | 'calendar' | 'sermons' | 'podcasts' | 'books' | 'prayerWall' | 'resources'
+  contentType: 'posts' | 'calendar' | 'sermons' | 'podcasts' | 'books' | 'prayerWall' | 'resources' | 'photos'
 ): boolean {
   const settings = context.tenant.settings;
   if (!settings) {
@@ -146,6 +146,7 @@ export function canViewContent(
     sermons: 'enableSermons',
     podcasts: 'enablePodcasts',
     books: 'enableBooks',
+    photos: 'enablePhotos',
     prayerWall: 'enablePrayerWall',
     resources: 'enableResourceCenter',
   };

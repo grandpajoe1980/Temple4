@@ -338,6 +338,7 @@ model TenantSettings {
   enableVolunteering       Boolean                @default(false)
   enableSmallGroups        Boolean                @default(false)
   enableLiveStream         Boolean                @default(false)
+  enablePhotos             Boolean                @default(true)
   enablePrayerWall         Boolean                @default(false)
   autoApprovePrayerWall    Boolean                @default(false)
   enableResourceCenter     Boolean                @default(false)

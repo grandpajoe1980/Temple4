@@ -86,8 +86,8 @@ interface StorageConfig {
 
 const config: StorageConfig = {
   type: 'local',
-  localBasePath: path.join(process.cwd(), 'public', 'uploads'),
-  publicUrlBase: '/uploads',
+  localBasePath: path.join(process.cwd(), 'public', 'storage'),
+  publicUrlBase: '/storage',
 };
 
 /**

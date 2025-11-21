@@ -232,6 +232,7 @@ export interface TenantSettings {
   enablePosts: boolean;
   enableSermons: boolean;
   enablePodcasts: boolean;
+  enablePhotos: boolean;
   enableBooks: boolean;
   enableMemberDirectory: boolean;
   enableGroupChat: boolean;
@@ -255,6 +256,7 @@ export interface TenantSettings {
     podcasts: boolean;
     books: boolean;
     prayerWall: boolean;
+    photos?: boolean;
   };
 }
 

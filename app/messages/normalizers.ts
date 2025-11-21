@@ -104,16 +104,25 @@ export function normalizeConversation(
   conversation: ConversationWithRelations,
   currentUserId: string
 ): EnrichedConversation {
-  const participants: User[] = conversation.participants.map((participant) => {
-    const participantUser = participant.user;
+  const participantsRaw = conversation.participants ?? [];
+
+  const participants: User[] = participantsRaw.map((participant: any) => {
+    // participant.user may be missing if the caller didn't include the relation
+    const participantUser = participant.user ?? {
+      id: participant.userId,
+      email: '',
+      password: '',
+      isSuperAdmin: false,
+      profile: {},
+    };
 
     return {
       id: participantUser.id,
-      email: participantUser.email,
+      email: participantUser.email ?? '',
       password: participantUser.password ?? '',
       isSuperAdmin: participantUser.isSuperAdmin ?? false,
       profile: {
-        displayName: participantUser.profile?.displayName ?? participantUser.email,
+        displayName: participantUser.profile?.displayName ?? participantUser.email ?? 'Unknown user',
         avatarUrl: participantUser.profile?.avatarUrl ?? undefined,
         bio: participantUser.profile?.bio ?? undefined,
         locationCity: participantUser.profile?.locationCity ?? undefined,

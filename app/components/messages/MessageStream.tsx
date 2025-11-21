@@ -101,15 +101,17 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
     return () => container.removeEventListener('scroll', handleScrollPosition);
   }, [handleScrollPosition]);
   
+  const isDirect = conversation.kind === 'DM' || conversation.isDirect;
+
   const canSendMessage = useMemo(() => {
-    if (conversation.isDirect) {
+    if (isDirect) {
       return true;
     }
     if (tenant && conversation.name?.toLowerCase() === '#announcements') {
       return canSendAnnouncements;
     }
     return true;
-  }, [conversation.isDirect, conversation.name, tenant, canSendAnnouncements]);
+  }, [isDirect, conversation.name, tenant, canSendAnnouncements]);
 
   useEffect(() => {
     if (tenant && conversation.name?.toLowerCase() === '#announcements') {
@@ -175,14 +177,14 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
     [onMarkAsRead]
   );
 
-  const otherParticipant = conversation.isDirect ? conversation.participants.find(p => p.id !== currentUser.id) : null;
+  const otherParticipant = isDirect ? conversation.participants.find(p => p.id !== currentUser.id) : null;
 
   return (
     <>
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
          <div className="flex items-center space-x-3">
-             {conversation.isDirect && otherParticipant ? (
+             {isDirect && otherParticipant ? (
                // FIX: Access avatarUrl and displayName from the nested profile object.
                <img src={otherParticipant.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={otherParticipant.profile?.displayName ?? ''} className="w-10 h-10 rounded-full" />
              ) : (

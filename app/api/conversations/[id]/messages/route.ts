@@ -30,22 +30,23 @@ export async function GET(
   try {
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
-      select: { tenantId: true }
+      select: { tenantId: true, scope: true, kind: true }
     });
 
-    if (conversation?.tenantId) {
+    if (conversation?.scope === 'TENANT') {
+      const tenantId = conversation.tenantId!;
       const membership = await prisma.userTenantMembership.findUnique({
         where: {
           userId_tenantId: {
             userId,
-            tenantId: conversation.tenantId
+            tenantId,
           }
         },
         select: { status: true }
       });
 
       try {
-        requireTenantAccess(membership, conversation.tenantId, userId);
+        requireTenantAccess(membership, tenantId, userId);
       } catch (error) {
         return NextResponse.json({ message: 'You are not a member of this tenant' }, { status: 403 });
       }
@@ -147,22 +148,23 @@ export async function POST(
   try {
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
-      select: { tenantId: true }
+      select: { tenantId: true, scope: true, kind: true }
     });
 
-    if (conversation?.tenantId) {
+    if (conversation?.scope === 'TENANT') {
+      const tenantId = conversation.tenantId!;
       const membership = await prisma.userTenantMembership.findUnique({
         where: {
           userId_tenantId: {
             userId,
-            tenantId: conversation.tenantId
+            tenantId,
           }
         },
         select: { status: true }
       });
 
       try {
-        requireTenantAccess(membership, conversation.tenantId, userId);
+        requireTenantAccess(membership, tenantId, userId);
       } catch (error) {
         return NextResponse.json({ message: 'You are not a member of this tenant' }, { status: 403 });
       }
@@ -247,7 +249,7 @@ export async function POST(
         userId: p.userId,
         actorUserId: userId,
         type: 'NEW_DIRECT_MESSAGE' as const,
-        message: conversationDetails.isDirectMessage 
+        message: conversationDetails.kind === 'DM'
           ? 'sent you a message'
           : `sent a message in ${conversationDetails.name || conversationDetails.tenant?.name || 'group chat'}`,
         link: `/messages/${conversationId}`,
@@ -288,18 +290,20 @@ export async function PATCH(
     });
 
     if (conversation?.tenantId) {
+      const tenantId = conversation.tenantId;
+      // tenantId is checked truthy above
       const membership = await prisma.userTenantMembership.findUnique({
         where: {
           userId_tenantId: {
             userId,
-            tenantId: conversation.tenantId
+            tenantId: tenantId as string,
           }
         },
         select: { status: true }
       });
 
       try {
-        requireTenantAccess(membership, conversation.tenantId, userId);
+        requireTenantAccess(membership, tenantId as string, userId);
       } catch (error) {
         return NextResponse.json({ message: 'You are not a member of this tenant' }, { status: 403 });
       }

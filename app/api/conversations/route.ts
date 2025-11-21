@@ -191,11 +191,15 @@ export async function POST(request: NextRequest) {
     allParticipantIds = Array.from(new Set([userId, ...(participantIds || [])]));
 
     // Create conversation with participants
+    const kind = allParticipantIds.length === 2 && !name ? 'DM' : 'GROUP';
+
     const conversation = await prisma.conversation.create({
       data: {
-        tenantId,
+        tenantId: null,
         name,
-        isDirectMessage: allParticipantIds.length === 2 && !name,
+        isDirectMessage: kind === 'DM',
+        scope: 'GLOBAL',
+        kind: kind,
         participants: {
           create: allParticipantIds.map(participantId => ({
             userId: participantId

@@ -64,7 +64,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               >
                 <div className="flex items-center space-x-3">
                   <div className="relative">
-                    {conv.isDirect && otherParticipant ? (
+                    {(conv.kind === 'DM' || conv.isDirect) && otherParticipant ? (
                       <img
                         className="h-10 w-10 rounded-full"
                         src={otherParticipant.profile?.avatarUrl || '/placeholder-avatar.svg'}

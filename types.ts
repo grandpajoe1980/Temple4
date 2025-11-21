@@ -405,9 +405,24 @@ export interface EnrichedChatMessage extends ChatMessage {
   userAvatarUrl?: string;
 }
 
+export enum ConversationScope {
+  GLOBAL = 'GLOBAL',
+  TENANT = 'TENANT',
+}
+
+export enum ConversationKind {
+  DM = 'DM',
+  GROUP = 'GROUP',
+  CHANNEL = 'CHANNEL',
+}
+
 export interface Conversation {
   id: string;
+  // legacy boolean for older payloads — prefer `kind` and `scope`.
   isDirect: boolean;
+  // New canonical fields
+  scope: ConversationScope;
+  kind: ConversationKind;
   tenantId: string | null;
   isPrivateGroup: boolean;
   name?: string; // For group channels

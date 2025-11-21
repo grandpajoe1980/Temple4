@@ -989,13 +989,32 @@ export async function getOrCreateDirectConversation(userId1: string, userId2: st
 
     return await prisma.conversation.create({
         data: {
-            isDirectMessage: true,
-            participants: {
-                create: [
-                    { userId: userId1 },
-                    { userId: userId2 },
-                ]
+        isDirectMessage: true,
+        scope: 'GLOBAL',
+        kind: 'DM',
+        participants: {
+          create: [
+            { userId: userId1 },
+            { userId: userId2 },
+          ]
+        }
+        },
+        include: {
+          participants: {
+            include: {
+              user: {
+                include: {
+                  profile: true,
+                }
+              }
             }
+          },
+          tenant: {
+            select: {
+              id: true,
+              name: true,
+            }
+          }
         }
     });
 }
@@ -1074,6 +1093,8 @@ export async function createChannelWithAllMembers(
         tenantId,
         name: data.name,
         isDirectMessage: false,
+        scope: 'TENANT',
+        kind: 'CHANNEL',
       }
     });
 

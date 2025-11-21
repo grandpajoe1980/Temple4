@@ -35,10 +35,10 @@ function normalizeConversation(conversation: any, currentUserId: string): Enrich
     };
   });
 
+  // Prefer canonical `kind` where available. Fall back to legacy heuristics.
   const derivedIsDirect =
-    conversation.isDirect ??
-    conversation.isDirectMessage ??
-    (!conversation.name && participants.length <= 2);
+    (conversation.kind === 'DM') ||
+    (conversation.isDirect ?? conversation.isDirectMessage ?? (!conversation.name && participants.length <= 2));
   const isDirect = Boolean(derivedIsDirect);
   const otherParticipant = isDirect
     ? participants.find((participant: any) => participant.id !== currentUserId)
@@ -51,6 +51,8 @@ function normalizeConversation(conversation: any, currentUserId: string): Enrich
     ...conversation,
     participants,
     isDirect,
+    kind: conversation.kind || (isDirect ? 'DM' : 'GROUP'),
+    scope: conversation.scope || (conversation.tenantId ? 'TENANT' : 'GLOBAL'),
     displayName:
       conversation.displayName ||
       conversation.name ||
@@ -116,12 +118,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
     }
   }, [tenantConversations, activeConversation, newlyCreatedConvId]);
 
-  const handleCreateChannel = async (data: { name: string; isPrivate: boolean; participantIds: string[] }) => {
+  const handleCreateChannel = async (data: { name: string; isPrivate: boolean; participantIds: string[]; scope?: 'TENANT' | 'GLOBAL'; kind?: 'CHANNEL' | 'GROUP' | 'DM' }) => {
     try {
       const response = await fetch('/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tenantId: tenant.id, name: data.name, participantIds: data.participantIds }),
+        body: JSON.stringify({ tenantId: tenant.id, name: data.name, participantIds: data.participantIds, scope: data.scope || 'TENANT', kind: data.kind || 'CHANNEL' }),
       });
 
       if (!response.ok) {

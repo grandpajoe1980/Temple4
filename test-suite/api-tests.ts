@@ -465,13 +465,20 @@ export class APITestSuite {
           const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/conversations`, {
             method: 'POST',
             headers: this.getAuthHeaders(),
-            body: JSON.stringify({ tenantId: this.testTenantId, name: channelName, participantIds: [] }),
+            body: JSON.stringify({ tenantId: this.testTenantId, name: channelName, participantIds: [], scope: 'TENANT', kind: 'CHANNEL' }),
           });
 
           if (response.ok) {
             const body = await response.json();
             // basic validation: conversation id and participants present
             if (body && body.id && Array.isArray(body.participants)) {
+              // Ensure server returned canonical kind/scope
+              if (body.kind !== 'CHANNEL') {
+                throw new Error(`Expected created conversation.kind === 'CHANNEL' but got ${body.kind}`);
+              }
+              if (body.scope !== 'TENANT') {
+                throw new Error(`Expected created conversation.scope === 'TENANT' but got ${body.scope}`);
+              }
               // Fetch tenant members to compare counts (approved only)
               const membersRes = await fetch(`${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/members`, {
                 method: 'GET',
@@ -499,6 +506,36 @@ export class APITestSuite {
         }
       );
     }
+
+    // Test creating a direct message (DM) via the direct endpoint and assert kind/scope
+    await this.testEndpoint(
+      category,
+      'POST /api/conversations/direct - create DM',
+      async () => {
+        // pick a recipient via prisma (any user different from the test regular user)
+        const recipientUser = await prisma.user.findFirst({ where: { email: { not: TEST_CONFIG.testUsers.regular.email } } });
+        if (!recipientUser) {
+          // Skip if no other user available in DB
+          this.logger.logSkip(category, 'POST /api/conversations/direct - create DM', 'No recipient user available in DB');
+          return { response: new Response(null, { status: 204 }), expectedStatus: [204] };
+        }
+
+        const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/conversations/direct`, {
+          method: 'POST',
+          headers: this.getAuthHeaders(),
+          body: JSON.stringify({ recipientId: recipientUser.id }),
+        });
+
+        if (response.ok) {
+          const body = await response.json();
+          if (!body || body.kind !== 'DM' || body.scope !== 'GLOBAL' || !Array.isArray(body.participants)) {
+            throw new Error('Direct conversation response missing expected kind/scope/participants');
+          }
+        }
+
+        return { response, expectedStatus: [200, 201, 401, 204] };
+      }
+    );
   }
 
   private async testUserEndpoints() {

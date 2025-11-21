@@ -119,6 +119,17 @@ enum OutboxStatus {
   FAILED
 }
 
+enum ConversationScope {
+  GLOBAL
+  TENANT
+}
+
+enum ConversationKind {
+  DM
+  GROUP
+  CHANNEL
+}
+
 // --- USER-RELATED MODELS ---
 
 model User {
@@ -518,8 +529,12 @@ model Conversation {
   tenant          Tenant?                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   name            String?
   isDirectMessage Boolean                 @default(false)
+  scope           ConversationScope       @default(GLOBAL)
+  kind            ConversationKind        @default(GROUP)
   participants    ConversationParticipant[]
   messages        ChatMessage[]
+
+  @@index([scope, tenantId])
 }
 
 model ConversationParticipant {

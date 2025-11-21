@@ -546,6 +546,8 @@ async function main() {
     data: {
       tenantId: springfieldChurch.id,
       isDirectMessage: true,
+      scope: 'TENANT',
+      kind: 'DM',
       participants: {
         create: [
           { userId: createdUsers['homer@simpson.com'].id },
@@ -584,6 +586,8 @@ async function main() {
       tenantId: springfieldChurch.id,
       name: 'Church Planning Committee',
       isDirectMessage: false,
+      scope: 'TENANT',
+      kind: 'GROUP',
       participants: {
         create: [
           { userId: createdUsers['ned@flanders.com'].id },
@@ -628,6 +632,8 @@ async function main() {
     data: {
       tenantId: springfieldChurch.id,
       isDirectMessage: true,
+      scope: 'TENANT',
+      kind: 'DM',
       participants: {
         create: [
           { userId: createdUsers['bart@simpson.com'].id },
@@ -1149,19 +1155,19 @@ async function main() {
   }
 
   // Add more chat messages and threads between GOT members
-  const tAndV = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, participants: { create: [{ userId: createdUsers['tyrion@got.example'].id }, { userId: createdUsers['varys@got.example'].id }] } } });
+  const tAndV = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, scope: 'TENANT', kind: 'DM', participants: { create: [{ userId: createdUsers['tyrion@got.example'].id }, { userId: createdUsers['varys@got.example'].id }] } } });
   await prisma.chatMessage.createMany({ data: [
     { conversationId: tAndV.id, userId: createdUsers['tyrion@got.example'].id, text: 'Varys, your informants have anything on the costume contest judges?', createdAt: new Date() },
     { conversationId: tAndV.id, userId: createdUsers['varys@got.example'].id, text: 'Pleasantly predictable. I have suggestions; meet me at the library.', createdAt: new Date() },
   ] });
 
-  const aryaSansa = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, participants: { create: [{ userId: createdUsers['arya@got.example'].id }, { userId: createdUsers['sansa@got.example'].id }] } } });
+  const aryaSansa = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, scope: 'TENANT', kind: 'DM', participants: { create: [{ userId: createdUsers['arya@got.example'].id }, { userId: createdUsers['sansa@got.example'].id }] } } });
   await prisma.chatMessage.createMany({ data: [
     { conversationId: aryaSansa.id, userId: createdUsers['arya@got.example'].id, text: 'Sansa, I found a pattern for a cloak you might like.', createdAt: new Date() },
     { conversationId: aryaSansa.id, userId: createdUsers['sansa@got.example'].id, text: 'Send it over; we can adapt it for the Winterfell theme.', createdAt: new Date() },
   ] });
 
-  const jonSam = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, participants: { create: [{ userId: createdUsers['jon@got.example'].id }, { userId: createdUsers['samwell@got.example'].id }] } } });
+  const jonSam = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, scope: 'TENANT', kind: 'DM', participants: { create: [{ userId: createdUsers['jon@got.example'].id }, { userId: createdUsers['samwell@got.example'].id }] } } });
   await prisma.chatMessage.createMany({ data: [
     { conversationId: jonSam.id, userId: createdUsers['samwell@got.example'].id, text: 'Jon, I found new references in the old annals about the Long Night.', createdAt: new Date() },
     { conversationId: jonSam.id, userId: createdUsers['jon@got.example'].id, text: 'Bring them to the Lore Discussion; we should prepare talking points.', createdAt: new Date() },
@@ -1230,10 +1236,10 @@ async function main() {
   }
 
   // Conversations/messages — a few sample threads
-  const convoA = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, participants: { create: [{ userId: createdUsers['jon@got.example'].id }, { userId: createdUsers['daenerys@got.example'].id }] } } });
+  const convoA = await prisma.conversation.create({ data: { tenantId: gotTenant.id, isDirectMessage: true, scope: 'TENANT', kind: 'DM', participants: { create: [{ userId: createdUsers['jon@got.example'].id }, { userId: createdUsers['daenerys@got.example'].id }] } } });
   await prisma.chatMessage.createMany({ data: [ { conversationId: convoA.id, userId: createdUsers['jon@got.example'].id, text: 'Ready for the Feast of Houses?', createdAt: new Date() }, { conversationId: convoA.id, userId: createdUsers['daenerys@got.example'].id, text: 'I will bring dragons (metaphorically).', createdAt: new Date() }, { conversationId: convoA.id, userId: createdUsers['jon@got.example'].id, text: 'Metaphorical dragons are still impressive.', createdAt: new Date() } ] });
 
-  const committee = await prisma.conversation.create({ data: { tenantId: gotTenant.id, name: 'Feast Planning Committee', isDirectMessage: false, participants: { create: [ { userId: createdUsers['tyrion@got.example'].id }, { userId: createdUsers['margaery@got.example'].id }, { userId: createdUsers['varys@got.example'].id } ] } } });
+  const committee = await prisma.conversation.create({ data: { tenantId: gotTenant.id, name: 'Feast Planning Committee', isDirectMessage: false, scope: 'TENANT', kind: 'GROUP', participants: { create: [ { userId: createdUsers['tyrion@got.example'].id }, { userId: createdUsers['margaery@got.example'].id }, { userId: createdUsers['varys@got.example'].id } ] } } });
   await prisma.chatMessage.createMany({ data: [ { conversationId: committee.id, userId: createdUsers['tyrion@got.example'].id, text: 'We need better napkin placement.', createdAt: new Date() }, { conversationId: committee.id, userId: createdUsers['margaery@got.example'].id, text: 'I will coordinate decor and judges.', createdAt: new Date() }, { conversationId: committee.id, userId: createdUsers['varys@got.example'].id, text: 'I have informants in the kitchens.', createdAt: new Date() } ] });
 
   console.log('🎭 Game of Thrones tenant and sample content seeded.');

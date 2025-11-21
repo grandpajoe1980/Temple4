@@ -9,7 +9,8 @@ import ToggleSwitch from '../ui/ToggleSwitch';
 interface CreateChannelFormProps {
   tenant: Tenant;
   currentUser: User;
-  onSubmit: (data: { name: string; isPrivate: boolean; participantIds: string[] }) => void;
+  // Include scope/kind so the client sends explicit semantics for creation
+  onSubmit: (data: { name: string; isPrivate: boolean; participantIds: string[]; scope?: 'TENANT' | 'GLOBAL'; kind?: 'CHANNEL' | 'GROUP' | 'DM' }) => void;
   onCancel: () => void;
 }
 
@@ -85,6 +86,9 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ tenant, currentUs
       name: name.trim(),
       isPrivate,
       participantIds: Array.from(selectedParticipants),
+      // When creating from within a tenant view, this is a tenant-scoped channel
+      scope: tenant?.id ? 'TENANT' : 'GLOBAL',
+      kind: 'CHANNEL',
     });
   };
 

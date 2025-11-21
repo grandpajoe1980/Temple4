@@ -11,6 +11,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
     }
 
+    const isSuperAdmin = (session.user as any).isSuperAdmin;
+    if (!isSuperAdmin) {
+      return NextResponse.json({ message: 'Forbidden - Super Admin access required' }, { status: 403 });
+    }
+
     const userId = (session.user as any).realUserId || (session.user as any).id;
     const sessionIdFromClient = (session.user as any).impersonationSessionId as string | undefined | null;
 

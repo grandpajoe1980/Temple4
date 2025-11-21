@@ -11,6 +11,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
     }
 
+    const isSuperAdmin = (session.user as any).isSuperAdmin;
+    if (!isSuperAdmin) {
+      return NextResponse.json({ message: 'Forbidden - Super Admin access required' }, { status: 403 });
+    }
+
     const userId = (session.user as any).realUserId || (session.user as any).id;
 
     // Get active impersonation session

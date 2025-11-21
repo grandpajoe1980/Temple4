@@ -112,6 +112,13 @@ enum RSVPStatus {
   NOT_GOING
 }
 
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+}
+
 // --- USER-RELATED MODELS ---
 
 model User {
@@ -712,4 +719,29 @@ model EmailLog {
   providerId String?  // External tracking ID
   sentAt     DateTime @default(now())
   error      String?
+}
+
+model EmailProviderConfig {
+  id        String   @id @default(cuid())
+  provider  String
+  settings  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Outbox {
+  id         String       @id @default(cuid())
+  tenantId   String?
+  type       NotificationType?
+  payload    Json
+  status     OutboxStatus @default(PENDING)
+  attempts   Int          @default(0)
+  lastError  String?
+  runAt      DateTime?    @default(now())
+  lockedAt   DateTime?
+  processedAt DateTime?
+  provider   String?
+  createdAt  DateTime     @default(now())
+
+  @@index([status, runAt])
 }

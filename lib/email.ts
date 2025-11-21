@@ -10,14 +10,17 @@
 
 import { prisma } from './db';
 import { logger } from './logger';
+import nodemailer from 'nodemailer';
 
 // ===== Types =====
 
 export interface EmailConfig {
-  provider: 'resend' | 'sendgrid' | 'mock';
+  provider: 'resend' | 'sendgrid' | 'mock' | 'gmail';
   apiKey?: string;
   fromEmail: string;
   fromName?: string;
+  // provider specific settings may be in DB as JSON
+  settings?: any;
 }
 
 export interface SendEmailParams {
@@ -36,8 +39,25 @@ export interface EmailSendResult {
 
 // ===== Configuration =====
 
-function getEmailConfig(): EmailConfig {
-  const provider = (process.env.EMAIL_PROVIDER || 'mock') as 'resend' | 'sendgrid' | 'mock';
+async function getEmailConfig(): Promise<EmailConfig> {
+  // prefer DB-config if present
+  try {
+    const db = await prisma.emailProviderConfig.findFirst({ orderBy: { updatedAt: 'desc' } });
+    if (db) {
+      const settings = db.settings as any;
+      return {
+        provider: db.provider as any,
+        settings,
+        fromEmail: settings?.fromEmail || process.env.EMAIL_FROM || 'noreply@temple.example.com',
+        fromName: settings?.fromName || process.env.EMAIL_FROM_NAME || 'Temple Platform',
+        apiKey: settings?.apiKey || process.env.EMAIL_API_KEY,
+      } as EmailConfig;
+    }
+  } catch (err) {
+    logger.warn('Failed to read email provider config from DB', { error: err });
+  }
+
+  const provider = (process.env.EMAIL_PROVIDER || 'mock') as 'resend' | 'sendgrid' | 'mock' | 'gmail';
   const apiKey = process.env.EMAIL_API_KEY;
   const fromEmail = process.env.EMAIL_FROM || 'noreply@temple.example.com';
   const fromName = process.env.EMAIL_FROM_NAME || 'Temple Platform';
@@ -48,6 +68,64 @@ function getEmailConfig(): EmailConfig {
     fromEmail,
     fromName,
   };
+}
+
+// ===== Gmail via SMTP (nodemailer) =====
+async function sendViaGmailSMTP(params: SendEmailParams, config: EmailConfig): Promise<EmailSendResult> {
+  const settings = config.settings || {};
+
+  // support two modes: smtp (user/pass) or oauth2 (clientId/secret + refreshToken)
+  const authMode = settings.authMode || 'smtp';
+
+  try {
+    let transporter: nodemailer.Transporter;
+
+    if (authMode === 'oauth2') {
+      const { user, clientId, clientSecret, refreshToken } = settings;
+      if (!user || !clientId || !clientSecret || !refreshToken) {
+        return { success: false, error: 'Gmail OAuth2 settings incomplete' };
+      }
+
+      transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          type: 'OAuth2',
+          user,
+          clientId,
+          clientSecret,
+          refreshToken,
+        },
+      });
+    } else {
+      // smtp
+      const { user, pass } = settings;
+      if (!user || !pass) {
+        return { success: false, error: 'Gmail SMTP credentials not configured' };
+      }
+
+      transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user,
+          pass,
+        },
+      });
+    }
+
+    const info = await transporter.sendMail({
+      from: `${config.fromName} <${config.fromEmail}>`,
+      to: params.to,
+      subject: params.subject,
+      html: params.html,
+      text: params.text,
+    });
+
+    return { success: true, providerId: (info as any).messageId };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
 }
 
 // ===== Email Providers =====
@@ -167,8 +245,8 @@ async function sendViaMock(params: SendEmailParams): Promise<EmailSendResult> {
  * Logs all email attempts to the EmailLog table.
  */
 export async function sendEmail(params: SendEmailParams): Promise<EmailSendResult> {
-  const config = getEmailConfig();
-  
+  const config = await getEmailConfig();
+
   logger.info('Sending email', {
     to: params.to,
     subject: params.subject,
@@ -185,6 +263,9 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailSendResul
         break;
       case 'sendgrid':
         result = await sendViaSendGrid(params, config);
+        break;
+      case 'gmail':
+        result = await sendViaGmailSMTP(params, config);
         break;
       case 'mock':
       default:

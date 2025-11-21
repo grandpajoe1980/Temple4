@@ -9,7 +9,7 @@ export default async function Page() {
 
   return (
     <ExplorePage 
-      initialSearchTerm="" 
+      initialSearchTerm=""
       tenants={tenants}
     />
   );

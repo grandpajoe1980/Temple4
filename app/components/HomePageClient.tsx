@@ -29,7 +29,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
     return (
       <LandingPage
         onNavigateToLogin={() => router.push('/auth/login')}
-        onSearch={(term) => router.push(`/explore?q=${term}`)}
+        onSearch={(term) => router.push(`/explore?q=${encodeURIComponent(term)}`)}
       />
     );
   }

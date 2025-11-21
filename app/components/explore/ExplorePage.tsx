@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { Tenant, TenantSettings, TenantBranding } from '@prisma/client';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
@@ -29,6 +29,16 @@ interface ExplorePageProps {
 const ExplorePage: React.FC<ExplorePageProps> = ({ initialSearchTerm, tenants, onBack, onViewTenant }) => {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    try {
+      const q = searchParams?.get('q') ?? '';
+      if (q && q !== searchTerm) setSearchTerm(q);
+    } catch (err) {
+      // ignore malformed search params
+    }
+  }, [searchParams]);
 
   const handleBack = () => {
     if (onBack) {

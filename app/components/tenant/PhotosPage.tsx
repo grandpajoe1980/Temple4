@@ -19,9 +19,10 @@ interface PhotosPageProps {
   user: CurrentUser;
   initialPhotos: PhotoItem[];
   canCreate: boolean;
+  isAdmin?: boolean;
 }
 
-const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, canCreate }) => {
+const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, canCreate, isAdmin = false }) => {
   const [photos, setPhotos] = useState<PhotoItem[]>(initialPhotos || []);
   const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -76,6 +77,31 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
     }
   };
 
+  const handleDelete = async (storageKey: string, id: string) => {
+    if (!isAdmin) return;
+    if (!confirm('Delete this photo? This action cannot be undone.')) return;
+
+    try {
+      const res = await fetch('/api/upload/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storageKey, tenantId: tenant.id }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Delete failed' }));
+        toast.error(err.message || 'Failed to delete photo');
+        return;
+      }
+
+      setPhotos((p) => p.filter((ph) => ph.id !== id));
+      toast.success('Photo deleted');
+    } catch (error) {
+      console.error('Delete error', error);
+      toast.error('Failed to delete photo');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -99,8 +125,19 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {photos.map((photo) => (
-            <div key={photo.id} className="rounded overflow-hidden bg-white shadow-sm">
-              <img src={`/storage/${photo.storageKey}`} alt={photo.title || 'Photo'} className="w-full h-48 object-cover" />
+            <div key={photo.id} className="relative rounded overflow-hidden bg-white shadow-sm">
+              {isAdmin && (
+                <button
+                  aria-label="Delete photo"
+                  onClick={() => handleDelete(photo.storageKey, photo.id)}
+                  className="absolute z-10 top-2 right-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 focus:outline-none"
+                >
+                  <span className="text-sm leading-none">−</span>
+                </button>
+              )}
+              <a href={`/storage/${photo.storageKey}`} target="_blank" rel="noopener noreferrer" className="block">
+                <img src={`/storage/${photo.storageKey}`} alt={photo.title || 'Photo'} className="w-full h-48 object-cover" />
+              </a>
               <div className="p-2 text-xs text-gray-600">{photo.authorDisplayName}</div>
             </div>
           ))}

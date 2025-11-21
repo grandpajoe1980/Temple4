@@ -43,3 +43,6 @@ test-results/error-backlog-report.txt
 
 # Local development databases
 dev.db
+
+# Tenant uploads (tenant storage)
+/public/storage/

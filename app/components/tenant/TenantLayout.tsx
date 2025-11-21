@@ -228,9 +228,7 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                  </div>
                  <div className="flex flex-col items-start gap-2 sm:items-end">
                     <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                        {user.isSuperAdmin && (
-                            <Button variant="danger" size="sm" onClick={onNavigateToAdminConsole}>Admin Console</Button>
-                        )}
+                        {/* Admin Console moved to user menu for platform admins */}
                         <div className="relative">
                             <NotificationBell
                                 unreadCount={unreadNotificationCount}
@@ -246,11 +244,10 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                                 />
                             )}
                         </div>
-                        <div className="flex items-center space-x-2">
-                             <img src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
-                             <p className="font-semibold text-amber-700 text-sm hidden sm:block">{tenantDisplayName}</p>
-                        </div>
-                        <Button variant="secondary" size="sm" onClick={onLogout}>Logout</Button>
+                            <div className="flex items-center space-x-2">
+                              <img src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
+                              <p className="font-semibold text-amber-700 text-sm hidden sm:block">{tenantDisplayName}</p>
+                            </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-gray-600">
                         <button onClick={onBackToSelect} className="hover:text-amber-700 hidden sm:block">

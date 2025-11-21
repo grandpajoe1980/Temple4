@@ -21,6 +21,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, avatarUrl, displayName }) => 
 
   const name = displayName || user.name || user.email || 'User';
   const avatar = avatarUrl || user.image;
+  const showAdminConsole = Boolean((user as any).isSuperAdmin);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -132,6 +133,18 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, avatarUrl, displayName }) => 
             </svg>
             <span>Account</span>
           </button>
+
+          {showAdminConsole && (
+            <button
+              onClick={() => { setIsOpen(false); router.push('/admin'); }}
+              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center space-x-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
+              </svg>
+              <span>Admin Console</span>
+            </button>
+          )}
 
           <button
             onClick={handleLogout}

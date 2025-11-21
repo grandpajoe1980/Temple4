@@ -120,21 +120,26 @@ const SiteHeader = () => {
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="flex items-center gap-3 rounded-full px-2 py-1 text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-          >
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
-              <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true">
-                <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
-              </svg>
-            </span>
-            <div className="hidden sm:flex flex-col leading-tight">
-              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Temple</span>
-              <span className="text-lg font-semibold">Platform</span>
-            </div>
-            <span className="text-base font-semibold text-slate-700 sm:hidden">Temple</span>
-          </Link>
+          {/* On tenant pages replace site logo with tenant hamburger menu */}
+          {pathname?.startsWith('/tenants/') ? (
+            <TenantMenuPlaceholder pathname={pathname} session={session} />
+          ) : (
+            <Link
+              href="/"
+              className="flex items-center gap-3 rounded-full px-2 py-1 text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            >
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+                <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true">
+                  <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
+                </svg>
+              </span>
+              <div className="hidden sm:flex flex-col leading-tight">
+                <span className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Temple</span>
+                <span className="text-lg font-semibold">Platform</span>
+              </div>
+              <span className="text-base font-semibold text-slate-700 sm:hidden">Temple</span>
+            </Link>
+          )}
           <nav className="hidden flex-1 items-center gap-2 text-sm font-medium text-slate-500 md:flex" aria-label="Primary">
             {navItems
               .filter((item) => (isAuthenticated ? true : !item.authOnly))
@@ -203,3 +208,85 @@ const SiteHeader = () => {
 };
 
 export default SiteHeader;
+
+function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null; session: any }) {
+  const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!pathname) return;
+    const parts = pathname.split('/');
+    const tenantId = parts[2];
+    if (!tenantId) return;
+
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(`/api/tenants/${tenantId}/me`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!mounted) return;
+        const tenantIsAdmin = Boolean(data?.permissions?.isAdmin);
+        const platformAdmin = Boolean((session as any)?.user?.isSuperAdmin);
+        setIsAdmin(tenantIsAdmin || platformAdmin);
+      } catch (e) {
+        // ignore
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [pathname, session]);
+
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (!ref.current) return;
+      if (e.target instanceof Node && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+
+  const parts = (pathname || '').split('/');
+  const tenantId = parts[2];
+  const basePath = tenantId ? `/tenants/${tenantId}` : '/';
+
+  return (
+    <div className="relative flex items-center gap-3" ref={ref}>
+      <button
+        aria-label="Open tenant menu"
+        onClick={() => setOpen((s) => !s)}
+        className="p-2 rounded-md text-gray-700 hover:bg-gray-100"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      <div className="hidden sm:flex flex-col leading-tight">
+        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Temple</span>
+        <span className="text-lg font-semibold">Platform</span>
+      </div>
+      <span className="text-base font-semibold text-slate-700 sm:hidden">Temple</span>
+
+      {open && (
+        <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+          <div className="py-1">
+            <Link href={basePath} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+              Explore
+            </Link>
+            {isAdmin && (
+              <Link href={`${basePath}/settings`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                Settings
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -115,7 +115,7 @@ const ExplorePage: React.FC<ExplorePageProps> = ({ initialSearchTerm, tenants, o
                 {filteredTenants.length > 0 ? (
                     <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredTenants.map((tenant: any) => (
-                            <TenantCard key={tenant.id} tenant={tenant} onView={() => handleViewTenant(tenant.id)} />
+                          <TenantCard key={tenant.id} tenant={tenant} />
                         ))}
                     </div>
                 ) : (

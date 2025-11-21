@@ -72,17 +72,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, avatarUrl, displayName }) => 
         className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-full p-1 hover:bg-gray-100 transition-colors"
         aria-label="User menu"
       >
-        {avatar ? (
-          <img
-            src={avatar}
-            alt={name}
-            className="h-8 w-8 rounded-full object-cover border-2 border-gray-200"
-          />
-        ) : (
-          <div className="h-8 w-8 rounded-full bg-amber-600 flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-200">
-            {name.charAt(0).toUpperCase()}
-          </div>
-        )}
+        <div className="h-8 w-8 rounded-full bg-amber-600 flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-200">
+          {name.charAt(0).toUpperCase()}
+        </div>
       </button>
 
       {isOpen && (

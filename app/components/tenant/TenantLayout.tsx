@@ -262,27 +262,7 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                     </div>
                  </div>
             </div>
-             <nav className="-mb-px flex space-x-6 overflow-x-auto border-t border-gray-200">
-                {navItems.map((item: any) => {
-                    const isEnabled = !item.feature || (tenant.settings as any)[item.feature];
-                    if (!isEnabled) return null;
-                    if (item.adminOnly && !canViewSettings) return null;
-
-                    return (
-                        <button
-                            key={item.key}
-                            onClick={() => setCurrentPage(item.key)}
-                            className={`${
-                            currentPage === item.key
-                                ? 'border-amber-500 text-amber-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            } whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}
-                        >
-                            {item.label}
-                        </button>
-                    );
-                })}
-            </nav>
+            {/* Top tenant navigation removed — links moved into hamburger menu */}
         </div>
       </header>
        <main className="py-10">

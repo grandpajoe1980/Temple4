@@ -140,22 +140,24 @@ const SiteHeader = () => {
               <span className="text-base font-semibold text-slate-700 sm:hidden">Temple</span>
             </Link>
           )}
-          <nav className="hidden flex-1 items-center gap-2 text-sm font-medium text-slate-500 md:flex" aria-label="Primary">
-            {navItems
-              .filter((item) => (isAuthenticated ? true : !item.authOnly))
-              .filter((item) => (pathname?.startsWith('/tenants') ? item.label !== 'Tenants' : true))
-              .map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`rounded-full px-3 py-1 transition-colors ${
-                    pathname?.startsWith(item.href) ? 'bg-amber-50 text-amber-700' : 'hover:text-slate-900'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-          </nav>
+          {!pathname?.startsWith('/tenants/') && (
+            <nav className="hidden flex-1 items-center gap-2 text-sm font-medium text-slate-500 md:flex" aria-label="Primary">
+              {navItems
+                .filter((item) => (isAuthenticated ? true : !item.authOnly))
+                .filter((item) => (pathname?.startsWith('/tenants') ? item.label !== 'Tenants' : true))
+                .map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`rounded-full px-3 py-1 transition-colors ${
+                      pathname?.startsWith(item.href) ? 'bg-amber-50 text-amber-700' : 'hover:text-slate-900'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+            </nav>
+          )}
           <div className="flex items-center gap-2" ref={notificationPanelRef}>
             {isAuthenticated ? (
               <>
@@ -186,22 +188,24 @@ const SiteHeader = () => {
             )}
           </div>
         </div>
-        <nav className="flex items-center gap-2 overflow-x-auto text-xs font-semibold text-slate-500 md:hidden" aria-label="Mobile">
-          {navItems
-            .filter((item) => (isAuthenticated ? true : !item.authOnly))
-            .filter((item) => (pathname?.startsWith('/tenants') ? item.label !== 'Tenants' : true))
-            .map((item) => (
-              <Link
-                key={`${item.href}-mobile`}
-                href={item.href}
-                className={`whitespace-nowrap rounded-full px-3 py-1 transition-colors ${
-                  pathname?.startsWith(item.href) ? 'bg-amber-50 text-amber-700' : 'hover:text-slate-900'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-        </nav>
+        {!pathname?.startsWith('/tenants/') && (
+          <nav className="flex items-center gap-2 overflow-x-auto text-xs font-semibold text-slate-500 md:hidden" aria-label="Mobile">
+            {navItems
+              .filter((item) => (isAuthenticated ? true : !item.authOnly))
+              .filter((item) => (pathname?.startsWith('/tenants') ? item.label !== 'Tenants' : true))
+              .map((item) => (
+                <Link
+                  key={`${item.href}-mobile`}
+                  href={item.href}
+                  className={`whitespace-nowrap rounded-full px-3 py-1 transition-colors ${
+                    pathname?.startsWith(item.href) ? 'bg-amber-50 text-amber-700' : 'hover:text-slate-900'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+          </nav>
+        )}
       </div>
     </header>
   );
@@ -212,7 +216,10 @@ export default SiteHeader;
 function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null; session: any }) {
   const [open, setOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [tenantSettings, setTenantSettings] = useState<any | null>(null);
   const ref = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const mobilePanelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!pathname) return;
@@ -223,13 +230,26 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
     let mounted = true;
     (async () => {
       try {
+        // fetch tenant membership/permissions
         const res = await fetch(`/api/tenants/${tenantId}/me`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!mounted) return;
-        const tenantIsAdmin = Boolean(data?.permissions?.isAdmin);
-        const platformAdmin = Boolean((session as any)?.user?.isSuperAdmin);
-        setIsAdmin(tenantIsAdmin || platformAdmin);
+        if (res.ok) {
+          const data = await res.json();
+          if (mounted) {
+            const tenantIsAdmin = Boolean(data?.permissions?.isAdmin);
+            const platformAdmin = Boolean((session as any)?.user?.isSuperAdmin);
+            setIsAdmin(tenantIsAdmin || platformAdmin);
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+      try {
+        // fetch tenant public settings for feature toggles
+        const tRes = await fetch(`/api/tenants/${tenantId}`);
+        if (tRes.ok) {
+          const tData = await tRes.json();
+          if (mounted) setTenantSettings(tData?.settings || null);
+        }
       } catch (e) {
         // ignore
       }
@@ -251,6 +271,32 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
     return () => document.removeEventListener('mousedown', onDoc);
   }, []);
 
+  // Close on Escape and manage focus return
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
+    }
+    if (open) {
+      document.addEventListener('keydown', onKey);
+    }
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  // When opening, move focus to first focusable item in the panel
+  useEffect(() => {
+    if (!open) return;
+    // small delay to wait for rendering
+    const id = setTimeout(() => {
+      const panel = mobilePanelRef.current || ref.current?.querySelector('[role="menu"]') as HTMLElement | null;
+      const first = panel?.querySelector<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])');
+      if (first) first.focus();
+    }, 0);
+    return () => clearTimeout(id);
+  }, [open]);
+
   const parts = (pathname || '').split('/');
   const tenantId = parts[2];
   const basePath = tenantId ? `/tenants/${tenantId}` : '/';
@@ -258,7 +304,11 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
   return (
     <div className="relative flex items-center gap-3" ref={ref}>
       <button
+        ref={buttonRef}
         aria-label="Open tenant menu"
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-controls={`tenant-menu-${tenantId || 'global'}`}
         onClick={() => setOpen((s) => !s)}
         className="p-2 rounded-md text-gray-700 hover:bg-gray-100"
       >
@@ -274,18 +324,99 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
       <span className="text-base font-semibold text-slate-700 sm:hidden">Temple</span>
 
       {open && (
-        <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-          <div className="py-1">
-            <Link href={basePath} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-              Explore
-            </Link>
-            {isAdmin && (
-              <Link href={`${basePath}/settings`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                Settings
-              </Link>
-            )}
+        <>
+          {/* Mobile: full-width panel pinned to top, scrollable if long */}
+          <div
+            className="sm:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Tenant navigation"
+          >
+            <div ref={mobilePanelRef} id={`tenant-menu-${tenantId || 'global'}`} className="max-h-[100vh] overflow-y-auto" role="menu">
+              <div className="py-2">
+                {[
+              { key: 'home', label: 'Home', path: '' },
+              { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
+              { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
+              { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
+              { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
+              { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
+              { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
+              { key: 'facilities', label: 'Facilities', path: '/facilities' },
+              { key: 'liveStream', label: 'Live Stream', path: '/livestream', feature: 'enableLiveStream' },
+              { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
+              { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
+              { key: 'sermons', label: 'Sermons', path: '/sermons', feature: 'enableSermons' },
+              { key: 'podcasts', label: 'Podcasts', path: '/podcasts', feature: 'enablePodcasts' },
+              { key: 'books', label: 'Books', path: '/books', feature: 'enableBooks' },
+              { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
+              { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
+              { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
+              { key: 'contact', label: 'Contact', path: '/contact' },
+                ].map((item) => {
+              const isEnabled = !item.feature || Boolean(tenantSettings?.[item.feature]);
+              if (!isEnabled) return null;
+              if (item.adminOnly && !isAdmin) return null;
+                  return (
+                    <Link
+                      key={item.key}
+                      href={`${basePath}${item.path}`}
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => setOpen(false)}
+                      role="menuitem"
+                      tabIndex={0}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-        </div>
+
+          {/* Desktop / larger screens: dropdown anchored under button */}
+          <div className="hidden sm:block absolute left-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-[calc(100vh-6rem)] overflow-y-auto">
+            <div className="py-1" role="menu" id={`tenant-menu-desktop-${tenantId || 'global'}`}>
+              {[
+                { key: 'home', label: 'Home', path: '' },
+                { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
+                { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
+                { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
+                { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
+                { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
+                { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
+                { key: 'facilities', label: 'Facilities', path: '/facilities' },
+                { key: 'liveStream', label: 'Live Stream', path: '/livestream', feature: 'enableLiveStream' },
+                { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
+                { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
+                { key: 'sermons', label: 'Sermons', path: '/sermons', feature: 'enableSermons' },
+                { key: 'podcasts', label: 'Podcasts', path: '/podcasts', feature: 'enablePodcasts' },
+                { key: 'books', label: 'Books', path: '/books', feature: 'enableBooks' },
+                { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
+                { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
+                { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
+                { key: 'contact', label: 'Contact', path: '/contact' },
+              ].map((item) => {
+                const isEnabled = !item.feature || Boolean(tenantSettings?.[item.feature]);
+                if (!isEnabled) return null;
+                if (item.adminOnly && !isAdmin) return null;
+
+                return (
+                  <Link
+                    key={item.key}
+                    href={`${basePath}${item.path}`}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    onClick={() => setOpen(false)}
+                    role="menuitem"
+                    tabIndex={0}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

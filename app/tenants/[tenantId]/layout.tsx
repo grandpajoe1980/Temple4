@@ -5,8 +5,7 @@ import { getTenantById, getUserById } from '@/lib/data';
 import { hasRole, can } from '@/lib/permissions';
 import {  } from '@prisma/client';
 import { TenantRole } from '@/types';
-import Link from 'next/link';
-import TenantNav from './TenantNav'; // This will be the client component for navigation
+// TenantNav removed — navigation moved into the hamburger menu
 import TenantFooter from './TenantFooter';
 
 export default async function TenantLayout({
@@ -49,33 +48,9 @@ export default async function TenantLayout({
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <header className="bg-white shadow-sm sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
-                   <div className="flex items-center space-x-4">
-                      {/* left intentionally blank - SiteHeader shows tenant menu in logo spot */}
-                    </div>
-                 <div className="flex flex-col items-start gap-2 sm:items-end">
-                    <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                        {user ? (
-                          <>
-                            <div className="flex items-center space-x-2">
-                                <img src={user.profile?.avatarUrl || ''} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
-                                <p className="font-semibold text-amber-700 text-sm hidden sm:block">{user.profile?.displayName}</p>
-                            </div>
-                          </>
-                        ) : (
-                          <Link href={`/auth/login?callbackUrl=/tenants/${tenant.id}`} className="text-sm font-medium text-amber-600 hover:text-amber-700">
-                            Login / Join
-                          </Link>
-                        )}
-                    </div>
-                    {user && (
-                      <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-gray-600">
-                        {/* Tenant-level quick links removed per design */}
-                      </div>
-                    )}
-                 </div>
+            <div className="py-3">
+              {/* Tenant navigation removed; links available in tenant hamburger */}
             </div>
-            <TenantNav tenant={tenant} canViewSettings={canViewSettings} />
         </div>
       </header>
        <main className="py-10 flex-grow">

@@ -9,7 +9,23 @@ export const SERVICE_CATEGORY_OPTIONS: { value: ServiceCategory; label: string; 
   { value: 'OTHER', label: 'Other', description: 'Community services, outreach, unique offerings' },
 ];
 
-export const CONTROL_PANEL_TABS = ['General', 'Branding', 'Features', 'Permissions', 'Membership & Moderation', 'User Profiles', 'Donations', 'Volunteering', 'Small Groups', 'Services', 'Facilities', 'Live Stream', 'Prayer Wall', 'Resource Center', 'Contact Submissions'];
+export const CONTROL_PANEL_TABS = [
+  'General',
+  'Branding',
+  'Features',
+  'Permissions',
+  'Membership & Moderation',
+  'User Profiles',
+  'Donations',
+  'Volunteering',
+  'Small Groups',
+  'Services',
+  'Facilities',
+  'Live Stream',
+  'Prayer Wall',
+  'Resource Center',
+  'Contact Submissions',
+].sort((a, b) => a.localeCompare(b));
 
 const defaultRolePermissions: RolePermissions = {
   canCreatePosts: false,

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import type { User, UserProfile, UserPrivacySettings, AccountSettings } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import Card from '@/app/components/ui/Card';
@@ -19,6 +20,8 @@ interface ProfileViewPageProps {
 export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdmin }: ProfileViewPageProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const pathname = usePathname();
+  const hideAvatar = pathname?.startsWith('/tenants/') ?? false;
 
   const isOwnProfile = currentUserId === profileUser.id;
   const canImpersonate = isSuperAdmin && !isOwnProfile;
@@ -102,12 +105,14 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
       <Card className="!p-0">
         <div className="p-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8">
-            <img
-              src={profileUser.profile?.avatarUrl || '/default-avatar.png'}
-              alt={`${profileUser.profile?.displayName || 'User'}'s avatar`}
-              className="w-32 h-32 rounded-full ring-4 ring-white ring-offset-2 ring-offset-amber-100"
-            />
-            <div className="mt-6 sm:mt-2 text-center sm:text-left flex-1">
+            {!hideAvatar && (
+              <img
+                src={profileUser.profile?.avatarUrl || '/default-avatar.png'}
+                alt={`${profileUser.profile?.displayName || 'User'}'s avatar`}
+                className="w-32 h-32 rounded-full ring-4 ring-white ring-offset-2 ring-offset-amber-100"
+              />
+            )}
+            <div className={`mt-6 ${hideAvatar ? '' : 'sm:mt-2'} text-center sm:text-left flex-1`}>
               <h2 className="text-3xl font-bold text-gray-900">
                 {profileUser.profile?.displayName || profileUser.email}
               </h2>

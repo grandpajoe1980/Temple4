@@ -9,6 +9,7 @@ interface TenantSelectorProps {
   tenants: TenantWithRelations[];
   onSelect: (tenantId: string) => void;
   onCreateNew: () => void;
+  showHeader?: boolean;
 }
 
 type FeatureKey = keyof Pick<
@@ -30,7 +31,7 @@ const featureMap: Record<FeatureKey, string> = {
   enableLiveStream: 'Live Stream',
 };
 
-const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCreateNew }) => {
+const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCreateNew, showHeader = true }) => {
   const [query, setQuery] = useState('');
 
   const filteredTenants = useMemo(() => {
@@ -56,32 +57,34 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-900">Select a tenant</h2>
-          <p className="text-sm text-slate-500">Search the full network or spin up a new spiritual home.</p>
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
-              <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-                <path fill="currentColor" d="M11 3a8 8 0 0 1 6.2 13.2l4.3 4.3-1.4 1.4-4.3-4.3A8 8 0 1 1 11 3m0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z" />
-              </svg>
-            </span>
-            <input
-              type="search"
-              aria-label="Filter tenants"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white/80 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
-              placeholder="Search name, creed, or city"
-            />
+      {showHeader && (
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold text-slate-900">Select a tenant</h2>
+            <p className="text-sm text-slate-500">Search the full network or spin up a new spiritual home.</p>
           </div>
-          <Button onClick={onCreateNew} className="rounded-xl text-sm">
-            + Create new temple
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+                <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                  <path fill="currentColor" d="M11 3a8 8 0 0 1 6.2 13.2l4.3 4.3-1.4 1.4-4.3-4.3A8 8 0 1 1 11 3m0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z" />
+                </svg>
+              </span>
+              <input
+                type="search"
+                aria-label="Filter tenants"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white/80 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+                placeholder="Search name, creed, or city"
+              />
+            </div>
+            <Button onClick={onCreateNew} className="rounded-xl text-sm">
+              + Create new temple
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="space-y-4">
         {filteredTenants.length === 0 ? (

@@ -81,11 +81,7 @@ export default async function TenantLayout({
                     </div>
                     {user && (
                       <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-gray-600">
-                          <Link href="/" className="hover:text-amber-700 hidden sm:block">
-                              &larr; Switch Tenant
-                          </Link>
-                          <Link href="/messages" className="hover:text-amber-700">Global Messages</Link>
-                          <Link href="/explore" className="hover:text-amber-700">Explore</Link>
+                        {/* Tenant-level quick links removed per design */}
                       </div>
                     )}
                  </div>

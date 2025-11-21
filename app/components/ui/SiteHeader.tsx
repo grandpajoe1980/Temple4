@@ -10,12 +10,7 @@ import NotificationPanel from '../notifications/NotificationPanel';
 import Button from './Button';
 import UserMenu from './UserMenu';
 
-const navItems = [
-  { label: 'Tenants', href: '/tenants' },
-  { label: 'Messages', href: '/messages', authOnly: true },
-  { label: 'Account', href: '/account', authOnly: true },
-  { label: 'Explore', href: '/explore' },
-];
+const navItems: { label: string; href: string; authOnly?: boolean }[] = [];
 
 const SiteHeader = () => {
   const { data: session } = useSession();
@@ -159,15 +154,7 @@ const SiteHeader = () => {
           <div className="flex items-center gap-2" ref={notificationPanelRef}>
             {isAuthenticated ? (
               <>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  className="hidden sm:inline-flex"
-                  onClick={() => router.push('/tenants')}
-                >
-                  Switch tenant
-                </Button>
+                {/* Switch tenant removed from header per design */}
                 <div className="relative">
                   <NotificationBell unreadCount={unreadCount} onClick={() => setPanelOpen((prev) => !prev)} />
                   {panelOpen && (

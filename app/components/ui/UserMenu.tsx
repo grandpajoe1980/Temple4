@@ -44,6 +44,21 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, avatarUrl, displayName }) => 
     router.push('/account');
   };
 
+  const handleExplore = () => {
+    setIsOpen(false);
+    router.push('/explore');
+  };
+
+  const handleTenants = () => {
+    setIsOpen(false);
+    router.push('/tenants');
+  };
+
+  const handleMessages = () => {
+    setIsOpen(false);
+    router.push('/messages');
+  };
+
   const handleLogout = async () => {
     setIsOpen(false);
     await signOut({ callbackUrl: '/' });
@@ -79,13 +94,43 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, avatarUrl, displayName }) => 
           </div>
           
           <button
+            onClick={handleTenants}
+            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
+            </svg>
+            <span>Tenants</span>
+          </button>
+
+          <button
+            onClick={handleExplore}
+            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21l4-16 4 16" />
+            </svg>
+            <span>Explore</span>
+          </button>
+
+          <button
+            onClick={handleMessages}
+            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m-6 4h4" />
+            </svg>
+            <span>Messages</span>
+          </button>
+
+          <button
             onClick={handleProfileClick}
             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center space-x-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span>My Profile</span>
+            <span>Account</span>
           </button>
 
           <button

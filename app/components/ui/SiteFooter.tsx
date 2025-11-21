@@ -39,29 +39,7 @@ const SiteFooter = () => {
   return (
     <footer className="border-t border-white/30 bg-white/80 backdrop-blur">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
-          <div className="rounded-3xl bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-white shadow-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-300">Temple Platform</p>
-            <h2 className="mt-3 text-2xl font-semibold">Bring clarity to every tenant experience</h2>
-            <p className="mt-2 text-sm text-white/80">
-              Spin up a new tenant, or return to the control panel and continue the rollout outlined in the UI improvement plan.
-            </p>
-            <div className="mt-5 flex flex-col gap-3 text-sm font-semibold sm:flex-row">
-              <Link
-                href="/tenants/new"
-                className="inline-flex items-center justify-center rounded-2xl bg-white px-5 py-2 text-slate-900 shadow-sm transition hover:bg-amber-50"
-              >
-                Create a tenant
-              </Link>
-              <Link
-                href="/auth/login"
-                className="inline-flex items-center justify-center rounded-2xl border border-white/40 px-5 py-2 text-white transition hover:border-white hover:bg-white/10"
-              >
-                Log in to dashboard
-              </Link>
-            </div>
-            <p className="mt-4 text-xs text-white/60">SOC 2 ready • GDPR aligned • Backups every 15 minutes</p>
-          </div>
+        <div className="grid gap-8">
           <div className="grid gap-8 text-left text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-3">
             {footerSections.map((section) => (
               <div key={section.title}>

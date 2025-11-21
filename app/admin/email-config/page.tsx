@@ -50,6 +50,37 @@ export default function EmailConfigPage() {
     }
   }
 
+  async function handleTestEmail() {
+    setMessage(null);
+    try {
+      // prompt for an email address
+      const to = window.prompt('Send test email to (address):');
+      if (!to) return;
+      const clean = to.trim();
+      // simple email validation
+      const re = /^\S+@\S+\.\S+$/;
+      if (!re.test(clean)) {
+        setMessage('Invalid email address');
+        return;
+      }
+
+      const res = await fetch('/api/admin/email-config/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: clean }),
+      });
+
+      const data = await res.json();
+      if (res.ok && (data?.ok || data?.success)) {
+        setMessage('Test email sent');
+      } else {
+        setMessage(data?.error || data?.message || 'Failed to send test email');
+      }
+    } catch (err) {
+      setMessage('Failed to send test email');
+    }
+  }
+
   return (
     <div style={{ padding: 20 }}>
       <h1>Email Provider Configuration</h1>
@@ -125,7 +156,8 @@ export default function EmailConfigPage() {
         )}
 
         <div style={{ marginTop: 16 }}>
-          <button type="submit">Save</button>
+          <button type="submit" className="bg-amber-400 text-white rounded-full px-6 py-2">Save</button>
+          <button type="button" onClick={handleTestEmail} className="ml-3 border rounded px-4 py-2">Test Email</button>
         </div>
         {message && <div style={{ marginTop: 12 }}>{message}</div>}
       </form>

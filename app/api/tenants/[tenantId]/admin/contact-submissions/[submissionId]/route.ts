@@ -34,7 +34,7 @@ export async function PUT(
             return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
         }
 
-        const canUpdateSubmissions = await can(user.id, tenant, 'canManageContactSubmissions');
+        const canUpdateSubmissions = await can(user, tenant, 'canManageContactSubmissions');
         if (!canUpdateSubmissions) {
             return NextResponse.json({ message: 'You do not have permission to update contact submissions.' }, { status: 403 });
         }

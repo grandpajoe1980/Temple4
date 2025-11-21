@@ -41,7 +41,23 @@ const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, groups,
   const uniqueGroupsMap: Record<string, EnrichedSmallGroup> = {};
   groups.forEach(g => { uniqueGroupsMap[g.id] = g; });
   const uniqueGroups = Object.values(uniqueGroupsMap);
-  const activeGroups = uniqueGroups.filter(g => g.isActive);
+  // Enforce client-side visibility: hide groups marked `isHidden` from users who
+  // are neither tenant admins nor members of the group. Server routes also
+  // apply this rule, but add a defensive client-side filter so hidden groups
+  // cannot accidentally surface if a backend endpoint is misused.
+  const visibleGroups = uniqueGroups.filter((g: any) => {
+    if (!g.isHidden) return true;
+    if (isAdmin) return true;
+    // super-admin flag may be present on the user object in some contexts
+    if ((user as any)?.isSuperAdmin) return true;
+    // leader sees their own hidden group
+    if (g.leaderUserId === (user as any)?.id) return true;
+    // members: getSmallGroupsForTenant maps members to user objects (member.id === user.id)
+    if (Array.isArray(g.members) && g.members.some((m: any) => m && m.id === (user as any)?.id)) return true;
+    return false;
+  });
+
+  const activeGroups = visibleGroups.filter(g => g.isActive);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(activeGroups.length > 0 ? activeGroups[0].id : null);
   const [creating, setCreating] = useState(false);
 

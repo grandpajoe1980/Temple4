@@ -31,7 +31,7 @@ export async function POST(
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
     if (!tenant) return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
 
-    const isAllowed = await can(user.id, tenant, 'canManageContactSubmissions');
+    const isAllowed = await can(user, tenant, 'canManageContactSubmissions');
     if (!isAllowed) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }

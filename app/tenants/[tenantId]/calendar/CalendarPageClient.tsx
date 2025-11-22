@@ -38,25 +38,48 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
   const handleCreateEvent = async (eventData: Omit<Event, 'id' | 'tenantId' | 'createdByUserId'>) => {
     setIsSubmitting(true);
     try {
+      const payload: any = {
+        ...eventData,
+        startDateTime: eventData.startDateTime.toISOString(),
+        endDateTime: eventData.endDateTime.toISOString(),
+      };
+
+      // Ensure we don't send an empty string for `onlineUrl` which will fail zod's url() check.
+      if (!eventData.isOnline || !eventData.onlineUrl || eventData.onlineUrl.trim() === '') {
+        delete payload.onlineUrl;
+        payload.isOnline = !!eventData.isOnline;
+      } else {
+        payload.onlineUrl = eventData.onlineUrl.trim();
+      }
+
       const response = await fetch(`/api/tenants/${tenantId}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...eventData,
-          startDateTime: eventData.startDateTime.toISOString(),
-          endDateTime: eventData.endDateTime.toISOString(),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create event');
+        let detail = '';
+        try {
+          const body = await response.json();
+          detail = body?.message || JSON.stringify(body);
+        } catch (e) {
+          try {
+            detail = await response.text();
+          } catch (_) {
+            detail = '<no response body>';
+          }
+        }
+
+        throw new Error(`Failed to create event: ${detail}`);
       }
 
       handleCloseCreateModal();
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating event:', error);
-      alert('Unable to create the event right now. Please try again.');
+      const message = error?.message || 'Unable to create the event right now. Please try again.';
+      alert(message);
     } finally {
       setIsSubmitting(false);
     }

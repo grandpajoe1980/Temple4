@@ -8,7 +8,11 @@ export const GET = withErrorHandling(async (req) => {
   if (authCheck) return authCheck;
 
   const config = await prisma.emailProviderConfig.findFirst({ orderBy: { updatedAt: 'desc' } });
-  return NextResponse.json({ data: config || null });
+
+  // Indicate if environment SMTP override is present (quick local/testing path)
+  const envOverride = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+
+  return NextResponse.json({ data: config || null, envOverride });
 });
 
 export const POST = withErrorHandling(async (req) => {

@@ -296,32 +296,30 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailSendResul
     subject: params.subject,
     provider: config.provider,
   });
-
   let result: EmailSendResult;
 
-  // Quick local/testing override: if SMTP env vars are set, prefer them.
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-    logger.info('Using ENV SMTP configuration (SMTP_HOST present)');
-    result = await sendViaEnvSmtp(params);
-    // Log and return as normal below (email log code will run)
-  } else {
-
   try {
-    // Route to the appropriate provider
-    switch (config.provider) {
-      case 'resend':
-        result = await sendViaResend(params, config);
-        break;
-      case 'sendgrid':
-        result = await sendViaSendGrid(params, config);
-        break;
-      case 'gmail':
-        result = await sendViaGmailSMTP(params, config);
-        break;
-      case 'mock':
-      default:
-        result = await sendViaMock(params);
-        break;
+    // Quick local/testing override: if SMTP env vars are set, prefer them.
+    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+      logger.info('Using ENV SMTP configuration (SMTP_HOST present)');
+      result = await sendViaEnvSmtp(params);
+    } else {
+      // Route to the appropriate provider
+      switch (config.provider) {
+        case 'resend':
+          result = await sendViaResend(params, config);
+          break;
+        case 'sendgrid':
+          result = await sendViaSendGrid(params, config);
+          break;
+        case 'gmail':
+          result = await sendViaGmailSMTP(params, config);
+          break;
+        case 'mock':
+        default:
+          result = await sendViaMock(params);
+          break;
+      }
     }
 
     // Log the email attempt
@@ -330,24 +328,24 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailSendResul
         tenantId: params.tenantId,
         recipient: params.to,
         subject: params.subject,
-        status: result.success ? 'SENT' : 'FAILED',
-        provider: config.provider.toUpperCase(),
-        providerId: result.providerId,
-        error: result.error,
+        status: result?.success ? 'SENT' : 'FAILED',
+        provider: (config.provider || 'ENV').toString().toUpperCase(),
+        providerId: result?.providerId,
+        error: result?.error,
       },
     });
 
-    if (!result.success) {
+    if (!result?.success) {
       logger.error('Email send failed', {
         to: params.to,
-        error: result.error,
+        error: result?.error,
       });
     }
 
-    return result;
+    return result || { success: false, error: 'No provider result' };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
+
     logger.error('Email send error', {
       to: params.to,
       error: errorMessage,
@@ -361,7 +359,7 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailSendResul
           recipient: params.to,
           subject: params.subject,
           status: 'FAILED',
-          provider: config.provider.toUpperCase(),
+          provider: (config.provider || 'ENV').toString().toUpperCase(),
           error: errorMessage,
         },
       });
@@ -373,7 +371,6 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailSendResul
       success: false,
       error: errorMessage,
     };
-  }
   }
 }
 

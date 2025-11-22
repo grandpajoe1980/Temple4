@@ -13,14 +13,15 @@ interface ServicesPageProps {
   facilities?: Facility[];
   selectedCategory?: ServiceCategory;
   isMember: boolean;
+  showChips?: boolean;
 }
 
-const ServicesPage = ({ tenant, services, facilities, selectedCategory, isMember }: ServicesPageProps) => {
+const ServicesPage = ({ tenant, services, facilities, selectedCategory, isMember, showChips = true }: ServicesPageProps) => {
   const activeCategory = selectedCategory ?? null;
 
   // Render the page header and category chips once and make the chips sticky
   // so they remain visible at the top while the user scrolls the page.
-  const chips = (
+  const chips = showChips ? (
     <div className="fixed top-16 left-0 right-0 z-30 bg-white/80 backdrop-blur-sm border-b border-gray-100">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex flex-wrap gap-3">
@@ -37,7 +38,7 @@ const ServicesPage = ({ tenant, services, facilities, selectedCategory, isMember
         </div>
       </div>
     </div>
-  );
+  ) : null;
 
   return (
     <div className="space-y-8">

@@ -73,6 +73,7 @@ export default async function TenantServicesPage({
       services={serializableServices}
       selectedCategory={selectedCategory}
       isMember={includePrivate}
+      showChips={Boolean(tenant.settings?.enableServices)}
     />
   );
 }

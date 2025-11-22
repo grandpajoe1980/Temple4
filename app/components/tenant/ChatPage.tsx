@@ -8,6 +8,7 @@ import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import CreateChannelForm from '../messages/CreateChannelForm';
 import ConversationDetailsPanel from '../messages/ConversationDetailsPanel';
+import CommunityChips from './CommunityChips';
 
 interface ChatPageProps {
   tenant: any; // Has architectural issues, needs refactoring
@@ -158,6 +159,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
 
   return (
     <>
+      <CommunityChips tenantId={(tenant as any).id} />
       <div className="flex h-[calc(100vh-170px)] bg-white rounded-lg shadow-sm overflow-hidden">
         {/* Left Panel: Conversation List */}
         <div className="w-full sm:w-1/3 md:w-1/4 border-r border-gray-200 flex flex-col">

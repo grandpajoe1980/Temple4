@@ -6,6 +6,7 @@ import Modal from '../ui/Modal';
 import PrayerPostCard from './PrayerPostCard';
 import SubmitPrayerPostForm from './forms/SubmitPrayerPostForm';
 import { CommunityPostStatus, CommunityPostType } from '@/types';
+import CommunityChips from './CommunityChips';
 
 async function fetchCommunityPosts(tenantId: string) {
   const response = await fetch(`/api/tenants/${tenantId}/community-posts`, { cache: 'no-store' });
@@ -80,6 +81,7 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
   if (isLoading) {
     return (
       <div className="space-y-8">
+        <CommunityChips tenantId={tenant.id} />
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Community Prayer Wall</h2>
@@ -97,6 +99,7 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
 
   return (
     <div className="space-y-8">
+      <CommunityChips tenantId={tenant.id} />
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Community Prayer Wall</h2>

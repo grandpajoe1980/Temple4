@@ -221,6 +221,6 @@ When in doubt between multiple reasonable implementations, choose the one that:
 
 ## 10. Local Automation Rule
 
-- After you run `npm run build` locally (or via an agent action) and the build completes successfully, immediately start the dev server by running `npm run dev` in the same working directory. Use the system's default shell (PowerShell on Windows) when executing the commands. If `npm run build` fails, do not run `npm run dev`.
+- After you run `npm run build` locally (or via an agent action) and the build completes successfully, immediately start the dev server by running `npm run dev` in the same working directory. Use the system's default shell (PowerShell on Windows) when executing the commands. If `npm run build` fails, do not run `npm run dev`. If npm run dev fails, troubleshoot the terminal error until it functions correctly.
 
 This rule ensures a fast feedback loop: production builds are validated, then the dev server remains available for interactive verification.

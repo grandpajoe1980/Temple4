@@ -5,6 +5,7 @@ import type { Tenant, User } from '@prisma/client';
 import SmallGroupCard from './SmallGroupCard';
 import SmallGroupDetail from './SmallGroupDetail';
 import Button from '../ui/Button';
+import CommunityChips from './CommunityChips';
 
 // Match the enriched type returned by getSmallGroupsForTenant
 type EnrichedSmallGroup = {
@@ -87,6 +88,7 @@ const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, groups,
 
   return (
     <div className="space-y-8">
+      <CommunityChips tenantId={(tenant as any).id} />
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Small Groups</h2>

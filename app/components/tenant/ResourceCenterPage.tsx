@@ -6,6 +6,7 @@ import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import ResourceForm from './forms/ResourceForm';
 import ResourceItemCard from './ResourceItemCard';
+import CommunityChips from './CommunityChips';
 
 interface ResourceCenterPageProps {
   tenant: Tenant;
@@ -77,6 +78,7 @@ const ResourceCenterPage: React.FC<ResourceCenterPageProps> = ({ tenant, user, o
   if (isLoading) {
     return (
       <div className="space-y-8">
+        <CommunityChips tenantId={tenant.id} />
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Resource Center</h2>
@@ -94,6 +96,7 @@ const ResourceCenterPage: React.FC<ResourceCenterPageProps> = ({ tenant, user, o
 
   return (
     <div className="space-y-8">
+      <CommunityChips tenantId={tenant.id} />
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Resource Center</h2>

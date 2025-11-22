@@ -9,6 +9,7 @@ import Button from '@/app/components/ui/Button';
 import Modal from '@/app/components/ui/Modal';
 import EventForm from '@/app/components/tenant/EventForm';
 import DayEventsModal from '@/app/components/tenant/DayEventsModal';
+import CommunityChips from '@/app/components/tenant/CommunityChips';
 
 interface CalendarPageClientProps {
   events: EventWithCreator[];
@@ -100,6 +101,7 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
 
   return (
     <div className="space-y-4">
+      <CommunityChips tenantId={tenantId} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Calendar</h1>

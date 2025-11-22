@@ -9,6 +9,7 @@ import PostCard from './PostCard';
 import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 import { useToast } from '../ui/Toast';
+import CommunityChips from '../tenant/CommunityChips';
 
 interface PostsPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
@@ -51,6 +52,7 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
 
   return (
     <div className="space-y-8">
+      <CommunityChips tenantId={tenant.id} />
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Posts & Announcements</h2>

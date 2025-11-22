@@ -104,6 +104,13 @@ export default function EmailConfigPage() {
   return (
     <div style={{ padding: 20 }}>
       <h1>Email Provider Configuration</h1>
+      <div style={{ marginBottom: 12, padding: 8, backgroundColor: '#f3f4f6', borderLeft: '4px solid #f59e0b' }}>
+        <strong>Quick note:</strong> You can also set SMTP via environment variables for local testing. If `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS` are present, they will be used instead of the saved DB provider settings.
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <button type="button" onClick={() => { window.location.href = '/api/email/google/start'; }} className="border rounded px-4 py-2">Connect Google (authorize Gmail send)</button>
+        <span style={{ marginLeft: 12, color: '#6b7280' }}>Authorize Temple to send email using a Google account (saves a refresh token).</span>
+      </div>
       <form onSubmit={handleSubmit} style={{ maxWidth: 720 }}>
         <div style={{ marginBottom: 12 }}>
           <label>Provider</label>

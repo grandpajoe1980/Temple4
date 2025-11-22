@@ -117,6 +117,44 @@ After setup, explore these pages:
 - `/tenants/[tenantId]` - Tenant home page
 - `/admin` - Admin console (requires super admin account)
 
+## SMTP (Gmail) — Keep email sending working locally
+
+If you want the app to send mail via Gmail using an App Password (quick, recommended for local/dev), set the SMTP env vars in your `.env` or as environment variables for your process. This project prefers ENV SMTP when `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS` are present.
+
+Recommended `.env` entries:
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your.account@gmail.com
+SMTP_PASS=APP_PASSWORD_HERE   # use a Google App Password if your account has 2FA
+SMTP_SECURE=true
+SMTP_FROM="Your Name <your.account@gmail.com>"
+```
+
+How to create an App Password (Gmail):
+
+1. Enable 2-Step Verification for your Google account: https://myaccount.google.com/security
+2. Open "App passwords" and create a new app password for "Mail" (or "Other" and name it).
+3. Use the generated 16-character password as `SMTP_PASS`.
+
+PowerShell quick test (run from project root):
+
+```powershell
+$env:SMTP_HOST='smtp.gmail.com'
+$env:SMTP_PORT='465'
+$env:SMTP_SECURE='true'
+$env:SMTP_USER='your.account@gmail.com'
+$env:SMTP_PASS='APP_PASSWORD_HERE'
+$env:SMTP_FROM='Your Name <your.account@gmail.com>'
+node .\scripts\send-test-email.js you@example.com
+```
+
+Notes:
+- Do NOT commit real secrets into the repository. `.env` is now ignored by `.gitignore`.
+- For production, prefer a secret manager / KMS instead of storing secrets in `.env` or the DB.
+- Long-term, consider using Gmail OAuth2 (refresh tokens) for sending; the app includes a Connect Google flow to obtain refresh tokens.
+
 ## Testing
 
 This project includes a **comprehensive test suite** that tests every feature, page, and API endpoint.

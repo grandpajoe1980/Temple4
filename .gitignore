@@ -46,3 +46,9 @@ dev.db
 
 # Tenant uploads (tenant storage)
 /public/storage/
+
+# Local environment files (do not commit secrets)
+.env
+.env.local
+.env.*.local
+.env

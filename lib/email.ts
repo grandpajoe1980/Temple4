@@ -81,9 +81,13 @@ async function sendViaGmailSMTP(params: SendEmailParams, config: EmailConfig): P
     let transporter: nodemailer.Transporter;
 
     if (authMode === 'oauth2') {
-      const { user, clientId, clientSecret, refreshToken } = settings;
+      let { user, clientId, clientSecret, refreshToken } = settings;
+      // allow clientId/secret to come from ENV for security
+      clientId = clientId || process.env.GMAIL_OAUTH_CLIENT_ID;
+      clientSecret = clientSecret || process.env.GMAIL_OAUTH_CLIENT_SECRET;
+
       if (!user || !clientId || !clientSecret || !refreshToken) {
-        return { success: false, error: 'Gmail OAuth2 settings incomplete' };
+        return { success: false, error: 'Gmail OAuth2 settings incomplete (need user, clientId, clientSecret, refreshToken)' };
       }
 
       transporter = nodemailer.createTransport({
@@ -238,6 +242,46 @@ async function sendViaMock(params: SendEmailParams): Promise<EmailSendResult> {
   };
 }
 
+// ===== ENV-based SMTP (quick local testing) =====
+async function sendViaEnvSmtp(params: SendEmailParams): Promise<EmailSendResult> {
+  const host = process.env.SMTP_HOST;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    return { success: false, error: 'ENV SMTP not configured' };
+  }
+
+  const port = Number(process.env.SMTP_PORT) || 587;
+  const secure = String(process.env.SMTP_SECURE || 'false') === 'true';
+  const fromEmail = process.env.SMTP_FROM || process.env.EMAIL_FROM || 'noreply@temple.example.com';
+  const fromName = process.env.SMTP_FROM_NAME || process.env.EMAIL_FROM_NAME || 'Temple Platform';
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      auth: {
+        user,
+        pass,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: `${fromName} <${fromEmail}>`,
+      to: params.to,
+      subject: params.subject,
+      html: params.html,
+      text: params.text,
+    });
+
+    return { success: true, providerId: (info as any).messageId };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 // ===== Core Email Service =====
 
 /**
@@ -254,6 +298,13 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailSendResul
   });
 
   let result: EmailSendResult;
+
+  // Quick local/testing override: if SMTP env vars are set, prefer them.
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    logger.info('Using ENV SMTP configuration (SMTP_HOST present)');
+    result = await sendViaEnvSmtp(params);
+    // Log and return as normal below (email log code will run)
+  } else {
 
   try {
     // Route to the appropriate provider
@@ -322,6 +373,7 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailSendResul
       success: false,
       error: errorMessage,
     };
+  }
   }
 }
 

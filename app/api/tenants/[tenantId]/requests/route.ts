@@ -2,7 +2,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import {  } from '@prisma/client';
 import { TenantRole, MembershipStatus } from '@/types';
 
 // 8.4 List Membership Requests

@@ -38,7 +38,7 @@ const ExplorePage: React.FC<ExplorePageProps> = ({ initialSearchTerm, tenants, o
     } catch (err) {
       // ignore malformed search params
     }
-  }, [searchParams]);
+  }, [searchParams, searchTerm]);
 
   const handleBack = () => {
     if (onBack) {

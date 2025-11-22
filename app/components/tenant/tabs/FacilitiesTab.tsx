@@ -6,7 +6,10 @@ import Card from '../../ui/Card';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import Input from '../../ui/Input';
-import { BookingStatus } from '@prisma/client';
+// `@prisma/client` exports are server-side values. Client components must not
+// import runtime values from it. Define a small client-side type instead and
+// use string literals for runtime values.
+type BookingStatus = 'REQUESTED' | 'APPROVED' | 'REJECTED';
 
 interface FacilitiesTabProps {
   tenant: any;
@@ -206,13 +209,13 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                   <div className="flex gap-2">
                     {booking.status === 'REQUESTED' && (
                       <>
-                        <Button size="sm" onClick={() => updateBookingStatus(booking.id, BookingStatus.APPROVED)}>
+                        <Button size="sm" onClick={() => updateBookingStatus(booking.id, 'APPROVED')}>
                           Approve
                         </Button>
                         <Button
                           size="sm"
                           variant="secondary"
-                          onClick={() => updateBookingStatus(booking.id, BookingStatus.REJECTED)}
+                          onClick={() => updateBookingStatus(booking.id, 'REJECTED')}
                         >
                           Reject
                         </Button>

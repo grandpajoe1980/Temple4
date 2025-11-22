@@ -76,7 +76,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
           return false; // Hide all other tabs from non-admins
       }
     });
-  }, [currentUser, tenant, isAdmin]);
+  }, [currentUser, isAdmin, permissions]);
   
   const [activeTab, setActiveTab] = useState(availableTabs[0] || CONTROL_PANEL_TABS[0]);
 

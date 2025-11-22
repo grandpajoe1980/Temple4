@@ -28,4 +28,6 @@ export async function enqueueNotification(params: EnqueueParams) {
   });
 }
 
-export default { enqueueNotification };
+const NotificationService = { enqueueNotification };
+
+export default NotificationService;

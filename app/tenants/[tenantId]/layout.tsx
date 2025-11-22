@@ -3,7 +3,6 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { getTenantById, getUserById } from '@/lib/data';
 import { hasRole, can } from '@/lib/permissions';
-import {  } from '@prisma/client';
 import { TenantRole } from '@/types';
 // TenantNav removed — navigation moved into the hamburger menu
 import TenantFooter from './TenantFooter';

@@ -89,4 +89,6 @@ export function startOutboxWorker(opts?: { intervalMs?: number; stopSignal?: { s
   return () => { running = false; };
 }
 
-export default { processNextOutboxItem, startOutboxWorker };
+const OutboxWorker = { processNextOutboxItem, startOutboxWorker };
+
+export default OutboxWorker;

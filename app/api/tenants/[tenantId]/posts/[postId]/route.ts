@@ -1,7 +1,6 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import {  } from '@prisma/client';
 import { TenantRole } from '@/types';
 import { prisma } from '@/lib/db';
 import { canUserViewContent } from '@/lib/permissions';

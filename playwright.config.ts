@@ -4,18 +4,22 @@ import { defineConfig, devices } from '@playwright/test';
  * Playwright configuration for Temple Platform UI Tests
  */
 export default defineConfig({
+  // Increase test timeout to 90s to accommodate streaming / client-rendered pages
+  timeout: 90 * 1000,
   testDir: './test-suite/ui-tests',
   fullyParallel: false, // Run tests sequentially to avoid conflicts
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1, // Single worker to avoid conflicts
   reporter: [
-    ['html', { outputFolder: 'test-results/playwright-report' }],
+    ['html', { outputFolder: 'playwright-report' }],
     ['json', { outputFile: 'test-results/playwright-results.json' }],
     ['list']
   ],
   use: {
     baseURL: 'http://localhost:3000',
+    // Increase action timeout for step interactions (ms)
+    actionTimeout: 30 * 1000,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

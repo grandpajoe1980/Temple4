@@ -17,7 +17,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, tenantId, currentUser }) => {
     BOOK: 'bg-purple-100 text-purple-800',
   };
 
-  return (
+    // Ensure publishedAt is a Date instance for formatting — API sometimes returns a string
+    const publishedDate = post.publishedAt ? new Date(post.publishedAt as any) : null;
+
+    return (
     <Card className="!p-0 overflow-visible">
         <div className="p-6">
             <div className="flex justify-between items-start">
@@ -50,8 +53,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, tenantId, currentUser }) => {
                   <span className="font-medium text-gray-800 hover:text-amber-700">{post.authorDisplayName}</span>
                 </Link>
             </div>
-            <time dateTime={post.publishedAt.toISOString()} className="text-gray-500">
-                {post.publishedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            <time dateTime={publishedDate ? publishedDate.toISOString() : ''} className="text-gray-500">
+                {publishedDate
+                  ? publishedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                  : 'Unpublished'}
             </time>
         </div>
         <CommentsSection tenantId={tenantId} postId={post.id} currentUser={currentUser} />

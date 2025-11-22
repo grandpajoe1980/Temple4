@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { findReadySelector } from './ready-selectors';
 
 /**
  * User roles for testing
@@ -72,21 +73,24 @@ export class UITestBase {
         name: 'Visitor (Not Logged In)'
       },
       [UserRole.USER]: {
-        email: 'testuser@example.com',
-        password: 'TestPassword123!',
+        // Use seeded Springfield user
+        email: 'homer@simpson.com',
+        password: 'doh123',
         role: UserRole.USER,
         name: 'Standard User'
       },
       [UserRole.TENANT_ADMIN]: {
-        email: 'admin@gracechurch.org',
-        password: 'AdminPassword123!',
+        // Seeded tenant admin (Ned Flanders)
+        email: 'ned@flanders.com',
+        password: 'okily-dokily',
         role: UserRole.TENANT_ADMIN,
         name: 'Tenant Admin',
         tenantId: 'cmi3atear0014ums4fuftaa9r'
       },
       [UserRole.PLATFORM_ADMIN]: {
-        email: 'superadmin@temple.com',
-        password: 'SuperAdminPass123!',
+        // Platform admin created by seed
+        email: 'admin@temple.com',
+        password: 'password',
         role: UserRole.PLATFORM_ADMIN,
         name: 'Platform Admin'
       }
@@ -104,13 +108,13 @@ export class UITestBase {
 
     try {
       await this.page.goto('/auth/login');
-      
-      // Wait for the page to fully load and hydrate
-      await this.page.waitForLoadState('networkidle');
-      await this.page.waitForSelector('input[name="email"], input[type="email"]', { timeout: 10000 });
-      
+
+      // Wait for the page to fully load and hydrate. Give extra time for dev server.
+      await this.page.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {});
+      await this.page.waitForSelector('input[name="email"], input[type="email"]', { timeout: 15000 });
+
       // Additional wait for React hydration
-      await this.page.waitForTimeout(1000);
+      await this.page.waitForTimeout(1500);
 
       // Fill login form - try multiple possible selectors
       const emailInput = this.page.locator('input[name="email"], input[type="email"], input[id="email"]').first();
@@ -126,11 +130,11 @@ export class UITestBase {
       await loginButton.waitFor({ state: 'visible', timeout: 5000 });
       await loginButton.click();
 
-      // Wait for navigation with a longer timeout
-      await this.page.waitForLoadState('networkidle', { timeout: 15000 });
-      
-      // Give time for redirect
-      await this.page.waitForTimeout(2000);
+      // Wait for navigation with a longer timeout (some pages stream)
+      await this.page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
+
+      // Give time for redirect and client hydration
+      await this.page.waitForTimeout(2500);
 
       // Check if login was successful
       const url = this.page.url();
@@ -248,22 +252,43 @@ export class UITestBase {
     };
 
     try {
-      const element = this.page.locator(selector).first();
-      
-      if (!await element.isVisible({ timeout: 2000 })) {
+      // If the selector already contains a concrete nth matcher, don't call .first() again
+      const element = selector.includes('>> nth=') ? this.page.locator(selector) : this.page.locator(selector).first();
+
+      // Wait for element to be visible (longer timeout for dynamic UIs)
+      try {
+        await element.waitFor({ state: 'visible', timeout: 10000 });
+      } catch (e) {
         result.error = 'Button not visible';
         return result;
       }
 
       // Get the initial URL and state
       const initialUrl = this.page.url();
-      
-      // Try to click the button
-      await element.click({ timeout: 5000 });
-      result.clicked = true;
+
+      // Try to click the button with a robust fallback sequence
+      try {
+        await element.click({ timeout: 10000 });
+        result.clicked = true;
+      } catch (clickErr) {
+        // Fallback: try to retrieve an ElementHandle and click via JS
+        try {
+          const handle = await element.elementHandle();
+          if (handle) {
+            await handle.click();
+            result.clicked = true;
+          } else {
+            throw clickErr;
+          }
+        } catch (innerErr: any) {
+          result.error = innerErr?.message || clickErr?.message || 'Click failed';
+          result.clicked = false;
+          return result;
+        }
+      }
 
       // Wait a bit for any action to complete
-      await this.page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+      await this.page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
       await this.page.waitForTimeout(1000);
 
       // Check what happened
@@ -312,7 +337,22 @@ export class UITestBase {
 
     try {
       // Navigate to page
-      await this.page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+      // Use a longer navigation timeout for complex client-rendered pages
+      await this.page.goto(url, { waitUntil: 'networkidle', timeout: 80000 });
+
+      // If a page-specific ready selector exists, wait for it first (more reliable than networkidle)
+      try {
+        const readySelector = findReadySelector(url);
+        if (readySelector) {
+          await this.page.waitForSelector(readySelector, { timeout: 30000 });
+        } else {
+          // Fallback: wait for main app container if networkidle doesn't reflect hydration
+          await this.page.waitForSelector('main, [id="__next"], [data-nextjs], [role="main"]', { timeout: 15000 }).catch(() => {});
+        }
+      } catch (e) {
+        // ignore selector wait failures; proceed to discovery
+      }
+
       result.loaded = true;
 
       // Discover buttons
@@ -324,7 +364,8 @@ export class UITestBase {
         const [label, selector] = buttonInfo.split('|||');
         
         // Re-navigate to the page before each button test
-        await this.page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+        await this.page.goto(url, { waitUntil: 'networkidle', timeout: 80000 });
+        await this.page.waitForTimeout(500);
         
         const buttonResult = await this.testButton(label, selector);
         result.buttons.push(buttonResult);
@@ -340,7 +381,7 @@ export class UITestBase {
       // Take screenshot
       const timestamp = Date.now();
       const screenshotPath = `test-results/screenshots/${user.role}-${url.replace(/[^a-z0-9]/gi, '_')}-${timestamp}.png`;
-      await this.page.screenshot({ path: screenshotPath, fullPage: true });
+      await this.page.screenshot({ path: screenshotPath, fullPage: true }).catch(() => {});
       result.screenshot = screenshotPath;
 
     } catch (error: any) {

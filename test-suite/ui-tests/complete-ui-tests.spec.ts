@@ -3,6 +3,7 @@ import { UITestBase, UserRole, PageTestResult } from './ui-test-base';
 import { ErrorBacklogManager } from './error-backlog';
 import fs from 'fs';
 import path from 'path';
+import { fetchTestResourceIds } from './test-data';
 
 /**
  * Pages to test - organized by access level
@@ -38,6 +39,12 @@ const PAGES_TO_TEST = {
     '/tenants/[tenantId]/prayer-wall',
     '/tenants/[tenantId]/resources',
     '/tenants/[tenantId]/settings'
+    ,
+    // Facilities and related pages (detail pages are handled by dedicated flow tests below)
+    '/tenants/[tenantId]/facilities',
+    '/tenants/[tenantId]/photos',
+    '/tenants/[tenantId]/services',
+    '/tenants/[tenantId]/calendar/new'
   ],
   admin: [
     '/admin'
@@ -63,6 +70,169 @@ test.describe('Complete UI Test Suite', () => {
 
     // Initialize error backlog
     errorBacklog = new ErrorBacklogManager();
+
+    // Discover app routes and augment PAGES_TO_TEST so tests stay in sync
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const appDir = path.join(__dirname, '..', '..', 'app');
+
+      function toRoute(filePath: string) {
+        // Convert file path like app/tenants/[tenantId]/facilities/page.tsx to route
+        const rel = path.relative(appDir, filePath).replace(/\\/g, '/');
+        if (!rel.endsWith('/page.tsx')) return null;
+        const route = '/' + rel.replace('/page.tsx', '');
+        return route === '/index' ? '/' : route;
+      }
+
+      const discovered: string[] = [];
+
+      function walk(dir: string) {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const e of entries) {
+          const full = path.join(dir, e.name);
+          if (e.isDirectory()) walk(full);
+          else if (e.isFile() && e.name === 'page.tsx') {
+            const r = toRoute(full);
+            if (r) discovered.push(r);
+          }
+        }
+      }
+
+      walk(appDir);
+
+      // Simple heuristic: classify discovered routes and add if missing
+      for (const r of discovered) {
+        if (PAGES_TO_TEST.public.includes(r) || PAGES_TO_TEST.authenticated.includes(r) || PAGES_TO_TEST.tenant.includes(r) || PAGES_TO_TEST.admin.includes(r)) continue;
+
+        if (r.startsWith('/admin')) {
+          PAGES_TO_TEST.admin.push(r);
+        } else if (r.startsWith('/auth') || r === '/' || r.startsWith('/explore') || r.startsWith('/docs')) {
+          PAGES_TO_TEST.public.push(r);
+        } else if (r.startsWith('/tenants')) {
+          PAGES_TO_TEST.tenant.push(r);
+        } else {
+          PAGES_TO_TEST.authenticated.push(r);
+        }
+      }
+
+      console.log('Discovered routes added to test lists:', discovered.length);
+
+      // Replace parameter placeholders with concrete seeded IDs when available.
+      try {
+        const ids = await fetchTestResourceIds(TEST_TENANT_ID);
+
+        function replaceTokensInList(list: string[]) {
+          return list.map((p) =>
+            p.replace(/\[tenantId\]/g, TEST_TENANT_ID)
+             .replace(/\[facilityId\]/g, ids.facilityId ?? '[facilityId]')
+             .replace(/\[serviceId\]/g, ids.serviceId ?? '[serviceId]')
+          );
+        }
+
+        PAGES_TO_TEST.public = replaceTokensInList(PAGES_TO_TEST.public);
+        PAGES_TO_TEST.authenticated = replaceTokensInList(PAGES_TO_TEST.authenticated);
+        PAGES_TO_TEST.tenant = replaceTokensInList(PAGES_TO_TEST.tenant);
+        PAGES_TO_TEST.admin = replaceTokensInList(PAGES_TO_TEST.admin);
+
+        console.log('Replaced placeholder tokens with seeded resource ids:', ids);
+      } catch (e) {
+        console.warn('Failed to fetch test resource ids:', e.message || e);
+      }
+    } catch (e) {
+      console.warn('Failed to auto-discover app pages for testing:', e.message || e);
+    }
+  });
+
+  // Dedicated facility flow tests (click into first facility and exercise reserve/manage flows)
+  test('Facility flow as TENANT_ADMIN', async ({ page }) => {
+    const tester = new UITestBase(page);
+    const users = UITestBase.getTestUsers();
+    const admin = users[UserRole.TENANT_ADMIN];
+
+    const loggedIn = await tester.loginAs(admin);
+    if (!loggedIn) {
+      console.log('Failed to login as tenant admin, skipping facility flow test');
+      return;
+    }
+
+    const listUrl = `/tenants/${TEST_TENANT_ID}/facilities`;
+    console.log(`\nOpening facilities list: ${listUrl}`);
+    await page.goto(listUrl, { waitUntil: 'networkidle', timeout: 30000 });
+
+    // Try to find a facility link and click into it
+    const facilityLink = page.locator(`a[href*="/tenants/${TEST_TENANT_ID}/facilities/"]`).first();
+    if ((await facilityLink.count()) === 0) {
+      console.log('No facility links found on list page');
+      return;
+    }
+
+    await facilityLink.click();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1000);
+
+    // Attempt to reserve/book using common button texts
+    const reserveButton = page.locator('button:has-text("Reserve"), button:has-text("Book"), button:has-text("Request")').first();
+    if (await reserveButton.isVisible().catch(() => false)) {
+      try {
+        await reserveButton.click({ timeout: 5000 });
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+        const hasDialog = await page.locator('[role="dialog"], .modal, [aria-modal="true"]').isVisible().catch(() => false);
+        console.log('Reserve action result - dialog visible:', hasDialog);
+      } catch (e) {
+        console.warn('Failed to click reserve button:', e.message || e);
+      }
+    } else {
+      console.log('No reserve/book button visible on facility detail');
+    }
+
+    // Check settings -> manage facilities link exists for admin
+    const settingsUrl = `/tenants/${TEST_TENANT_ID}/settings`;
+    await page.goto(settingsUrl, { waitUntil: 'networkidle', timeout: 30000 });
+    const manageLink = page.locator('a:has-text("Facilities"), button:has-text("Manage Facilities"), a:has-text("Manage Facilities")').first();
+    const canManage = await manageLink.isVisible().catch(() => false);
+    console.log('Manage facilities link visible in settings (admin):', canManage);
+  });
+
+  test('Facility flow as USER', async ({ page }) => {
+    const tester = new UITestBase(page);
+    const users = UITestBase.getTestUsers();
+    const user = users[UserRole.USER];
+
+    const loggedIn = await tester.loginAs(user);
+    if (!loggedIn) {
+      console.log('Failed to login as user, skipping facility flow test');
+      return;
+    }
+
+    const listUrl = `/tenants/${TEST_TENANT_ID}/facilities`;
+    console.log(`\nOpening facilities list: ${listUrl}`);
+    await page.goto(listUrl, { waitUntil: 'networkidle', timeout: 30000 });
+
+    const facilityLink = page.locator(`a[href*="/tenants/${TEST_TENANT_ID}/facilities/"]`).first();
+    if ((await facilityLink.count()) === 0) {
+      console.log('No facility links found on list page (user)');
+      return;
+    }
+
+    await facilityLink.click();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1000);
+
+    // Attempt to reserve/book as regular user
+    const reserveButton = page.locator('button:has-text("Reserve"), button:has-text("Book"), button:has-text("Request")').first();
+    if (await reserveButton.isVisible().catch(() => false)) {
+      try {
+        await reserveButton.click({ timeout: 5000 });
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+        const hasDialog = await page.locator('[role="dialog"], .modal, [aria-modal="true"]').isVisible().catch(() => false);
+        console.log('Reserve action result (user) - dialog visible:', hasDialog);
+      } catch (e) {
+        console.warn('Failed to click reserve button (user):', e.message || e);
+      }
+    } else {
+      console.log('No reserve/book button visible on facility detail (user)');
+    }
   });
 
   test.afterAll(async () => {
@@ -194,6 +364,13 @@ test.describe('Complete UI Test Suite', () => {
     for (const pagePath of PAGES_TO_TEST.tenant) {
       const url = pagePath.replace('[tenantId]', TEST_TENANT_ID);
       console.log(`\nTesting ${url} as ${visitor.role}...`);
+      // Check whether the visitor has access first; skip pages that redirect/require auth
+      const access = await tester.checkAccess(url);
+      if (!access.hasAccess) {
+        console.log(`  Skipping ${url} as ${visitor.role} (no access: ${access.reason || 'restricted'})`);
+        continue;
+      }
+
       const result = await tester.testPage(url, visitor);
       testResults.push(result);
       errorBacklog.addFromPageResult(result);

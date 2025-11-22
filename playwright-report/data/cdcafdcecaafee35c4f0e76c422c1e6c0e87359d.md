@@ -1,0 +1,98 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - link "Temple Platform" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img [ref=e9]
+          - generic [ref=e11]:
+            - generic [ref=e12]: Temple
+            - generic [ref=e13]: Platform
+        - navigation "Primary"
+        - generic [ref=e14]:
+          - button "View notifications" [ref=e16]:
+            - img [ref=e17]
+          - button "User menu" [ref=e20]:
+            - generic [ref=e21]: P
+    - main [ref=e22]:
+      - main [ref=e24]:
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - img [ref=e30]
+            - heading "TEMPLE" [level=1] [ref=e35]
+          - generic [ref=e37]:
+            - generic:
+              - img
+            - searchbox "Search for a temple" [ref=e38]
+    - contentinfo [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - paragraph [ref=e44]: Platform
+            - list [ref=e45]:
+              - listitem [ref=e46]:
+                - link "Security link" [ref=e47] [cursor=pointer]:
+                  - /url: /docs/security
+                  - text: Security
+              - listitem [ref=e48]:
+                - link "Status link" [ref=e49] [cursor=pointer]:
+                  - /url: /docs/status
+                  - text: Status
+          - generic [ref=e50]:
+            - paragraph [ref=e51]: Community
+            - list [ref=e52]:
+              - listitem [ref=e53]:
+                - link "Explore Tenants link" [ref=e54] [cursor=pointer]:
+                  - /url: /explore
+                  - text: Explore Tenants
+              - listitem [ref=e55]:
+                - link "Create Tenant link" [ref=e56] [cursor=pointer]:
+                  - /url: /tenants/new
+                  - text: Create Tenant
+              - listitem [ref=e57]:
+                - link "Messages link" [ref=e58] [cursor=pointer]:
+                  - /url: /messages
+                  - text: Messages
+          - generic [ref=e59]:
+            - paragraph [ref=e60]: Support
+            - list [ref=e61]:
+              - listitem [ref=e62]:
+                - link "Contact link" [ref=e63] [cursor=pointer]:
+                  - /url: /support
+                  - text: Contact
+              - listitem [ref=e64]:
+                - link "Docs link" [ref=e65] [cursor=pointer]:
+                  - /url: /docs
+                  - text: Docs
+              - listitem [ref=e66]:
+                - link "Report an issue link" [ref=e67] [cursor=pointer]:
+                  - /url: https://github.com/temple/platform/issues
+                  - text: Report an issue
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - generic [ref=e72]:
+              - generic [ref=e73]: Environment
+              - generic [ref=e74]: DEVELOPMENT
+            - generic [ref=e76]:
+              - generic [ref=e77]: Build
+              - generic [ref=e78]: local-dev
+            - link "Support Temple Support" [ref=e79] [cursor=pointer]:
+              - /url: /support
+              - generic [ref=e80]:
+                - generic [ref=e81]: Support
+                - generic [ref=e82]: Temple Support
+          - paragraph [ref=e83]: © 2025 Temple Platform
+  - button "Open Next.js Dev Tools" [ref=e89] [cursor=pointer]:
+    - img [ref=e90]
+  - alert [ref=e93]
+  - alert [ref=e95]:
+    - img [ref=e97]
+    - paragraph [ref=e100]: Login successful! Redirecting...
+    - button "Close" [ref=e101]:
+      - img [ref=e102]
+```

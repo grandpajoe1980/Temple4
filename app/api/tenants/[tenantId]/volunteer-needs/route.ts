@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserViewContent, hasRole } from '@/lib/permissions';
 import { z } from 'zod';
-import {  } from '@prisma/client';
 import { TenantRole } from '@/types';
 
 const volunteerNeedSchema = z.object({

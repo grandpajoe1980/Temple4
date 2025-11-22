@@ -72,7 +72,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
       console.error('Failed to load messages', error);
       setMessages([]);
     }
-  }, [conversation.id, onMarkAsRead]);
+  }, [conversation.id, onMarkAsRead, currentUser.id]);
 
   useEffect(() => {
     setMessages([]);

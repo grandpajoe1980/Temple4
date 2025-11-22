@@ -3,6 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import { TenantRole } from '@/types';
 import Tabs from '../ui/Tabs';
+import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Card from '../ui/Card';
 import { CONTROL_PANEL_TABS } from '@/constants';
 import GeneralTab from './tabs/GeneralTab';
@@ -79,6 +81,18 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
   }, [currentUser, isAdmin, permissions]);
   
   const [activeTab, setActiveTab] = useState(availableTabs[0] || CONTROL_PANEL_TABS[0]);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const slugFor = (label: string) => label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+  // Sync active tab with ?category=slug if present
+  React.useEffect(() => {
+    const cat = searchParams?.get('category');
+    if (!cat) return;
+    const match = (availableTabs || CONTROL_PANEL_TABS).find((t) => slugFor(t) === cat);
+    if (match) setActiveTab(match);
+  }, [searchParams, availableTabs]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -144,7 +158,23 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
             <p className="mt-1 text-sm text-gray-500">Manage settings for {tenant.name}.</p>
         </div>
         <div className="px-6 mt-4">
-             <Tabs tabs={availableTabs} activeTab={activeTab} onTabClick={setActiveTab} />
+             {/* Replace tabs with chips-style navigation (wraps to multiple rows) */}
+             <div className="flex flex-wrap gap-3">
+               {(availableTabs || CONTROL_PANEL_TABS).map((tab) => {
+                 const slug = slugFor(tab);
+                 const isActive = tab === activeTab;
+                 return (
+                   <Link
+                     key={tab}
+                     href={`/tenants/${tenant.id}/settings${slug ? `?category=${slug}` : ''}`}
+                     className={`rounded-full border px-4 py-2 text-sm transition-colors ${isActive ? 'border-amber-500 bg-amber-100 text-amber-800' : 'border-gray-200 text-gray-600 hover:border-amber-300'}`}
+                     onClick={() => setActiveTab(tab)}
+                   >
+                     {tab}
+                   </Link>
+                 );
+               })}
+             </div>
         </div>
       <div className="p-6">
         {renderTabContent()}

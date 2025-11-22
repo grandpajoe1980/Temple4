@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import ContentChips from './content-chips';
 import Card from '../ui/Card';
 
 interface LiveStreamPageProps {
@@ -27,6 +28,7 @@ const LiveStreamPage: React.FC<LiveStreamPageProps> = ({ tenant }) => {
 
   return (
     <div className="space-y-8">
+      <ContentChips tenantId={tenant.id} active="Live Stream" />
        <div>
           <h2 className="text-2xl font-bold text-gray-900">Live Stream</h2>
           <p className="mt-1 text-sm text-gray-500">

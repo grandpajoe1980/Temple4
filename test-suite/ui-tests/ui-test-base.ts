@@ -281,7 +281,7 @@ export class UITestBase {
             throw clickErr;
           }
         } catch (innerErr: any) {
-          result.error = innerErr?.message || clickErr?.message || 'Click failed';
+          result.error = (innerErr as any)?.message || (clickErr as any)?.message || 'Click failed';
           result.clicked = false;
           return result;
         }

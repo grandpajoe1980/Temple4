@@ -6,6 +6,7 @@ import Button from '../ui/Button';
 import SermonCard from './SermonCard';
 import Modal from '../ui/Modal';
 import SermonForm, { type SermonFormData } from './forms/SermonForm';
+import ContentChips from './content-chips';
 
 // Enriched media item type from data layer
 type EnrichedSermon = {
@@ -69,6 +70,7 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initia
 
   return (
     <div className="space-y-8">
+      <ContentChips tenantId={tenant.id} active="Sermons" />
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Sermons</h2>

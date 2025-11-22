@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
-import { getTenantById, getMembershipForUserInTenant, getServiceOfferingsForTenant } from '@/lib/data';
+import { getTenantById, getMembershipForUserInTenant, getServiceOfferingsForTenant, getFacilitiesForTenant } from '@/lib/data';
 import ServicesPage from '@/app/components/tenant/ServicesPage';
 import type { ServiceCategory } from '@/types';
 
@@ -37,6 +37,29 @@ export default async function TenantServicesPage({
     includePrivate,
     category: selectedCategory,
   });
+
+  // If the user requested the FACILITY category, fetch facilities and pass
+  // them into the ServicesPage so the category chips remain visible and the
+  // UI stays contained on `/tenants/[tenantId]/services`.
+  if (selectedCategory === 'FACILITY') {
+    const facilities = await getFacilitiesForTenant(tenant.id, { includeInactive: includePrivate });
+    const serializableFacilities = facilities.map((facility) => ({
+      ...facility,
+      createdAt: facility.createdAt.toISOString(),
+      updatedAt: facility.updatedAt.toISOString(),
+    }));
+
+    // Render ServicesPage with facilities prop set and an empty services list.
+    return (
+      <ServicesPage
+        tenant={{ id: tenant.id, name: tenant.name }}
+        services={[]}
+        selectedCategory={selectedCategory}
+        isMember={includePrivate}
+        facilities={serializableFacilities}
+      />
+    );
+  }
 
   const serializableServices = services.map((service) => ({
     ...service,

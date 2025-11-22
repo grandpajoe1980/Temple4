@@ -216,3 +216,11 @@ When in doubt between multiple reasonable implementations, choose the one that:
 1. Fits the existing codebase patterns.
 2. Respects the multi-tenant and permission model.
 3. Is easiest for another engineer (or AI) to understand and extend later.
+
+---
+
+## 10. Local Automation Rule
+
+- After you run `npm run build` locally (or via an agent action) and the build completes successfully, immediately start the dev server by running `npm run dev` in the same working directory. Use the system's default shell (PowerShell on Windows) when executing the commands. If `npm run build` fails, do not run `npm run dev`.
+
+This rule ensures a fast feedback loop: production builds are validated, then the dev server remains available for interactive verification.

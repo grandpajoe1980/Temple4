@@ -11,6 +11,7 @@ interface TenantNavProps {
 
 type TenantPage =
   | 'home'
+  | 'content'
   | 'settings'
   | 'posts'
   | 'calendar'
@@ -32,14 +33,16 @@ type NavItemFeature = keyof Omit<TenantSettings, 'id' | 'tenantId' | 'isPublic' 
 
 
 const navItems: { key: TenantPage; label: string; path: string; feature?: NavItemFeature, adminOnly?: boolean }[] = [
-    { key: 'home', label: 'Home', path: '' },
-    { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
+  { key: 'home', label: 'Home', path: '' },
+  { key: 'content', label: 'Content', path: '/content' },
     { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
     { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
     { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
     { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
     { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
-    { key: 'facilities', label: 'Facilities', path: '/facilities' },
+    // Facilities are handled inside the Services page as a category and have
+    // been removed from the top-level tenant nav to keep the navigation
+    // surface focused. The tenant nav will no longer render a Facilities link.
     { key: 'liveStream', label: 'Live Stream', path: '/livestream', feature: 'enableLiveStream' },
     { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
     { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
@@ -50,6 +53,7 @@ const navItems: { key: TenantPage; label: string; path: string; feature?: NavIte
     { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
     { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
     { key: 'contact', label: 'Contact', path: '/contact' },
+    { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
 ];
 
 export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
@@ -65,7 +69,11 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
         if (item.adminOnly && !canViewSettings) return null;
 
         const fullPath = `${basePath}${item.path}`;
-        const isActive = pathname === fullPath || (item.path === '' && pathname === basePath);
+        // Determine the path-only portion (strip any query string) so that
+        // active detection works for links like `/services?category=...`.
+        const pathOnly = item.path.split('?')[0];
+        const fullPathOnly = `${basePath}${pathOnly}`;
+        const isActive = pathname === fullPathOnly || (item.path === '' && pathname === basePath);
 
         return (
           <Link

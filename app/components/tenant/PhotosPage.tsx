@@ -5,6 +5,7 @@ import type { Tenant } from '@/types';
 import type { CurrentUser } from './CommentsSection';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
+import ContentChips from './content-chips';
 
 interface PhotoItem {
   id: string;
@@ -104,6 +105,7 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
 
   return (
     <div className="space-y-6">
+      <ContentChips tenantId={tenant.id} active="Photos" />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Photos</h2>

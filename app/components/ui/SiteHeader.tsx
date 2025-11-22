@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { CONTROL_PANEL_TABS } from '@/constants';
 import { useSession } from 'next-auth/react';
 import type { Notification } from '@/types';
 import NotificationBell from '../notifications/NotificationBell';
@@ -217,6 +218,16 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
   const [open, setOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [tenantSettings, setTenantSettings] = useState<any | null>(null);
+  const [showContentSubmenu, setShowContentSubmenu] = useState(false);
+  const showTimer = useRef<number | null>(null);
+  const hideTimer = useRef<number | null>(null);
+  const menuCloseTimer = useRef<number | null>(null);
+  const [showServicesSubmenu, setShowServicesSubmenu] = useState(false);
+  const showServicesTimer = useRef<number | null>(null);
+  const hideServicesTimer = useRef<number | null>(null);
+  const [showSettingsSubmenu, setShowSettingsSubmenu] = useState(false);
+  const showSettingsTimer = useRef<number | null>(null);
+  const hideSettingsTimer = useRef<number | null>(null);
   const ref = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const mobilePanelRef = useRef<HTMLDivElement | null>(null);
@@ -301,8 +312,29 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
   const tenantId = parts[2];
   const basePath = tenantId ? `/tenants/${tenantId}` : '/';
 
+  useEffect(() => {
+    return () => {
+      if (showTimer.current) window.clearTimeout(showTimer.current);
+      if (hideTimer.current) window.clearTimeout(hideTimer.current);
+      if (menuCloseTimer.current) window.clearTimeout(menuCloseTimer.current);
+    };
+  }, []);
+
   return (
-    <div className="relative flex items-center gap-3" ref={ref}>
+    <div
+      className="relative flex items-center gap-3"
+      ref={ref}
+      onMouseEnter={() => {
+        if (menuCloseTimer.current) {
+          window.clearTimeout(menuCloseTimer.current);
+          menuCloseTimer.current = null;
+        }
+      }}
+      onMouseLeave={() => {
+        if (menuCloseTimer.current) window.clearTimeout(menuCloseTimer.current);
+        menuCloseTimer.current = window.setTimeout(() => setOpen(false), 2000);
+      }}
+    >
       <button
         ref={buttonRef}
         aria-label="Open tenant menu"
@@ -335,34 +367,224 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
             <div ref={mobilePanelRef} id={`tenant-menu-${tenantId || 'global'}`} className="max-h-[100vh] overflow-y-auto" role="menu">
               <div className="py-2">
                 {[
-              { key: 'home', label: 'Home', path: '' },
-              { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
-              { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
-              { key: 'photos', label: 'Photos', path: '/photos', feature: 'enablePhotos' },
-              { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
-              { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
-              { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
-              { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
-              { key: 'facilities', label: 'Facilities', path: '/facilities' },
-              { key: 'liveStream', label: 'Live Stream', path: '/livestream', feature: 'enableLiveStream' },
-              { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
-              { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
-              { key: 'sermons', label: 'Sermons', path: '/sermons', feature: 'enableSermons' },
-              { key: 'podcasts', label: 'Podcasts', path: '/podcasts', feature: 'enablePodcasts' },
-              { key: 'books', label: 'Books', path: '/books', feature: 'enableBooks' },
-              { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
-              { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
-              { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
-              { key: 'contact', label: 'Contact', path: '/contact' },
+                { key: 'home', label: 'Home', path: '' },
+                { key: 'content', label: 'Content', path: '/content' },
+                { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
+                { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
+                { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
+                { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
+                { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
+                { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
+                { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
+                { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
+                { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
+                { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
+                { key: 'contact', label: 'Contact', path: '/contact' },
+                { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
+                  ].map((item) => {
+                const isEnabled = !item.feature || Boolean(tenantSettings?.[item.feature]);
+                if (!isEnabled) return null;
+                if (item.adminOnly && !isAdmin) return null;
+                    return (
+                      <Link
+                        key={item.key}
+                        href={`${basePath}${item.path}`}
+                        className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
+                        onClick={() => {
+                          if (menuCloseTimer.current) {
+                            window.clearTimeout(menuCloseTimer.current);
+                            menuCloseTimer.current = null;
+                          }
+                          setOpen(false);
+                        }}
+                        role="menuitem"
+                        tabIndex={0}
+                      >
+                        {item.key === 'settings' ? (
+                          <span className="inline-flex items-center gap-2">
+                            <span>{item.label}</span>
+                            <svg className="h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0a1.724 1.724 0 002.026 1.14c.962-.23 1.89.69 1.66 1.65a1.724 1.724 0 001.139 2.026c.92.3.92 1.603 0 1.902a1.724 1.724 0 00-1.14 2.026c.23.962-.69 1.89-1.65 1.66a1.724 1.724 0 00-2.026 1.139c-.3.92-1.603.92-1.902 0a1.724 1.724 0 00-2.026-1.14c-.962.23-1.89-.69-1.66-1.65a1.724 1.724 0 00-1.139-2.026c-.92-.3-.92-1.603 0-1.902a1.724 1.724 0 001.14-2.026c-.23-.962.69-1.89 1.65-1.66.7.166 1.47-.2 1.902-1.14z" />
+                            </svg>
+                          </span>
+                        ) : item.key === 'content' ? (
+                          <span className="inline-flex items-center gap-2">
+                            <span>{item.label}</span>
+                            <svg className="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </span>
+                        ) : (
+                          item.label
+                        )}
+                      </Link>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop / larger screens: dropdown anchored under button */}
+          <div className="hidden sm:block absolute left-0 top-full mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-[calc(100vh-6rem)] overflow-y-auto">
+              <div className="py-1 flex" role="menu" id={`tenant-menu-desktop-${tenantId || 'global'}`}>
+              {/* Left column: primary menu items */}
+              <div className="min-w-[18rem]">
+                {[
+                  { key: 'home', label: 'Home', path: '' },
+                  { key: 'content', label: 'Content', path: '/content' },
+                  { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
+                  { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
+                  { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
+                  { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
+                  { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
+                  { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
+                  { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
+                  { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
+                  { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
+                  { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
+                  { key: 'contact', label: 'Contact', path: '/contact' },
+                  { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
                 ].map((item) => {
-              const isEnabled = !item.feature || Boolean(tenantSettings?.[item.feature]);
-              if (!isEnabled) return null;
-              if (item.adminOnly && !isAdmin) return null;
+                  const isEnabled = !item.feature || Boolean(tenantSettings?.[item.feature]);
+                  if (!isEnabled) return null;
+                  if (item.adminOnly && !isAdmin) return null;
+
+                  if (item.key === 'content') {
+                    return (
+                      <div
+                        key={item.key}
+                        className="relative"
+                        onMouseEnter={() => {
+                          // cancel any pending hide, start delayed show
+                          if (hideTimer.current) {
+                            window.clearTimeout(hideTimer.current);
+                            hideTimer.current = null;
+                          }
+                          if (showTimer.current) window.clearTimeout(showTimer.current);
+                          showTimer.current = window.setTimeout(() => setShowContentSubmenu(true), 300);
+                        }}
+                        onMouseLeave={() => {
+                          // cancel pending show and start delayed hide
+                          if (showTimer.current) {
+                            window.clearTimeout(showTimer.current);
+                            showTimer.current = null;
+                          }
+                          if (hideTimer.current) window.clearTimeout(hideTimer.current);
+                          hideTimer.current = window.setTimeout(() => {
+                            hideTimer.current = null;
+                            setShowContentSubmenu(false);
+                          }, 750);
+                        }}
+                      >
+                        <Link
+                          href={`${basePath}${item.path}`}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          onClick={() => setOpen(false)}
+                          role="menuitem"
+                          tabIndex={0}
+                        >
+                          <span className="inline-flex items-center gap-2">
+                            <span>{item.label}</span>
+                            <svg className="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </span>
+                        </Link>
+                      </div>
+                    );
+                  }
+
+                  if (item.key === 'services') {
+                    return (
+                      <div
+                        key={item.key}
+                        className="relative"
+                        onMouseEnter={() => {
+                          if (hideServicesTimer.current) {
+                            window.clearTimeout(hideServicesTimer.current);
+                            hideServicesTimer.current = null;
+                          }
+                          if (showServicesTimer.current) window.clearTimeout(showServicesTimer.current);
+                          showServicesTimer.current = window.setTimeout(() => setShowServicesSubmenu(true), 300);
+                        }}
+                        onMouseLeave={() => {
+                          if (showServicesTimer.current) {
+                            window.clearTimeout(showServicesTimer.current);
+                            showServicesTimer.current = null;
+                          }
+                          if (hideServicesTimer.current) window.clearTimeout(hideServicesTimer.current);
+                          hideServicesTimer.current = window.setTimeout(() => {
+                            hideServicesTimer.current = null;
+                            setShowServicesSubmenu(false);
+                          }, 750);
+                        }}
+                      >
+                        <Link
+                          href={`${basePath}${item.path}`}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          onClick={() => setOpen(false)}
+                          role="menuitem"
+                          tabIndex={0}
+                        >
+                          <span className="inline-flex items-center gap-2">
+                            <span>{item.label}</span>
+                            <svg className="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </span>
+                        </Link>
+                      </div>
+                    );
+                  }
+
+                  if (item.key === 'settings') {
+                    return (
+                      <div
+                        key={item.key}
+                        className="relative"
+                        onMouseEnter={() => {
+                          if (hideSettingsTimer.current) {
+                            window.clearTimeout(hideSettingsTimer.current);
+                            hideSettingsTimer.current = null;
+                          }
+                          if (showSettingsTimer.current) window.clearTimeout(showSettingsTimer.current);
+                          showSettingsTimer.current = window.setTimeout(() => setShowSettingsSubmenu(true), 300);
+                        }}
+                        onMouseLeave={() => {
+                          if (showSettingsTimer.current) {
+                            window.clearTimeout(showSettingsTimer.current);
+                            showSettingsTimer.current = null;
+                          }
+                          if (hideSettingsTimer.current) window.clearTimeout(hideSettingsTimer.current);
+                          hideSettingsTimer.current = window.setTimeout(() => {
+                            hideSettingsTimer.current = null;
+                            setShowSettingsSubmenu(false);
+                          }, 750);
+                        }}
+                      >
+                        <Link
+                          href={`${basePath}${item.path}`}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          onClick={() => setOpen(false)}
+                          role="menuitem"
+                          tabIndex={0}
+                        >
+                          <span className="inline-flex items-center gap-2">
+                            <span>{item.label}</span>
+                            <svg className="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0a1.724 1.724 0 002.026 1.14c.962-.23 1.89.69 1.66 1.65a1.724 1.724 0 001.139 2.026c.92.3.92 1.603 0 1.902a1.724 1.724 0 00-1.14 2.026c.23.962-.69 1.89-1.65 1.66a1.724 1.724 0 00-2.026 1.139c-.3.92-1.603.92-1.902 0a1.724 1.724 0 00-2.026-1.14c-.962.23-1.89-.69-1.66-1.65a1.724 1.724 0 00-1.139-2.026c-.92-.3-.92-1.603 0-1.902a1.724 1.724 0 001.14-2.026c-.23-.962.69-1.89 1.65-1.66.7.166 1.47-.2 1.902-1.14z" />
+                            </svg>
+                          </span>
+                        </Link>
+                      </div>
+                    );
+                  }
+
                   return (
                     <Link
                       key={item.key}
                       href={`${basePath}${item.path}`}
-                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={() => setOpen(false)}
                       role="menuitem"
                       tabIndex={0}
@@ -372,50 +594,115 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                   );
                 })}
               </div>
-            </div>
-          </div>
 
-          {/* Desktop / larger screens: dropdown anchored under button */}
-          <div className="hidden sm:block absolute left-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-[calc(100vh-6rem)] overflow-y-auto">
-            <div className="py-1" role="menu" id={`tenant-menu-desktop-${tenantId || 'global'}`}>
-              {[
-                { key: 'home', label: 'Home', path: '' },
-                { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
-                { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
-                { key: 'photos', label: 'Photos', path: '/photos', feature: 'enablePhotos' },
-                { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
-                { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
-                { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
-                { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
-                { key: 'facilities', label: 'Facilities', path: '/facilities' },
-                { key: 'liveStream', label: 'Live Stream', path: '/livestream', feature: 'enableLiveStream' },
-                { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
-                { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
-                { key: 'sermons', label: 'Sermons', path: '/sermons', feature: 'enableSermons' },
-                { key: 'podcasts', label: 'Podcasts', path: '/podcasts', feature: 'enablePodcasts' },
-                { key: 'books', label: 'Books', path: '/books', feature: 'enableBooks' },
-                { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
-                { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
-                { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
-                { key: 'contact', label: 'Contact', path: '/contact' },
-              ].map((item) => {
-                const isEnabled = !item.feature || Boolean(tenantSettings?.[item.feature]);
-                if (!isEnabled) return null;
-                if (item.adminOnly && !isAdmin) return null;
-
-                return (
-                  <Link
-                    key={item.key}
-                    href={`${basePath}${item.path}`}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    onClick={() => setOpen(false)}
-                    role="menuitem"
-                    tabIndex={0}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
+              {/* Right column: content submenu (shows when hovered) */}
+              {showContentSubmenu && (
+                <div
+                  className="w-44 border-l border-gray-100 bg-white"
+                  onMouseEnter={() => {
+                    // Cancel pending hide when entering the submenu
+                    if (hideTimer.current) {
+                      window.clearTimeout(hideTimer.current);
+                      hideTimer.current = null;
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    // Start delayed hide when leaving the submenu
+                    if (showTimer.current) {
+                      window.clearTimeout(showTimer.current);
+                      showTimer.current = null;
+                    }
+                    if (hideTimer.current) window.clearTimeout(hideTimer.current);
+                    hideTimer.current = window.setTimeout(() => {
+                      hideTimer.current = null;
+                      setShowContentSubmenu(false);
+                    }, 750);
+                  }}
+                >
+                  <div className="py-1">
+                    <Link href={`${basePath}/photos`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Photos</Link>
+                    <Link href={`${basePath}/podcasts`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Podcasts</Link>
+                    <Link href={`${basePath}/sermons`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Sermons</Link>
+                    <Link href={`${basePath}/books`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Books</Link>
+                    <Link href={`${basePath}/livestream`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Live Stream</Link>
+                  </div>
+                </div>
+              )}
+              {showServicesSubmenu && (
+                <div
+                  className="w-44 border-l border-gray-100 bg-white"
+                  onMouseEnter={() => {
+                    if (hideServicesTimer.current) {
+                      window.clearTimeout(hideServicesTimer.current);
+                      hideServicesTimer.current = null;
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (showServicesTimer.current) {
+                      window.clearTimeout(showServicesTimer.current);
+                      showServicesTimer.current = null;
+                    }
+                    if (hideServicesTimer.current) window.clearTimeout(hideServicesTimer.current);
+                    hideServicesTimer.current = window.setTimeout(() => {
+                      hideServicesTimer.current = null;
+                      setShowServicesSubmenu(false);
+                    }, 750);
+                  }}
+                >
+                  <div className="py-1">
+                          <Link href={`${basePath}/services?category=CEREMONY`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Ceremony</Link>
+                          <Link href={`${basePath}/services?category=EDUCATION`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Education</Link>
+                          <Link href={`${basePath}/services?category=COUNSELING`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Counseling</Link>
+                          <Link href={`${basePath}/services?category=FACILITY`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Facilities</Link>
+                          <Link href={`${basePath}/services?category=OTHER`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Other</Link>
+                  </div>
+                </div>
+              )}
+              {showSettingsSubmenu && (
+                <div
+                  className="w-64 border-l border-gray-100 bg-white"
+                  onMouseEnter={() => {
+                    if (hideSettingsTimer.current) {
+                      window.clearTimeout(hideSettingsTimer.current);
+                      hideSettingsTimer.current = null;
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (showSettingsTimer.current) {
+                      window.clearTimeout(showSettingsTimer.current);
+                      showSettingsTimer.current = null;
+                    }
+                    if (hideSettingsTimer.current) window.clearTimeout(hideSettingsTimer.current);
+                    hideSettingsTimer.current = window.setTimeout(() => {
+                      hideSettingsTimer.current = null;
+                      setShowSettingsSubmenu(false);
+                    }, 750);
+                  }}
+                >
+                  <div className="py-2 px-1">
+                    {/* Map control panel tabs to chips/links */}
+                    {(() => {
+                      const slugFor = (label: string) => label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                      return CONTROL_PANEL_TABS.map((tab) => {
+                        const slug = slugFor(tab);
+                        return (
+                          <Link
+                            key={tab}
+                            href={`${basePath}/settings${slug ? `?category=${slug}` : ''}`}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            onClick={() => {
+                              setOpen(false);
+                              setShowSettingsSubmenu(false);
+                            }}
+                          >
+                            {tab}
+                          </Link>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </>

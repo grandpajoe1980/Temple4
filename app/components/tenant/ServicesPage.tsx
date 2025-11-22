@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import Card from '../ui/Card';
 import { SERVICE_CATEGORY_OPTIONS } from '@/constants';
-import type { ServiceOffering, ServiceCategory } from '@/types';
+import FacilitiesPage from './FacilitiesPage';
+import type { ServiceOffering, ServiceCategory, Facility } from '@/types';
 
 interface ServicesPageProps {
   tenant: {
@@ -9,15 +10,41 @@ interface ServicesPageProps {
     name: string;
   };
   services: ServiceOffering[];
+  facilities?: Facility[];
   selectedCategory?: ServiceCategory;
   isMember: boolean;
 }
 
-const ServicesPage = ({ tenant, services, selectedCategory, isMember }: ServicesPageProps) => {
+const ServicesPage = ({ tenant, services, facilities, selectedCategory, isMember }: ServicesPageProps) => {
   const activeCategory = selectedCategory ?? null;
+
+  // Render the page header and category chips once and make the chips sticky
+  // so they remain visible at the top while the user scrolls the page.
+  const chips = (
+    <div className="fixed top-16 left-0 right-0 z-30 bg-white/80 backdrop-blur-sm border-b border-gray-100">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
+        <div className="flex flex-wrap gap-3">
+          <CategoryChip href={`/tenants/${tenant.id}/services`} label="All" active={!activeCategory} />
+          {SERVICE_CATEGORY_OPTIONS.map((category) => (
+            <CategoryChip
+              key={category.value}
+              href={`/tenants/${tenant.id}/services?category=${category.value}`}
+              label={category.label}
+              description={category.description}
+              active={activeCategory === category.value}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-8">
+      {chips}
+      {/* Spacer so page content isn't hidden behind the fixed chips */}
+      <div aria-hidden className="h-14" />
+
       <div className="space-y-3">
         <h1 className="text-2xl font-semibold text-gray-900">Services at {tenant.name}</h1>
         <p className="text-gray-600 max-w-3xl">
@@ -26,75 +53,68 @@ const ServicesPage = ({ tenant, services, selectedCategory, isMember }: Services
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <CategoryChip href={`/tenants/${tenant.id}/services`} label="All" active={!activeCategory} />
-        {SERVICE_CATEGORY_OPTIONS.map((category) => (
-          <CategoryChip
-            key={category.value}
-            href={`/tenants/${tenant.id}/services?category=${category.value}`}
-            label={category.label}
-            description={category.description}
-            active={activeCategory === category.value}
-          />
-        ))}
-      </div>
-
-      {!isMember && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <p>
-            Some services may be reserved for members.{' '}
-            <Link href={`/tenants/${tenant.id}/contact`} className="font-semibold text-amber-700 hover:underline">
-              Contact the team
-            </Link>{' '}
-            to learn more about membership options.
-          </p>
-        </div>
-      )}
-
-      {services.length === 0 ? (
-        <Card>
-          <div className="text-center py-12">
-            <p className="text-lg font-semibold text-gray-700">No services found in this category.</p>
-            <p className="text-gray-500 mt-2">Check back soon or reach out to the team for more details.</p>
-          </div>
-        </Card>
+      {activeCategory === 'FACILITY' ? (
+        <FacilitiesPage tenant={tenant} facilities={facilities ?? []} isMember={isMember} />
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {services.map((service) => (
-            <Card key={service.id}>
-              <div className="flex flex-col h-full">
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500">
-                    <span>{getCategoryLabel(service.category)}</span>
-                    {!service.isPublic && <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[11px]">Members Only</span>}
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900">{service.name}</h3>
-                  <p className="text-gray-600">{service.description}</p>
-                  <p className="text-sm font-semibold text-gray-800">
-                    {service.pricing ? `Cost: ${service.pricing}` : 'No cost listed'}
-                  </p>
-                  {service.requiresBooking && (
-                    <p className="text-sm text-amber-700">Booking is required. Our team will help you schedule next steps.</p>
-                  )}
-                </div>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <Link
-                    href={`/tenants/${tenant.id}/services/${service.id}`}
-                    className="text-sm font-semibold text-amber-600 hover:text-amber-700"
-                  >
-                    View details →
-                  </Link>
-                  <Link
-                    href={`/tenants/${tenant.id}/contact?service=${encodeURIComponent(service.name)}`}
-                    className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
-                  >
-                    Request info
-                  </Link>
-                </div>
+        <>
+          {!isMember && (
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+              <p>
+                Some services may be reserved for members.{' '}
+                <Link href={`/tenants/${tenant.id}/contact`} className="font-semibold text-amber-700 hover:underline">
+                  Contact the team
+                </Link>{' '}
+                to learn more about membership options.
+              </p>
+            </div>
+          )}
+
+          {services.length === 0 ? (
+            <Card>
+              <div className="text-center py-12">
+                <p className="text-lg font-semibold text-gray-700">No services found in this category.</p>
+                <p className="text-gray-500 mt-2">Check back soon or reach out to the team for more details.</p>
               </div>
             </Card>
-          ))}
-        </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {services.map((service) => (
+                <Card key={service.id}>
+                  <div className="flex flex-col h-full">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                        <span>{getCategoryLabel(service.category)}</span>
+                        {!service.isPublic && <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[11px]">Members Only</span>}
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900">{service.name}</h3>
+                      <p className="text-gray-600">{service.description}</p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {service.pricing ? `Cost: ${service.pricing}` : 'No cost listed'}
+                      </p>
+                      {service.requiresBooking && (
+                        <p className="text-sm text-amber-700">Booking is required. Our team will help you schedule next steps.</p>
+                      )}
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <Link
+                        href={`/tenants/${tenant.id}/services/${service.id}`}
+                        className="text-sm font-semibold text-amber-600 hover:text-amber-700"
+                      >
+                        View details →
+                      </Link>
+                      <Link
+                        href={`/tenants/${tenant.id}/contact?service=${encodeURIComponent(service.name)}`}
+                        className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
+                      >
+                        Request info
+                      </Link>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

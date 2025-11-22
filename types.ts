@@ -565,6 +565,7 @@ export interface SmallGroup {
   leaderUserId: string;
   meetingSchedule: string; // e.g., "Tuesdays at 7 PM"
   isActive: boolean;
+  isHidden?: boolean;
 }
 
 export interface SmallGroupMembership {

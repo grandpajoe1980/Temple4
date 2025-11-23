@@ -29,6 +29,7 @@ export default function CommunityChips({ tenantId }: { tenantId: string }) {
 
   const items: Array<{ key: string; label: string; path: string; feature?: string }> = [
     { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
+    { key: 'wall', label: 'Wall', path: '/community/wall' },
     { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
     { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
     { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },

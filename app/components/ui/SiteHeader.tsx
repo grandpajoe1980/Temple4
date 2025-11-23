@@ -1,5 +1,4 @@
 "use client";
-
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -736,6 +735,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                 >
                   <div className="py-1">
                     <Link href={`${basePath}/posts`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Posts</Link>
+                    <Link href={`${basePath}/community/wall`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Wall</Link>
                     <Link href={`${basePath}/calendar`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Calendar</Link>
                     <Link href={`${basePath}/prayer-wall`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Prayer Wall</Link>
                     <Link href={`${basePath}/members`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Members</Link>

@@ -187,6 +187,7 @@ model User {
   profilePosts                    ProfilePost[]
   profilePostReactions            ProfilePostReaction[]
   profilePostComments             ProfilePostComment[]
+  profilePostHides                ProfilePostHidden[]
 }
 
 model UserProfile {
@@ -255,6 +256,7 @@ model Tenant {
   impersonationSessions   ImpersonationSession[]
   serviceOfferings        ServiceOffering[]
   facilities              Facility[]
+  profilePostHiddens      ProfilePostHidden[]
 }
 
 model TenantBranding {
@@ -890,6 +892,7 @@ model ProfilePost {
   media       ProfilePostMedia[]
   reactions   ProfilePostReaction[]
   comments    ProfilePostComment[]
+  hiddenRecords ProfilePostHidden[]
   
   @@index([userId, createdAt])
   @@index([userId, privacy, createdAt])
@@ -940,4 +943,18 @@ model ProfilePostComment {
   
   @@index([postId, createdAt])
   @@index([userId])
+}
+
+model ProfilePostHidden {
+  id             String      @id @default(cuid())
+  postId         String
+  post           ProfilePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tenantId       String
+  tenant         Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  hiddenByUserId String?
+  hiddenByUser   User?       @relation(fields: [hiddenByUserId], references: [id])
+  hiddenAt       DateTime    @default(now())
+
+  @@unique([postId, tenantId])
+  @@index([tenantId])
 }

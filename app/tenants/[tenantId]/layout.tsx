@@ -52,8 +52,8 @@ export default async function TenantLayout({
             </div>
         </div>
       </header>
-       <main className="py-10 flex-grow">
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+      <main className="py-10 flex-grow">
+        <div suppressHydrationWarning className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {children}
         </div>
       </main>

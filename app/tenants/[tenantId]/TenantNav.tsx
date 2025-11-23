@@ -51,6 +51,7 @@ const navItems: { key: TenantPage; label: string; path: string; feature?: NavIte
 // Use `string` for the key here to avoid tight coupling of the nav literal keys
 const communitySubItems: { key: string; label: string; path: string; feature?: NavItemFeature }[] = [
   { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
+  { key: 'wall', label: 'Wall', path: '/community/wall' },
   { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
   { key: 'staff', label: 'Staff', path: '/staff', feature: 'enableMemberDirectory' },
   { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },

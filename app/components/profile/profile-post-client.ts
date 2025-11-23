@@ -10,18 +10,26 @@ export async function fetchProfilePosts(userId: string, page = 1, limit = 10) {
 }
 
 export async function createProfilePostClient(userId: string, data: any) {
-  const res = await fetch(`/api/users/${userId}/profile-posts`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+  try {
+    const res = await fetch(`/api/users/${userId}/profile-posts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || 'Failed to create post');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      // Prefer descriptive message from server if present
+      throw new Error(err.message || err.error || `Failed to create post (status ${res.status})`);
+    }
+
+    return res.json();
+  } catch (e: any) {
+    // Network-level errors (DNS, connection reset, CORS) surface here as TypeError
+    const msg = e?.message || 'Network error while creating post';
+    console.error('[createProfilePostClient] error:', e);
+    throw new Error(msg);
   }
-
-  return res.json();
 }
 
 export async function addReactionClient(userId: string, postId: string, type: string) {

@@ -545,6 +545,97 @@ export async function addComment(postId: string, userId: string, content: string
 }
 
 /**
+ * List public profile posts for members of a tenant
+ */
+export async function listTenantProfilePosts(
+    tenantId: string,
+    viewerId?: string | null,
+    options?: { page?: number; limit?: number }
+): Promise<{ posts: ProfilePostDto[]; totalCount: number }> {
+    const page = options?.page || 1;
+    const limit = options?.limit || 20;
+    const skip = (page - 1) * limit;
+
+    // Find approved member userIds for the tenant
+    const memberships = await prisma.userTenantMembership.findMany({
+        where: { tenantId, status: 'APPROVED' },
+        select: { userId: true }
+    });
+
+    const userIds = memberships.map(m => m.userId);
+    if (userIds.length === 0) return { posts: [], totalCount: 0 };
+
+    const [posts, totalCount] = await Promise.all([
+        prisma.profilePost.findMany({
+            where: {
+                userId: { in: userIds },
+                privacy: 'PUBLIC',
+                deletedAt: null,
+                hiddenRecords: { none: { tenantId } }
+            },
+            include: {
+                user: { include: { profile: true } },
+                media: { orderBy: { order: 'asc' } },
+                reactions: { include: { user: { include: { profile: true } } } },
+                comments: { where: { deletedAt: null }, include: { user: { include: { profile: true } } }, orderBy: { createdAt: 'asc' } }
+            },
+            orderBy: { createdAt: 'desc' },
+            skip,
+            take: limit
+        }),
+        prisma.profilePost.count({
+            where: {
+                userId: { in: userIds },
+                privacy: 'PUBLIC',
+                deletedAt: null,
+                hiddenRecords: { none: { tenantId } }
+            }
+        })
+    ]);
+
+    return { posts: posts.map(p => mapPostToDto(p, viewerId)), totalCount };
+}
+
+/**
+ * Hide a profile post for moderation (soft-delete)
+ * Allowed actors: post owner, tenant admin (role=ADMIN), platform superadmin
+ */
+export async function hideProfilePost(postId: string, actorUserId: string, tenantId: string): Promise<void> {
+    const post = await prisma.profilePost.findUnique({ where: { id: postId } });
+    if (!post) throw new ProfilePostPermissionError('Post not found');
+
+    // Only allow tenant-level hide for permitted actors. Create a ProfilePostHidden record
+    // so the post remains available on the owner's profile but is hidden on this tenant's wall.
+
+    // Check permissions: owner, tenant admin, or platform superadmin may hide for tenant
+    const actor = await prisma.user.findUnique({ where: { id: actorUserId } });
+    const isPlatformAdmin = Boolean(actor?.isSuperAdmin);
+
+    const membership = await prisma.userTenantMembership.findUnique({
+        where: { userId_tenantId: { userId: actorUserId, tenantId } },
+        include: { roles: true }
+    });
+    const allowedRoles = ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'];
+    const isTenantAdmin = membership?.roles?.some(r => allowedRoles.includes(r.role));
+
+    if (!(post.userId === actorUserId || isTenantAdmin || isPlatformAdmin)) {
+        throw new ProfilePostPermissionError('Not authorized to hide this post for this tenant');
+    }
+
+    // create hide record if not exists
+    const existing = await prisma.profilePostHidden.findUnique({ where: { postId_tenantId: { postId, tenantId } } }).catch(() => null);
+    if (existing) return;
+
+    await prisma.profilePostHidden.create({
+        data: {
+            postId,
+            tenantId,
+            hiddenByUserId: actorUserId
+        }
+    });
+}
+
+/**
  * Delete a comment (owner only)
  */
 export async function deleteComment(commentId: string, userId: string): Promise<void> {

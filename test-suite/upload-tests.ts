@@ -65,9 +65,10 @@ export class UploadTestSuite {
         });
 
         if (tenantsResponse.ok) {
-          const tenants = await tenantsResponse.json();
-          if (tenants && tenants.length > 0) {
-            this.testTenantId = tenants[0].id;
+          const data = await tenantsResponse.json();
+          if (data.tenants && data.tenants.length > 0) {
+            const targetTenant = data.tenants.find((t: any) => t.slug === TEST_CONFIG.testTenant.slug);
+            this.testTenantId = targetTenant ? targetTenant.id : data.tenants[0].id;
           }
         }
 
@@ -364,7 +365,7 @@ export class UploadTestSuite {
     testFn: () => Promise<{ response: Response; expectedStatus: number[] }>
   ) {
     this.logger.startTest(category, testName);
-    
+
     try {
       const { response, expectedStatus } = await testFn();
       const status = response.status;

@@ -136,6 +136,7 @@ export class FeatureTestSuite {
         name: `Test Temple ${Date.now()}`,
         slug: `test-temple-${Date.now()}`,
         description: 'A test temple for automated testing',
+        creed: 'We believe in clean code and automated testing.',
         isPublic: true,
       };
 
@@ -265,6 +266,23 @@ export class FeatureTestSuite {
       headers['Cookie'] = this.authToken;
     }
 
+    // Login as admin for content creation that requires higher permissions
+    let adminToken: string | null = null;
+    try {
+      const { cookieHeader } = await performCredentialsLogin(
+        TEST_CONFIG.testUsers.admin.email,
+        TEST_CONFIG.testUsers.admin.password
+      );
+      adminToken = cookieHeader;
+    } catch (error) {
+      this.logger.logError(category, 'Admin Login', error as Error);
+    }
+
+    const adminHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+    if (adminToken) {
+      adminHeaders['Cookie'] = adminToken;
+    }
+
     // Test creating a post
     this.logger.startTest(category, 'Create Post');
     try {
@@ -272,11 +290,12 @@ export class FeatureTestSuite {
         `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/posts`,
         {
           method: 'POST',
-          headers,
+          headers: adminHeaders,
           body: JSON.stringify({
             title: 'Test Post',
-            content: 'This is a test post created by automated testing',
+            body: 'This is a test post created by automated testing',
             published: true,
+            type: 'BLOG',
           }),
         }
       );
@@ -302,13 +321,13 @@ export class FeatureTestSuite {
         `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/events`,
         {
           method: 'POST',
-          headers,
+          headers: adminHeaders,
           body: JSON.stringify({
             title: 'Test Event',
             description: 'This is a test event',
-            startDate: new Date().toISOString(),
-            endDate: new Date(Date.now() + 3600000).toISOString(),
-            location: 'Test Location',
+            startDateTime: new Date().toISOString(),
+            endDateTime: new Date(Date.now() + 3600000).toISOString(),
+            locationText: 'Test Location',
           }),
         }
       );
@@ -334,12 +353,11 @@ export class FeatureTestSuite {
         `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/sermons`,
         {
           method: 'POST',
-          headers,
+          headers: adminHeaders,
           body: JSON.stringify({
             title: 'Test Sermon',
-            content: 'This is a test sermon',
-            preacher: 'Test Preacher',
-            date: new Date().toISOString(),
+            description: 'This is a test sermon',
+            embedUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
           }),
         }
       );

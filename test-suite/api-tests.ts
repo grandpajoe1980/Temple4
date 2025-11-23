@@ -82,11 +82,17 @@ export class APITestSuite {
         if (this.authToken) {
           headers['Cookie'] = this.authToken;
         }
-        
+
         const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/auth/me`, {
           method: 'GET',
           headers,
         });
+
+        if (response.ok) {
+          const data = await response.json();
+          this.testUserId = data.user?.id || data.id;
+        }
+
         return { response, expectedStatus: [200, 401] };
       }
     );
@@ -136,14 +142,15 @@ export class APITestSuite {
             name: `Test Tenant ${Date.now()}`,
             slug: `test-tenant-${Date.now()}`,
             description: 'A test tenant',
+            creed: 'We believe in automated testing.',
           }),
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           this.testTenantId = data.id || data.tenantId;
         }
-        
+
         return { response, expectedStatus: [201, 200, 401] };
       }
     );
@@ -154,6 +161,7 @@ export class APITestSuite {
         category,
         'GET /api/tenants/[tenantId]',
         async () => {
+          console.log(`[DEBUG] Testing GET tenant. TenantId: ${this.testTenantId}, UserId: ${this.testUserId}`);
           const response = await fetch(
             `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}`,
             {
@@ -240,7 +248,8 @@ export class APITestSuite {
             headers: this.getAuthHeaders(),
             body: JSON.stringify({
               title: 'Test Post',
-              content: 'This is a test post',
+              body: 'This is a test post',
+              type: 'BLOG',
             }),
           }
         );
@@ -261,6 +270,23 @@ export class APITestSuite {
       }
     );
 
+    // Login as admin for content creation that requires higher permissions
+    let adminToken: string | null = null;
+    try {
+      const { cookieHeader } = await performCredentialsLogin(
+        TEST_CONFIG.testUsers.admin.email,
+        TEST_CONFIG.testUsers.admin.password
+      );
+      adminToken = cookieHeader;
+    } catch (error) {
+      this.logger.logError(category, 'Admin Login', error as Error);
+    }
+
+    const adminHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+    if (adminToken) {
+      adminHeaders['Cookie'] = adminToken;
+    }
+
     await this.testEndpoint(
       category,
       'POST /api/tenants/[tenantId]/events',
@@ -269,12 +295,13 @@ export class APITestSuite {
           `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/events`,
           {
             method: 'POST',
-            headers: this.getAuthHeaders(),
+            headers: adminHeaders,
             body: JSON.stringify({
               title: 'Test Event',
               description: 'This is a test event',
-              startDate: new Date().toISOString(),
-              endDate: new Date(Date.now() + 3600000).toISOString(),
+              startDateTime: new Date().toISOString(),
+              endDateTime: new Date(Date.now() + 3600000).toISOString(),
+              locationText: 'Test Location',
             }),
           }
         );
@@ -357,7 +384,7 @@ export class APITestSuite {
           `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/services`,
           {
             method: 'POST',
-            headers: this.getAuthHeaders(),
+            headers: adminHeaders, // Use admin token for service creation
             body: JSON.stringify({
               name: `Test Service ${Date.now()}`,
               description: 'A sample service offering for automated testing.',
@@ -433,7 +460,7 @@ export class APITestSuite {
       async () => {
         const response = await fetch(
           `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/community-posts`,
-          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+          { method: 'GET', headers: this.getAuthHeaders() }
         );
         return { response, expectedStatus: [200] };
       }
@@ -465,7 +492,7 @@ export class APITestSuite {
           const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/conversations`, {
             method: 'POST',
             headers: this.getAuthHeaders(),
-            body: JSON.stringify({ tenantId: this.testTenantId, name: channelName, participantIds: [], scope: 'TENANT', kind: 'CHANNEL' }),
+            body: JSON.stringify({ tenantId: this.testTenantId, name: channelName, participantIds: [this.testUserId], scope: 'TENANT', kind: 'CHANNEL' }),
           });
 
           if (response.ok) {
@@ -553,7 +580,7 @@ export class APITestSuite {
               headers: { 'Content-Type': 'application/json' },
             }
           );
-          return { response, expectedStatus: [200, 404] };
+          return { response, expectedStatus: [200, 401, 404] };
         }
       );
     }

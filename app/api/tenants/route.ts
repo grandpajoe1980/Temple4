@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { MembershipStatus,  } from '@/types';
+import { MembershipStatus, } from '@/types';
 import { TenantRole } from '@/types';
 import { z } from 'zod';
 
@@ -59,9 +59,21 @@ export async function POST(request: Request) {
         },
         settings: {
           create: {
+            isPublic: true,
             donationSettings: {},
             liveStreamSettings: {},
-            visitorVisibility: {},
+            visitorVisibility: {
+              calendar: true,
+              posts: true,
+              sermons: true,
+              podcasts: true,
+              books: true,
+              prayerWall: true,
+            },
+            enablePrayerWall: true,
+            enableSmallGroups: true,
+            enableVolunteering: true,
+            enableDonations: true,
           },
         },
         // Add the creator as the first member and admin
@@ -77,6 +89,46 @@ export async function POST(request: Request) {
             },
           },
         },
+        permissions: {
+          ADMIN: {
+            canCreatePosts: true,
+            canCreateEvents: true,
+            canCreateSermons: true,
+            canCreatePodcasts: true,
+            canCreateBooks: true,
+            canCreateGroupChats: true,
+            canInviteMembers: true,
+            canApproveMembership: true,
+            canBanMembers: true,
+            canModeratePosts: true,
+            canModerateChats: true,
+            canPostInAnnouncementChannels: true,
+            canManagePrayerWall: true,
+            canUploadResources: true,
+            canManageResources: true,
+            canManageContactSubmissions: true,
+            canManageFacilities: true,
+          },
+          MEMBER: {
+            canCreatePosts: true,
+            canCreateEvents: false,
+            canCreateSermons: false,
+            canCreatePodcasts: false,
+            canCreateBooks: false,
+            canCreateGroupChats: true,
+            canInviteMembers: false,
+            canApproveMembership: false,
+            canBanMembers: false,
+            canModeratePosts: false,
+            canModerateChats: false,
+            canPostInAnnouncementChannels: false,
+            canManagePrayerWall: false,
+            canUploadResources: false,
+            canManageResources: false,
+            canManageContactSubmissions: false,
+            canManageFacilities: false,
+          },
+        },
       },
     });
 
@@ -89,53 +141,53 @@ export async function POST(request: Request) {
 
 // 7.3 List/Search Tenants
 export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q') || '';
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '10', 10);
-    const offset = (page - 1) * limit;
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.get('q') || '';
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '10', 10);
+  const offset = (page - 1) * limit;
 
-    try {
-        const tenants = await prisma.tenant.findMany({
-            where: {
-                OR: [
-                    { name: { contains: query } },
-                    { description: { contains: query } },
-                ],
-                settings: {
-                    isPublic: true, // Only search public tenants
-                }
-            },
-            skip: offset,
-            take: limit,
-            orderBy: {
-                name: 'asc',
-            },
-        });
+  try {
+    const tenants = await prisma.tenant.findMany({
+      where: {
+        OR: [
+          { name: { contains: query } },
+          { description: { contains: query } },
+        ],
+        settings: {
+          isPublic: true, // Only search public tenants
+        }
+      },
+      skip: offset,
+      take: limit,
+      orderBy: {
+        name: 'asc',
+      },
+    });
 
-        const totalTenants = await prisma.tenant.count({
-            where: {
-                OR: [
-                    { name: { contains: query } },
-                    { description: { contains: query } },
-                ],
-                settings: {
-                    isPublic: true,
-                }
-            },
-        });
+    const totalTenants = await prisma.tenant.count({
+      where: {
+        OR: [
+          { name: { contains: query } },
+          { description: { contains: query } },
+        ],
+        settings: {
+          isPublic: true,
+        }
+      },
+    });
 
-        return NextResponse.json({
-            tenants,
-            pagination: {
-                page,
-                limit,
-                totalPages: Math.ceil(totalTenants / limit),
-                totalResults: totalTenants,
-            }
-        });
-    } catch (error) {
-        console.error('Failed to fetch tenants:', error);
-        return NextResponse.json({ message: 'Failed to fetch tenants' }, { status: 500 });
-    }
+    return NextResponse.json({
+      tenants,
+      pagination: {
+        page,
+        limit,
+        totalPages: Math.ceil(totalTenants / limit),
+        totalResults: totalTenants,
+      }
+    });
+  } catch (error) {
+    console.error('Failed to fetch tenants:', error);
+    return NextResponse.json({ message: 'Failed to fetch tenants' }, { status: 500 });
+  }
 }

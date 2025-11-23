@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import type { UserProfile } from '@prisma/client';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import ImageUpload from '../ui/ImageUpload';
 import { useToast } from '../ui/Toast';
 
 interface ProfileSettingsTabProps {
@@ -28,7 +29,7 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       // Call onUpdate which should handle the API call
       await onUpdate(profile);
@@ -47,22 +48,23 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
         <p className="mt-1 text-sm text-gray-500">This information will be displayed on your public profile.</p>
       </div>
       <div className="space-y-6">
-        <Input 
-          label="Display Name" 
-          id="displayName" 
-          name="displayName" 
-          value={profile.displayName} 
-          onChange={handleInputChange} 
+        <Input
+          label="Display Name"
+          id="displayName"
+          name="displayName"
+          value={profile.displayName}
+          onChange={handleInputChange}
           required
           disabled={isSubmitting}
         />
-        <Input 
-          label="Avatar URL" 
-          id="avatarUrl" 
-          name="avatarUrl" 
-          type="url"
-          value={profile.avatarUrl || ''} 
-          onChange={handleInputChange}
+        <ImageUpload
+          label="Avatar"
+          currentImageUrl={profile.avatarUrl || ''}
+          onImageUrlChange={(url) => setProfile((prev: any) => ({ ...prev, avatarUrl: url }))}
+          tenantId={profile.tenantId}
+          category="avatars"
+          showPreview={true}
+          previewClassName="w-24 h-24 object-cover rounded-full border border-gray-200"
           disabled={isSubmitting}
         />
         <div>
@@ -80,29 +82,29 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input 
-            label="City" 
-            id="locationCity" 
-            name="locationCity" 
-            value={profile.locationCity || ''} 
+          <Input
+            label="City"
+            id="locationCity"
+            name="locationCity"
+            value={profile.locationCity || ''}
             onChange={handleInputChange}
             disabled={isSubmitting}
           />
-          <Input 
-            label="Country" 
-            id="locationCountry" 
-            name="locationCountry" 
-            value={profile.locationCountry || ''} 
+          <Input
+            label="Country"
+            id="locationCountry"
+            name="locationCountry"
+            value={profile.locationCountry || ''}
             onChange={handleInputChange}
             disabled={isSubmitting}
           />
         </div>
-        <Input 
-          label="Languages" 
-          id="languages" 
-          name="languages" 
-          value={profile.languages || ''} 
-          onChange={handleLanguagesChange} 
+        <Input
+          label="Languages"
+          id="languages"
+          name="languages"
+          value={profile.languages || ''}
+          onChange={handleLanguagesChange}
           placeholder="e.g., English, Spanish, German"
           disabled={isSubmitting}
         />

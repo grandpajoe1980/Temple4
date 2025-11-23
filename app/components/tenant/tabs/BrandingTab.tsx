@@ -4,6 +4,7 @@ import React from 'react';
 import type { Tenant } from '@/types';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
+import ImageUpload from '../../ui/ImageUpload';
 
 interface BrandingTabProps {
   tenant: Tenant;
@@ -13,15 +14,30 @@ interface BrandingTabProps {
 
 const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) => {
   const [isSaving, setIsSaving] = React.useState(false);
+  
+  // Auto-save branding after an upload completes. We keep this local so the
+  // ImageUpload component stays generic and the BrandingTab can decide to
+  // persist changes immediately (PhotosPage-style behavior).
+  const handleAutoSave = async (partialBranding: any) => {
+    setIsSaving(true);
+    try {
+      await onSave({ branding: { ...partialBranding } });
+    } catch (error: any) {
+      // Use a simple alert for now to surface errors to the admin user.
+      alert(error?.message || 'Failed to save branding');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     onUpdate({
-        ...tenant,
-        branding: { ...tenant.branding, [name]: value },
+      ...tenant,
+      branding: { ...tenant.branding, [name]: value },
     });
   };
-  
+
   const handleLinkChange = (index: number, field: 'label' | 'url', value: string) => {
     const newLinks = [...tenant.branding.customLinks];
     newLinks[index] = { ...newLinks[index], [field]: value };
@@ -51,17 +67,36 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
     <div className="space-y-8">
       <div>
         <h3 className="text-lg font-medium leading-6 text-gray-900">Branding</h3>
-        <p className="mt-1 text-sm text-gray-500">Customize the look and feel of your temple’s pages.</p>
+        <p className="mt-1 text-sm text-gray-500">Customize the look and feel of your temple's pages.</p>
       </div>
 
       <div className="space-y-6">
-        <Input label="Logo URL" id="logoUrl" name="logoUrl" type="text" placeholder="https://example.com/logo.png"
-               value={tenant.branding.logoUrl}
-               onChange={(e) => onUpdate({ ...tenant, branding: {...tenant.branding, logoUrl: e.target.value}})}
+        <ImageUpload
+          label="Logo"
+          currentImageUrl={tenant.branding.logoUrl}
+          onImageUrlChange={async (url) => {
+            const updated = { ...tenant.branding, logoUrl: url };
+            onUpdate({ ...tenant, branding: updated });
+            // Persist immediately (PhotosPage UX): auto-save the branding.
+            await handleAutoSave(updated);
+          }}
+          tenantId={tenant.id}
+          category="photos"
+          showPreview={true}
+          previewClassName="w-32 h-32 object-contain rounded-lg border border-gray-200"
         />
-        <Input label="Banner Image URL" id="bannerImageUrl" name="bannerImageUrl" type="text" placeholder="https://example.com/banner.png"
-               value={tenant.branding.bannerImageUrl}
-               onChange={(e) => onUpdate({ ...tenant, branding: {...tenant.branding, bannerImageUrl: e.target.value}})}
+        <ImageUpload
+          label="Banner Image"
+          currentImageUrl={tenant.branding.bannerImageUrl}
+          onImageUrlChange={async (url) => {
+            const updated = { ...tenant.branding, bannerImageUrl: url };
+            onUpdate({ ...tenant, branding: updated });
+            await handleAutoSave(updated);
+          }}
+          tenantId={tenant.id}
+          category="photos"
+          showPreview={true}
+          previewClassName="w-full max-w-md h-32 object-cover rounded-lg border border-gray-200"
         />
       </div>
 
@@ -70,22 +105,22 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
         <p className="mt-1 text-sm text-gray-500">Choose colors that match your community’s identity.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-              <label htmlFor="primaryColor" className="block text-sm font-medium text-gray-700">Primary Color</label>
-              <div className="mt-1 flex items-center space-x-3">
-                  <input type="color" id="primaryColor" name="primaryColor" value={tenant.branding.primaryColor} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
-                  <Input id="primaryColorText" name="primaryColor" type="text" label="" value={tenant.branding.primaryColor} onChange={handleColorChange} />
-              </div>
+        <div>
+          <label htmlFor="primaryColor" className="block text-sm font-medium text-gray-700">Primary Color</label>
+          <div className="mt-1 flex items-center space-x-3">
+            <input type="color" id="primaryColor" name="primaryColor" value={tenant.branding.primaryColor} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
+            <Input id="primaryColorText" name="primaryColor" type="text" label="" value={tenant.branding.primaryColor} onChange={handleColorChange} />
           </div>
-          <div>
-              <label htmlFor="accentColor" className="block text-sm font-medium text-gray-700">Accent Color</label>
-              <div className="mt-1 flex items-center space-x-3">
-                  <input type="color" id="accentColor" name="accentColor" value={tenant.branding.accentColor} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
-                  <Input id="accentColorText" name="accentColor" type="text" label="" value={tenant.branding.accentColor} onChange={handleColorChange} />
-              </div>
+        </div>
+        <div>
+          <label htmlFor="accentColor" className="block text-sm font-medium text-gray-700">Accent Color</label>
+          <div className="mt-1 flex items-center space-x-3">
+            <input type="color" id="accentColor" name="accentColor" value={tenant.branding.accentColor} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
+            <Input id="accentColorText" name="accentColor" type="text" label="" value={tenant.branding.accentColor} onChange={handleColorChange} />
           </div>
+        </div>
       </div>
-      
+
       <div className="border-t border-gray-200 pt-8">
         <h3 className="text-lg font-medium leading-6 text-gray-900">Custom Links</h3>
         <p className="mt-1 text-sm text-gray-500">Add custom links to your temple’s public page (e.g., website, donations).</p>
@@ -95,29 +130,29 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
         {(tenant.branding.customLinks || []).map((link, index) => (
           <div key={index} className="flex items-end space-x-4">
             <div className="grid grid-cols-2 gap-4 flex-grow">
-              <Input 
-                label="Label" 
-                id={`linkLabel-${index}`} 
-                name="label" 
-                value={link.label} 
-                onChange={(e) => handleLinkChange(index, 'label', e.target.value)} 
-                placeholder="e.g., Our Website" 
+              <Input
+                label="Label"
+                id={`linkLabel-${index}`}
+                name="label"
+                value={link.label}
+                onChange={(e) => handleLinkChange(index, 'label', e.target.value)}
+                placeholder="e.g., Our Website"
               />
-              <Input 
-                label="URL" 
-                id={`linkUrl-${index}`} 
-                name="url" 
-                type="url" 
-                value={link.url} 
-                onChange={(e) => handleLinkChange(index, 'url', e.target.value)} 
-                placeholder="https://..." 
+              <Input
+                label="URL"
+                id={`linkUrl-${index}`}
+                name="url"
+                type="url"
+                value={link.url}
+                onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
+                placeholder="https://..."
               />
             </div>
-            <Button 
-              type="button" 
-              variant="danger" 
-              size="sm" 
-              onClick={() => handleRemoveLink(index)} 
+            <Button
+              type="button"
+              variant="danger"
+              size="sm"
+              onClick={() => handleRemoveLink(index)}
               aria-label="Remove link"
               className="!p-2"
             >
@@ -130,23 +165,23 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
         <Button type="button" variant="secondary" onClick={handleAddLink}>+ Add Link</Button>
       </div>
 
-       <div className="text-right border-t border-gray-200 pt-6">
-          <Button
-            disabled={isSaving}
-            onClick={async () => {
-              try {
-                setIsSaving(true);
-                await onSave({ branding: { ...tenant.branding } });
-                alert('Branding saved');
-              } catch (error: any) {
-                alert(error.message || 'Failed to save branding');
-              } finally {
-                setIsSaving(false);
-              }
-            }}
-          >
-            {isSaving ? 'Saving...' : 'Save Branding'}
-          </Button>
+      <div className="text-right border-t border-gray-200 pt-6">
+        <Button
+          disabled={isSaving}
+          onClick={async () => {
+            try {
+              setIsSaving(true);
+              await onSave({ branding: { ...tenant.branding } });
+              alert('Branding saved');
+            } catch (error: any) {
+              alert(error.message || 'Failed to save branding');
+            } finally {
+              setIsSaving(false);
+            }
+          }}
+        >
+          {isSaving ? 'Saving...' : 'Save Branding'}
+        </Button>
       </div>
     </div>
   );

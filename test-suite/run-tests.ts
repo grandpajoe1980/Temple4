@@ -58,11 +58,11 @@ async function main() {
       const data = await tenantsResponse.json();
       const tenants = data.tenants || [];
       springfieldTenant = tenants.find((t: any) => t.slug === TEST_CONFIG.testTenant.slug);
-      
+
       if (springfieldTenant) {
         springfieldTenantId = springfieldTenant.id;
         console.log(`✓ Found Springfield Church tenant: ${springfieldTenantId}`);
-        
+
         // Login as Ned to get Homer's user ID from members
         try {
           const loginBody = new URLSearchParams({
@@ -86,11 +86,11 @@ async function main() {
             const membersResponse = await fetch(`${TEST_CONFIG.apiBaseUrl}/tenants/${springfieldTenantId}/members`, {
               headers: { Cookie: cookieHeader },
             });
-            
+
             if (membersResponse.ok) {
               const membersData = await membersResponse.json();
               const members = membersData.members || [];
-              const homer = members.find((m: any) => 
+              const homer = members.find((m: any) =>
                 m.user?.profile?.email === TEST_CONFIG.testUsers.regular.email ||
                 m.user?.profile?.displayName?.includes('Homer')
               );
@@ -133,14 +133,14 @@ async function main() {
     // Get test IDs for page tests (use Springfield tenant if available)
     const testTenantId = springfieldTenantId || featureTests.getTestTenantId();
     const testUserId = homerUserId || featureTests.getTestUserId();
-    
+
     if (testTenantId) {
       console.log(`\n✓ Using tenant ID for page tests: ${testTenantId}`);
     }
     if (testUserId) {
       console.log(`✓ Using user ID for page tests: ${testUserId}`);
     }
-    
+
     pageTests.setTestIds(testTenantId, testUserId);
 
     // Run API tests

@@ -45,6 +45,17 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, avatarUrl, displayName }) => 
     router.push('/account');
   };
 
+  const handleWallClick = () => {
+    setIsOpen(false);
+    const userId = (user as any)?.id;
+    if (userId) {
+      router.push(`/profile/${userId}#posts`);
+    } else {
+      // Fallback to account page if user id is not available
+      router.push('/account');
+    }
+  };
+
   const handleExplore = () => {
     setIsOpen(false);
     router.push('/explore');
@@ -114,6 +125,16 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, avatarUrl, displayName }) => 
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m-6 4h4" />
             </svg>
             <span>Messages</span>
+          </button>
+
+          <button
+            onClick={handleWallClick}
+            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
+            </svg>
+            <span>Wall</span>
           </button>
 
           <button

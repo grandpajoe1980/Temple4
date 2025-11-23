@@ -4,6 +4,7 @@ import React from 'react';
 import type { User, Tenant } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import { ProfileFeed } from './ProfileFeed';
 
 interface ProfilePageProps {
   profileUser: User;
@@ -24,12 +25,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ profileUser, affiliatedTenant
       <div>
         <Button variant="secondary" onClick={onBack}>&larr; Back</Button>
       </div>
-      
+
       <Card className="!p-0">
         <div className="p-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8">
-            <img 
-              src={profileUser.profile?.avatarUrl || '/placeholder-avatar.svg'} 
+            <img
+              src={profileUser.profile?.avatarUrl || '/placeholder-avatar.svg'}
               alt={`${profileUser.profile?.displayName ?? ''}'s avatar`}
               className="w-32 h-32 rounded-full ring-4 ring-white ring-offset-2 ring-offset-amber-100"
             />
@@ -54,17 +55,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ profileUser, affiliatedTenant
           )}
           {profileUser.profile?.languages && (
             <div className="mt-6">
-               <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Languages</h3>
-               <div className="mt-2 flex flex-wrap gap-2">
-                 {(Array.isArray(profileUser.profile?.languages)
-                    ? profileUser.profile?.languages
-                    : (profileUser.profile?.languages as unknown as string).split(',')
-                 ).map((lang: string) => (
-                    <span key={lang} className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800">
-                        {lang.trim()}
-                    </span>
-                 ))}
-               </div>
+              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Languages</h3>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {(Array.isArray(profileUser.profile?.languages)
+                  ? profileUser.profile?.languages
+                  : (profileUser.profile?.languages as unknown as string).split(',')
+                ).map((lang: string) => (
+                  <span key={lang} className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800">
+                    {lang.trim()}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -75,13 +76,19 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ profileUser, affiliatedTenant
           <div className="space-y-4">
             {affiliatedTenants.map((tenant: any) => (
               <div key={tenant.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors">
-                 <h4 className="font-semibold text-gray-800">{tenant.name}</h4>
-                 <p className="text-sm text-gray-500">{tenant.creed}</p>
+                <h4 className="font-semibold text-gray-800">{tenant.name}</h4>
+                <p className="text-sm text-gray-500">{tenant.creed}</p>
               </div>
             ))}
           </div>
         </Card>
       )}
+
+      {/* Profile Feed Section */}
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Posts</h2>
+        <ProfileFeed userId={profileUser.id} isOwnProfile={isOwnProfile} />
+      </div>
     </div>
   );
 };

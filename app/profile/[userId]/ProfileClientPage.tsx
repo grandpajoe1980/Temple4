@@ -10,6 +10,7 @@ import PrivacySettingsTab from '@/app/components/account/PrivacySettingsTab';
 import AccountSettingsTab from '@/app/components/account/AccountSettingsTab';
 import Button from '@/app/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ProfileFeed } from '@/app/components/profile/ProfileFeed';
 
 interface ProfileClientPageProps {
   user: User & {
@@ -120,6 +121,10 @@ export default function ProfileClientPage({ user: initialUser }: ProfileClientPa
               <Button variant="secondary" onClick={() => setIsEditing(false)}>Cancel</Button>
           </div>
       )}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Posts</h2>
+        <ProfileFeed userId={user.id} isOwnProfile={canEdit} tenantId={user.profile?.tenantId ?? null} />
+      </div>
     </div>
   );
 }

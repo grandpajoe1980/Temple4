@@ -184,6 +184,9 @@ model User {
   facilityBookings                FacilityBooking[]
   impersonationsAsReal            ImpersonationSession[]    @relation("RealUser")
   impersonationsAsEffective       ImpersonationSession[]    @relation("EffectiveUser")
+  profilePosts                    ProfilePost[]
+  profilePostReactions            ProfilePostReaction[]
+  profilePostComments             ProfilePostComment[]
 }
 
 model UserProfile {
@@ -481,8 +484,8 @@ model EventRSVP {
 
 model MediaItem {
   id           String    @id @default(cuid())
-  tenantId     String
-  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId     String?
+  tenant       Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   authorUserId String
   author       User      @relation(fields: [authorUserId], references: [id])
   type         String // 'SERMON_VIDEO' | 'PODCAST_AUDIO'
@@ -837,4 +840,104 @@ model Outbox {
   createdAt   DateTime          @default(now())
 
   @@index([status, runAt])
+}
+
+// --- PROFILE FEED MODELS ---
+
+enum ProfilePostType {
+  TEXT
+  IMAGE
+  VIDEO
+  LINK
+  MIXED
+}
+
+enum ProfilePostPrivacy {
+  PUBLIC
+  FRIENDS
+  PRIVATE
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+}
+
+enum ReactionType {
+  LIKE
+  LOVE
+  LAUGH
+  WOW
+  SAD
+  ANGRY
+}
+
+model ProfilePost {
+  id          String              @id @default(cuid())
+  userId      String
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        ProfilePostType
+  content     String?
+  linkUrl     String?
+  linkTitle   String?
+  linkImage   String?
+  privacy     ProfilePostPrivacy  @default(PUBLIC)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  deletedAt   DateTime?
+  
+  media       ProfilePostMedia[]
+  reactions   ProfilePostReaction[]
+  comments    ProfilePostComment[]
+  
+  @@index([userId, createdAt])
+  @@index([userId, privacy, createdAt])
+}
+
+model ProfilePostMedia {
+  id          String      @id @default(cuid())
+  postId      String
+  post        ProfilePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  type        MediaType
+  url         String
+  storageKey  String
+  mimeType    String
+  fileSize    Int
+  width       Int?
+  height      Int?
+  duration    Int?
+  order       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  
+  @@index([postId, order])
+}
+
+model ProfilePostReaction {
+  id          String       @id @default(cuid())
+  postId      String
+  post        ProfilePost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        ReactionType @default(LIKE)
+  createdAt   DateTime     @default(now())
+  
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model ProfilePostComment {
+  id          String      @id @default(cuid())
+  postId      String
+  post        ProfilePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content     String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+  
+  @@index([postId, createdAt])
+  @@index([userId])
 }

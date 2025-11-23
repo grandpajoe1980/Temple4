@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { User as PrismaUser, UserProfile as PrismaUserProfile } from '@prisma/client';
 import Button from '../ui/Button';
@@ -74,10 +75,22 @@ const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
-          <p className="text-sm text-gray-500">Manage your profile, privacy, and account preferences.</p>
+      <div className="flex justify-between items-start">
+        <div className="flex items-center space-x-4">
+          <img
+            src={user.profile?.avatarUrl || '/placeholder-avatar.svg'}
+            alt={user.profile?.displayName || user.email}
+            className="w-16 h-16 rounded-full"
+          />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
+            <p className="text-sm text-gray-500">Manage your profile, privacy, and account preferences.</p>
+            <div className="mt-2">
+              <Link href={`/profile/${user.id}#posts`} className="text-amber-600 hover:underline text-sm">
+                View Profile
+              </Link>
+            </div>
+          </div>
         </div>
         <Button variant="secondary" onClick={handleBack}>&larr; Back</Button>
       </div>

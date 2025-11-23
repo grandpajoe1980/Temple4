@@ -4,6 +4,7 @@ import React from 'react';
 import type { MemberWithMembership } from '@/lib/data';
 import type { UserTenantRole } from '@/types';
 import Card from '../ui/Card';
+import Link from 'next/link';
 
 interface MemberCardProps {
   member: MemberWithMembership;
@@ -25,11 +26,13 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
   return (
     <div onClick={onViewProfile} className="cursor-pointer group h-full">
       <Card className="!p-4 text-center h-full group-hover:shadow-lg group-hover:border-amber-400 border border-transparent transition-all">
-        <img
-          className="w-20 h-20 mx-auto rounded-full"
-          src={member.profile?.avatarUrl || '/placeholder-avatar.svg'}
-          alt={`${displayName}'s avatar`}
-        />
+        <Link href={`/profile/${member.id}#posts`} onClick={(e) => e.stopPropagation()}>
+          <img
+            className="w-20 h-20 mx-auto rounded-full"
+            src={member.profile?.avatarUrl || '/placeholder-avatar.svg'}
+            alt={`${displayName}'s avatar`}
+          />
+        </Link>
         <h3 className="mt-4 text-md font-semibold text-gray-900 truncate">{displayName}</h3>
         {primaryRole?.displayTitle && (
           <p className="mt-1 text-sm text-amber-700 truncate">{primaryRole.displayTitle}</p>

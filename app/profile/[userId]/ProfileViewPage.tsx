@@ -6,6 +6,7 @@ import type { User, UserProfile, UserPrivacySettings, AccountSettings } from '@p
 import { useRouter } from 'next/navigation';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
+import { ProfileFeed } from '@/app/components/profile/ProfileFeed';
 
 interface ProfileViewPageProps {
   profileUser: User & {
@@ -154,6 +155,10 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
           )}
         </div>
       </Card>
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Posts</h2>
+        <ProfileFeed userId={profileUser.id} isOwnProfile={isOwnProfile} tenantId={profileUser.profile?.tenantId ?? null} />
+      </div>
     </div>
   );
 }

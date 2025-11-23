@@ -8,7 +8,11 @@ interface ImageUploadProps {
     label: string;
     currentImageUrl?: string;
     onImageUrlChange: (url: string) => void;
-    tenantId: string;
+    /** Optional callback: receives mediaItem object when upload API creates a MediaItem record */
+    onMediaItemCreated?: (mediaItem: any) => void;
+    tenantId?: string;
+    /** If true, the file picker will open automatically on mount */
+    autoOpen?: boolean;
     category?: 'avatars' | 'photos' | 'media' | 'resources';
     accept?: string;
     disabled?: boolean;
@@ -20,7 +24,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     label,
     currentImageUrl,
     onImageUrlChange,
+    onMediaItemCreated,
     tenantId,
+    autoOpen = false,
     category = 'photos',
     accept = 'image/*',
     disabled = false,
@@ -39,7 +45,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         try {
             const fd = new FormData();
             fd.append('file', file);
-            fd.append('tenantId', tenantId);
+            if (tenantId) {
+                fd.append('tenantId', tenantId);
+            }
             fd.append('category', category);
 
             const res = await fetch('/api/upload', {
@@ -58,6 +66,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             // the storage path for backward compatibility.
             const imageUrl = data?.url || (data?.storageKey ? `/storage/${data.storageKey}` : '');
 
+            // If the upload API created a MediaItem record (for photos), notify caller
+            if (data?.mediaItem && typeof onMediaItemCreated === 'function') {
+                try {
+                    onMediaItemCreated(data.mediaItem);
+                } catch (e) {
+                    console.warn('onMediaItemCreated callback failed', e);
+                }
+            }
+
             if (imageUrl) {
                 onImageUrlChange(imageUrl);
             }
@@ -71,6 +88,42 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             setIsUploading(false);
         }
     };
+
+    // Auto-open the file picker when requested
+    // Auto-open the file picker when requested. Retry a few times if the
+    // input element hasn't been attached to the ref yet when autoOpen flips
+    // (common when the upload component is mounted and immediately asked to
+    // open).
+    const didAutoOpen = React.useRef(false);
+    React.useEffect(() => {
+        if (!autoOpen) {
+            didAutoOpen.current = false;
+            return;
+        }
+
+        if (didAutoOpen.current) return;
+
+        let attempts = 6; // try for ~300ms (6 * 50ms)
+        let mounted = true;
+
+        const tryClick = () => {
+            if (!mounted) return;
+            if (inputRef.current) {
+                didAutoOpen.current = true;
+                // small timeout to avoid interfering with event handling
+                setTimeout(() => inputRef.current?.click(), 10);
+                return;
+            }
+            attempts -= 1;
+            if (attempts > 0) {
+                setTimeout(tryClick, 50);
+            }
+        };
+
+        tryClick();
+
+        return () => { mounted = false; };
+    }, [autoOpen]);
 
     return (
         <div className="space-y-3">
@@ -97,15 +150,17 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                     disabled={disabled || isUploading}
                     className="hidden"
                 />
-                <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => inputRef.current?.click()}
-                    disabled={disabled || isUploading}
-                >
-                    {isUploading ? 'Uploading...' : 'Upload Image'}
-                </Button>
+                {!autoOpen && (
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => inputRef.current?.click()}
+                        disabled={disabled || isUploading}
+                    >
+                        {isUploading ? 'Uploading...' : 'Upload Image'}
+                    </Button>
+                )}
                 {currentImageUrl && (
                     <Button
                         type="button"

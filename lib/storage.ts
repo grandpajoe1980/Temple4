@@ -187,25 +187,29 @@ async function calculateTenantStorageUsage(tenantId: string): Promise<number> {
  * @returns UploadResult with URL and storage metadata
  */
 export async function uploadFile(
-  tenantId: string,
+  tenantId: string | undefined,
   file: Buffer,
   category: FileCategory,
   mimeType: string,
-  originalName: string
+  originalName: string,
+  ownerUserId?: string
 ): Promise<UploadResult> {
   const fileSize = file.length;
 
   // Validate file
   validateFile(mimeType, fileSize, category);
 
-  // Check storage quota
-  await checkStorageQuota(tenantId, fileSize);
+  // Check storage quota for tenant-scoped files only
+  if (tenantId) {
+    await checkStorageQuota(tenantId, fileSize);
+  }
 
   // Generate unique filename
   const filename = generateUniqueFilename(originalName);
 
-  // Build storage key
-  const storageKey = `${tenantId}/${category}/${filename}`;
+  // Build storage key. If tenantId missing, store under users/{ownerUserId}
+  const basePath = tenantId ? `${tenantId}/${category}` : `users/${ownerUserId ?? 'anonymous'}/${category}`;
+  const storageKey = `${basePath}/${filename}`;
 
   // Local storage implementation
   if (config.type === 'local') {

@@ -1,0 +1,51 @@
+import fs from 'fs';
+import path from 'path';
+import TENANTS from '../prisma/tenantBlueprint';
+
+// A tiny 200x200 PNG (single-color) encoded as base64. This keeps the repo light;
+// the script will decode it and write multiple files.
+const samplePngBase64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAAGXRFWHRTb2Z0d2FyZQBBZG' +
+  '9iZSBJbWFnZVJlYWR5ccllPAAABH1JREFUeNrs3c1y2kAQB/Dv//1xk0QkRZgkq2bK6cF7i' +
+  'Q0nYp9sI2wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwG7K5A6wA' +
+  'AAAAAAAAAAAAAAAAAAAAAAAAAAB8Gf8AANgnf2cAANgk8x0AAACAdwYAAAAAAAAAAAAAA' +
+  'AAAAAAD4B0cAAAB4GgAAAAAAAAAAAAAAAAAAAAAA+AdHAAAAeBoAAAAAAAAAAAAAAAAAAA' +
+  'AAAA+AdHAAAAeBoAAAAAAAAAAAAAAAAAAAAAA+AdHAAAAeBoAAAAAAAAAAAAAAAAAAAAAA' +
+  '+AdHAAAAeBoAAAAAAAAAAAAAAAAAAAAAA+AdHAAAAeBoAAAAAAAAAAAAAAAAAAAAAA+Ad' +
+  'HAAAAeBoAAAAAAAAAAAAAAAAAAAAAA+AdHAAAAeBoAAAAAAAAAAAAAAAAAAAAAA+AdHAA' +
+  'AAeBoAAAAAAAAAAAAAAAAAAAAAA+AdHAAAAeBoAAAAAAAAAAAAAAAAAAAAAA+AdHAAAAe' +
+  'BoAAAAAAAAAAAAAAAAAAAAAA+AdHAAAAeBoAAAAAAAAAAAAAAAAAAAAAA+AdHAAAAeBoA' +
+  'AAAAAAAAAAAAAAAAAAAP4B6wABAP//AwD//wMA////AO8Gf1cAAAB4GgAAAAAAAAAAAAAA' +
+  'AAAAAAAAAAD4B0cAAAB4GgAAAAAAAAAAAAAAAAAAAAAA+AdHAAAAeBoAAAAAAAAAAAAAAAA' +
+  'AAAAAAAPgHRwAAAeBoAAAAAAAAAAAAAAAAAAAAAAAD+Af8AAAD//wMA//8DAAD//wMAAAAA' +
+  'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8Gf8AALYJ/3YAAABY0lEQVR42u3RAQ0AAAgDINc/' +
+  '9K3hAqAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' +
+  'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' +
+  'AAAAAAAAAAAAgD8Gf0AAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' +
+  'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfwZ/QAABwAAAAAAAAAAAAAAAAAAAAAAA' +
+  'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' +
+  'AAAAAODnAAYAAQDk8Z8AAAAASUVORK5CYII=';
+
+async function main() {
+  const outBase = path.join(process.cwd(), 'public', 'seed', 'photos');
+  await fs.promises.mkdir(outBase, { recursive: true });
+
+  for (const t of TENANTS) {
+    const slug = t.slug;
+    const dir = path.join(outBase, slug);
+    await fs.promises.mkdir(dir, { recursive: true });
+    // create 5 PNGs per tenant
+    for (let i = 0; i < 5; i++) {
+      const filePath = path.join(dir, `photo-${i + 1}.png`);
+      // write base64 to file as binary
+      await fs.promises.writeFile(filePath, samplePngBase64, { encoding: 'base64' });
+    }
+  }
+
+  console.log('Wrote local seed photos to public/seed/photos/<tenantSlug>/photo-#.png');
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

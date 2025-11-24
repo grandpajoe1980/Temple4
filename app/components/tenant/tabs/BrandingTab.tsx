@@ -108,15 +108,15 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
         <div>
           <label htmlFor="primaryColor" className="block text-sm font-medium text-gray-700">Primary Color</label>
           <div className="mt-1 flex items-center space-x-3">
-            <input type="color" id="primaryColor" name="primaryColor" value={tenant.branding.primaryColor} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
-            <Input id="primaryColorText" name="primaryColor" type="text" label="" value={tenant.branding.primaryColor} onChange={handleColorChange} />
+            <input type="color" id="primaryColor" name="primaryColor" value={tenant.branding.primaryColor ?? '#000000'} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
+            <Input id="primaryColorText" name="primaryColor" type="text" label="" value={tenant.branding.primaryColor ?? ''} onChange={handleColorChange} />
           </div>
         </div>
         <div>
           <label htmlFor="accentColor" className="block text-sm font-medium text-gray-700">Accent Color</label>
           <div className="mt-1 flex items-center space-x-3">
-            <input type="color" id="accentColor" name="accentColor" value={tenant.branding.accentColor} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
-            <Input id="accentColorText" name="accentColor" type="text" label="" value={tenant.branding.accentColor} onChange={handleColorChange} />
+            <input type="color" id="accentColor" name="accentColor" value={tenant.branding.accentColor ?? '#000000'} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
+            <Input id="accentColorText" name="accentColor" type="text" label="" value={tenant.branding.accentColor ?? ''} onChange={handleColorChange} />
           </div>
         </div>
       </div>
@@ -134,7 +134,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
                 label="Label"
                 id={`linkLabel-${index}`}
                 name="label"
-                value={link.label}
+                value={link.label ?? ''}
                 onChange={(e) => handleLinkChange(index, 'label', e.target.value)}
                 placeholder="e.g., Our Website"
               />
@@ -143,7 +143,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
                 id={`linkUrl-${index}`}
                 name="url"
                 type="url"
-                value={link.url}
+                value={link.url ?? ''}
                 onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
                 placeholder="https://..."
               />

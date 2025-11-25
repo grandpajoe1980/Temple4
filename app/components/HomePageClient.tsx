@@ -38,7 +38,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
 
   // platform highlights removed per design
 
-  const memberTenants = tenants.slice(0, 4);
+  const memberTenants = tenants;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f7f4ff] via-white to-[#fff8ee]">
@@ -73,6 +73,45 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                   />
                 </div>
               </form>
+
+              {memberTenants.length > 0 && (
+                <div className="mt-6 w-full">
+                  <div className="mb-3 flex items-center justify-between gap-4">
+                    <h2 className="text-lg font-semibold text-slate-900">Your temples</h2>
+                    <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      {memberTenants.length} {memberTenants.length === 1 ? 'membership' : 'memberships'}
+                    </span>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {memberTenants.map((tenant) => {
+                      const logoUrl = tenant.branding?.logoUrl || '';
+                      const initial = tenant.name?.slice(0, 1).toUpperCase() || '?';
+                      return (
+                        <button
+                          key={tenant.id}
+                          onClick={() => router.push(`/tenants/${tenant.id}`)}
+                          className="group flex w-full items-center gap-4 rounded-2xl border border-white/80 bg-white/90 px-4 py-3 text-left shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+                        >
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 ring-1 ring-amber-100 overflow-hidden">
+                            {logoUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={logoUrl} alt={`${tenant.name} logo`} className="h-full w-full object-cover" />
+                            ) : (
+                              <span className="text-lg font-semibold">{initial}</span>
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-sm font-semibold text-slate-900">{tenant.name}</span>
+                            <span className="text-xs text-slate-500 line-clamp-1">
+                              {tenant.creed || 'Member community'}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

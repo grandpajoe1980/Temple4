@@ -113,10 +113,14 @@ const SiteHeader = () => {
 
   const stickyOffsetStyle = { top: 'var(--impersonation-banner-offset, 0px)' } as const;
 
+  // expose the header height to other components so their sticky offsets can align
+  // with this header. Keep value in sync with Tailwind spacing used elsewhere.
+  const headerStyle = { ...stickyOffsetStyle, ['--site-header-height' as any]: '4.5rem' } as any;
+
   return (
     <header
       className="sticky z-40 border-b border-white/30 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
-      style={stickyOffsetStyle}
+      style={headerStyle}
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4">

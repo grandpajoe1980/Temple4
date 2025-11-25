@@ -12,8 +12,8 @@ export default async function TenantContentPage({ params }: { params: Promise<{ 
 
   return (
     <div className="space-y-8">
-      <div className="sticky top-[4.5rem] z-10 -mx-4 sm:-mx-6 lg:-mx-8">
-        <div className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-3">
+      <div className="sticky z-10 -mx-4 sm:-mx-6 lg:-mx-8" style={{ top: 'var(--site-header-height)' }}>
+        <div className="bg-white/90 backdrop-blur-sm border-t border-gray-200 border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex flex-wrap gap-3">
             <ContentChip href={`/tenants/${tenant.id}/photos`} label="Photos" />
             <ContentChip href={`/tenants/${tenant.id}/podcasts`} label="Podcasts" />

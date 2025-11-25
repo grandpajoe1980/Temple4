@@ -152,34 +152,36 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
   };
 
   return (
-    <Card className="!p-0">
-        <div className="px-6 pt-6">
-            <h2 className="text-2xl font-bold text-gray-900">Control Panel</h2>
-            <p className="mt-1 text-sm text-gray-500">Manage settings for {tenant.name}.</p>
+    <div className="space-y-6">
+      <div className="sticky top-[4.5rem] z-10 -mx-4 sm:-mx-6 lg:-mx-8">
+        <div className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex flex-wrap gap-3">
+            {(availableTabs || CONTROL_PANEL_TABS).map((tab) => {
+              const slug = slugFor(tab);
+              const isActive = tab === activeTab;
+              return (
+                <Link
+                  key={tab}
+                  href={`/tenants/${tenant.id}/settings${slug ? `?category=${slug}` : ''}`}
+                  className={`rounded-full border px-4 py-2 text-sm transition-colors ${isActive ? 'border-amber-500 bg-amber-100 text-amber-800' : 'border-gray-200 text-gray-600 hover:border-amber-300'}`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </Link>
+              );
+            })}
+          </div>
         </div>
-        <div className="px-6 mt-4">
-             {/* Replace tabs with chips-style navigation (wraps to multiple rows) */}
-             <div className="flex flex-wrap gap-3">
-               {(availableTabs || CONTROL_PANEL_TABS).map((tab) => {
-                 const slug = slugFor(tab);
-                 const isActive = tab === activeTab;
-                 return (
-                   <Link
-                     key={tab}
-                     href={`/tenants/${tenant.id}/settings${slug ? `?category=${slug}` : ''}`}
-                     className={`rounded-full border px-4 py-2 text-sm transition-colors ${isActive ? 'border-amber-500 bg-amber-100 text-amber-800' : 'border-gray-200 text-gray-600 hover:border-amber-300'}`}
-                     onClick={() => setActiveTab(tab)}
-                   >
-                     {tab}
-                   </Link>
-                 );
-               })}
-             </div>
-        </div>
-      <div className="p-6">
-        {renderTabContent()}
       </div>
-    </Card>
+
+      <Card className="!p-0">
+        <div className="px-6 pt-6">
+          <h2 className="text-2xl font-bold text-gray-900">Control Panel</h2>
+          <p className="mt-1 text-sm text-gray-500">Manage settings for {tenant.name}.</p>
+        </div>
+        <div className="p-6">{renderTabContent()}</div>
+      </Card>
+    </div>
   );
 };
 

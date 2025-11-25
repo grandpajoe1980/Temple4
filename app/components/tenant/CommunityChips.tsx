@@ -42,8 +42,8 @@ export default function CommunityChips({ tenantId }: { tenantId: string }) {
 
   return (
     <>
-      <div className="fixed top-16 left-0 right-0 z-30 bg-white/80 backdrop-blur-sm border-b border-gray-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
+      <div className="sticky top-[4.5rem] z-10 -mx-4 sm:-mx-6 lg:-mx-8">
+        <div className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex flex-wrap gap-3">
             {items.map((it) => {
               const enabled = !it.feature || Boolean(settings?.[it.feature]);
@@ -61,8 +61,6 @@ export default function CommunityChips({ tenantId }: { tenantId: string }) {
           </div>
         </div>
       </div>
-
-      <div aria-hidden className="h-14" />
     </>
   );
 }

@@ -12,7 +12,7 @@ export default function CommunityHeader({
   actions?: React.ReactNode;
 }) {
   // Position directly under the site header + tenant nav. Use tenant nav height CSS variable.
-  const topStyle = { top: 'calc(var(--site-header-height) + var(--tenant-nav-height))' } as React.CSSProperties;
+  const topStyle = { top: 'calc(var(--site-header-height, 4.5rem) + var(--tenant-nav-height, 6rem))' } as React.CSSProperties;
 
   // Use a fixed position so the header remains visible regardless of scroll container.
   // Expose a CSS variable for the community header height so we can reserve space.

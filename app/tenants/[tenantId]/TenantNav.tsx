@@ -66,6 +66,7 @@ const serviceSubItems: { key: string; label: string; path: string }[] = [
 export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const pathname = usePathname();
   const basePath = `/tenants/${tenant.id}`;
+  const navRef = React.useRef<HTMLElement | null>(null);
   const deriveLockedSubmenu = React.useCallback((): SubmenuKey | null => {
     if (
       pathname.startsWith(`${basePath}/content`) ||
@@ -108,6 +109,12 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     services: { show: servicesShowTimer, hide: servicesHideTimer },
     settings: { show: settingsShowTimer, hide: settingsHideTimer },
   };
+
+  const updateNavHeightVar = React.useCallback(() => {
+    if (!navRef.current) return;
+    const height = navRef.current.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--tenant-nav-height', `${height}px`);
+  }, []);
 
   const clearTimer = (timerRef: React.MutableRefObject<NodeJS.Timeout | null>) => {
     if (timerRef.current) {
@@ -155,6 +162,17 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     setActiveSubmenu(lockedSubmenu);
   }, [lockedSubmenu]);
 
+  React.useEffect(() => {
+    const handleResize = () => updateNavHeightVar();
+    updateNavHeightVar();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [updateNavHeightVar]);
+
+  React.useEffect(() => {
+    updateNavHeightVar();
+  }, [activeSubmenu, updateNavHeightVar]);
+
   const isFeatureEnabled = (feature?: NavItemFeature) =>
     !feature || (tenant.settings ? Boolean(tenant.settings[feature as keyof TenantSettings]) : false);
 
@@ -192,7 +210,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   };
 
   return (
-    <nav className="border-t border-gray-200" style={{ ['--tenant-nav-height' as any]: '6rem' }}>
+    <nav ref={navRef} className="border-t border-gray-200" style={{ ['--tenant-nav-height' as any]: '6rem' }}>
       <div className="-mb-px flex flex-wrap items-stretch gap-4 border-b border-gray-200 pb-1">
         {navItems.map((item) => {
           const isEnabled = isFeatureEnabled(item.feature);

@@ -66,7 +66,34 @@ const serviceSubItems: { key: string; label: string; path: string }[] = [
 export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const pathname = usePathname();
   const basePath = `/tenants/${tenant.id}`;
-  const [activeSubmenu, setActiveSubmenu] = React.useState<SubmenuKey | null>(null);
+  const deriveLockedSubmenu = React.useCallback((): SubmenuKey | null => {
+    if (
+      pathname.startsWith(`${basePath}/content`) ||
+      contentSubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))
+    ) {
+      return 'content';
+    }
+
+    if (
+      pathname.startsWith(`${basePath}/community`) ||
+      communitySubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))
+    ) {
+      return 'community';
+    }
+
+    if (pathname.startsWith(`${basePath}/services`)) {
+      return 'services';
+    }
+
+    if (pathname.startsWith(`${basePath}/settings`)) {
+      return 'settings';
+    }
+
+    return null;
+  }, [basePath, pathname]);
+
+  const lockedSubmenu = React.useMemo(() => deriveLockedSubmenu(), [deriveLockedSubmenu]);
+  const [activeSubmenu, setActiveSubmenu] = React.useState<SubmenuKey | null>(lockedSubmenu);
   const contentShowTimer = React.useRef<NodeJS.Timeout | null>(null);
   const contentHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const communityShowTimer = React.useRef<NodeJS.Timeout | null>(null);
@@ -94,6 +121,8 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   };
 
   const scheduleShow = (key: SubmenuKey) => {
+    if (lockedSubmenu) return;
+
     const showTimer = submenuTimers[key].show;
     const hideTimer = submenuTimers[key].hide;
     clearTimer(hideTimer);
@@ -102,6 +131,8 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   };
 
   const scheduleHide = (key: SubmenuKey) => {
+    if (lockedSubmenu) return;
+
     const showTimer = submenuTimers[key].show;
     const hideTimer = submenuTimers[key].hide;
     clearTimer(showTimer);
@@ -119,6 +150,10 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
       });
     };
   }, []);
+
+  React.useEffect(() => {
+    setActiveSubmenu(lockedSubmenu);
+  }, [lockedSubmenu]);
 
   const isFeatureEnabled = (feature?: NavItemFeature) =>
     !feature || (tenant.settings ? Boolean(tenant.settings[feature as keyof TenantSettings]) : false);
@@ -158,7 +193,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
 
   return (
     <nav className="border-t border-gray-200">
-      <div className="-mb-px flex flex-wrap items-stretch gap-4">
+      <div className="-mb-px flex flex-wrap items-stretch gap-4 border-b border-gray-200 pb-1">
         {navItems.map((item) => {
           const isEnabled = isFeatureEnabled(item.feature);
           if (!isEnabled) return null;
@@ -243,7 +278,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
         })}
       </div>
 
-      <div className="mt-2 space-y-2">
+      <div className="space-y-2 border-t border-gray-200 pt-1">
         {renderSubmenu('content', contentSubItems)}
         {renderSubmenu('community', communitySubItems)}
         {renderSubmenu('services', serviceSubItems)}

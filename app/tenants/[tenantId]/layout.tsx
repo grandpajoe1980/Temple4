@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { getTenantById, getUserById } from '@/lib/data';
 import { hasRole, can } from '@/lib/permissions';
 import { TenantRole } from '@/types';
-// TenantNav removed — navigation moved into the hamburger menu
+import TenantNav from './TenantNav';
 import TenantFooter from './TenantFooter';
 
 export default async function TenantLayout({
@@ -47,9 +47,9 @@ export default async function TenantLayout({
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <header className="bg-white shadow-sm sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="py-3">
-              {/* Tenant navigation removed; links available in tenant hamburger */}
-            </div>
+          <div className="py-3">
+            <TenantNav tenant={tenant} canViewSettings={canViewSettings} />
+          </div>
         </div>
       </header>
       <main className="py-10 flex-grow">

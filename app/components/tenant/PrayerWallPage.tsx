@@ -7,6 +7,7 @@ import PrayerPostCard from './PrayerPostCard';
 import SubmitPrayerPostForm from './forms/SubmitPrayerPostForm';
 import { CommunityPostStatus, CommunityPostType } from '@/types';
 import CommunityChips from './CommunityChips';
+import CommunityHeader from './CommunityHeader';
 
 async function fetchCommunityPosts(tenantId: string) {
   const response = await fetch(`/api/tenants/${tenantId}/community-posts`, { cache: 'no-store' });
@@ -100,15 +101,11 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={tenant.id} />
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Community Prayer Wall</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Share prayer requests and tangible needs with the {tenant.name} community.
-          </p>
-        </div>
-        <Button onClick={() => setIsModalOpen(true)}>+ Submit a Request</Button>
-      </div>
+      <CommunityHeader
+        title={<>Community Prayer Wall</>}
+        subtitle={<>Share prayer requests and tangible needs with the {tenant.name} community.</>}
+        actions={<Button onClick={() => setIsModalOpen(true)}>+ Submit a Request</Button>}
+      />
 
       {posts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

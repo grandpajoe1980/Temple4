@@ -47,7 +47,7 @@ export default async function TenantLayout({
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <header className="sticky top-[4.5rem] z-30 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-3">
+          <div className="py-0">
             <TenantNav tenant={tenant} canViewSettings={canViewSettings} />
           </div>
         </div>

@@ -5,6 +5,7 @@ import Input from '../ui/Input';
 import MemberCard from './MemberCard';
 import type { MemberWithMembership, TenantWithRelations, UserWithProfileSettings } from '@/lib/data';
 import CommunityChips from './CommunityChips';
+import CommunityHeader from './CommunityHeader';
 
 interface MembersPageProps {
   tenant: Pick<TenantWithRelations, 'name'>;
@@ -30,12 +31,10 @@ const MembersPage: React.FC<MembersPageProps> = ({ tenant, user: _user, members,
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={(tenant as any).id} />
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Member Directory</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Find and connect with members of {tenant.name}.
-        </p>
-      </div>
+      <CommunityHeader
+        title={<>Member Directory</>}
+        subtitle={<>Find and connect with members of {tenant.name}.</>}
+      />
 
       <div className="max-w-md">
         <Input

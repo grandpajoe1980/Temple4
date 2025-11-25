@@ -7,6 +7,7 @@ import Modal from '../ui/Modal';
 import ResourceForm from './forms/ResourceForm';
 import ResourceItemCard from './ResourceItemCard';
 import CommunityChips from './CommunityChips';
+import CommunityHeader from './CommunityHeader';
 
 interface ResourceCenterPageProps {
   tenant: Tenant;
@@ -97,17 +98,11 @@ const ResourceCenterPage: React.FC<ResourceCenterPageProps> = ({ tenant, user, o
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={tenant.id} />
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Resource Center</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Downloadable files and resources from {tenant.name}.
-          </p>
-        </div>
-        {canUpload && (
-          <Button onClick={() => setIsModalOpen(true)}>+ Upload Resource</Button>
-        )}
-      </div>
+      <CommunityHeader
+        title={<>Resource Center</>}
+        subtitle={<>Downloadable files and resources from {tenant.name}.</>}
+        actions={canUpload ? <Button onClick={() => setIsModalOpen(true)}>+ Upload Resource</Button> : null}
+      />
 
       {resources.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

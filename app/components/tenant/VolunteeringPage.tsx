@@ -7,6 +7,7 @@ import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import VolunteerNeedForm from './forms/VolunteerNeedForm';
 import CommunityChips from './CommunityChips';
+import CommunityHeader from './CommunityHeader';
 
 interface VolunteeringPageProps {
   tenant: Pick<TenantWithRelations, 'id' | 'name'>;
@@ -40,13 +41,11 @@ const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={(tenant as any).id} />
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Volunteer Opportunities</h2>
-          <p className="mt-1 text-sm text-gray-500">Find ways to get involved and serve at {tenant.name}.</p>
-        </div>
-        <Button onClick={() => setIsModalOpen(true)}>+ New</Button>
-      </div>
+      <CommunityHeader
+        title={<>Volunteer Opportunities</>}
+        subtitle={<>Find ways to get involved and serve at {tenant.name}.</>}
+        actions={<Button onClick={() => setIsModalOpen(true)}>+ New</Button>}
+      />
 
       {needs.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

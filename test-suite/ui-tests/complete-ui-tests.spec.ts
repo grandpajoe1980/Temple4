@@ -77,17 +77,17 @@ test.describe('Complete UI Test Suite', () => {
       const path = require('path');
       const appDir = path.join(__dirname, '..', '..', 'app');
 
-      function toRoute(filePath: string) {
+      const toRoute = (filePath: string) => {
         // Convert file path like app/tenants/[tenantId]/facilities/page.tsx to route
         const rel = path.relative(appDir, filePath).replace(/\\/g, '/');
         if (!rel.endsWith('/page.tsx')) return null;
         const route = '/' + rel.replace('/page.tsx', '');
         return route === '/index' ? '/' : route;
-      }
+      };
 
       const discovered: string[] = [];
 
-      function walk(dir: string) {
+      const walk = (dir: string) => {
         const entries = fs.readdirSync(dir, { withFileTypes: true });
         for (const e of entries) {
           const full = path.join(dir, e.name);
@@ -97,7 +97,7 @@ test.describe('Complete UI Test Suite', () => {
             if (r) discovered.push(r);
           }
         }
-      }
+      };
 
       walk(appDir);
 
@@ -122,13 +122,13 @@ test.describe('Complete UI Test Suite', () => {
       try {
         const ids = await fetchTestResourceIds(TEST_TENANT_ID);
 
-        function replaceTokensInList(list: string[]) {
+        const replaceTokensInList = (list: string[]) => {
           return list.map((p) =>
             p.replace(/\[tenantId\]/g, TEST_TENANT_ID)
              .replace(/\[facilityId\]/g, ids.facilityId ?? '[facilityId]')
              .replace(/\[serviceId\]/g, ids.serviceId ?? '[serviceId]')
           );
-        }
+        };
 
         PAGES_TO_TEST.public = replaceTokensInList(PAGES_TO_TEST.public);
         PAGES_TO_TEST.authenticated = replaceTokensInList(PAGES_TO_TEST.authenticated);
@@ -136,11 +136,13 @@ test.describe('Complete UI Test Suite', () => {
         PAGES_TO_TEST.admin = replaceTokensInList(PAGES_TO_TEST.admin);
 
         console.log('Replaced placeholder tokens with seeded resource ids:', ids);
-      } catch (e) {
-        console.warn('Failed to fetch test resource ids:', e.message || e);
+      } catch (e: unknown) {
+        const err = e as any;
+        console.warn('Failed to fetch test resource ids:', err?.message ?? err);
       }
-    } catch (e) {
-      console.warn('Failed to auto-discover app pages for testing:', e.message || e);
+    } catch (e: unknown) {
+      const err = e as any;
+      console.warn('Failed to auto-discover app pages for testing:', err?.message ?? err);
     }
   });
 
@@ -179,8 +181,9 @@ test.describe('Complete UI Test Suite', () => {
         await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
         const hasDialog = await page.locator('[role="dialog"], .modal, [aria-modal="true"]').isVisible().catch(() => false);
         console.log('Reserve action result - dialog visible:', hasDialog);
-      } catch (e) {
-        console.warn('Failed to click reserve button:', e.message || e);
+      } catch (e: unknown) {
+        const err = e as any;
+        console.warn('Failed to click reserve button:', err?.message ?? err);
       }
     } else {
       console.log('No reserve/book button visible on facility detail');
@@ -227,8 +230,9 @@ test.describe('Complete UI Test Suite', () => {
         await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
         const hasDialog = await page.locator('[role="dialog"], .modal, [aria-modal="true"]').isVisible().catch(() => false);
         console.log('Reserve action result (user) - dialog visible:', hasDialog);
-      } catch (e) {
-        console.warn('Failed to click reserve button (user):', e.message || e);
+      } catch (e: unknown) {
+        const err = e as any;
+        console.warn('Failed to click reserve button (user):', err?.message ?? err);
       }
     } else {
       console.log('No reserve/book button visible on facility detail (user)');

@@ -10,6 +10,7 @@ import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 import { useToast } from '../ui/Toast';
 import CommunityChips from '../tenant/CommunityChips';
+import CommunityHeader from './CommunityHeader';
 
 interface PostsPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
@@ -53,19 +54,11 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={tenant.id} />
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Posts & Announcements</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Read the latest updates from {tenant.name}.
-          </p>
-        </div>
-        {canCreate && (
-            <Button onClick={() => setIsModalOpen(true)}>
-            + New Post
-            </Button>
-        )}
-      </div>
+      <CommunityHeader
+        title={<>Posts &amp; Announcements</>}
+        subtitle={<>Read the latest updates from {tenant.name}.</>}
+        actions={canCreate ? <Button onClick={() => setIsModalOpen(true)}>+ New Post</Button> : null}
+      />
 
       {posts.length > 0 ? (
         <div className="space-y-6">

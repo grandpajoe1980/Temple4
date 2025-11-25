@@ -192,7 +192,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   };
 
   return (
-    <nav className="border-t border-gray-200">
+    <nav className="border-t border-gray-200" style={{ ['--tenant-nav-height' as any]: '6rem' }}>
       <div className="-mb-px flex flex-wrap items-stretch gap-4 border-b border-gray-200 pb-1">
         {navItems.map((item) => {
           const isEnabled = isFeatureEnabled(item.feature);
@@ -278,7 +278,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
         })}
       </div>
 
-      <div className="space-y-2 border-t border-gray-200 pt-1">
+      <div className="space-y-2 border-t border-gray-200 pt-1 pb-0">
         {renderSubmenu('content', contentSubItems)}
         {renderSubmenu('community', communitySubItems)}
         {renderSubmenu('services', serviceSubItems)}

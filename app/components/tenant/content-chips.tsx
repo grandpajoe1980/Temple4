@@ -2,11 +2,22 @@
 
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 type ContentKey = 'Photos' | 'Podcasts' | 'Sermons' | 'Books' | 'Live Stream' | string;
 
 export default function ContentChips({ tenantId, active }: { tenantId: string; active?: ContentKey }) {
   const [settings, setSettings] = useState<Record<string, any> | null>(null);
+  const pathname = usePathname();
+
+  // If TenantNav is already rendering the content submenu for this tenant
+  // (e.g. when viewing `/tenants/:id/photos`, `/podcasts`, `/sermons`, `/books`, `/livestream` or `/content`)
+  // don't render the fixed chips to avoid a duplicate menu.
+  const contentPaths = ['/photos', '/podcasts', '/sermons', '/books', '/livestream', '/content'];
+  const base = `/tenants/${tenantId}`;
+  const isTenantContentRoute = Boolean(pathname && contentPaths.some((p) => pathname.startsWith(`${base}${p}`)));
+
+  if (isTenantContentRoute) return null;
 
   useEffect(() => {
     let mounted = true;

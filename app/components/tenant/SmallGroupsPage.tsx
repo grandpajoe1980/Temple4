@@ -6,6 +6,7 @@ import SmallGroupCard from './SmallGroupCard';
 import SmallGroupDetail from './SmallGroupDetail';
 import Button from '../ui/Button';
 import CommunityChips from './CommunityChips';
+import CommunityHeader from './CommunityHeader';
 
 // Match the enriched type returned by getSmallGroupsForTenant
 type EnrichedSmallGroup = {
@@ -89,20 +90,11 @@ const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, groups,
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={(tenant as any).id} />
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Small Groups</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Find a group to connect with at {tenant.name}. Join to access the dedicated group chat and shared resources.
-        </p>
-        </div>
-        <div>
-          {/* Show create button to tenant admins */}
-          {isAdmin && (
-            <Button variant="primary" onClick={handleCreate} disabled={creating}>{creating ? 'Creating…' : 'Create Group'}</Button>
-          )}
-        </div>
-      </div>
+      <CommunityHeader
+        title={<>Small Groups</>}
+        subtitle={<>Find a group to connect with at {tenant.name}. Join to access the dedicated group chat and shared resources.</>}
+        actions={isAdmin ? <Button variant="primary" onClick={handleCreate} disabled={creating}>{creating ? 'Creating…' : 'Create Group'}</Button> : null}
+      />
 
       {activeGroups.length > 0 ? (
         <div className="flex flex-col lg:flex-row gap-6">

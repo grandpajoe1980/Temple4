@@ -2,12 +2,32 @@
 
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 type TenantSettingsLike = Record<string, any> | null;
 
 export default function CommunityChips({ tenantId }: { tenantId: string }) {
   const base = `/tenants/${tenantId}`;
   const [settings, setSettings] = useState<TenantSettingsLike>(null);
+  const pathname = usePathname();
+
+  // Hide these chips when TenantNav is already showing the community submenu
+  const communityPaths = [
+    '/community',
+    '/posts',
+    '/community/wall',
+    '/calendar',
+    '/prayer-wall',
+    '/members',
+    '/staff',
+    '/chat',
+    '/small-groups',
+    '/volunteering',
+    '/resources',
+  ];
+  const isTenantCommunityRoute = Boolean(pathname && communityPaths.some((p) => pathname.startsWith(`${base}${p}`)));
+
+  if (isTenantCommunityRoute) return null;
 
   useEffect(() => {
     let mounted = true;

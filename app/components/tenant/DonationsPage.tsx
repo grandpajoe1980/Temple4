@@ -122,10 +122,22 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
 
   useEffect(() => {
     let isMounted = true;
+    // If leaderboards are not enabled for this tenant, skip fetching leaderboard records
+    if (!settings.leaderboardEnabled) {
+      setDonations([]);
+      return () => { isMounted = false; };
+    }
+
     (async () => {
       try {
         const res = await fetch(`/api/tenants/${tenant.id}/donations/records`);
-        if (!res.ok) throw new Error('Failed to load donations');
+        if (!res.ok) {
+          // Non-OK responses are expected in some cases (e.g. permission/disabled).
+          // Read the server message for debugging but don't throw to avoid noisy errors.
+          const err = await res.json().catch(() => ({}));
+          console.debug('Donations API returned non-OK response', res.status, err);
+          return;
+        }
         const data = await res.json();
         // API returns { leaderboard, timeframe }
         const records = data.leaderboard || [];
@@ -204,7 +216,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Select an Amount ({settings.currency})</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {settings.suggestedAmounts.map((amount: number) => (
+                {suggestedAmounts.map((amount: number) => (
                   <button type="button" key={amount} onClick={() => setSelectedAmount(amount)}
                     className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === amount ? 'bg-amber-100 border-amber-500 text-amber-800' : 'bg-white border-gray-300 hover:border-amber-400'}`}
                   >

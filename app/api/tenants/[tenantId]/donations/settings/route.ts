@@ -17,6 +17,18 @@ const donationSettingsSchema = z.object({
   leaderboardEnabled: z.boolean(),
   leaderboardVisibility: z.enum(['PUBLIC', 'MEMBERS_ONLY']),
   leaderboardTimeframe: z.enum(['ALL_TIME', 'YEARLY', 'MONTHLY']),
+  paypalUrl: z.string().url().optional(),
+  venmoHandle: z.string().optional(),
+  zelleEmail: z.string().email().optional(),
+  cashAppTag: z.string().optional(),
+  mailingAddress: z.string().optional(),
+  taxId: z.string().optional(),
+  bankTransferInstructions: z.string().optional(),
+  textToGiveNumber: z.string().optional(),
+  otherGivingNotes: z.string().optional(),
+  otherGivingLinks: z
+    .array(z.object({ label: z.string(), url: z.string().url() }))
+    .optional(),
 });
 
 // GET /api/tenants/[tenantId]/donations/settings - Get donation settings

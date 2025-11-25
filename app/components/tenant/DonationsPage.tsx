@@ -26,6 +26,31 @@ interface LeaderboardProps {
     donations: EnrichedDonationRecord[];
 }
 
+const formatTimeframeLabel = (timeframe?: DonationSettings['leaderboardTimeframe']) =>
+    (timeframe ?? 'ALL_TIME').replace('_', ' ').toLowerCase();
+
+const DEFAULT_SUGGESTED_AMOUNTS = [5, 10, 25, 50, 100];
+const defaultDonationSettings: DonationSettings = {
+  mode: 'EXTERNAL',
+  externalUrl: '',
+  currency: 'USD',
+  suggestedAmounts: DEFAULT_SUGGESTED_AMOUNTS,
+  allowCustomAmounts: true,
+  leaderboardEnabled: false,
+  leaderboardVisibility: 'PUBLIC',
+  leaderboardTimeframe: 'ALL_TIME',
+  paypalUrl: '',
+  venmoHandle: '',
+  zelleEmail: '',
+  cashAppTag: '',
+  mailingAddress: '',
+  taxId: '',
+  bankTransferInstructions: '',
+  textToGiveNumber: '',
+  otherGivingNotes: '',
+  otherGivingLinks: [],
+};
+
 const leaderboardTimeframeFilter = (
     donations: EnrichedDonationRecord[],
     timeframe: DonationSettings['leaderboardTimeframe'],
@@ -47,7 +72,7 @@ const leaderboardTimeframeFilter = (
 };
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ tenant, donations }) => {
-    const timeframe = tenant.settings.donationSettings.leaderboardTimeframe;
+    const timeframe = tenant.settings?.donationSettings?.leaderboardTimeframe ?? 'ALL_TIME';
     const filteredDonations = useMemo(
         () => leaderboardTimeframeFilter(donations, timeframe),
         [donations, timeframe],
@@ -74,7 +99,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tenant, donations }) => {
     }, [filteredDonations]);
 
     return (
-        <Card title={`Top Donors (${timeframe.replace('_', ' ').toLowerCase()})`}>
+        <Card title={`Top Donors (${formatTimeframeLabel(timeframe)})`}>
             {aggregatedDonations.length > 0 ? (
                  <ul className="divide-y divide-gray-200">
                     {aggregatedDonations.map((donor, index) => (
@@ -99,18 +124,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tenant, donations }) => {
 
 
 const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }) => {
-  const defaultSettings: DonationSettings = {
-    mode: 'EXTERNAL',
-    currency: 'USD',
-    suggestedAmounts: [],
-    allowCustomAmounts: true,
-    leaderboardEnabled: false,
-    leaderboardVisibility: 'PUBLIC',
-    leaderboardTimeframe: 'ALL_TIME',
-  };
-
-  const settings = tenant.settings?.donationSettings || defaultSettings;
-  const suggestedAmounts = settings.suggestedAmounts || [];
+  const settings = { ...defaultDonationSettings, ...(tenant.settings?.donationSettings || {}) };
+  const suggestedAmounts = settings.suggestedAmounts?.length
+    ? settings.suggestedAmounts
+    : DEFAULT_SUGGESTED_AMOUNTS;
   const [selectedAmount, setSelectedAmount] = useState<number | 'custom'>(
     () => suggestedAmounts[0] ?? 'custom',
   );
@@ -150,7 +167,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
     return () => {
       isMounted = false;
     };
-  }, [tenant.id]);
+  }, [settings.leaderboardEnabled, tenant.id]);
 
   const handleDonate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,6 +176,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
         alert('Please enter a valid donation amount.');
         return;
     }
+    const displayName = (user.profile?.displayName || '').trim() || 'Anonymous Donor';
     (async () => {
       try {
         const res = await fetch(`/api/tenants/${tenant.id}/donations/records`, {
@@ -167,12 +185,15 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
           body: JSON.stringify({
             amount,
             currency: settings.currency,
-            displayName: user.profile?.displayName,
+            displayName,
             isAnonymousOnLeaderboard: isAnonymous,
             message,
           }),
         });
-        if (!res.ok) throw new Error('Failed to submit donation');
+        if (!res.ok) {
+          const errorBody = await res.json().catch(() => ({}));
+          throw new Error(errorBody.message || 'Failed to submit donation');
+        }
         onRefresh?.();
         setIsSubmitted(true);
       } catch (error) {
@@ -182,6 +203,52 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
     })();
   };
   
+  const givingMethods = useMemo(() => {
+    const methods: Array<{ key: string; label: string; value: string; href?: string; isMultiline?: boolean }> = [];
+
+    if (settings.paypalUrl) methods.push({ key: 'paypal', label: 'PayPal', value: settings.paypalUrl, href: settings.paypalUrl });
+    if (settings.venmoHandle) {
+      const handle = settings.venmoHandle.replace('@', '');
+      methods.push({
+        key: 'venmo',
+        label: 'Venmo',
+        value: `@${handle}`,
+        href: `https://venmo.com/${handle}`,
+      });
+    }
+    if (settings.zelleEmail) methods.push({ key: 'zelle', label: 'Zelle', value: settings.zelleEmail });
+    if (settings.cashAppTag) {
+      const tag = settings.cashAppTag.replace(/^\$/, '');
+      methods.push({ key: 'cashapp', label: 'Cash App', value: `$${tag}`, href: `https://cash.app/$${tag}` });
+    }
+    if (settings.textToGiveNumber) methods.push({ key: 'text', label: 'Text-to-Give', value: settings.textToGiveNumber });
+    if (settings.bankTransferInstructions) methods.push({
+      key: 'bank',
+      label: 'Bank Transfer / ACH',
+      value: settings.bankTransferInstructions,
+      isMultiline: true,
+    });
+    if (settings.mailingAddress) methods.push({
+      key: 'check',
+      label: 'Mail a Check',
+      value: settings.mailingAddress,
+      isMultiline: true,
+    });
+    settings.otherGivingLinks?.forEach((link, index) => {
+      if (link.label && link.url) {
+        methods.push({ key: `other-${index}`, label: link.label, value: link.url, href: link.url });
+      }
+    });
+    if (settings.otherGivingNotes) methods.push({
+      key: 'other-notes',
+      label: 'Other Ways to Give',
+      value: settings.otherGivingNotes,
+      isMultiline: true,
+    });
+
+    return methods;
+  }, [settings.bankTransferInstructions, settings.cashAppTag, settings.mailingAddress, settings.otherGivingLinks, settings.otherGivingNotes, settings.paypalUrl, settings.textToGiveNumber, settings.venmoHandle, settings.zelleEmail]);
+
   if (isSubmitted) {
       return (
         <Card>
@@ -194,80 +261,132 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
       );
   }
 
+  const renderGivingOptions = () => {
+    const hasGivingOptions = givingMethods.length > 0 || settings.taxId;
+    if (!hasGivingOptions) return null;
+
+    return (
+      <Card title="Ways to Give">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {givingMethods.map((method) => (
+              <div key={method.key} className="p-4 rounded-lg border border-gray-200 bg-white">
+                <p className="text-sm font-semibold text-gray-900">{method.label}</p>
+                {method.href ? (
+                  <a className="text-amber-700 break-words" href={method.href} target="_blank" rel="noopener noreferrer">
+                    {method.value}
+                  </a>
+                ) : (
+                  <p className={`text-sm text-gray-700 whitespace-pre-wrap ${method.isMultiline ? '' : 'break-words'}`}>
+                    {method.value}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+          {settings.taxId && (
+            <p className="text-sm text-gray-600">
+              Tax ID / EIN: <span className="font-medium text-gray-900">{settings.taxId}</span>
+            </p>
+          )}
+        </div>
+      </Card>
+    );
+  };
+
+  const renderPledgeForm = (subtitle?: string) => (
+    <form onSubmit={handleDonate}>
+      <Card title="Make a Donation" description={subtitle || `Your support for ${tenant.name} is greatly appreciated.`}>
+        <div className="space-y-6">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">Select a Pledge Amount ({settings.currency})</label>
+              <span className="text-xs font-medium text-amber-700">Adds to the leaderboard</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {suggestedAmounts.map((amount: number) => (
+                <button type="button" key={amount} onClick={() => setSelectedAmount(amount)}
+                  className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === amount ? 'bg-amber-100 border-amber-500 text-amber-800' : 'bg-white border-gray-300 hover:border-amber-400'}`}
+                >
+                  ${amount}
+                </button>
+              ))}
+              {settings.allowCustomAmounts && (
+                   <button type="button" onClick={() => setSelectedAmount('custom')}
+                      className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === 'custom' ? 'bg-amber-100 border-amber-500 text-amber-800' : 'bg-white border-gray-300 hover:border-amber-400'}`}
+                   >
+                      Custom
+                  </button>
+              )}
+            </div>
+          </div>
+          {selectedAmount === 'custom' && settings.allowCustomAmounts && (
+              <Input 
+                  label="Custom Amount"
+                  id="customAmount"
+                  name="customAmount"
+                  type="number"
+                  step="0.01"
+                  min="1"
+                  value={customAmount}
+                  onChange={e => setCustomAmount(e.target.value)}
+                  placeholder="e.g., 75.50"
+                  required
+              />
+          )}
+           <div>
+              <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                Message (Optional)
+              </label>
+              <textarea id="message" name="message" rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+                  value={message} onChange={(e) => setMessage(e.target.value)}
+              />
+          </div>
+          <ToggleSwitch 
+              label="Remain Anonymous on Leaderboard"
+              enabled={isAnonymous}
+              onChange={setIsAnonymous}
+          />
+        </div>
+         <div className="text-right border-t border-gray-200 pt-6 mt-6">
+              <Button type="submit">Donate Now</Button>
+          </div>
+      </Card>
+    </form>
+  );
+
   const renderContent = () => {
     if (settings.mode === 'EXTERNAL') {
       return (
-        <Card>
-          <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-gray-800">Donate to {tenant.name}</h3>
-            <p className="mt-2 text-gray-600">This community accepts donations via an external service. Click the button below to be redirected.</p>
-            <a href={settings.externalUrl} target="_blank" rel="noopener noreferrer">
-              <Button className="mt-6">Proceed to Donation Site</Button>
-            </a>
-          </div>
-        </Card>
+        <>
+          <Card>
+            <div className="text-center py-12">
+              <h3 className="text-xl font-semibold text-gray-800">Donate to {tenant.name}</h3>
+              <p className="mt-2 text-gray-600">This community accepts donations via an external service. Click the button below to be redirected.</p>
+              <a href={settings.externalUrl} target="_blank" rel="noopener noreferrer">
+                <Button className="mt-6">Proceed to Donation Site</Button>
+              </a>
+            </div>
+          </Card>
+          {renderPledgeForm('Pledge an amount to be counted toward the leaderboard, then complete payment on the external site.')}
+        </>
       );
     }
 
-    return (
-      <form onSubmit={handleDonate}>
-        <Card title="Make a Donation" description={`Your support for ${tenant.name} is greatly appreciated.`}>
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Select an Amount ({settings.currency})</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {suggestedAmounts.map((amount: number) => (
-                  <button type="button" key={amount} onClick={() => setSelectedAmount(amount)}
-                    className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === amount ? 'bg-amber-100 border-amber-500 text-amber-800' : 'bg-white border-gray-300 hover:border-amber-400'}`}
-                  >
-                    ${amount}
-                  </button>
-                ))}
-                {settings.allowCustomAmounts && (
-                     <button type="button" onClick={() => setSelectedAmount('custom')}
-                        className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === 'custom' ? 'bg-amber-100 border-amber-500 text-amber-800' : 'bg-white border-gray-300 hover:border-amber-400'}`}
-                     >
-                        Custom
-                    </button>
-                )}
-              </div>
-            </div>
-            {selectedAmount === 'custom' && settings.allowCustomAmounts && (
-                <Input 
-                    label="Custom Amount"
-                    id="customAmount"
-                    name="customAmount"
-                    type="number"
-                    step="0.01"
-                    min="1"
-                    value={customAmount}
-                    onChange={e => setCustomAmount(e.target.value)}
-                    placeholder="e.g., 75.50"
-                    required
-                />
-            )}
-             <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                  Message (Optional)
-                </label>
-                <textarea id="message" name="message" rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
-                    value={message} onChange={(e) => setMessage(e.target.value)}
-                />
-            </div>
-            <ToggleSwitch 
-                label="Remain Anonymous on Leaderboard"
-                enabled={isAnonymous}
-                onChange={setIsAnonymous}
-            />
-          </div>
-           <div className="text-right border-t border-gray-200 pt-6 mt-6">
-                <Button type="submit">Donate Now</Button>
-            </div>
-        </Card>
-      </form>
-    );
+    return renderPledgeForm();
   };
+
+  if (!tenant.settings?.enableDonations) {
+    return (
+      <Card>
+        <div className="text-center py-12 space-y-3">
+          <h3 className="text-xl font-semibold text-gray-800">Donations are not enabled</h3>
+          <p className="text-gray-600">Please contact this community’s administrator for giving options.</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -283,6 +402,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
             {renderContent()}
+            {renderGivingOptions()}
         </div>
         <div className="lg:col-span-1">
              {settings.leaderboardEnabled && (

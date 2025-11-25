@@ -508,6 +508,16 @@ export interface DonationSettings {
   leaderboardEnabled: boolean;
   leaderboardVisibility: 'PUBLIC' | 'MEMBERS_ONLY';
   leaderboardTimeframe: 'ALL_TIME' | 'YEARLY' | 'MONTHLY';
+  paypalUrl?: string;
+  venmoHandle?: string;
+  zelleEmail?: string;
+  cashAppTag?: string;
+  mailingAddress?: string;
+  taxId?: string;
+  bankTransferInstructions?: string;
+  textToGiveNumber?: string;
+  otherGivingNotes?: string;
+  otherGivingLinks?: Array<{ label: string; url: string }>;
 }
 
 export interface DonationRecord {

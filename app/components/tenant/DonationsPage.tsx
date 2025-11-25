@@ -99,8 +99,21 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tenant, donations }) => {
 
 
 const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }) => {
-  const settings = tenant.settings.donationSettings;
-  const [selectedAmount, setSelectedAmount] = useState<number | 'custom'>(settings.suggestedAmounts[0] || 'custom');
+  const defaultSettings: DonationSettings = {
+    mode: 'EXTERNAL',
+    currency: 'USD',
+    suggestedAmounts: [],
+    allowCustomAmounts: true,
+    leaderboardEnabled: false,
+    leaderboardVisibility: 'PUBLIC',
+    leaderboardTimeframe: 'ALL_TIME',
+  };
+
+  const settings = tenant.settings?.donationSettings || defaultSettings;
+  const suggestedAmounts = settings.suggestedAmounts || [];
+  const [selectedAmount, setSelectedAmount] = useState<number | 'custom'>(
+    () => suggestedAmounts[0] ?? 'custom',
+  );
   const [customAmount, setCustomAmount] = useState('');
   const [message, setMessage] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);

@@ -121,13 +121,13 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   };
 
   const scheduleShow = (key: SubmenuKey) => {
-    if (lockedSubmenu) return;
+    if (lockedSubmenu && lockedSubmenu !== key) return;
 
     const showTimer = submenuTimers[key].show;
     const hideTimer = submenuTimers[key].hide;
     clearTimer(hideTimer);
     clearTimer(showTimer);
-    showTimer.current = setTimeout(() => setVisibleSubmenu(key), 300);
+    setVisibleSubmenu(key);
   };
 
   const scheduleHide = (key: SubmenuKey) => {

@@ -163,7 +163,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
       <div className="flex h-[calc(100vh-170px)] bg-white rounded-lg shadow-sm overflow-hidden">
         {/* Left Panel: Conversation List */}
         <div className="w-full sm:w-1/3 md:w-1/4 border-r border-gray-200 flex flex-col">
-          <div className="p-4 border-b border-gray-200 flex justify-between items-center sticky z-20" style={{ top: 'calc(var(--site-header-height) + 3rem)' }}>
+          <div className="p-4 border-b border-gray-200 flex justify-between items-center sticky z-20" style={{ top: 'calc(var(--site-header-height) + var(--tenant-nav-height, 3rem))' }}>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Channels</h2>
               <p className="text-sm text-gray-500">Conversations in {tenant.name}</p>

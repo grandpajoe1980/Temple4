@@ -10,6 +10,7 @@ import Modal from '@/app/components/ui/Modal';
 import EventForm from '@/app/components/tenant/EventForm';
 import DayEventsModal from '@/app/components/tenant/DayEventsModal';
 import CommunityChips from '@/app/components/tenant/CommunityChips';
+import CommunityHeader from '@/app/components/tenant/CommunityHeader';
 
 interface CalendarPageClientProps {
   events: EventWithCreator[];
@@ -102,17 +103,11 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
   return (
     <div className="space-y-4">
       <CommunityChips tenantId={tenantId} />
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Calendar</h1>
-          <p className="text-sm text-gray-600">Stay up to date with everything happening in your community.</p>
-        </div>
-        {canCreateEvent && (
-          <Link href={`/tenants/${tenantId}/calendar/new`}>
-            <Button>+ New Event</Button>
-          </Link>
-        )}
-      </div>
+      <CommunityHeader
+        title={<>Calendar</>}
+        subtitle={<>Stay up to date with everything happening in your community.</>}
+        actions={canCreateEvent ? (<Link href={`/tenants/${tenantId}/calendar/new`}><Button>+ New Event</Button></Link>) : null}
+      />
       <EventsCalendar events={calendarEvents} onDateClick={handleDateClick} />
       {selectedDate && (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg">

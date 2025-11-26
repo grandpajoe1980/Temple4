@@ -35,6 +35,29 @@ export default function ContentChips({ tenantId, active }: { tenantId: string; a
     };
   }, [tenantId]);
 
+  // Publish the spacer height globally so layout can account for it when calculating
+  // how much top padding the main content needs to leave so the subheader spacing
+  // ends up as a thin gap (15px) below the subheader.
+  useEffect(() => {
+    // The spacer rendered below is `h-14` (56px). Publish that value so layouts
+    // can subtract it when appropriate. Only set when the chips are visible.
+    if (!isTenantContentRoute) {
+      try {
+        document.documentElement.style.setProperty('--content-chips-spacer', '56px');
+      } catch (e) {
+        // ignore (server-side or restricted environments)
+      }
+      return () => {
+        try {
+          document.documentElement.style.removeProperty('--content-chips-spacer');
+        } catch (e) {
+          // ignore
+        }
+      };
+    }
+    return;
+  }, [isTenantContentRoute]);
+
   const chips: Array<{ href: string; label: ContentKey; feature?: string }> = [
     { href: `/tenants/${tenantId}/photos`, label: 'Photos', feature: 'enablePhotos' },
     { href: `/tenants/${tenantId}/podcasts`, label: 'Podcasts', feature: 'enablePodcasts' },
@@ -73,3 +96,4 @@ export default function ContentChips({ tenantId, active }: { tenantId: string; a
     )
   );
 }
+

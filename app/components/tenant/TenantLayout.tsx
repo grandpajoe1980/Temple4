@@ -265,7 +265,12 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
             {/* Top tenant navigation removed — links moved into hamburger menu */}
         </div>
       </header>
-       <main className="py-10">
+       <main
+         className="pb-10"
+         style={{
+           paddingTop: 'calc(var(--site-header-height, 4.5rem) + var(--tenant-nav-height, 6rem) + var(--community-header-height, 3.5rem) - var(--content-chips-spacer, 0px))',
+         }}
+       >
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {renderContent()}
         </div>

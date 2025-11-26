@@ -14,12 +14,15 @@ interface SmallGroupCardProps {
 }
 
 const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onUpdate, onOpen }) => {
-  const members = Array.isArray(group.members) ? group.members.filter(m => m && m.user && m.user.id) : [];
+  const members = Array.isArray(group.members)
+    ? group.members.filter(m => m && m.user && m.user.id && m.status !== 'REJECTED' && m.status !== 'BANNED')
+    : [];
   if (process.env.NODE_ENV === 'development' && Array.isArray(group.members) && group.members.length !== members.length) {
     // eslint-disable-next-line no-console
     console.warn('SmallGroupCard: filtered out invalid member entries for group', group.id, { originalCount: group.members.length, filteredCount: members.length });
   }
-  const isUserMember = members.some(m => m.user?.id === currentUser.id);
+  const isUserMember = members.some(m => m.user?.id === currentUser.id && m.status === 'APPROVED');
+  const isPendingMember = members.some(m => m.user?.id === currentUser.id && m.status === 'PENDING');
 
   const handleJoin = async () => {
     try {
@@ -84,6 +87,9 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
         return (
             <Button variant="secondary" onClick={handleLeave}>Leave Group</Button>
         );
+    }
+    if (isPendingMember) {
+      return <Button variant="secondary" disabled>Request Pending</Button>
     }
     return <Button onClick={handleJoin}>Join Group</Button>
   }

@@ -37,6 +37,8 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
   const [showTenantUsersModal, setShowTenantUsersModal] = useState(false);
   const [addingUserId, setAddingUserId] = useState<string | null>(null);
 
+  const currentMembership = group?.members?.find((m: any) => m.user?.id === currentUser?.id && m.status !== 'REJECTED' && m.status !== 'BANNED');
+
   useEffect(() => {
     if (!groupId) return;
     (async () => {
@@ -155,6 +157,28 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
             <p className="mt-2 text-sm text-gray-700">{group.description}</p>
           </div>
           <div className="flex space-x-2">
+            {currentMembership && (
+              <Button
+                variant="secondary"
+                onClick={async () => {
+                  if (!confirm('Leave this group?')) return;
+                  try {
+                    const res = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}/members/${currentUser.id}`, { method: 'DELETE' });
+                    if (!res.ok && res.status !== 204) {
+                      const body = await res.json().catch(() => ({}));
+                      throw new Error(body?.message || 'Failed to leave group');
+                    }
+                    if (onRefresh) onRefresh();
+                    if (onClose) onClose();
+                  } catch (err) {
+                    console.error(err);
+                    alert('Unable to leave the group.');
+                  }
+                }}
+              >
+                Leave Group
+              </Button>
+            )}
             <Button variant="ghost" onClick={() => onClose && onClose()}>Close</Button>
             <Button onClick={() => { if (onRefresh) onRefresh(); }}>Refresh</Button>
           </div>
@@ -190,7 +214,8 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
             <h4 className="text-sm font-semibold text-gray-700">Members</h4>
             {(() => {
               const isLeader = group.leader?.id === currentUser?.id || (group.members || []).some((mm: any) => mm.user?.id === currentUser?.id && (mm.role === 'LEADER' || mm.role === 'CO_LEADER'));
-              if (!isLeader) return null;
+              const canManageMembers = isLeader || !!isAdmin || !!(currentUser as any)?.isSuperAdmin;
+              if (!canManageMembers) return null;
               return (
                 <div className="mt-3">
                   <button
@@ -235,80 +260,101 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
                     </div>
                   </div>
                   <div>
-                    {m.status === 'PENDING' && (
-                      <span className="text-xs text-yellow-600 mr-3">Pending</span>
-                    )}
-                    {/* leader/admin actions */}
-                    {(() => {
-                      const isLeader = group.leader?.id === currentUser?.id || (group.members || []).some((mm: any) => mm.user?.id === currentUser?.id && (mm.role === 'LEADER' || mm.role === 'CO_LEADER'));
-                      if (!isLeader) return null;
+                    <div className="flex items-center space-x-2">
+                      {m.status === 'PENDING' && (
+                        <span className="text-xs text-yellow-600 mr-1">Pending</span>
+                      )}
+                      {/* leader/admin actions */}
+                      {(() => {
+                        const isLeader = group.leader?.id === currentUser?.id || (group.members || []).some((mm: any) => mm.user?.id === currentUser?.id && (mm.role === 'LEADER' || mm.role === 'CO_LEADER'));
+                        const canManage = isLeader || !!isAdmin || !!(currentUser as any)?.isSuperAdmin;
+                        if (!canManage) return null;
 
-                      return (
-                        <div className="flex items-center space-x-2">
-                          {m.status === 'PENDING' && (
+                        return (
+                          <div className="flex items-center space-x-2">
+                            {m.status === 'PENDING' && (
+                              <>
+                                <button
+                                  onClick={async () => {
+                                    if (!confirm('Approve this membership?')) return;
+                                    try {
+                                      const res = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}/members/${m.user.id}/approve`, { method: 'POST' });
+                                      if (!res.ok) throw new Error('Approve failed');
+                                      const updatedGroup = await (await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}`)).json();
+                                      setGroup(updatedGroup);
+                                    } catch (err) {
+                                      console.error(err);
+                                      alert('Failed to approve member');
+                                    } finally {
+                                      setLoading(false);
+                                      if (onRefresh) onRefresh();
+                                    }
+                                  }}
+                                  className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    if (!confirm('Reject this request?')) return;
+                                    try {
+                                      const res = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}/members/${m.user.id}/reject`, { method: 'POST' });
+                                      if (!res.ok) throw new Error('Reject failed');
+                                      const updatedGroup = await (await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}`)).json();
+                                      setGroup(updatedGroup);
+                                    } catch (err) {
+                                      console.error(err);
+                                      alert('Failed to reject member');
+                                    } finally {
+                                      setLoading(false);
+                                      if (onRefresh) onRefresh();
+                                    }
+                                  }}
+                                  className="text-xs px-2 py-1 bg-yellow-50 text-yellow-700 rounded"
+                                >
+                                  Reject
+                                </button>
+                              </>
+                            )}
                             <button
                               onClick={async () => {
-                                if (!confirm('Approve this membership?')) return;
+                                if (!confirm('Remove this member from the group?')) return;
                                 try {
-                                  const res = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}/members/${m.user.id}/approve`, { method: 'POST' });
-                                  if (!res.ok) throw new Error('Approve failed');
-                                  // refresh
                                   setLoading(true);
+                                  const res = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}/members/${m.user.id}`, { method: 'DELETE' });
+                                  if (!res.ok && res.status !== 204) {
+                                    let body: any = null;
+                                    try { body = await res.json(); } catch (_) { try { body = await res.text(); } catch (_) { body = null; } }
+                                    const msg = body && typeof body === 'object' ? (body.message || JSON.stringify(body)) : (body || res.statusText || `HTTP ${res.status}`);
+                                    throw new Error(String(msg));
+                                  }
+
+                                  // refresh group after successful remove
                                   const r = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}`);
+                                  if (!r.ok) {
+                                    let body: any = null;
+                                    try { body = await r.json(); } catch (_) { try { body = await r.text(); } catch (_) { body = null; } }
+                                    const msg = body && typeof body === 'object' ? (body.message || JSON.stringify(body)) : (body || r.statusText || `HTTP ${r.status}`);
+                                    throw new Error(`Failed to refresh group: ${msg}`);
+                                  }
                                   const data = await r.json();
                                   setGroup(data);
-                                } catch (err) {
-                                  console.error(err);
-                                  alert('Failed to approve member');
+                                } catch (err: any) {
+                                  console.error('Remove member error:', err);
+                                  alert((err && err.message) ? String(err.message) : 'Failed to remove member');
                                 } finally {
                                   setLoading(false);
                                   if (onRefresh) onRefresh();
                                 }
                               }}
-                              className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded"
+                              className="text-xs px-2 py-1 bg-red-50 text-red-700 rounded"
                             >
-                              Approve
+                              Remove
                             </button>
-                          )}
-                          <button
-                            onClick={async () => {
-                              if (!confirm('Remove this member from the group?')) return;
-                              try {
-                                setLoading(true);
-                                const res = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}/members/${m.user.id}/remove`, { method: 'POST' });
-                                if (!res.ok) {
-                                  // try to parse JSON error body, fall back to text/status
-                                  let body: any = null;
-                                  try { body = await res.json(); } catch (_) { try { body = await res.text(); } catch (_) { body = null; } }
-                                  const msg = body && typeof body === 'object' ? (body.message || JSON.stringify(body)) : (body || res.statusText || `HTTP ${res.status}`);
-                                  throw new Error(String(msg));
-                                }
-
-                                // refresh group after successful remove
-                                const r = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}`);
-                                if (!r.ok) {
-                                  let body: any = null;
-                                  try { body = await r.json(); } catch (_) { try { body = await r.text(); } catch (_) { body = null; } }
-                                  const msg = body && typeof body === 'object' ? (body.message || JSON.stringify(body)) : (body || r.statusText || `HTTP ${r.status}`);
-                                  throw new Error(`Failed to refresh group: ${msg}`);
-                                }
-                                const data = await r.json();
-                                setGroup(data);
-                              } catch (err: any) {
-                                console.error('Remove member error:', err);
-                                alert((err && err.message) ? String(err.message) : 'Failed to remove member');
-                              } finally {
-                                setLoading(false);
-                                if (onRefresh) onRefresh();
-                              }
-                            }}
-                            className="text-xs px-2 py-1 bg-red-50 text-red-700 rounded"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      );
-                    })()}
+                          </div>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </li>
               ))}

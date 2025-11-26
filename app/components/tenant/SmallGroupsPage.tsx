@@ -23,7 +23,13 @@ type EnrichedSmallGroup = {
     privacySettings: any;
     accountSettings: any;
   };
-  members: any[];
+  members: Array<{
+    id: string;
+    status: string;
+    role: string;
+    joinedAt: string;
+    user: any;
+  }>;
 };
 
 interface SmallGroupsPageProps {
@@ -54,8 +60,8 @@ const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, groups,
     if ((user as any)?.isSuperAdmin) return true;
     // leader sees their own hidden group
     if (g.leaderUserId === (user as any)?.id) return true;
-    // members: getSmallGroupsForTenant maps members to user objects (member.id === user.id)
-    if (Array.isArray(g.members) && g.members.some((m: any) => m && m.id === (user as any)?.id)) return true;
+    // members: getSmallGroupsForTenant maps members to membership objects (m.user.id === user.id)
+    if (Array.isArray(g.members) && g.members.some((m: any) => m && m.user?.id === (user as any)?.id && m.status === 'APPROVED')) return true;
     return false;
   });
 

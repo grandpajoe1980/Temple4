@@ -1338,7 +1338,7 @@ export async function getSmallGroupsForTenant(tenantId: string) {
         },
         orderBy: { name: 'asc' },
     });
-    
+
     // Fetch leaders separately for enrichment
     const enrichedGroups = await Promise.all(groups.map(async (group: any) => {
       let leader = null;
@@ -1360,18 +1360,22 @@ export async function getSmallGroupsForTenant(tenantId: string) {
           leader = null;
         }
       }
-        
+
         return {
           ...group,
           leader: leader || null,
           members: group.members.map((m: any) => ({
-            ...m.user,
-            groupRole: m.role,
+            id: m.id,
+            role: m.role,
+            status: m.status,
+            addedByUserId: m.addedByUserId,
             joinedAt: m.joinedAt,
+            leftAt: m.leftAt,
+            user: m.user,
           }))
         };
     }));
-    
+
     return enrichedGroups;
 }
 
@@ -1769,8 +1773,14 @@ export async function addCommunityPost(postData: any) {
     return null;
 }
 export async function leaveSmallGroup(groupId: string, userId: string) {
-    // TODO: Implement small group leave
-    return null;
+    const membership = await prisma.smallGroupMembership.findUnique({
+      where: { groupId_userId: { groupId, userId } }
+    });
+
+    if (!membership) return null;
+
+    await prisma.smallGroupMembership.delete({ where: { id: membership.id } });
+    return { success: true };
 }
 
 export async function signUpForNeed(needId: string, userId: string) {

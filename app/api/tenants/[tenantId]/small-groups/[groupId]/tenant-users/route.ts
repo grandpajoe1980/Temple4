@@ -26,7 +26,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
 
     // Fetch tenant users (members) with basic profile info
     const members = await prisma.userTenantMembership.findMany({
-      where: { tenantId },
+      where: { tenantId, status: 'APPROVED' },
       include: { user: { select: { id: true, email: true, profile: true } }, roles: true },
       orderBy: { id: 'asc' },
     });

@@ -7,6 +7,7 @@ import PodcastCard from './PodcastCard';
 import Modal from '../ui/Modal';
 import PodcastForm, { type PodcastFormData } from './forms/PodcastForm';
 import ContentChips from './content-chips';
+import CommunityHeader from './CommunityHeader';
 
 type SerializedEnrichedPodcast = Omit<EnrichedMediaItem, 'publishedAt'> & {
   publishedAt: string | Date;
@@ -75,19 +76,15 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
   return (
     <div className="space-y-8">
       <ContentChips tenantId={tenant.id} active="Podcasts" />
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Podcasts</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Listen to the latest episodes from {tenant.name}.
-          </p>
-        </div>
-        {canCreate && (
-            <Button onClick={() => setIsModalOpen(true)}>
-            + New Podcast
-            </Button>
-        )}
-      </div>
+      <CommunityHeader
+        title={<>Podcasts</>}
+        subtitle={<>Listen to the latest episodes from {tenant.name}.</>}
+        actions={
+          canCreate ? (
+            <Button onClick={() => setIsModalOpen(true)}>+ New Podcast</Button>
+          ) : undefined
+        }
+      />
 
       {podcasts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

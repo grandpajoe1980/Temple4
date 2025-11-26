@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useToast } from '../ui/Toast';
-import { Image } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 
 const ImageUpload = dynamic(() => import('../ui/ImageUpload'), { ssr: false }) as any;
 
@@ -213,7 +213,7 @@ export function ProfilePostForm({ userId, tenantId, onSubmit, onCancel }: Profil
               onClick={() => { setShowPhoto(true); setPhotoAutoOpen(true); }}
               className="flex items-center gap-2 px-3 py-2 rounded-lg font-medium bg-gray-100 hover:bg-gray-200"
             >
-              <Image className="w-4 h-4" />
+              <ImageIcon className="w-4 h-4" aria-hidden="true" />
             </button>
 
             {onCancel && (

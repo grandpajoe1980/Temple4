@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import type { Tenant, TenantSettings } from '@prisma/client';
 import { CONTROL_PANEL_TABS } from '@/constants';
 
@@ -65,6 +65,7 @@ const serviceSubItems: { key: string; label: string; path: string }[] = [
 
 export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const basePath = `/tenants/${tenant.id}`;
   const navRef = React.useRef<HTMLElement | null>(null);
   const deriveLockedSubmenu = React.useCallback((): SubmenuKey | null => {
@@ -103,12 +104,15 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const servicesHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const settingsShowTimer = React.useRef<NodeJS.Timeout | null>(null);
   const settingsHideTimer = React.useRef<NodeJS.Timeout | null>(null);
-  const submenuTimers: Record<SubmenuKey, { show: React.MutableRefObject<NodeJS.Timeout | null>; hide: React.MutableRefObject<NodeJS.Timeout | null> }> = {
-    content: { show: contentShowTimer, hide: contentHideTimer },
-    community: { show: communityShowTimer, hide: communityHideTimer },
-    services: { show: servicesShowTimer, hide: servicesHideTimer },
-    settings: { show: settingsShowTimer, hide: settingsHideTimer },
-  };
+  const submenuTimers: Record<SubmenuKey, { show: React.MutableRefObject<NodeJS.Timeout | null>; hide: React.MutableRefObject<NodeJS.Timeout | null> }> = React.useMemo(
+    () => ({
+      content: { show: contentShowTimer, hide: contentHideTimer },
+      community: { show: communityShowTimer, hide: communityHideTimer },
+      services: { show: servicesShowTimer, hide: servicesHideTimer },
+      settings: { show: settingsShowTimer, hide: settingsHideTimer },
+    }),
+    []
+  );
 
   const updateNavHeightVar = React.useCallback(() => {
     if (!navRef.current) return;
@@ -156,7 +160,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
         clearTimer(hide);
       });
     };
-  }, []);
+  }, [submenuTimers]);
 
   React.useEffect(() => {
     setActiveSubmenu(lockedSubmenu);
@@ -192,6 +196,9 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   ) => {
     if (activeSubmenu !== key) return null;
 
+    // Determine active category from the URL (if present)
+    const activeCategory = searchParams?.get('category') || '';
+
     return (
       <div
         className="flex flex-wrap gap-2"
@@ -200,11 +207,26 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
       >
         {items
           .filter((sub) => isFeatureEnabled(sub.feature))
-          .map((sub) => (
-            <Link key={sub.key} href={`${basePath}${sub.path}`} className={submenuChipClasses}>
-              {sub.label}
-            </Link>
-          ))}
+          .map((sub) => {
+            // If the submenu item includes a ?category= param, extract it for active comparison
+            const match = sub.path.match(/\?category=([^&]+)/);
+            const subCategory = match ? match[1] : '';
+            // Determine active state:
+            // - For items with a category query (services), compare to the activeCategory from search params
+            // - For regular submenu items (content/community), match the pathname prefix
+            let isActive = false;
+            if (subCategory) {
+              isActive = subCategory === activeCategory;
+            } else {
+              isActive = pathname.startsWith(`${basePath}${sub.path}`);
+            }
+            const activeClasses = 'inline-flex items-center rounded-full border border-amber-500 bg-amber-100 px-4 py-2 text-sm font-medium text-amber-800 transition-colors';
+            return (
+              <Link key={sub.key} href={`${basePath}${sub.path}`} className={isActive ? activeClasses : submenuChipClasses}>
+                {sub.label}
+              </Link>
+            );
+          })}
       </div>
     );
   };
@@ -306,18 +328,23 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
             onMouseEnter={() => clearTimer(submenuTimers.settings.hide)}
             onMouseLeave={() => scheduleHide('settings')}
           >
-            {CONTROL_PANEL_TABS.map((tab) => {
-              const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-              return (
-                <Link
-                  key={tab}
-                  href={`${basePath}/settings${slug ? `?category=${slug}` : ''}`}
-                  className={submenuChipClasses}
-                >
-                  {tab}
-                </Link>
-              );
-            })}
+                {(() => {
+                  const activeCategory = searchParams?.get('category') || '';
+                  return CONTROL_PANEL_TABS.map((tab) => {
+                    const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    const isActive = slug === activeCategory;
+                    const activeClasses = 'inline-flex items-center rounded-full border border-amber-500 bg-amber-100 px-4 py-2 text-sm font-medium text-amber-800 transition-colors';
+                    return (
+                      <Link
+                        key={tab}
+                        href={`${basePath}/settings${slug ? `?category=${slug}` : ''}`}
+                        className={isActive ? activeClasses : submenuChipClasses}
+                      >
+                        {tab}
+                      </Link>
+                    );
+                  });
+                })()}
           </div>
         )}
       </div>

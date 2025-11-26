@@ -66,9 +66,9 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Branding</h3>
-        <p className="mt-1 text-sm text-gray-500">Customize the look and feel of your temple's pages.</p>
-      </div>
+            <h3 className="text-lg font-medium leading-6 text-gray-900">Branding</h3>
+            <p className="mt-1 text-sm text-gray-500">Customize the look and feel of your temple&apos;s pages.</p>
+          </div>
 
       <div className="space-y-6">
         <ImageUpload
@@ -102,7 +102,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
 
       <div className="border-t border-gray-200 pt-8">
         <h3 className="text-lg font-medium leading-6 text-gray-900">Colors</h3>
-        <p className="mt-1 text-sm text-gray-500">Choose colors that match your community’s identity.</p>
+        <p className="mt-1 text-sm text-gray-500">Choose colors that match your community&apos;s identity.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
@@ -123,8 +123,8 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
 
       <div className="border-t border-gray-200 pt-8">
         <h3 className="text-lg font-medium leading-6 text-gray-900">Custom Links</h3>
-        <p className="mt-1 text-sm text-gray-500">Add custom links to your temple’s public page (e.g., website, donations).</p>
-        <p className="mt-1 text-xs text-amber-700">To enable the ‘Donate’ button on your home page, add a link with the exact label “Donate”.</p>
+        <p className="mt-1 text-sm text-gray-500">Add custom links to your temple&apos;s public page (e.g., website, donations).</p>
+        <p className="mt-1 text-xs text-amber-700">To enable the &apos;Donate&apos; button on your home page, add a link with the exact label &quot;Donate&quot;.</p>
       </div>
       <div className="space-y-4">
         {(tenant.branding.customLinks || []).map((link, index) => (

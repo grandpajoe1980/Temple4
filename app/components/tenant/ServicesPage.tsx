@@ -19,30 +19,12 @@ interface ServicesPageProps {
 const ServicesPage = ({ tenant, services, facilities, selectedCategory, isMember, showChips = true }: ServicesPageProps) => {
   const activeCategory = selectedCategory ?? null;
 
-  // Render the page header and category chips once and make the chips sticky
-  // so they remain visible at the top while the user scrolls the page.
-  const chips = showChips ? (
-    <div className="sticky z-10 -mx-4 sm:-mx-6 lg:-mx-8" style={{ top: 'var(--site-header-height)' }}>
-      <div className="bg-white/90 backdrop-blur-sm border-t border-gray-200 border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-3">
-        <div className="flex flex-wrap gap-3">
-          <CategoryChip href={`/tenants/${tenant.id}/services`} label="All" active={!activeCategory} />
-          {SERVICE_CATEGORY_OPTIONS.map((category) => (
-            <CategoryChip
-              key={category.value}
-              href={`/tenants/${tenant.id}/services?category=${category.value}`}
-              label={category.label}
-              description={category.description}
-              active={activeCategory === category.value}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  ) : null;
+  // The chips are rendered by the tenant navigation; do not duplicate them here.
+  const chips = null;
 
   return (
     <div className="space-y-8">
-      {chips}
+      {/* Chips are shown in the tenant nav; duplicate chips removed from page. */}
       <div className="space-y-3">
         <h1 className="text-2xl font-semibold text-gray-900">Services at {tenant.name}</h1>
         <p className="text-gray-600 max-w-3xl">

@@ -21,7 +21,7 @@ export default async function TenantCommunityPage({ params }: { params: Promise<
 
       <div className="space-y-6">
         <div className="rounded-lg border border-gray-200 p-6">
-          <p className="text-sm text-gray-700">Use the chips above to jump to the community area you're interested in.</p>
+          <p className="text-sm text-gray-700">Use the chips above to jump to the community area you&apos;re interested in.</p>
         </div>
       </div>
     </div>

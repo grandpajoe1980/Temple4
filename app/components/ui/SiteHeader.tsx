@@ -426,7 +426,13 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                                   <Link
                                     key={`sub-${sub.key}`}
                                     href={`${basePath}${sub.path}`}
-                                    className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+                                    className={
+                                      `block px-4 py-2 text-sm ${
+                                        pathname?.startsWith(`${basePath}${sub.path}`)
+                                          ? 'bg-amber-50 text-amber-700'
+                                          : 'text-gray-600 hover:bg-gray-50'
+                                      }`
+                                    }
                                     onClick={() => setOpen(false)}
                                   >
                                     {sub.label}
@@ -523,7 +529,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       >
                         <Link
                           href={`${basePath}${item.path}`}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`}
                           onClick={() => setOpen(false)}
                           role="menuitem"
                           tabIndex={0}
@@ -566,7 +572,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       >
                         <Link
                           href={`${basePath}${item.path}`}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`}
                           onClick={() => setOpen(false)}
                           role="menuitem"
                           tabIndex={0}
@@ -609,7 +615,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       >
                         <Link
                           href={`${basePath}${item.path}`}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`}
                           onClick={() => setOpen(false)}
                           role="menuitem"
                           tabIndex={0}
@@ -708,11 +714,11 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                   }}
                 >
                   <div className="py-1">
-                    <Link href={`${basePath}/photos`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Photos</Link>
-                    <Link href={`${basePath}/podcasts`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Podcasts</Link>
-                    <Link href={`${basePath}/sermons`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Sermons</Link>
-                    <Link href={`${basePath}/books`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Books</Link>
-                    <Link href={`${basePath}/livestream`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Live Stream</Link>
+                    <Link href={`${basePath}/photos`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/photos`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Photos</Link>
+                    <Link href={`${basePath}/podcasts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/podcasts`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Podcasts</Link>
+                    <Link href={`${basePath}/sermons`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/sermons`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Sermons</Link>
+                    <Link href={`${basePath}/books`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/books`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Books</Link>
+                    <Link href={`${basePath}/livestream`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/livestream`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Live Stream</Link>
                   </div>
                 </div>
               )}
@@ -738,16 +744,16 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                   }}
                 >
                   <div className="py-1">
-                    <Link href={`${basePath}/posts`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Posts</Link>
-                    <Link href={`${basePath}/community/wall`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Wall</Link>
-                    <Link href={`${basePath}/calendar`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Calendar</Link>
-                    <Link href={`${basePath}/prayer-wall`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Prayer Wall</Link>
-                    <Link href={`${basePath}/members`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Members</Link>
-                    <Link href={`${basePath}/staff`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Staff</Link>
-                    <Link href={`${basePath}/chat`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Chat</Link>
-                    <Link href={`${basePath}/small-groups`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Small Groups</Link>
-                    <Link href={`${basePath}/volunteering`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Volunteering</Link>
-                    <Link href={`${basePath}/resources`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Resources</Link>
+                    <Link href={`${basePath}/posts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/posts`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Posts</Link>
+                    <Link href={`${basePath}/community/wall`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/community/wall`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Wall</Link>
+                    <Link href={`${basePath}/calendar`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/calendar`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Calendar</Link>
+                    <Link href={`${basePath}/prayer-wall`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/prayer-wall`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Prayer Wall</Link>
+                    <Link href={`${basePath}/members`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/members`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Members</Link>
+                    <Link href={`${basePath}/staff`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/staff`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Staff</Link>
+                    <Link href={`${basePath}/chat`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/chat`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Chat</Link>
+                    <Link href={`${basePath}/small-groups`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/small-groups`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Small Groups</Link>
+                    <Link href={`${basePath}/volunteering`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/volunteering`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Volunteering</Link>
+                    <Link href={`${basePath}/resources`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/resources`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Resources</Link>
                   </div>
                 </div>
               )}
@@ -773,11 +779,11 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                   }}
                 >
                   <div className="py-1">
-                          <Link href={`${basePath}/services?category=CEREMONY`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Ceremony</Link>
-                          <Link href={`${basePath}/services?category=EDUCATION`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Education</Link>
-                          <Link href={`${basePath}/services?category=COUNSELING`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Counseling</Link>
-                          <Link href={`${basePath}/services?category=FACILITY`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Facilities</Link>
-                          <Link href={`${basePath}/services?category=OTHER`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Other</Link>
+                          <Link href={`${basePath}/services?category=CEREMONY`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Ceremony</Link>
+                          <Link href={`${basePath}/services?category=EDUCATION`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Education</Link>
+                          <Link href={`${basePath}/services?category=COUNSELING`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Counseling</Link>
+                          <Link href={`${basePath}/services?category=FACILITY`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Facilities</Link>
+                          <Link href={`${basePath}/services?category=OTHER`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Other</Link>
                   </div>
                 </div>
               )}

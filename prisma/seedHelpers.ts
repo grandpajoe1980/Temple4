@@ -589,7 +589,7 @@ export async function addCommentsToProfilePosts(prisma: PrismaClient, profilePos
 }
 
 
-export default {
+const seedHelpers = {
   avatar,
   photo,
   banner,
@@ -604,3 +604,5 @@ export default {
   postMessage,
   createLocalPhotosForTenant,
 };
+
+export default seedHelpers;

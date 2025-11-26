@@ -43,7 +43,7 @@ export function ProfileFeed({ userId, isOwnProfile, tenantId }: ProfileFeedProps
 
     useEffect(() => {
         fetchPosts(true);
-    }, [userId]);
+    }, [fetchPosts]);
 
     const handleCreate = async (data: any) => {
         // Optimistic UI: insert a temporary post immediately

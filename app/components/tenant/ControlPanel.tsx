@@ -153,27 +153,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
 
   return (
     <div className="space-y-6">
-      <div className="sticky z-10 -mx-4 sm:-mx-6 lg:-mx-8" style={{ top: 'var(--site-header-height)' }}>
-        <div className="bg-white/90 backdrop-blur-sm border-t border-gray-200 border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex flex-wrap gap-3">
-            {(availableTabs || CONTROL_PANEL_TABS).map((tab) => {
-              const slug = slugFor(tab);
-              const isActive = tab === activeTab;
-              return (
-                <Link
-                  key={tab}
-                  href={`/tenants/${tenant.id}/settings${slug ? `?category=${slug}` : ''}`}
-                  className={`rounded-full border px-4 py-2 text-sm transition-colors ${isActive ? 'border-amber-500 bg-amber-100 text-amber-800' : 'border-gray-200 text-gray-600 hover:border-amber-300'}`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {tab}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
       <Card className="!p-0">
         <div className="px-6 pt-6">
           <h2 className="text-2xl font-bold text-gray-900">Control Panel</h2>

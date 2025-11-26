@@ -11,6 +11,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
   const { tenantId, groupId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
+  const isSuperAdmin = (session?.user as any)?.isSuperAdmin;
 
   if (!userId) return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
 
@@ -20,7 +21,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     const isLeader = await isGroupLeader(userId, groupId);
     const isTenantAdmin = await hasRole(userId, tenantId, [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR]);
 
-    if (!isLeader && !isTenantAdmin) {
+    if (!isLeader && !isTenantAdmin && !isSuperAdmin) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 

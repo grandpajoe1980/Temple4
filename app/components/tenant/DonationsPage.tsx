@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useMemo, useState } from 'react';
-import type { DonationSettings, EnrichedDonationRecord } from '@/types';
+import type { DonationSettings, EnrichedDonationRecord, TenantSettings } from '@/types';
 // Use server API routes instead of importing server-only helpers
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -12,7 +12,7 @@ interface DonationsPageProps {
   tenant: {
     id: string;
     name: string;
-    settings: { donationSettings: DonationSettings };
+    settings: TenantSettings;
   };
   user: {
     id: string;

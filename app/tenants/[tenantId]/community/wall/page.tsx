@@ -7,6 +7,8 @@ import { TenantRole } from '@/types';
 import { listTenantProfilePosts } from '@/lib/services/profile-post-service';
 import TenantWallClient from '@/app/components/tenant/TenantWallClient';
 import WallCreateButton from '@/app/components/tenant/WallCreateButton';
+import CommunityChips from '@/app/components/tenant/CommunityChips';
+import CommunityHeader from '@/app/components/tenant/CommunityHeader';
 
 export default async function TenantWallPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const session = await getServerSession(authOptions);
@@ -29,12 +31,13 @@ export default async function TenantWallPage({ params }: { params: Promise<{ ten
   // The client component expects a simple shape; profile-post-service returns DTOs compatible enough
   return (
     <div className="space-y-8">
-      <div className="space-y-3">
-        <h1 className="text-2xl font-semibold text-gray-900">Wall</h1>
-        <p className="text-gray-600 max-w-3xl">Public posts from members of this tenant. Comment and interact with the community.</p>
-      </div>
+      <CommunityChips tenantId={tenant.id} />
 
-      <WallCreateButton userId={user.id} tenantId={tenant.id} />
+      <CommunityHeader
+        title={<>Wall</>}
+        subtitle={<>Public posts from members of this tenant. Comment and interact with the community.</>}
+        actions={<WallCreateButton userId={user.id} tenantId={tenant.id} />}
+      />
 
       <TenantWallClient tenantId={tenant.id} initialPosts={posts} showCreateButton={false} canModerate={canModerate} />
     </div>

@@ -160,9 +160,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
   return (
     <>
       <CommunityChips tenantId={(tenant as any).id} />
-      <div className="flex h-[calc(100vh-170px)] bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="flex h-[calc(65vh)] bg-white rounded-lg shadow-sm overflow-hidden">
         {/* Left Panel: Conversation List */}
-        <div className="w-full sm:w-1/3 md:w-1/4 border-r border-gray-200 flex flex-col">
+        <div className="w-full sm:w-1/3 md:w-1/4 border-r border-gray-200 flex flex-col min-h-0">
           <div className="p-4 border-b border-gray-200 flex justify-between items-center sticky z-20" style={{ top: 'calc(var(--site-header-height) + var(--tenant-nav-height, 3rem))' }}>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Channels</h2>
@@ -174,16 +174,18 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
               </Button>
             )}
           </div>
-          <ConversationList
-            conversations={tenantConversations}
-            currentUser={user}
-            activeConversationId={activeConversation?.id}
-            onConversationSelect={handleConversationSelect}
-          />
+          <div className="flex-1 min-h-0 overflow-auto">
+            <ConversationList
+              conversations={tenantConversations}
+              currentUser={user}
+              activeConversationId={activeConversation?.id}
+              onConversationSelect={handleConversationSelect}
+            />
+          </div>
         </div>
 
         {/* Middle Panel: Message Stream */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-0 overflow-auto">
           {activeConversation ? (
             <MessageStream
               key={activeConversation.id} // Re-mount component when conversation changes
@@ -209,13 +211,15 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
 
         {/* Right Panel: Conversation Details */}
         {isDetailsPanelOpen && activeConversation && (
-            <div className="hidden lg:block w-full sm:w-1/3 md:w-1/4 border-l border-gray-200">
-                <ConversationDetailsPanel 
-                    key={activeConversation.id}
-                    conversation={activeConversation}
-                    tenant={tenant}
-                    onViewProfile={onViewProfile || (() => {})}
-                />
+            <div className="hidden lg:block w-full sm:w-1/3 md:w-1/4 border-l border-gray-200 min-h-0">
+                <div className="h-full min-h-0 overflow-auto">
+                  <ConversationDetailsPanel 
+                      key={activeConversation.id}
+                      conversation={activeConversation}
+                      tenant={tenant}
+                      onViewProfile={onViewProfile || (() => {})}
+                  />
+                </div>
             </div>
         )}
 

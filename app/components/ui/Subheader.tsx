@@ -37,7 +37,7 @@ export default function Subheader({
 
   return (
     <div className="subheader-wrapper">
-      <div className="fixed left-0 right-0" style={style}>
+      <div className="fixed left-0 right-0 z-30" style={style}>
         <div className={`bg-white border-b border-gray-200 ${className}`} aria-label={ariaLabel}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
             <div className="flex items-start justify-between gap-4">

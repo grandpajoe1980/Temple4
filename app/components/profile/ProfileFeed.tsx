@@ -4,7 +4,7 @@ import Button from '../ui/Button';
 
 
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { ProfilePostCard } from './ProfilePostCard';
 import { ProfilePostForm } from './ProfilePostForm';
 import Modal from '../ui/Modal';
@@ -23,25 +23,51 @@ export function ProfileFeed({ userId, isOwnProfile, tenantId }: ProfileFeedProps
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
+    const loadingRef = useRef(false);
+    const pageRef = useRef(page);
+    const initialLoadedRef = useRef(false);
+    const fetchCountRef = useRef(0);
     const [showForm, setShowForm] = useState(false);
 
+    // Use refs to avoid recreating the callback when `posts`/`page`/`loading` change,
+    // which previously caused the effect that calls `fetchPosts` on mount to re-run
+    // repeatedly. We use functional updates for state to keep values correct.
+    useEffect(() => { pageRef.current = page; }, [page]);
+
     const fetchPosts = useCallback(async (reset = false) => {
-        if (loading) return;
+        if (loadingRef.current) return;
+        loadingRef.current = true;
         setLoading(true);
         try {
-            const result = await fetchProfilePosts(userId, reset ? 1 : page, 10);
-            const newPosts = reset ? result.posts : [...posts, ...result.posts];
-            setPosts(newPosts);
-            setHasMore(newPosts.length < result.totalCount);
-            if (!reset) setPage(p => p + 1);
+            const p = reset ? 1 : pageRef.current;
+            const result = await fetchProfilePosts(userId, p, 10);
+            if (reset) {
+                setPosts(() => result.posts);
+                setPage(2);
+                pageRef.current = 2;
+            } else {
+                setPosts(prev => [...prev, ...result.posts]);
+                setPage(prev => {
+                    const next = prev + 1;
+                    pageRef.current = next;
+                    return next;
+                });
+            }
+            setHasMore(prev => {
+                const totalLoaded = (reset ? result.posts.length : (pageRef.current - 1) * 10 + result.posts.length);
+                return totalLoaded < result.totalCount;
+            });
         } catch (e) {
             console.error('Failed to load posts', e);
         } finally {
+            loadingRef.current = false;
             setLoading(false);
         }
-    }, [userId, page, posts, loading]);
+    }, [userId]);
 
     useEffect(() => {
+        if (initialLoadedRef.current) return;
+        initialLoadedRef.current = true;
         fetchPosts(true);
     }, [fetchPosts]);
 

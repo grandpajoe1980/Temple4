@@ -1,6 +1,3 @@
-// Deprecated: renamed to `tabs.tsx` (lowercase) to match imports.
-// Keep a no-op module here to avoid duplicate-symbol/type errors on case-insensitive filesystems.
-export {};
 "use client"
 
 import * as React from "react"

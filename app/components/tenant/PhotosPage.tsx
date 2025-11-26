@@ -6,6 +6,7 @@ import type { CurrentUser } from './CommentsSection';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import ContentChips from './content-chips';
+import CommunityHeader from './CommunityHeader';
 
 interface PhotoItem {
   id: string;
@@ -106,18 +107,16 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
   return (
     <div className="space-y-6">
       <ContentChips tenantId={tenant.id} active="Photos" />
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Photos</h2>
-          <p className="mt-1 text-sm text-gray-500">A gallery of recent photos for {tenant.name}.</p>
-        </div>
-        {canCreate && (
+      <CommunityHeader
+        title={<>Photos</>}
+        subtitle={<>A gallery of recent photos for {tenant.name}.</>}
+        actions={canCreate ? (
           <div className="flex items-center gap-2">
             <input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
             <Button onClick={() => inputRef.current?.click()} disabled={isUploading}>{isUploading ? 'Uploading...' : 'Upload Photo'}</Button>
           </div>
-        )}
-      </div>
+        ) : null}
+      />
 
       {photos.length === 0 ? (
         <div className="text-center bg-white p-12 rounded-lg shadow-sm">

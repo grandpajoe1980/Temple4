@@ -52,7 +52,10 @@ export default async function TenantLayout({
           </div>
         </div>
       </header>
-      <main className="py-10 flex-grow">
+      <main
+        className="pb-10 flex-grow"
+        style={{ paddingTop: 'calc(var(--site-header-height, 4.5rem) + var(--tenant-nav-height, 6rem) + var(--community-header-height, 3.5rem) - var(--content-chips-spacer, 0px))' }}
+      >
         <div suppressHydrationWarning className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {children}
         </div>

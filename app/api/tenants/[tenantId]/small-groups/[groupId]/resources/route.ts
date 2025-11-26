@@ -36,9 +36,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
 
     const body = await request.json();
     const { title, description, url } = body;
-    if (!title || !url) return NextResponse.json({ message: 'title and url required' }, { status: 400 });
+    if (!title) return NextResponse.json({ message: 'title required' }, { status: 400 });
 
-    const item = await prisma.smallGroupResource.create({ data: { tenantId, groupId, uploaderUserId: userId, title, description: description ?? null, url } });
+    const item = await prisma.smallGroupResource.create({ data: { tenantId, groupId, uploaderUserId: userId, title, description: description ?? null, url: url ?? null } });
     return NextResponse.json(item, { status: 201 });
   } catch (err) {
     console.error(`Failed to create resource for group ${groupId}:`, err);

@@ -509,7 +509,10 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
                       <button
                         onClick={async () => {
                           try {
-                            const payload = { title: resourceForm.title, description: resourceForm.description, url: resourceForm.url };
+                            const title = (resourceForm.title || '').trim();
+                            if (!title) return alert('Title required');
+
+                            const payload = { title, description: resourceForm.description || '', url: resourceForm.url || null };
                             const res = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}/resources`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                             if (!res.ok) {
                               const body = await res.json().catch(() => ({}));
@@ -519,9 +522,9 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
                             setResources(r => [created, ...r]);
                             setShowResourceModal(false);
                             setResourceForm({ title: '', description: '', url: '' });
-                          } catch (err) {
+                          } catch (err: any) {
                             console.error(err);
-                            alert('Failed to create resource');
+                            alert(err?.message ? String(err.message) : 'Failed to create resource');
                           }
                         }}
                         className="px-3 py-1 bg-emerald-600 text-white rounded"

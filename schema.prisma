@@ -750,7 +750,7 @@ model SmallGroupResource {
   uploader       User       @relation(fields: [uploaderUserId], references: [id])
   title          String
   description    String?
-  url            String
+  url            String?
   createdAt      DateTime   @default(now())
 }
 

@@ -2,7 +2,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { approveSmallGroupMember } from '@/lib/data';
 import { hasRole, isGroupLeader } from '@/lib/permissions';
 import { TenantRole } from '@/types';
 
@@ -36,10 +35,14 @@ export async function POST(
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updated = await approveSmallGroupMember(groupId, userId, currentUserId);
-    return NextResponse.json(updated);
+    await prisma.smallGroupMembership.update({
+      where: { id: membership.id },
+      data: { status: 'REJECTED' },
+    });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(`Failed to approve member ${userId} for group ${groupId}:`, error);
-    return NextResponse.json({ message: 'Failed to approve member' }, { status: 500 });
+    console.error(`Failed to reject member ${userId} for group ${groupId}:`, error);
+    return NextResponse.json({ message: 'Failed to reject member' }, { status: 500 });
   }
 }

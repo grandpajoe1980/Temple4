@@ -4,21 +4,25 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getMembershipForUserInTenant } from '@/lib/data';
 import { z } from 'zod';
+import { hasRole } from '@/lib/permissions';
+import { TenantRole } from '@/types';
 
 // 14.6 List Group Members
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ tenantId: string; groupId: string }> }
 ) {
-    const { groupId, tenantId } = await params;
-    const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id;
+  const { groupId, tenantId } = await params;
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as any)?.id;
 
-    try {
-        const membership = await getMembershipForUserInTenant(userId, tenantId);
-        if (!membership) {
-            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
-        }
+  if (!userId) {
+    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  }
+
+  try {
+        const membership = userId ? await getMembershipForUserInTenant(userId, tenantId) : null;
+        const isTenantAdmin = userId ? await hasRole(userId, tenantId, [TenantRole.ADMIN]) : false;
 
         const group = await prisma.smallGroup.findUnique({
             where: { id: groupId },
@@ -30,8 +34,15 @@ export async function GET(
         }
 
         const isMember = group.members.some((m: any) => m.userId === userId);
-        if (!group.isPublic && !isMember) {
+        const isLeader = group.members.some((m: any) => m.userId === userId && (m.role === 'LEADER' || m.role === 'CO_LEADER'));
+        const isSuperAdmin = !!(session as any)?.user?.isSuperAdmin;
+
+        if (!group.isPublic && !isMember && !isTenantAdmin && !isSuperAdmin && !isLeader) {
             return NextResponse.json({ message: 'This is a private group.' }, { status: 403 });
+        }
+
+        if (!membership && !isTenantAdmin && !isSuperAdmin && !isLeader) {
+            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
         const members = await prisma.smallGroupMembership.findMany({
@@ -40,6 +51,7 @@ export async function GET(
                 user: {
                     select: {
                         id: true,
+                        email: true,
                         profile: true,
                     }
                 }
@@ -87,10 +99,14 @@ export async function POST(
             return NextResponse.json({ message: 'Group not found' }, { status: 404 });
         }
 
-        const isLeader = group.members.some((m: any) => m.userId === currentUserId && m.role === 'LEADER');
+        const userRecord = await prisma.user.findUnique({ where: { id: currentUserId } });
+        const isSuperAdmin = !!userRecord?.isSuperAdmin;
+        const isTenantAdmin = await hasRole(currentUserId, tenantId, [TenantRole.ADMIN]);
+        const isLeader = group.members.some((m: any) => m.userId === currentUserId && (m.role === 'LEADER' || m.role === 'CO_LEADER'));
+        const canManage = isLeader || isTenantAdmin || isSuperAdmin;
 
-        // If not the leader, user can only add themselves
-        if (!isLeader && currentUserId !== userId) {
+        // If not a manager, user can only add themselves
+        if (!canManage && currentUserId !== userId) {
             return NextResponse.json({ message: 'You can only request to join for yourself.' }, { status: 403 });
         }
 
@@ -103,8 +119,14 @@ export async function POST(
             return NextResponse.json({ message: 'User is already a member of this group.' }, { status: 409 });
         }
 
-        // If leader is adding someone, create APPROVED membership immediately
-        if (isLeader && currentUserId !== userId) {
+        // Ensure target user is an approved tenant member when inviting/adding
+        const targetTenantMembership = await getMembershipForUserInTenant(userId, tenantId);
+        if (!targetTenantMembership || targetTenantMembership.status !== 'APPROVED') {
+            return NextResponse.json({ message: 'Invites can only be sent to approved tenant members.' }, { status: 400 });
+        }
+
+        // If a manager is adding someone else, treat it as an invitation that immediately approves membership
+        if (canManage && currentUserId !== userId) {
             const created = await prisma.smallGroupMembership.create({
                 data: {
                     groupId,
@@ -117,13 +139,7 @@ export async function POST(
             return NextResponse.json(created, { status: 201 });
         }
 
-        // Otherwise this is a self-join; verify tenant membership
-        const tenantMembership = await getMembershipForUserInTenant(userId, tenantId);
-        if (!tenantMembership || tenantMembership.status !== 'APPROVED') {
-            return NextResponse.json({ message: 'You must be an approved tenant member to join groups' }, { status: 403 });
-        }
-
-        // Use shared business logic to create membership respecting joinPolicy
+        // Otherwise this is a self-join; verify tenant membership (already checked above) and honor joinPolicy
         const membership = await (async () => {
             // reuse the helper in lib/data.ts
             const { joinSmallGroup } = await Promise.resolve(require('@/lib/data'));

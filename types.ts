@@ -584,12 +584,20 @@ export interface SmallGroupMembership {
   userId: string;
   role: SmallGroupRole;
   joinedAt: Date;
+  status: MembershipStatus;
+  addedByUserId?: string;
+  leftAt?: Date | null;
 }
 
 // Enriched types for UI
 export interface EnrichedGroupMember {
-    membership: SmallGroupMembership;
+    membership?: SmallGroupMembership;
     user: User;
+    status?: MembershipStatus;
+    role?: SmallGroupRole;
+    addedByUserId?: string;
+    joinedAt?: Date | string;
+    leftAt?: Date | string | null;
 }
 
 export interface EnrichedSmallGroup extends SmallGroup {

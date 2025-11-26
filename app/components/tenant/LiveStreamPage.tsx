@@ -3,6 +3,7 @@
 import React from 'react';
 import ContentChips from './content-chips';
 import Card from '../ui/Card';
+import CommunityHeader from './CommunityHeader';
 
 interface LiveStreamPageProps {
   tenant: {
@@ -29,12 +30,10 @@ const LiveStreamPage: React.FC<LiveStreamPageProps> = ({ tenant }) => {
   return (
     <div className="space-y-8">
       <ContentChips tenantId={tenant.id} active="Live Stream" />
-       <div>
-          <h2 className="text-2xl font-bold text-gray-900">Live Stream</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Join the live service from {tenant.name}.
-          </p>
-        </div>
+      <CommunityHeader
+        title={<>Live Stream</>}
+        subtitle={<>Join the live service from {tenant.name}.</>}
+      />
         <Card className="!p-0 overflow-hidden">
             <div className="aspect-w-16 aspect-h-9">
                 <iframe

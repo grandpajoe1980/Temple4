@@ -7,6 +7,7 @@ import SermonCard from './SermonCard';
 import Modal from '../ui/Modal';
 import SermonForm, { type SermonFormData } from './forms/SermonForm';
 import ContentChips from './content-chips';
+import CommunityHeader from './CommunityHeader';
 
 // Enriched media item type from data layer
 type EnrichedSermon = {
@@ -71,19 +72,15 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initia
   return (
     <div className="space-y-8">
       <ContentChips tenantId={tenant.id} active="Sermons" />
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Sermons</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Watch recent sermons from {tenant.name}.
-          </p>
-        </div>
-        {canCreate && (
-            <Button onClick={() => setIsModalOpen(true)}>
-            + New Sermon
-            </Button>
-        )}
-      </div>
+      <CommunityHeader
+        title={<>Sermons</>}
+        subtitle={<>Watch recent sermons from {tenant.name}.</>}
+        actions={
+          canCreate ? (
+            <Button onClick={() => setIsModalOpen(true)}>+ New Sermon</Button>
+          ) : undefined
+        }
+      />
 
       {sermons.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

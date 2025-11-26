@@ -36,7 +36,7 @@ export default function Subheader({
   } as React.CSSProperties;
 
   return (
-    <>
+    <div className="subheader-wrapper">
       <div className="fixed left-0 right-0" style={style}>
         <div className={`bg-white border-b border-gray-200 ${className}`} aria-label={ariaLabel}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
@@ -52,6 +52,7 @@ export default function Subheader({
           </div>
         </div>
       </div>
-    </>
+      <div aria-hidden className="w-full" style={{ height }} />
+    </div>
   );
 }

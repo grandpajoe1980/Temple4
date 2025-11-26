@@ -8,6 +8,7 @@ import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 import BookCard from './BookCard';
 import ContentChips from './content-chips';
+import CommunityHeader from './CommunityHeader';
 
 interface BooksPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
@@ -37,19 +38,15 @@ const BooksPage: React.FC<BooksPageProps> = ({ tenant, user, books: initialBooks
   return (
     <div className="space-y-8">
       <ContentChips tenantId={tenant.id} active="Books" />
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Books & Studies</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Read long-form content and teachings from {tenant.name}.
-          </p>
-        </div>
-        {canCreate && (
-            <Button onClick={() => setIsModalOpen(true)}>
-            + New Book/Chapter
-            </Button>
-        )}
-      </div>
+      <CommunityHeader
+        title={<>Books & Studies</>}
+        subtitle={<>Read long-form content and teachings from {tenant.name}.</>}
+        actions={
+          canCreate ? (
+            <Button onClick={() => setIsModalOpen(true)}>+ New Book/Chapter</Button>
+          ) : undefined
+        }
+      />
 
       {books.length > 0 ? (
         <div className="space-y-6">

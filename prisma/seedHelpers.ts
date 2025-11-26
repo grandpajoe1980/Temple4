@@ -2,6 +2,85 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import type { TenantDef, UserArchetype } from './tenantBlueprint';
 
+// Default tenant permissions used when a tenant is created by the seed helper.
+// Keep this conservative but enabling common member actions (posts) so dev/test tenants
+// behave as expected by the test-suite. Admin receives full perms.
+const DEFAULT_TENANT_PERMISSIONS = {
+  ADMIN: {
+    canCreatePosts: true,
+    canCreateEvents: true,
+    canCreateSermons: true,
+    canCreatePodcasts: true,
+    canCreateBooks: true,
+    canCreateGroupChats: true,
+    canInviteMembers: true,
+    canApproveMembership: true,
+    canBanMembers: true,
+    canModeratePosts: true,
+    canModerateChats: true,
+    canPostInAnnouncementChannels: true,
+    canManagePrayerWall: true,
+    canUploadResources: true,
+    canManageResources: true,
+    canManageContactSubmissions: true,
+    canManageFacilities: true,
+  },
+  MEMBER: {
+    canCreatePosts: true,
+    canCreateEvents: false,
+    canCreateSermons: false,
+    canCreatePodcasts: false,
+    canCreateBooks: false,
+    canCreateGroupChats: true,
+    canInviteMembers: false,
+    canApproveMembership: false,
+    canBanMembers: false,
+    canModeratePosts: false,
+    canModerateChats: false,
+    canManagePrayerWall: false,
+    canUploadResources: false,
+    canManageResources: false,
+    canManageContactSubmissions: false,
+    canManageFacilities: false,
+  },
+  STAFF: {
+    canCreatePosts: true,
+    canCreateEvents: true,
+    canCreateSermons: false,
+    canCreatePodcasts: false,
+    canCreateBooks: false,
+    canCreateGroupChats: true,
+    canInviteMembers: true,
+    canApproveMembership: true,
+    canBanMembers: false,
+    canModeratePosts: true,
+    canModerateChats: true,
+    canManagePrayerWall: true,
+    canUploadResources: true,
+    canManageResources: true,
+    canManageContactSubmissions: true,
+    canManageFacilities: true,
+  },
+  MODERATOR: {
+    canCreatePosts: true,
+    canCreateEvents: false,
+    canCreateSermons: false,
+    canCreatePodcasts: false,
+    canCreateBooks: false,
+    canCreateGroupChats: true,
+    canInviteMembers: false,
+    canApproveMembership: false,
+    canBanMembers: false,
+    canModeratePosts: true,
+    canModerateChats: true,
+    canManagePrayerWall: false,
+    canUploadResources: false,
+    canManageResources: false,
+    canManageContactSubmissions: false,
+    canManageFacilities: false,
+  },
+};
+
 export const DEV_BCRYPT_ROUNDS = 6;
 
 // Deterministic placeholder helpers (same patterns as tenantBlueprint)
@@ -55,6 +134,9 @@ export async function ensureTenant(prisma: PrismaClient, t: TenantDef) {
       settings: {
         create: { donationSettings: {} as any, liveStreamSettings: {} as any, visitorVisibility: {} as any },
       },
+      // Apply default permissions so newly created tenants have a sensible
+      // permissions model that the test-suite and developer workflows expect.
+      permissions: DEFAULT_TENANT_PERMISSIONS as any,
     },
     update: {
       name: t.name,

@@ -36,6 +36,8 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
   const [tenantUsersError, setTenantUsersError] = useState<string | null>(null);
   const [showTenantUsersModal, setShowTenantUsersModal] = useState(false);
   const [addingUserId, setAddingUserId] = useState<string | null>(null);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [leaveInProgress, setLeaveInProgress] = useState(false);
 
   const currentMembership = group?.members?.find((m: any) => m.user?.id === currentUser?.id && m.status !== 'REJECTED' && m.status !== 'BANNED');
 
@@ -147,67 +149,95 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
 
   if (!group) return <div className="p-6 bg-white rounded-lg shadow-sm">{groupError || 'Group not found.'}</div>;
 
+  const isCurrentUserLeader =
+    group.leader?.id === currentUser?.id ||
+    (group.members || []).some(
+      (mm: any) => mm.user?.id === currentUser?.id && (mm.role === 'LEADER' || mm.role === 'CO_LEADER')
+    );
+
+  const handleConfirmLeave = async () => {
+    if (isCurrentUserLeader) {
+      alert('Leaders must nominate a new leader before leaving the group.');
+      setShowLeaveConfirm(false);
+      return;
+    }
+    if (!currentMembership) {
+      setShowLeaveConfirm(false);
+      return;
+    }
+    try {
+      setLeaveInProgress(true);
+      const res = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}/members/${currentUser.id}`, { method: 'DELETE' });
+      if (!res.ok && res.status !== 204) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || 'Failed to leave group');
+      }
+      if (onRefresh) onRefresh();
+      if (onClose) onClose();
+    } catch (err) {
+      console.error(err);
+      alert('Unable to leave the group.');
+    } finally {
+      setLeaveInProgress(false);
+      setShowLeaveConfirm(false);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="p-6 border-b">
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">{group.name}</h3>
-            <p className="text-sm text-gray-500">{group.meetingSchedule}</p>
-            <p className="mt-2 text-sm text-gray-700">{group.description}</p>
-          </div>
-          <div className="flex space-x-2">
-            {currentMembership && (
-              <Button
-                variant="secondary"
-                onClick={async () => {
-                  if (!confirm('Leave this group?')) return;
-                  try {
-                    const res = await fetch(`/api/tenants/${tenantId}/small-groups/${groupId}/members/${currentUser.id}`, { method: 'DELETE' });
-                    if (!res.ok && res.status !== 204) {
-                      const body = await res.json().catch(() => ({}));
-                      throw new Error(body?.message || 'Failed to leave group');
+    <>
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="p-6 border-b">
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">{group.name}</h3>
+              <p className="text-sm text-gray-500">{group.meetingSchedule}</p>
+              <p className="mt-2 text-sm text-gray-700">{group.description}</p>
+            </div>
+            <div className="flex space-x-2">
+              {currentMembership && (
+                <Button
+                  variant="secondary"
+                  className={isCurrentUserLeader ? 'opacity-50 cursor-not-allowed' : ''}
+                  onClick={() => {
+                    if (isCurrentUserLeader) {
+                      alert('Leaders must nominate a new leader before leaving the group.');
+                      return;
                     }
-                    if (onRefresh) onRefresh();
-                    if (onClose) onClose();
-                  } catch (err) {
-                    console.error(err);
-                    alert('Unable to leave the group.');
-                  }
-                }}
-              >
-                Leave Group
-              </Button>
-            )}
-            <Button variant="ghost" onClick={() => onClose && onClose()}>Close</Button>
-            <Button onClick={() => { if (onRefresh) onRefresh(); }}>Refresh</Button>
+                    setShowLeaveConfirm(true);
+                  }}
+                >
+                  Leave Group
+                </Button>
+              )}
+              <Button variant="ghost" onClick={() => onClose && onClose()}>Close</Button>
+              <Button onClick={() => { if (onRefresh) onRefresh(); }}>Refresh</Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="p-4 border-b bg-gray-50">
-        <nav className="flex space-x-4">
-          <button onClick={() => setTab('overview')} className={`px-3 py-1 rounded ${tab==='overview' ? 'bg-white shadow' : ''}`}>Overview</button>
-          <button onClick={() => setTab('members')} className={`px-3 py-1 rounded ${tab==='members' ? 'bg-white shadow' : ''}`}>Members</button>
-          <button onClick={() => setTab('resources')} className={`px-3 py-1 rounded ${tab==='resources' ? 'bg-white shadow' : ''}`}>Resources</button>
-          <button onClick={() => setTab('announcements')} className={`px-3 py-1 rounded ${tab==='announcements' ? 'bg-white shadow' : ''}`}>Announcements</button>
-          <button onClick={() => setTab('settings')} className={`px-3 py-1 rounded ${tab==='settings' ? 'bg-white shadow' : ''}`}>Settings</button>
-        </nav>
-      </div>
+        <div className="p-4 border-b bg-gray-50">
+          <nav className="flex space-x-4">
+            <button onClick={() => setTab('overview')} className={`px-3 py-1 rounded ${tab==='overview' ? 'bg-white shadow' : ''}`}>Overview</button>
+            <button onClick={() => setTab('members')} className={`px-3 py-1 rounded ${tab==='members' ? 'bg-white shadow' : ''}`}>Members</button>
+            <button onClick={() => setTab('resources')} className={`px-3 py-1 rounded ${tab==='resources' ? 'bg-white shadow' : ''}`}>Resources</button>
+            <button onClick={() => setTab('announcements')} className={`px-3 py-1 rounded ${tab==='announcements' ? 'bg-white shadow' : ''}`}>Announcements</button>
+            <button onClick={() => setTab('settings')} className={`px-3 py-1 rounded ${tab==='settings' ? 'bg-white shadow' : ''}`}>Settings</button>
+          </nav>
+        </div>
 
-      <div className="p-6">
-        {tab === 'overview' && (
-          <div>
-            <h4 className="text-sm font-semibold text-gray-700">Overview</h4>
-            <p className="mt-2 text-sm text-gray-600">{group.description}</p>
-            <div className="mt-4">
-              <strong>Schedule:</strong> {group.meetingSchedule}
+        <div className="p-6">
+          {tab === 'overview' && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-700">Overview</h4>
+              <p className="mt-2 text-sm text-gray-600">{group.description}</p>
+              <div className="mt-4">
+                <strong>Schedule:</strong> {group.meetingSchedule}
+              </div>
+              <div className="mt-2">
+                <strong>Location:</strong> {group.locationName || 'TBD'}
+              </div>
             </div>
-            <div className="mt-2">
-              <strong>Location:</strong> {group.locationName || 'TBD'}
-            </div>
-          </div>
-        )}
+          )}
 
         {tab === 'members' && (
           <div>
@@ -640,7 +670,35 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
             {(() => {
               const isLeader = group.leader?.id === currentUser?.id || (group.members || []).some((mm: any) => mm.user?.id === currentUser?.id && (mm.role === 'LEADER' || mm.role === 'CO_LEADER'));
               const canEdit = isLeader || !!isAdmin;
-              if (!canEdit) return null;
+              if (!canEdit) {
+                return (
+                  <div className="mt-4 space-y-2">
+                    <p className="text-sm text-gray-600">Contact a group leader if you need to change these details.</p>
+                    <div className="rounded border border-gray-100 bg-gray-50 p-3 text-sm text-gray-700">
+                      <div className="font-medium text-gray-900">{group.name}</div>
+                      <div className="mt-1 text-gray-600">{group.description || 'No description provided.'}</div>
+                      <div className="mt-2 grid grid-cols-2 gap-3 text-xs text-gray-600">
+                        <div>
+                          <div className="font-semibold text-gray-800">Schedule</div>
+                          <div>{group.meetingSchedule || 'Not set'}</div>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-800">Visibility</div>
+                          <div>{group.isHidden ? 'Hidden from discovery' : 'Visible to members'}</div>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-800">Status</div>
+                          <div>{group.isActive ? 'Active' : 'Inactive'}</div>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-800">Leader</div>
+                          <div>{group.leader?.profile?.displayName || group.leader?.email || 'Assigned leader'}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
 
               if (editing) {
                 return (
@@ -768,6 +826,26 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
           </div>
         )}
       </div>
-    </div>
+      </div>
+      {showLeaveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black opacity-30" onClick={() => !leaveInProgress && setShowLeaveConfirm(false)} />
+          <div className="bg-white p-6 rounded shadow-lg z-10 w-full max-w-md">
+            <h4 className="text-base font-semibold text-gray-900">Leave this group?</h4>
+            <p className="mt-2 text-sm text-gray-600">
+              You will lose access to group discussions, resources, and announcements. You can request to rejoin later.
+            </p>
+            <div className="mt-4 flex justify-end space-x-2">
+              <Button variant="secondary" onClick={() => setShowLeaveConfirm(false)} disabled={leaveInProgress}>
+                Stay in Group
+              </Button>
+              <Button variant="danger" onClick={handleConfirmLeave} disabled={leaveInProgress}>
+                {leaveInProgress ? 'Leaving…' : 'Confirm Leave'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

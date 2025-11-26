@@ -45,7 +45,12 @@ export default async function TenantLayout({
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
-      <header className="sticky top-[4.5rem] z-30 bg-white shadow-sm">
+      <header
+        className="sticky z-30 bg-white shadow-sm"
+        style={{
+          top: 'calc(var(--site-header-height, 4.5rem) + var(--impersonation-banner-offset, 0px))',
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-0">
             <TenantNav tenant={tenant} canViewSettings={canViewSettings} />
@@ -54,7 +59,9 @@ export default async function TenantLayout({
       </header>
       <main
         className="pb-10 flex-grow"
-        style={{ paddingTop: 'calc(var(--site-header-height, 4.5rem) + var(--tenant-nav-height, 6rem) + var(--community-header-height, 3.5rem) - var(--content-chips-spacer, 0px))' }}
+        style={{
+          paddingTop: 'calc(var(--site-header-height, 4.5rem) + var(--tenant-nav-height, 6rem) + var(--community-header-height, 3.5rem) - var(--content-chips-spacer, 0px))',
+        }}
       >
         <div suppressHydrationWarning className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {children}

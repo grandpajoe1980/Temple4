@@ -231,7 +231,7 @@ export class APITestSuite {
       async () => {
         const response = await fetch(
           `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/posts`,
-          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+          { method: 'GET', headers: this.getAuthHeaders() }
         );
         return { response, expectedStatus: [200] };
       }
@@ -264,7 +264,7 @@ export class APITestSuite {
       async () => {
         const response = await fetch(
           `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/events`,
-          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+          { method: 'GET', headers: this.getAuthHeaders() }
         );
         return { response, expectedStatus: [200] };
       }
@@ -318,7 +318,7 @@ export class APITestSuite {
       async () => {
         const response = await fetch(
           `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/sermons`,
-          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+          { method: 'GET', headers: this.getAuthHeaders() }
         );
         return { response, expectedStatus: [200] };
       }
@@ -331,7 +331,7 @@ export class APITestSuite {
       async () => {
         const response = await fetch(
           `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/books`,
-          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+          { method: 'GET', headers: this.getAuthHeaders() }
         );
         return { response, expectedStatus: [200] };
       }
@@ -357,7 +357,7 @@ export class APITestSuite {
       async () => {
         const response = await fetch(
           `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/resources`,
-          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+          { method: 'GET', headers: this.getAuthHeaders() }
         );
         return { response, expectedStatus: [200] };
       }
@@ -370,7 +370,7 @@ export class APITestSuite {
       async () => {
         const response = await fetch(
           `${TEST_CONFIG.apiBaseUrl}/tenants/${this.testTenantId}/services`,
-          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+          { method: 'GET', headers: this.getAuthHeaders() }
         );
         return { response, expectedStatus: [200] };
       }
@@ -815,7 +815,9 @@ export class APITestSuite {
     }
 
     const settingsId = tenant.settings.id;
-    const originalVisibility = (tenant.settings.visitorVisibility as Record<string, boolean> | null) || {};
+    const originalVisibility: Record<string, boolean> = JSON.parse(
+      JSON.stringify(tenant.settings.visitorVisibility ?? {})
+    );
     const tightenedVisibility = { ...originalVisibility, calendar: false };
 
     try {

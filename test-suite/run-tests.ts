@@ -131,8 +131,8 @@ async function main() {
     await featureTests.runAllTests();
 
     // Get test IDs for page tests (use Springfield tenant if available)
-    const testTenantId = springfieldTenantId || featureTests.getTestTenantId();
-    const testUserId = homerUserId || featureTests.getTestUserId();
+    const testTenantId = springfieldTenantId || (featureTests as any).getTestTenantId();
+    const testUserId = homerUserId || (featureTests as any).getTestUserId();
 
     if (testTenantId) {
       console.log(`\n✓ Using tenant ID for page tests: ${testTenantId}`);

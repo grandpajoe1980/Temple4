@@ -5,6 +5,7 @@
 
 import TEST_CONFIG from './test-config';
 import { TestLogger } from './test-logger';
+import { performCredentialsLogin } from './utils';
 
 export class PageTestSuite {
   private logger: TestLogger;
@@ -46,11 +47,38 @@ export class PageTestSuite {
       let path = page.path;
       
       // Replace dynamic segments
-      if (path.includes('[userId]') && this.testUserId) {
-        path = path.replace('[userId]', this.testUserId);
-      } else if (path.includes('[userId]')) {
-        this.logger.logSkip(category, page.name, 'No test user ID available');
-        continue;
+      if (path.includes('[userId]')) {
+        if (this.testUserId) {
+          path = path.replace('[userId]', this.testUserId);
+        } else {
+          // Try to obtain a test user by logging in the configured regular test user
+          try {
+            const { cookieHeader } = await performCredentialsLogin(TEST_CONFIG.testUsers.regular.email, TEST_CONFIG.testUsers.regular.password);
+            if (cookieHeader) {
+              const meResp = await fetch(`${TEST_CONFIG.apiBaseUrl}/auth/me`, { headers: { Cookie: cookieHeader } });
+              if (meResp.ok) {
+                const me = await meResp.json();
+                const userId = me?.id || me?.user?.id || me?.profile?.userId;
+                if (userId) {
+                  this.testUserId = userId;
+                  path = path.replace('[userId]', this.testUserId as string);
+                } else {
+                  this.logger.logSkip(category, page.name, 'Could not determine test user ID after login');
+                  continue;
+                }
+              } else {
+                this.logger.logSkip(category, page.name, 'Could not fetch /api/auth/me after login');
+                continue;
+              }
+            } else {
+              this.logger.logSkip(category, page.name, 'Login failed for regular test user');
+              continue;
+            }
+          } catch (err) {
+            this.logger.logSkip(category, page.name, 'Error obtaining test user ID: ' + (err as Error).message);
+            continue;
+          }
+        }
       }
 
       await this.testPage(category, page.name, path);

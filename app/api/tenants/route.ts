@@ -74,6 +74,9 @@ export async function POST(request: Request) {
             enableSmallGroups: true,
             enableVolunteering: true,
             enableDonations: true,
+            enableTrips: false,
+            enableTripFundraising: false,
+            tripCalendarColor: '#0EA5E9',
           },
         },
         // Add the creator as the first member and admin

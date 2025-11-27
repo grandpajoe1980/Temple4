@@ -32,9 +32,45 @@ export enum VolunteerStatus {
   CANCELED = 'CANCELED',
 }
 
+export type JoinPolicy = 'OPEN' | 'APPROVAL';
+
 export enum SmallGroupRole {
   LEADER = 'LEADER',
   MEMBER = 'MEMBER',
+}
+
+export enum TripStatus {
+  PLANNING = 'PLANNING',
+  PUBLISHED = 'PUBLISHED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  CANCELED = 'CANCELED',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum TripMemberRole {
+  LEADER = 'LEADER',
+  CO_LEADER = 'CO_LEADER',
+  MEMBER = 'MEMBER',
+  SUPPORT = 'SUPPORT',
+}
+
+export enum TravelSegmentType {
+  BUS = 'BUS',
+  FLIGHT = 'FLIGHT',
+  TRAIN = 'TRAIN',
+  BOAT = 'BOAT',
+  CARPOOL = 'CARPOOL',
+  LODGING = 'LODGING',
+  OTHER = 'OTHER',
+}
+
+export enum TripDonationStatus {
+  PLEDGED = 'PLEDGED',
+  AUTHORIZED = 'AUTHORIZED',
+  SETTLED = 'SETTLED',
+  REFUNDED = 'REFUNDED',
+  CANCELED = 'CANCELED',
 }
 
 export enum CommunityPostType {
@@ -242,10 +278,13 @@ export interface TenantSettings {
   enableDonations: boolean;
   enableVolunteering: boolean;
   enableSmallGroups: boolean;
+  enableTrips: boolean;
   enableLiveStream: boolean;
   enablePrayerWall: boolean;
   autoApprovePrayerWall: boolean;
   enableResourceCenter: boolean;
+  enableTripFundraising?: boolean;
+  tripCalendarColor?: string;
   donationSettings: DonationSettings;
   liveStreamSettings: LiveStreamSettings;
   // Visibility (simplified for mock)
@@ -603,6 +642,142 @@ export interface EnrichedGroupMember {
 export interface EnrichedSmallGroup extends SmallGroup {
     leader: User;
     members: EnrichedGroupMember[];
+}
+
+// --- TRIP MODELS ---
+export interface Trip {
+  id: string;
+  tenantId: string;
+  name: string;
+  summary?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  leaderUserId?: string | null;
+  coLeaderUserId?: string | null;
+  createdByUserId?: string | null;
+  startDate?: Date | string | null;
+  endDate?: Date | string | null;
+  departureLocation?: string | null;
+  destination?: string | null;
+  meetingPoint?: string | null;
+  status: TripStatus;
+  joinPolicy: JoinPolicy;
+  capacity?: number | null;
+  waitlistEnabled?: boolean;
+  costCents?: number | null;
+  currency?: string;
+  depositCents?: number | null;
+  allowPartialPayments?: boolean;
+  allowScholarships?: boolean;
+  allowMessages?: boolean;
+  allowPhotos?: boolean;
+  waiverRequired?: boolean;
+  waiverUrl?: string | null;
+  formUrl?: string | null;
+  packingList?: Record<string, any> | null;
+  housingDetails?: string | null;
+  transportationNotes?: string | null;
+  itineraryJson?: Record<string, any> | null;
+  travelDetails?: Record<string, any> | null;
+  safetyNotes?: string | null;
+  fundraisingEnabled?: boolean;
+  fundraisingGoalCents?: number | null;
+  fundraisingDeadline?: Date | string | null;
+  fundraisingVisibility?: string | null;
+  allowSponsorship?: boolean;
+  colorHex?: string | null;
+  isPublic?: boolean;
+  isHidden?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  archivedAt?: Date | null;
+}
+
+export interface TripMember {
+  id: string;
+  tripId: string;
+  userId: string;
+  role: TripMemberRole;
+  status: MembershipStatus;
+  joinedAt: Date | string;
+  leftAt?: Date | string | null;
+  waiverAcceptedAt?: Date | string | null;
+  emergencyContact?: Record<string, any> | null;
+  travelPreferences?: Record<string, any> | null;
+  notes?: string | null;
+}
+
+export interface TripItineraryItem {
+  id: string;
+  tripId: string;
+  title: string;
+  description?: string | null;
+  startsAt: Date | string;
+  endsAt?: Date | string | null;
+  location?: string | null;
+  order?: number | null;
+}
+
+export interface TripTravelSegment {
+  id: string;
+  tripId: string;
+  type: TravelSegmentType;
+  carrier?: string | null;
+  segmentNumber?: string | null;
+  departAt?: Date | string | null;
+  arriveAt?: Date | string | null;
+  departLocation?: string | null;
+  arriveLocation?: string | null;
+  confirmationCode?: string | null;
+  notes?: string | null;
+}
+
+export interface TripMessage {
+  id: string;
+  tripId: string;
+  authorUserId: string;
+  body: string;
+  createdAt: Date | string;
+}
+
+export interface TripPhoto {
+  id: string;
+  tripId: string;
+  uploadedById: string;
+  imageUrl: string;
+  caption?: string | null;
+  phase?: string | null;
+  createdAt: Date | string;
+}
+
+export interface TripDonation {
+  id: string;
+  tripId: string;
+  donorUserId?: string | null;
+  sponsoredUserId?: string | null;
+  amountCents: number;
+  currency: string;
+  status: TripDonationStatus;
+  message?: string | null;
+  displayName?: string | null;
+  isAnonymous?: boolean;
+  coverFees?: boolean;
+  createdAt: Date | string;
+}
+
+export interface EnrichedTripMember extends TripMember {
+  user: User;
+}
+
+export interface EnrichedTrip extends Trip {
+  leader?: User | null;
+  coLeader?: User | null;
+  members: EnrichedTripMember[];
+  itineraryItems?: TripItineraryItem[];
+  travelSegments?: TripTravelSegment[];
+  donations?: TripDonation[];
+  messages?: TripMessage[];
+  photos?: TripPhoto[];
 }
 
 // --- COMMUNITY BOARD / PRAYER WALL MODELS ---

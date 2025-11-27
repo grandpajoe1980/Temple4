@@ -41,7 +41,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave, onR
     });
   };
 
-  const featureKeys = (['enableBooks', 'enableCalendar', 'enableComments', 'enableDonations', 'enableGroupChat', 'enableLiveStream', 'enableMemberDirectory', 'enablePodcasts', 'enablePhotos', 'enablePosts', 'enablePrayerWall', 'enableReactions', 'enableResourceCenter', 'enableServices', 'enableSermons', 'enableSmallGroups', 'enableVolunteering'] satisfies Array<keyof Omit<
+  const featureKeys = (['enableBooks', 'enableCalendar', 'enableComments', 'enableDonations', 'enableGroupChat', 'enableLiveStream', 'enableMemberDirectory', 'enablePodcasts', 'enablePhotos', 'enablePosts', 'enablePrayerWall', 'enableReactions', 'enableResourceCenter', 'enableServices', 'enableSermons', 'enableSmallGroups', 'enableTrips', 'enableTripFundraising', 'enableVolunteering'] satisfies Array<keyof Omit<
     Tenant['settings'],
     'isPublic' | 'membershipApprovalMode' | 'visitorVisibility' | 'donationSettings' | 'liveStreamSettings'
   >>).sort((a, b) => formatLabel(a).localeCompare(formatLabel(b)));
@@ -59,7 +59,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave, onR
           <ToggleSwitch
             key={key}
             label={formatLabel(key)}
-            enabled={tenant.settings[key]}
+            enabled={tenant.settings[key] ?? false}
             onChange={(enabled) => handleFeatureToggle(key, enabled)}
           />
         ))}

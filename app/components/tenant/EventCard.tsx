@@ -8,12 +8,13 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 
 interface EventCardProps {
-  event: EventWithCreator;
+  event: EventWithCreator & { kind?: 'event' | 'trip'; tripId?: string };
   currentUserId?: string;
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
   const router = useRouter();
+  const isTrip = (event as any).kind === 'trip';
   const [rsvpStatus, setRsvpStatus] = useState<RSVPStatus | null>(event.currentUserRsvpStatus ?? null);
   const [rsvpCount, setRsvpCount] = useState<number>(event.rsvpCount ?? 0);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -41,6 +42,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
   };
 
   const handleRsvp = async (status: RSVPStatus) => {
+    if (isTrip) return; // RSVPs not enabled for trips via calendar
     if (!currentUserId) {
       router.push('/auth/login');
       return;
@@ -117,43 +119,50 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
           {event.title}
         </h3>
         <div className="mt-2 flex items-center text-sm text-gray-500">
-           <LocationInfo />
+          <LocationInfo />
         </div>
         <Description />
       </div>
-      <div className="bg-gray-50 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Button
-            variant={rsvpStatus === 'GOING' ? 'primary' : 'secondary'}
-            size="sm"
-            disabled={isUpdating}
-            onClick={() => handleRsvp(RSVPStatus.GOING)}
-          >
-            {rsvpStatus === 'GOING' ? 'Going ✓' : 'Going'}
-          </Button>
-          <Button
-            variant={rsvpStatus === 'INTERESTED' ? 'primary' : 'secondary'}
-            size="sm"
-            disabled={isUpdating}
-            onClick={() => handleRsvp(RSVPStatus.INTERESTED)}
-          >
-            {rsvpStatus === 'INTERESTED' ? 'Interested ✓' : 'Interested'}
-          </Button>
-          <Button
-            variant={rsvpStatus === 'NOT_GOING' ? 'primary' : 'ghost'}
-            size="sm"
-            disabled={isUpdating}
-            onClick={() => handleRsvp(RSVPStatus.NOT_GOING)}
-          >
-            Not Going
-          </Button>
+      {!isTrip ? (
+        <div className="bg-gray-50 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Button
+              variant={rsvpStatus === 'GOING' ? 'primary' : 'secondary'}
+              size="sm"
+              disabled={isUpdating}
+              onClick={() => handleRsvp(RSVPStatus.GOING)}
+            >
+              {rsvpStatus === 'GOING' ? 'Going ✓' : 'Going'}
+            </Button>
+            <Button
+              variant={rsvpStatus === 'INTERESTED' ? 'primary' : 'secondary'}
+              size="sm"
+              disabled={isUpdating}
+              onClick={() => handleRsvp(RSVPStatus.INTERESTED)}
+            >
+              {rsvpStatus === 'INTERESTED' ? 'Interested ✓' : 'Interested'}
+            </Button>
+            <Button
+              variant={rsvpStatus === 'NOT_GOING' ? 'primary' : 'ghost'}
+              size="sm"
+              disabled={isUpdating}
+              onClick={() => handleRsvp(RSVPStatus.NOT_GOING)}
+            >
+              Not Going
+            </Button>
+          </div>
+          <div className="text-right text-xs text-gray-600">
+            <div className="font-semibold text-gray-900">{rsvpCount} RSVP{rsvpCount === 1 ? '' : 's'}</div>
+            <div className="text-gray-500">{currentStatusLabel || 'Update your status'}</div>
+            <div className="text-[11px] text-gray-400">Created by {event.creatorDisplayName}</div>
+          </div>
         </div>
-        <div className="text-right text-xs text-gray-600">
-          <div className="font-semibold text-gray-900">{rsvpCount} RSVP{rsvpCount === 1 ? '' : 's'}</div>
-          <div className="text-gray-500">{currentStatusLabel || 'Update your status'}</div>
-          <div className="text-[11px] text-gray-400">Created by {event.creatorDisplayName}</div>
+      ) : (
+        <div className="bg-gray-50 px-6 py-3 text-xs text-gray-600 flex items-center justify-between">
+          <div className="text-gray-500">Trip • {event.creatorDisplayName}</div>
+          <div className="text-gray-500">Members: {rsvpCount}</div>
         </div>
-      </div>
+      )}
     </Card>
   );
 };

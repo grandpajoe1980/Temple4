@@ -51,6 +51,7 @@ const communitySubItems: { key: string; label: string; path: string; feature?: N
   { key: 'staff', label: 'Staff', path: '/staff', feature: 'enableMemberDirectory' },
   { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
   { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
+  { key: 'trips', label: 'Trips', path: '/trips', feature: 'enableTrips' },
   { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
   { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
 ];

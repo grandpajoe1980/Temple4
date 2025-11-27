@@ -25,6 +25,7 @@ export const CONTROL_PANEL_TABS = [
   'Prayer Wall',
   'Resource Center',
   'Contact Submissions',
+  'Trips',
 ].sort((a, b) => a.localeCompare(b));
 
 const defaultRolePermissions: RolePermissions = {
@@ -122,10 +123,13 @@ export const getInitialTenant = (): Omit<Tenant, 'id' | 'name' | 'slug' | 'creed
     enableDonations: false,
     enableVolunteering: true,
     enableSmallGroups: true,
+    enableTrips: false,
     enableLiveStream: false,
     enablePrayerWall: false,
     autoApprovePrayerWall: false,
     enableResourceCenter: false,
+    enableTripFundraising: false,
+    tripCalendarColor: '#0EA5E9',
     donationSettings: {
       mode: 'EXTERNAL',
       externalUrl: '',

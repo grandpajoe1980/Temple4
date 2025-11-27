@@ -1529,6 +1529,284 @@ export async function approveSmallGroupMember(groupId: string, userId: string, a
   return updated;
 }
 
+export async function getTripsForTenant(tenantId: string) {
+  const trips = await prisma.trip.findMany({
+    where: { tenantId },
+    include: {
+      members: {
+        include: {
+          user: { include: { profile: true } },
+        },
+      },
+      itineraryItems: true,
+      travelSegments: true,
+      donations: true,
+    },
+    orderBy: [{ startDate: 'asc' }, { createdAt: 'desc' }],
+  });
+
+  const enrichedTrips = await Promise.all(
+    trips.map(async (trip: any) => {
+      const leader = trip.leaderUserId
+        ? await prisma.user.findUnique({ where: { id: trip.leaderUserId }, include: { profile: true } })
+        : null;
+      const coLeader = trip.coLeaderUserId
+        ? await prisma.user.findUnique({ where: { id: trip.coLeaderUserId }, include: { profile: true } })
+        : null;
+
+      return {
+        ...trip,
+        leader,
+        coLeader,
+        members: trip.members.map((m: any) => ({
+          id: m.id,
+          role: m.role,
+          status: m.status,
+          joinedAt: m.joinedAt,
+          leftAt: m.leftAt,
+          waiverAcceptedAt: m.waiverAcceptedAt,
+          user: m.user,
+        })),
+      };
+    })
+  );
+
+  return enrichedTrips;
+}
+
+export async function getTripById(tripId: string) {
+  const trip = await prisma.trip.findUnique({
+    where: { id: tripId },
+    include: {
+      members: {
+        include: {
+          user: { include: { profile: true } },
+        },
+      },
+      itineraryItems: true,
+      travelSegments: true,
+      donations: true,
+    },
+  });
+
+  if (!trip) return null;
+
+  const leader = trip.leaderUserId
+    ? await prisma.user.findUnique({ where: { id: trip.leaderUserId }, include: { profile: true } })
+    : null;
+  const coLeader = trip.coLeaderUserId
+    ? await prisma.user.findUnique({ where: { id: trip.coLeaderUserId }, include: { profile: true } })
+    : null;
+
+  return {
+    ...trip,
+    leader,
+    coLeader,
+    members: trip.members.map((m: any) => ({
+      id: m.id,
+      role: m.role,
+      status: m.status,
+      joinedAt: m.joinedAt,
+      leftAt: m.leftAt,
+      waiverAcceptedAt: m.waiverAcceptedAt,
+      emergencyContact: m.emergencyContact,
+      travelPreferences: m.travelPreferences,
+      user: m.user,
+    })),
+  };
+}
+
+export async function createTrip(tenantId: string, tripData: any, createdByUserId?: string) {
+  if (!tripData || !tripData.name) {
+    throw new Error('Trip must include a name');
+  }
+
+  const data: any = {
+    tenantId,
+    name: tripData.name,
+    summary: tripData.summary ?? null,
+    description: tripData.description ?? null,
+    imageUrl: tripData.imageUrl ?? null,
+    leaderUserId: tripData.leaderUserId ?? null,
+    coLeaderUserId: tripData.coLeaderUserId ?? null,
+    createdByUserId: createdByUserId ?? null,
+    startDate: tripData.startDate ? new Date(tripData.startDate) : null,
+    endDate: tripData.endDate ? new Date(tripData.endDate) : null,
+    departureLocation: tripData.departureLocation ?? null,
+    destination: tripData.destination ?? null,
+    meetingPoint: tripData.meetingPoint ?? null,
+    status: tripData.status ?? undefined,
+    joinPolicy: tripData.joinPolicy ?? undefined,
+    capacity: tripData.capacity ?? null,
+    waitlistEnabled: tripData.waitlistEnabled ?? true,
+    costCents: tripData.costCents ?? null,
+    currency: tripData.currency ?? 'USD',
+    depositCents: tripData.depositCents ?? null,
+    allowPartialPayments: tripData.allowPartialPayments ?? false,
+    allowScholarships: tripData.allowScholarships ?? false,
+    allowMessages: tripData.allowMessages ?? true,
+    allowPhotos: tripData.allowPhotos ?? true,
+    waiverRequired: tripData.waiverRequired ?? false,
+    waiverUrl: tripData.waiverUrl ?? null,
+    formUrl: tripData.formUrl ?? null,
+    packingList: tripData.packingList ?? null,
+    housingDetails: tripData.housingDetails ?? null,
+    transportationNotes: tripData.transportationNotes ?? null,
+    itineraryJson: tripData.itineraryJson ?? null,
+    travelDetails: tripData.travelDetails ?? null,
+    safetyNotes: tripData.safetyNotes ?? null,
+    fundraisingEnabled: tripData.fundraisingEnabled ?? false,
+    fundraisingGoalCents: tripData.fundraisingGoalCents ?? null,
+    fundraisingDeadline: tripData.fundraisingDeadline ? new Date(tripData.fundraisingDeadline) : null,
+    fundraisingVisibility: tripData.fundraisingVisibility ?? null,
+    allowSponsorship: tripData.allowSponsorship ?? false,
+    colorHex: tripData.colorHex ?? null,
+    isPublic: tripData.isPublic ?? false,
+    isHidden: tripData.isHidden ?? false,
+  };
+
+  const trip = await prisma.trip.create({ data });
+
+  // Ensure leader membership exists
+  if (trip.leaderUserId) {
+    try {
+      await prisma.tripMember.upsert({
+        where: { tripId_userId: { tripId: trip.id, userId: trip.leaderUserId } },
+        create: {
+          tripId: trip.id,
+          userId: trip.leaderUserId,
+          role: 'LEADER',
+          status: 'APPROVED',
+          joinedAt: new Date(),
+        },
+        update: {
+          role: 'LEADER',
+          status: 'APPROVED',
+        },
+      });
+    } catch (e) {
+      // ignore unique errors
+    }
+  }
+
+  return trip;
+}
+
+export async function joinTrip(tenantId: string, tripId: string, userId: string, intake?: any) {
+  const trip = await prisma.trip.findUnique({ where: { id: tripId } });
+  if (!trip) throw new Error('Trip not found');
+  if (trip.tenantId !== tenantId) throw new Error('Tenant mismatch');
+
+  if (trip.capacity && trip.capacity > 0) {
+    const approvedCount = await prisma.tripMember.count({ where: { tripId, status: 'APPROVED' } });
+    if (approvedCount >= trip.capacity) {
+      if (trip.waitlistEnabled) {
+        // allow join as pending waitlist
+      } else {
+        throw new Error('Trip is full');
+      }
+    }
+  }
+
+  const existing = await prisma.tripMember.findUnique({ where: { tripId_userId: { tripId, userId } } });
+
+  const status = trip.joinPolicy === 'OPEN' ? 'APPROVED' : 'PENDING';
+
+  const emergencyContact = intake?.personalInfo?.emergencyContact
+    ? {
+        name: intake.personalInfo.emergencyContact.name || null,
+        relationship: intake.personalInfo.emergencyContact.relationship || null,
+        phone: intake.personalInfo.emergencyContact.phone || null,
+        email: intake.personalInfo.emergencyContact.email || null,
+      }
+    : undefined;
+
+  const intakeEnvelope = intake
+    ? {
+        personalInfo: intake.personalInfo || {},
+        medical: intake.medical || {},
+        passport: intake.passport || {},
+        guardian: intake.guardian || {},
+        waiver: intake.waiver || {},
+        agreements: intake.agreements || {},
+      }
+    : undefined;
+
+  const waiverAcceptedAt = intake?.waiverAccepted ? new Date() : undefined;
+
+  if (existing) {
+    const updated = await prisma.tripMember.update({
+      where: { id: existing.id },
+      data: {
+        status,
+        emergencyContact: emergencyContact === undefined ? existing.emergencyContact : (emergencyContact as any),
+        travelPreferences: intakeEnvelope ? ({ intakeForm: intakeEnvelope } as any) : existing.travelPreferences,
+        waiverAcceptedAt: waiverAcceptedAt ?? existing.waiverAcceptedAt ?? (intake ? new Date() : null),
+      },
+    });
+    return updated;
+  }
+
+  const membership = await prisma.tripMember.create({
+    data: {
+      tripId,
+      userId,
+      role: 'MEMBER',
+      status,
+      joinedAt: new Date(),
+      emergencyContact: emergencyContact === undefined ? undefined : (emergencyContact as any),
+      travelPreferences: intakeEnvelope ? ({ intakeForm: intakeEnvelope } as any) : undefined,
+      waiverAcceptedAt: waiverAcceptedAt ?? null,
+    },
+  });
+
+  return membership;
+}
+
+export async function approveTripMember(tripId: string, userId: string, approverId?: string) {
+  const membership = await prisma.tripMember.findUnique({ where: { tripId_userId: { tripId, userId } } });
+  if (!membership) throw new Error('Membership not found');
+
+  const updated = await prisma.tripMember.update({
+    where: { id: membership.id },
+    data: { status: 'APPROVED', notes: membership.notes },
+  });
+
+  return updated;
+}
+
+export async function leaveTrip(tripId: string, userId: string) {
+  const membership = await prisma.tripMember.findUnique({
+    where: { tripId_userId: { tripId, userId } },
+  });
+
+  if (!membership) return null;
+
+  await prisma.tripMember.delete({ where: { id: membership.id } });
+  return { success: true };
+}
+
+export async function addTripDonation(tripId: string, donationData: any) {
+  if (!donationData || typeof donationData.amountCents !== 'number') {
+    throw new Error('Donation must include amountCents');
+  }
+
+  return prisma.tripDonation.create({
+    data: {
+      tripId,
+      donorUserId: donationData.donorUserId ?? null,
+      sponsoredUserId: donationData.sponsoredUserId ?? null,
+      amountCents: donationData.amountCents,
+      currency: donationData.currency ?? 'USD',
+      status: donationData.status ?? 'PLEDGED',
+      message: donationData.message ?? null,
+      displayName: donationData.displayName ?? null,
+      isAnonymous: donationData.isAnonymous ?? false,
+      coverFees: donationData.coverFees ?? false,
+    },
+  });
+}
+
 export async function getVolunteerNeedsForTenant(tenantId: string): Promise<VolunteerNeedWithSignups[]> {
   return prisma.volunteerNeed.findMany({
     where: { tenantId },

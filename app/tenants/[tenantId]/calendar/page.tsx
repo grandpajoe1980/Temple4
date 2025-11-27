@@ -7,6 +7,7 @@ import CalendarPageClient from './CalendarPageClient';
 import { hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
 import { EventResponseDto, mapEventDtoToClient } from '@/lib/services/event-service';
+import type { EnrichedTrip } from '@/types';
 
 export default async function TenantCalendarPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const session = await getServerSession(authOptions);
@@ -43,13 +44,56 @@ export default async function TenantCalendarPage({ params }: { params: Promise<{
 
   const eventDtos: EventResponseDto[] = eventsResponse.ok ? await eventsResponse.json() : [];
   const events = eventDtos.map(mapEventDtoToClient);
+
+  // Pull trips with dates and map them into calendar entries
+  const tripsResponse = await fetch(`${baseUrl}/api/tenants/${tenant.id}/trips`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(cookieHeader ? { cookie: cookieHeader } : {}),
+    },
+    cache: 'no-store',
+  });
+
+  let trips: EnrichedTrip[] = [];
+  if (tripsResponse.ok) {
+    try {
+      const data = await tripsResponse.json();
+      trips = Array.isArray(data?.trips) ? data.trips : data;
+    } catch {
+      trips = [];
+    }
+  }
+
+  const tripEvents = (trips || [])
+    .filter((t) => t.startDate)
+    .map((trip) => ({
+      id: `trip-${trip.id}`,
+      tenantId: trip.tenantId,
+      createdByUserId: trip.createdByUserId || '',
+      title: `Trip: ${trip.name}`,
+      description: trip.summary || trip.description || 'Trip',
+      startDateTime: new Date(trip.startDate as any),
+      endDateTime: trip.endDate ? new Date(trip.endDate as any) : new Date(trip.startDate as any),
+      locationText: trip.destination || trip.meetingPoint || 'Trip',
+      isOnline: false,
+      onlineUrl: null,
+      creatorDisplayName: trip.leader?.profile?.displayName || trip.leader?.email || 'Trip Leader',
+      creatorAvatarUrl: trip.leader?.profile?.avatarUrl || null,
+      rsvpCount: (trip.members || []).length,
+      currentUserRsvpStatus: null,
+      kind: 'trip' as const,
+      tripId: trip.id,
+    }));
+
+  const mergedEvents = [...events, ...tripEvents] as any;
+
   const canCreateEvent =
     user.isSuperAdmin ||
     (await hasRole(user.id, tenant.id, [TenantRole.ADMIN, TenantRole.CLERGY]));
 
   return (
     <CalendarPageClient
-      events={events}
+      events={mergedEvents}
       tenantId={tenant.id}
       canCreateEvent={canCreateEvent}
       currentUserId={user.id}

@@ -131,6 +131,40 @@ enum RSVPStatus {
   NOT_GOING
 }
 
+enum TripStatus {
+  PLANNING
+  PUBLISHED
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+  ARCHIVED
+}
+
+enum TripMemberRole {
+  LEADER
+  CO_LEADER
+  MEMBER
+  SUPPORT
+}
+
+enum TravelSegmentType {
+  BUS
+  FLIGHT
+  TRAIN
+  BOAT
+  CARPOOL
+  LODGING
+  OTHER
+}
+
+enum TripDonationStatus {
+  PLEDGED
+  AUTHORIZED
+  SETTLED
+  REFUNDED
+  CANCELED
+}
+
 enum OutboxStatus {
   PENDING
   PROCESSING
@@ -188,6 +222,14 @@ model User {
   profilePostReactions            ProfilePostReaction[]
   profilePostComments             ProfilePostComment[]
   profilePostHides                ProfilePostHidden[]
+  tripsLed                        Trip[]                    @relation("TripLeader")
+  tripsCoLed                      Trip[]                    @relation("TripCoLeader")
+  tripsCreated                    Trip[]                    @relation("TripCreator")
+  tripMemberships                 TripMember[]
+  tripMessages                    TripMessage[]             @relation("TripMessageAuthor")
+  tripPhotos                      TripPhoto[]               @relation("TripPhotoUploader")
+  tripDonationsDonated            TripDonation[]            @relation("TripDonationDonor")
+  tripDonationsSponsored          TripDonation[]            @relation("TripDonationSponsored")
 }
 
 model UserProfile {
@@ -250,6 +292,7 @@ model Tenant {
   smallGroups             SmallGroup[]
   smallGroupResources     SmallGroupResource[]
   smallGroupAnnouncements SmallGroupAnnouncement[]
+  trips                   Trip[]
   communityPosts          CommunityPost[]
   resourceItems           ResourceItem[]
   contactSubmissions      ContactSubmission[]
@@ -384,11 +427,14 @@ model TenantSettings {
   enableDonations        Boolean                @default(false)
   enableVolunteering     Boolean                @default(false)
   enableSmallGroups      Boolean                @default(false)
+  enableTrips            Boolean                @default(false)
   enableLiveStream       Boolean                @default(false)
   enablePhotos           Boolean                @default(true)
   enablePrayerWall       Boolean                @default(false)
   autoApprovePrayerWall  Boolean                @default(false)
   enableResourceCenter   Boolean                @default(false)
+  enableTripFundraising  Boolean                @default(false)
+  tripCalendarColor      String?                @default("#0EA5E9")
   donationSettings       Json // DonationSettings
   liveStreamSettings     Json // LiveStreamSettings
   visitorVisibility      Json // visitorVisibility
@@ -703,6 +749,158 @@ model SmallGroupMembership {
   addedByUserId String?
 
   @@unique([groupId, userId])
+}
+
+// --- TRIP MODELS ---
+
+model Trip {
+  id                    String               @id @default(cuid())
+  tenantId              String
+  tenant                Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name                  String
+  summary               String?
+  description           String?
+  imageUrl              String?
+  leaderUserId          String?
+  leader                User?                @relation("TripLeader", fields: [leaderUserId], references: [id])
+  coLeaderUserId        String?
+  coLeader              User?                @relation("TripCoLeader", fields: [coLeaderUserId], references: [id])
+  createdByUserId       String?
+  creator               User?                @relation("TripCreator", fields: [createdByUserId], references: [id])
+  startDate             DateTime?
+  endDate               DateTime?
+  departureLocation     String?
+  destination           String?
+  meetingPoint          String?
+  status                TripStatus           @default(PLANNING)
+  joinPolicy            JoinPolicy           @default(APPROVAL)
+  capacity              Int?
+  waitlistEnabled       Boolean              @default(true)
+  costCents             Int?
+  currency              String               @default("USD")
+  depositCents          Int?
+  allowPartialPayments  Boolean              @default(false)
+  allowScholarships     Boolean              @default(false)
+  allowMessages         Boolean              @default(true)
+  allowPhotos           Boolean              @default(true)
+  waiverRequired        Boolean              @default(false)
+  waiverUrl             String?
+  formUrl               String?
+  packingList           Json?
+  housingDetails        String?
+  transportationNotes   String?
+  itineraryJson         Json?
+  travelDetails         Json?
+  safetyNotes           String?
+  fundraisingEnabled    Boolean              @default(false)
+  fundraisingGoalCents  Int?
+  fundraisingDeadline   DateTime?
+  fundraisingVisibility String?
+  allowSponsorship      Boolean              @default(false)
+  colorHex              String?              // calendar color for trips
+  isPublic              Boolean              @default(false)
+  isHidden              Boolean              @default(false)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  archivedAt            DateTime?
+  members               TripMember[]
+  itineraryItems        TripItineraryItem[]
+  travelSegments        TripTravelSegment[]
+  messages              TripMessage[]
+  photos                TripPhoto[]
+  donations             TripDonation[]
+
+  @@index([tenantId, status])
+}
+
+model TripMember {
+  id                String             @id @default(cuid())
+  tripId            String
+  trip              Trip               @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role              TripMemberRole     @default(MEMBER)
+  status            MembershipStatus   @default(PENDING)
+  joinedAt          DateTime           @default(now())
+  leftAt            DateTime?
+  waiverAcceptedAt  DateTime?
+  emergencyContact  Json?
+  travelPreferences Json?
+  notes             String?
+
+  @@unique([tripId, userId])
+}
+
+model TripItineraryItem {
+  id          String   @id @default(cuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  location    String?
+  order       Int?
+  createdAt   DateTime @default(now())
+}
+
+model TripTravelSegment {
+  id               String            @id @default(cuid())
+  tripId           String
+  trip             Trip              @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  type             TravelSegmentType
+  carrier          String?
+  segmentNumber    String?
+  departAt         DateTime?
+  arriveAt         DateTime?
+  departLocation   String?
+  arriveLocation   String?
+  confirmationCode String?
+  notes            String?
+  createdAt        DateTime          @default(now())
+}
+
+model TripMessage {
+  id           String   @id @default(cuid())
+  tripId       String
+  trip         Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  authorUserId String
+  author       User     @relation("TripMessageAuthor", fields: [authorUserId], references: [id], onDelete: Cascade)
+  body         String
+  createdAt    DateTime @default(now())
+}
+
+model TripPhoto {
+  id            String   @id @default(cuid())
+  tripId        String
+  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  uploadedById  String
+  uploadedBy    User     @relation("TripPhotoUploader", fields: [uploadedById], references: [id], onDelete: Cascade)
+  imageUrl      String
+  caption       String?
+  phase         String?  // pre, during, post
+  createdAt     DateTime @default(now())
+}
+
+model TripDonation {
+  id               String             @id @default(cuid())
+  tripId           String
+  trip             Trip               @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  donorUserId      String?
+  donorUser        User?              @relation("TripDonationDonor", fields: [donorUserId], references: [id], onDelete: Cascade)
+  sponsoredUserId  String?
+  sponsoredUser    User?              @relation("TripDonationSponsored", fields: [sponsoredUserId], references: [id], onDelete: Cascade)
+  amountCents      Int
+  currency         String             @default("USD")
+  status           TripDonationStatus @default(PLEDGED)
+  message          String?
+  displayName      String?
+  isAnonymous      Boolean            @default(false)
+  coverFees        Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+
+  @@index([tripId])
+  @@index([tripId, status])
 }
 
 // --- COMMUNITY BOARD / PRAYER WALL MODELS ---

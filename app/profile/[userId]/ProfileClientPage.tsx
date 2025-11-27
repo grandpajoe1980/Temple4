@@ -44,7 +44,9 @@ export default function ProfileClientPage({ user: initialUser }: ProfileClientPa
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        const body = await response.json().catch(() => null);
+        const message = body?.message || body?.error || 'Failed to update profile';
+        throw new Error(message);
       }
 
       const updatedUser = await response.json();
@@ -95,7 +97,7 @@ export default function ProfileClientPage({ user: initialUser }: ProfileClientPa
           <TabsContent value="profile">
             <ProfileSettingsTab
               profile={user.profile}
-              onUpdate={(data: UserProfile) => handleUpdate({ profile: data })}
+              onUpdate={(data: Partial<UserProfile>) => handleUpdate({ profile: data as any })}
             />
           </TabsContent>
           <TabsContent value="privacy">

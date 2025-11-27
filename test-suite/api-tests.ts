@@ -583,6 +583,50 @@ export class APITestSuite {
           return { response, expectedStatus: [200, 401, 404] };
         }
       );
+
+      // Test updating the user's profile via PUT and verify DB persistence
+      await this.testEndpoint(
+        category,
+        'PUT /api/users/[userId] - update profile and verify DB',
+        async () => {
+          const newDisplayName = `Automated Test ${Date.now()}`;
+          const payload = {
+            profile: {
+              displayName: newDisplayName,
+            },
+          };
+
+          const response = await fetch(`${TEST_CONFIG.apiBaseUrl}/users/${this.testUserId}`, {
+            method: 'PUT',
+            headers: this.getAuthHeaders(),
+            body: JSON.stringify(payload),
+          });
+
+          // If the update succeeded, verify via Prisma that the DB contains the new value
+          if (response.ok) {
+            try {
+              const userRecord = await prisma.user.findUnique({
+                where: { id: this.testUserId! },
+                include: { profile: true },
+              });
+
+              if (!userRecord || userRecord.profile?.displayName !== newDisplayName) {
+                this.logger.logFail(
+                  category,
+                  'PUT /api/users/[userId] - DB persistence check',
+                  `Profile displayName not updated in DB (expected: ${newDisplayName}, got: ${userRecord?.profile?.displayName})`
+                );
+              } else {
+                this.logger.logPass(category, 'PUT /api/users/[userId] - DB persistence check');
+              }
+            } catch (err) {
+              this.logger.logError(category, 'DB verification', err as Error);
+            }
+          }
+
+          return { response, expectedStatus: [200, 401, 403] };
+        }
+      );
     }
   }
 

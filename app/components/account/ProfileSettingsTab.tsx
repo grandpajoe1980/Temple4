@@ -9,7 +9,7 @@ import { useToast } from '../ui/Toast';
 
 interface ProfileSettingsTabProps {
   profile: UserProfile;
-  onUpdate: (profile: UserProfile) => void;
+  onUpdate: (profile: Partial<UserProfile>) => void;
 }
 
 const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initialProfile, onUpdate }) => {
@@ -22,6 +22,11 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
     setProfile((prev: any) => ({ ...prev, [name]: value }));
   };
 
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setProfile((prev: any) => ({ ...prev, [name]: checked }));
+  };
+
   const handleLanguagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProfile((prev: any) => ({ ...prev, languages: e.target.value }));
   };
@@ -32,10 +37,15 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
 
     try {
       // Call onUpdate which should handle the API call
-      await onUpdate(profile);
+      const payload: any = { ...profile };
+      payload.birthDate = payload.birthDate ? payload.birthDate : null;
+      payload.isBirthdayPublic = Boolean(payload.isBirthdayPublic);
+      await onUpdate(payload);
       toast.success('Profile updated successfully!');
     } catch (error) {
-      toast.error('Failed to update profile. Please try again.');
+      const err = error as any;
+      const message = err?.message || 'Failed to update profile. Please try again.';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -108,6 +118,27 @@ const ProfileSettingsTab: React.FC<ProfileSettingsTabProps> = ({ profile: initia
           placeholder="e.g., English, Spanish, German"
           disabled={isSubmitting}
         />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input
+            label="Birthdate"
+            id="birthDate"
+            name="birthDate"
+            type="date"
+            value={profile.birthDate ? new Date(profile.birthDate as any).toISOString().slice(0, 10) : ''}
+            onChange={handleInputChange}
+            disabled={isSubmitting}
+          />
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              name="isBirthdayPublic"
+              checked={Boolean((profile as any).isBirthdayPublic)}
+              onChange={handleCheckboxChange}
+              disabled={isSubmitting}
+            />
+            Make birthday public (shows on tenant calendars that enable birthdays)
+          </label>
+        </div>
       </div>
 
       <div className="text-right border-t border-gray-200 pt-6">

@@ -242,6 +242,8 @@ model UserProfile {
   locationCity    String?
   locationCountry String?
   languages       String?
+  birthDate       DateTime?
+  isBirthdayPublic Boolean @default(false)
 }
 
 model UserPrivacySettings {
@@ -439,6 +441,7 @@ model TenantSettings {
   liveStreamSettings     Json // LiveStreamSettings
   visitorVisibility      Json // visitorVisibility
   maxStorageMB           Int                    @default(1000) // Phase F2: Storage quota per tenant
+  enableBirthdays        Boolean                @default(false)
 }
 
 model UserTenantMembership {

@@ -35,6 +35,28 @@ const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user }) => {
     router.refresh();
   };
 
+  const handleUpdate = async (updatedData: Partial<{ profile: any; privacySettings: any; accountSettings: any }>) => {
+    try {
+      const response = await fetch(`/api/users/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        const message = body?.message || body?.error || 'Failed to update profile';
+        throw new Error(message);
+      }
+
+      const updatedUser = await response.json().catch(() => null);
+      handleRefresh();
+      return updatedUser;
+    } catch (err) {
+      throw err;
+    }
+  };
+
   const handleBack = () => {
     router.back();
   };
@@ -46,20 +68,13 @@ const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user }) => {
     
     switch (activeTab) {
       case 'Profile':
-        return <ProfileSettingsTab profile={user.profile} onUpdate={(profile) => {
-          // Update user profile and call handleRefresh
-          handleRefresh();
-        }} />;
+        return <ProfileSettingsTab profile={user.profile} onUpdate={(profile) => handleUpdate({ profile })} />;
       case 'Privacy':
-        return <PrivacySettingsTab settings={user.privacySettings || {} as any} onUpdate={(settings) => {
-          handleRefresh();
-        }} />;
+        return <PrivacySettingsTab settings={user.privacySettings || {} as any} onUpdate={(settings) => handleUpdate({ privacySettings: settings })} />;
       case 'My Memberships':
         return <MyMembershipsTab user={user as any} onRefresh={handleRefresh} />;
       case 'Account':
-        return <AccountSettingsTab settings={user.accountSettings || {} as any} onUpdate={(settings) => {
-          handleRefresh();
-        }} />;
+        return <AccountSettingsTab settings={user.accountSettings || {} as any} onUpdate={(settings) => handleUpdate({ accountSettings: settings })} />;
       case 'Notifications':
         return <NotificationSettingsTab user={user as any} onRefresh={handleRefresh} />;
       // Add other tabs here later

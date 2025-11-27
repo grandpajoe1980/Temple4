@@ -8,6 +8,7 @@ import { hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
 import { EventResponseDto, mapEventDtoToClient } from '@/lib/services/event-service';
 import type { EnrichedTrip } from '@/types';
+import { prisma } from '@/lib/db';
 
 export default async function TenantCalendarPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const session = await getServerSession(authOptions);
@@ -83,9 +84,54 @@ export default async function TenantCalendarPage({ params }: { params: Promise<{
       currentUserRsvpStatus: null,
       kind: 'trip' as const,
       tripId: trip.id,
+      isAllDay: false,
     }));
 
-  const mergedEvents = [...events, ...tripEvents] as any;
+  let birthdayEvents: any[] = [];
+  if (tenant.settings?.enableBirthdays) {
+    const members = await prisma.userTenantMembership.findMany({
+      where: { tenantId: tenant.id, status: 'APPROVED' },
+      include: {
+        user: {
+          include: {
+            profile: true,
+          },
+        },
+      },
+    });
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    birthdayEvents = members
+      .filter((m: any) => m.user?.profile?.birthDate && m.user?.profile?.isBirthdayPublic)
+      .map((m: any) => {
+        const birthDate = new Date(m.user.profile.birthDate);
+        const start = new Date(currentYear, birthDate.getMonth(), birthDate.getDate());
+        const end = new Date(start);
+        end.setDate(start.getDate() + 1);
+        return {
+          id: `birthday-${m.user.id}-${currentYear}`,
+          tenantId: tenant.id,
+          createdByUserId: m.user.id,
+          title: `${m.user.profile.displayName || m.user.email || 'Member'}'s Birthday`,
+          description: 'Birthday',
+          startDateTime: start,
+          endDateTime: end,
+          locationText: 'Birthday',
+          isOnline: false,
+          onlineUrl: null,
+          creatorDisplayName: m.user.profile.displayName || m.user.email || 'Member',
+          creatorAvatarUrl: m.user.profile.avatarUrl || null,
+          rsvpCount: 0,
+          currentUserRsvpStatus: null,
+          kind: 'birthday' as const,
+          birthdayUserId: m.user.id,
+          isAllDay: true,
+        };
+      });
+  }
+
+  const mergedEvents = [...events, ...tripEvents, ...birthdayEvents] as any;
 
   const canCreateEvent =
     user.isSuperAdmin ||

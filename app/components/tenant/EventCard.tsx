@@ -8,19 +8,25 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 
 interface EventCardProps {
-  event: EventWithCreator & { kind?: 'event' | 'trip'; tripId?: string };
+  event: EventWithCreator & { kind?: 'event' | 'trip' | 'birthday'; tripId?: string; birthdayUserId?: string; isAllDay?: boolean };
   currentUserId?: string;
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
   const router = useRouter();
-  const isTrip = (event as any).kind === 'trip';
+  const kind = (event as any).kind;
+  const isTrip = kind === 'trip';
+  const isBirthday = kind === 'birthday';
+  const isNonRsvp = isTrip || isBirthday;
   const [rsvpStatus, setRsvpStatus] = useState<RSVPStatus | null>(event.currentUserRsvpStatus ?? null);
   const [rsvpCount, setRsvpCount] = useState<number>(event.rsvpCount ?? 0);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const formatDateTime = (start: Date, end: Date) => {
     const startDate = start.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    if (event.isAllDay || isBirthday) {
+      return startDate;
+    }
     const startTime = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     const endTime = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     return `${startDate} from ${startTime} to ${endTime}`;
@@ -42,7 +48,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
   };
 
   const handleRsvp = async (status: RSVPStatus) => {
-    if (isTrip) return; // RSVPs not enabled for trips via calendar
+    if (isNonRsvp) return; // RSVPs not enabled for trips/birthdays via calendar
     if (!currentUserId) {
       router.push('/auth/login');
       return;
@@ -123,7 +129,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
         </div>
         <Description />
       </div>
-      {!isTrip ? (
+      {!isNonRsvp ? (
         <div className="bg-gray-50 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Button
@@ -159,8 +165,8 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
         </div>
       ) : (
         <div className="bg-gray-50 px-6 py-3 text-xs text-gray-600 flex items-center justify-between">
-          <div className="text-gray-500">Trip • {event.creatorDisplayName}</div>
-          <div className="text-gray-500">Members: {rsvpCount}</div>
+          <div className="text-gray-500">{isTrip ? 'Trip' : 'Birthday'} • {event.creatorDisplayName}</div>
+          <div className="text-gray-500">{isTrip ? `Members: ${rsvpCount}` : 'All-day'}</div>
         </div>
       )}
     </Card>

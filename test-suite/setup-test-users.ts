@@ -43,6 +43,70 @@ async function setupTestUsers() {
     });
     console.log('✅ Created: testuser@example.com / TestPassword123!');
 
+    // 1b. Create additional test users referenced by TEST_CONFIG (Homer, Marge, Ned)
+    console.log('\nCreating additional named test users (Homer, Marge, Ned)...');
+    const homerPassword = await bcrypt.hash('doh123', 10);
+    await prisma.user.upsert({
+      where: { email: 'homer@simpson.com' },
+      update: {},
+      create: {
+        email: 'homer@simpson.com',
+        password: homerPassword,
+        isSuperAdmin: false,
+        profile: {
+          create: {
+            displayName: 'Homer J. Simpson',
+            bio: 'Regular test user',
+            locationCity: 'Springfield',
+            locationCountry: 'USA',
+            languages: 'en',
+          },
+        },
+      },
+    });
+
+    const margePassword = await bcrypt.hash('bluebeehive', 10);
+    await prisma.user.upsert({
+      where: { email: 'marge@simpson.com' },
+      update: {},
+      create: {
+        email: 'marge@simpson.com',
+        password: margePassword,
+        isSuperAdmin: false,
+        profile: {
+          create: {
+            displayName: 'Marge Simpson',
+            bio: 'Moderator test user',
+            locationCity: 'Springfield',
+            locationCountry: 'USA',
+            languages: 'en',
+          },
+        },
+      },
+    });
+
+    const nedPassword = await bcrypt.hash('okily-dokily', 10);
+    await prisma.user.upsert({
+      where: { email: 'ned@flanders.com' },
+      update: {},
+      create: {
+        email: 'ned@flanders.com',
+        password: nedPassword,
+        isSuperAdmin: false,
+        profile: {
+          create: {
+            displayName: 'Ned Flanders',
+            bio: 'Admin test user',
+            locationCity: 'Springfield',
+            locationCountry: 'USA',
+            languages: 'en',
+          },
+        },
+      },
+    });
+
+    console.log('✅ Created: homer@simpson.com / doh123, marge@simpson.com / bluebeehive, ned@flanders.com / okily-dokily');
+
     // 2. Create platform super admin
     console.log('\nCreating platform super admin...');
     const superAdminPassword = await bcrypt.hash('SuperAdminPass123!', 10);

@@ -57,23 +57,68 @@ export async function PUT(
     try {
         const { profile, privacySettings, accountSettings } = await request.json();
 
+        // Normalize profile fields (strip ids, coerce types)
+        const normalizeLanguages = (langs: any) => {
+          if (Array.isArray(langs)) return langs.join(', ');
+          if (typeof langs === 'string') return langs;
+          return null;
+        };
+
+        const normalizedProfile = profile
+            ? {
+                displayName: profile.displayName,
+                avatarUrl: profile.avatarUrl ?? null,
+                bio: profile.bio ?? null,
+                locationCity: profile.locationCity ?? null,
+                locationCountry: profile.locationCountry ?? null,
+                languages: normalizeLanguages(profile.languages),
+                birthDate: profile.birthDate ? new Date(profile.birthDate) : null,
+                isBirthdayPublic: profile.isBirthdayPublic ?? false,
+              }
+            : undefined;
+
+        const normalizedPrivacy = privacySettings ? { ...privacySettings } : undefined;
+        const normalizedAccount = accountSettings ? { ...accountSettings } : undefined;
+
         const updatedUser = await prisma.user.update({
             where: { id: userId },
             data: {
-                profile: {
-                    update: profile,
-                },
-                privacySettings: {
-                    update: privacySettings,
-                },
-                accountSettings: {
-                    update: accountSettings,
-                },
+                ...(normalizedProfile
+                    ? {
+                        profile: {
+                          upsert: {
+                            update: normalizedProfile,
+                            create: { ...normalizedProfile },
+                          },
+                        },
+                      }
+                    : {}),
+                ...(normalizedPrivacy
+                  ? {
+                      privacySettings: {
+                        upsert: {
+                          update: normalizedPrivacy,
+                          create: { ...normalizedPrivacy },
+                        },
+                      },
+                    }
+                  : {}),
+                ...(normalizedAccount
+                  ? {
+                      accountSettings: {
+                        upsert: {
+                          update: normalizedAccount,
+                          create: { ...normalizedAccount },
+                        },
+                      },
+                    }
+                  : {}),
             },
             include: {
                 profile: true,
                 privacySettings: true,
                 accountSettings: true,
+                memberships: true,
             },
         });
 

@@ -145,6 +145,8 @@ export interface UserProfile {
   locationCountry?: string | null;
   // Some server payloads serialize languages as a comma-separated string or null; allow either shape
   languages?: string[] | string | null;
+  birthDate?: string | Date | null;
+  isBirthdayPublic?: boolean;
 }
 
 export interface UserPrivacySettings {
@@ -285,6 +287,7 @@ export interface TenantSettings {
   enableResourceCenter: boolean;
   enableTripFundraising?: boolean;
   tripCalendarColor?: string;
+  enableBirthdays?: boolean;
   donationSettings: DonationSettings;
   liveStreamSettings: LiveStreamSettings;
   // Visibility (simplified for mock)
@@ -398,12 +401,16 @@ export interface Event {
   isOnline: boolean;
   onlineUrl: string | null;
   deletedAt?: Date | null;
+  isAllDay?: boolean;
 }
 export interface EventWithCreator extends Event {
     creatorDisplayName: string;
     creatorAvatarUrl: string | null;
     rsvpCount: number;
     currentUserRsvpStatus?: RSVPStatus | null;
+    kind?: 'event' | 'trip' | 'birthday';
+    tripId?: string;
+    birthdayUserId?: string;
 }
 
 export interface EventRSVP {

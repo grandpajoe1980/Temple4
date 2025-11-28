@@ -15,7 +15,7 @@ type Meta = {
 export default function PodcastEmbed({ url }: Props) {
   const info = detectPodcast(url)
   const [meta, setMeta] = useState<Meta | null>(null)
-  const [iframeStatus, setIframeStatus] = useState<'idle' | 'loading' | 'loaded' | 'failed'>('idle')
+
 
   useEffect(() => {
     let mounted = true
@@ -64,6 +64,7 @@ export default function PodcastEmbed({ url }: Props) {
   // Reusable iframe with load/error detection and timeout fallback
   function DetectedIframe(props: React.ComponentProps<'iframe'> & { src: string; fallbackSrc?: string }) {
     const { src, fallbackSrc, ...rest } = props
+    const [iframeStatus, setIframeStatus] = useState<'idle' | 'loading' | 'loaded' | 'failed'>('idle')
     useEffect(() => {
       let mounted = true
       setIframeStatus('loading')
@@ -94,8 +95,8 @@ export default function PodcastEmbed({ url }: Props) {
           <iframe
             {...rest}
             src={src}
-            onLoad={() => setIframeStatus('loaded')}
-            onError={() => setIframeStatus('failed')}
+            onLoad={() => { setIframeStatus('loaded'); console.debug('iframe loaded', src); }}
+            onError={() => { setIframeStatus('failed'); console.debug('iframe error', src); }}
           />
         )}
       </div>
@@ -182,7 +183,7 @@ export default function PodcastEmbed({ url }: Props) {
                 height={450}
                 frameBorder={0}
                 allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
-                sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+                sandbox="allow-forms allow-same-origin allow-scripts allow-storage-access-by-user-activation"
                 loading="lazy"
                 fallbackSrc={url}
               />

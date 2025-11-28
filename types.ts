@@ -433,8 +433,9 @@ export interface MediaItem {
   publishedAt: Date;
 }
 export interface EnrichedMediaItem extends MediaItem {
-    authorDisplayName: string;
-    authorAvatarUrl?: string;
+  authorDisplayName: string;
+  authorAvatarUrl?: string;
+  artworkUrl?: string;
 }
 
 export interface ChatMessage {

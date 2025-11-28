@@ -40,16 +40,22 @@ const PodcastCard: React.FC<PodcastCardProps> = ({ podcast, canEdit = false, onE
             <PodcastEmbed url={podcast.embedUrl} />
           </div>
         ) : (
-          <iframe
-            src={embedUrl}
-            width="100%"
-            height="40"
-            frameBorder="0"
-            allowFullScreen={false}
-            allow="autoplay; clipboard-write; encrypted-media;"
-            title={podcast.title}
-            className="rounded-md"
-          ></iframe>
+          podcast.artworkUrl ? (
+            <div className="w-full h-40 bg-gray-100 rounded-md overflow-hidden flex items-center justify-center">
+              <img src={podcast.artworkUrl} alt={podcast.title} className="object-cover w-full h-full" />
+            </div>
+          ) : (
+            <iframe
+              src={embedUrl}
+              width="100%"
+              height="40"
+              frameBorder="0"
+              allowFullScreen={false}
+              allow="autoplay; clipboard-write; encrypted-media;"
+              title={podcast.title}
+              className="rounded-md"
+            ></iframe>
+          )
         )}
       </div>
       <div className="p-6 pt-2 flex-grow">

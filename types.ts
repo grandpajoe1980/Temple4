@@ -267,6 +267,7 @@ export interface TenantSettings {
   membershipApprovalMode: MembershipApprovalMode;
   // Features
   enableCalendar: boolean;
+  enableEvents?: boolean;
   enablePosts: boolean;
   enableSermons: boolean;
   enablePodcasts: boolean;
@@ -293,6 +294,7 @@ export interface TenantSettings {
   // Visibility (simplified for mock)
   visitorVisibility: {
     calendar: boolean;
+    events?: boolean;
     posts: boolean;
     sermons: boolean;
     podcasts: boolean;
@@ -402,6 +404,8 @@ export interface Event {
   onlineUrl: string | null;
   deletedAt?: Date | null;
   isAllDay?: boolean;
+  posterStorageKey?: string | null;
+  posterUrl?: string | null;
 }
 export interface EventWithCreator extends Event {
     creatorDisplayName: string;

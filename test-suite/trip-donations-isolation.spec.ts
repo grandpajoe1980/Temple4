@@ -19,11 +19,10 @@ async function testTripDonationRequiresMembership() {
   const trip = await prisma.trip.create({
     data: {
       tenantId,
-      title: 'Test Trip Fundraiser',
+      name: 'Test Trip Fundraiser',
       description: 'Trip for testing donations',
       fundraisingEnabled: true,
       fundraisingVisibility: 'MEMBERS_ONLY',
-      tenant: { connect: { id: tenantId } },
     }
   });
 

@@ -4,8 +4,10 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { can, canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
+import { rsvpSchema } from '../../schemas';
 import { RSVPStatus } from '@/types';
 import { unauthorized, forbidden, validationError, handleApiError } from '@/lib/api-response';
+import { rsvpToEvent } from '@/lib/services/event-service';
 
 // 10.6 List Event RSVPs
 export async function GET(
@@ -55,9 +57,7 @@ export async function GET(
   }
 }
 
-const rsvpCreateSchema = z.object({
-    status: z.enum(['GOING', 'INTERESTED', 'NOT_GOING']).optional().default('GOING'),
-});
+// use shared rsvpSchema from ../../schemas
 
 // 10.7 RSVP to an Event
 export async function POST(
@@ -68,9 +68,6 @@ export async function POST(
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
-    if (!userId) {
-      return unauthorized();
-    }
 
     try {
         // Check if user can view the event in the first place
@@ -80,34 +77,53 @@ export async function POST(
         }
 
         const body = await request.json();
-        const result = rsvpCreateSchema.safeParse(body);
+        const result = rsvpSchema.safeParse(body);
         if (!result.success) {
           return validationError(result.error.flatten().fieldErrors);
         }
 
-        // Check if user is already RSVP'd
-        const existingRsvp = await prisma.eventRSVP.findUnique({
-            where: { userId_eventId: { userId, eventId: eventId } }
-        });
+        // If user is not authenticated, allow guest RSVP only for PUBLIC events
+        if (!userId) {
+          const event = await prisma.event.findUnique({ where: { id: eventId } });
+          if (!event || event.deletedAt || event.tenantId !== tenantId) {
+            return validationError({ event: ['Invalid event'] });
+          }
+          if (event.visibility !== 'PUBLIC') {
+            return forbidden('Only public events allow guest RSVPs');
+          }
 
-        if (existingRsvp) {
-            // Update existing RSVP instead of returning error
-            const updatedRsvp = await prisma.eventRSVP.update({
-                where: { userId_eventId: { userId, eventId: eventId } },
-                data: { status: result.data.status as RSVPStatus },
-            });
-            return NextResponse.json(updatedRsvp);
+          // Require guest name and email for anonymous RSVP
+          if (!result.data.guestName || !result.data.guestEmail) {
+            return validationError({ guest: ['Name and email are required for guest RSVP'] });
+          }
         }
 
-        const newRsvp = await prisma.eventRSVP.create({
-            data: {
-                userId,
-                eventId: eventId,
-                status: result.data.status as RSVPStatus,
-            },
-        });
+        const rsvpPayload: any = {
+          userId,
+          status: result.data.status,
+          role: result.data.role,
+          notes: result.data.notes,
+          guestName: result.data.guestName,
+          guestEmail: result.data.guestEmail,
+        };
 
-        return NextResponse.json(newRsvp, { status: 201 });
+        try {
+          const created = await rsvpToEvent(tenantId, eventId, rsvpPayload as any);
+          return NextResponse.json(created, { status: 201 });
+        } catch (err: any) {
+          // Map simple service errors
+          const msg = String(err.message || '');
+          if (msg.includes('full')) {
+            return validationError({ capacity: [msg] });
+          }
+          if (msg.includes('RegistrationNotOpen')) {
+            return validationError({ registration: ['Registration is not open yet'] });
+          }
+          if (msg.includes('RegistrationClosed')) {
+            return validationError({ registration: ['Registration is closed'] });
+          }
+          throw err;
+        }
     } catch (error) {
       console.error(`Failed to RSVP to event ${eventId}:`, error);
       return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/events/[eventId]/rsvps', eventId, tenantId });

@@ -34,6 +34,7 @@ export async function GET(
       canManageResources: false,
       canManageContact: false,
       canCreatePosts: false,
+      canCreateEvents: false,
     } as Record<string, boolean>;
 
     if (user && tenant) {
@@ -44,6 +45,7 @@ export async function GET(
       permissions.canManageResources = await can(user as any, tenant as any, 'canManageResources');
       permissions.canManageContact = await can(user as any, tenant as any, 'canManageContactSubmissions');
       permissions.canCreatePosts = await can(user as any, tenant as any, 'canCreatePosts');
+      permissions.canCreateEvents = await can(user as any, tenant as any, 'canCreateEvents');
     }
 
     return NextResponse.json({ membership, tenant: { id: tenant.id, slug: tenant.slug }, permissions });

@@ -92,3 +92,21 @@ export function startOutboxWorker(opts?: { intervalMs?: number; stopSignal?: { s
 const OutboxWorker = { processNextOutboxItem, startOutboxWorker };
 
 export default OutboxWorker;
+
+/**
+ * Enqueue a generic outbox item.
+ * This is a small helper to standardize how callers add items to the outbox.
+ */
+export async function enqueueOutbox(tenantId: string | null, payload: any, type?: string | null) {
+  try {
+    const data: any = { payload };
+    if (tenantId) data.tenantId = tenantId;
+    if (type) data.type = type as any;
+    const item = await prisma.outbox.create({ data });
+    logger.info('Enqueued outbox item', { id: item.id, type, tenantId: tenantId ?? undefined });
+    return item;
+  } catch (err) {
+    logger.error('Failed to enqueue outbox item', { error: err });
+    return null;
+  }
+}

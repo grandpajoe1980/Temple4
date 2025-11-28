@@ -129,6 +129,19 @@ enum RSVPStatus {
   GOING
   INTERESTED
   NOT_GOING
+  WAITLISTED
+}
+
+enum EventVisibility {
+  PUBLIC
+  MEMBERS_ONLY
+  PRIVATE_LINK
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
 }
 
 enum TripStatus {
@@ -233,17 +246,17 @@ model User {
 }
 
 model UserProfile {
-  id              String  @id @default(cuid())
-  userId          String  @unique
-  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  displayName     String
-  avatarUrl       String?
-  bio             String?
-  locationCity    String?
-  locationCountry String?
-  languages       String?
-  birthDate       DateTime?
-  isBirthdayPublic Boolean @default(false)
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName      String
+  avatarUrl        String?
+  bio              String?
+  locationCity     String?
+  locationCountry  String?
+  languages        String?
+  birthDate        DateTime?
+  isBirthdayPublic Boolean   @default(false)
 }
 
 model UserPrivacySettings {
@@ -437,6 +450,7 @@ model TenantSettings {
   enableResourceCenter   Boolean                @default(false)
   enableTripFundraising  Boolean                @default(false)
   tripCalendarColor      String?                @default("#0EA5E9")
+  enableEvents           Boolean                @default(true)
   donationSettings       Json // DonationSettings
   liveStreamSettings     Json // LiveStreamSettings
   visitorVisibility      Json // visitorVisibility
@@ -503,34 +517,75 @@ model PostComment {
 }
 
 model Event {
-  id               String            @id @default(cuid())
-  tenantId         String
-  tenant           Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  createdByUserId  String
-  creator          User              @relation(fields: [createdByUserId], references: [id])
-  title            String
-  description      String
-  startDateTime    DateTime
-  endDateTime      DateTime
-  locationText     String
-  isOnline         Boolean           @default(false)
-  onlineUrl        String?
-  deletedAt        DateTime?
-  rsvps            EventRSVP[]
-  facilityBookings FacilityBooking[]
+  id                   String               @id @default(cuid())
+  tenantId             String
+  tenant               Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdByUserId      String
+  creator              User                 @relation(fields: [createdByUserId], references: [id])
+  title                String
+  description          String?
+  startDateTime        DateTime
+  endDateTime          DateTime?
+  isOnline             Boolean              @default(false)
+  onlineUrl            String?
+  allDay               Boolean              @default(false)
+  visibility           EventVisibility      @default(MEMBERS_ONLY)
+  status               EventStatus          @default(DRAFT)
+  capacityLimit        Int?
+  waitlistEnabled      Boolean              @default(false)
+  locationText         String?
+  locationId           String?
+  // location relation omitted to avoid modifying Facility model; use locationId to reference a Facility if needed
+  posterStorageKey     String?
+  posterUrl            String?
+  registrationRequired Boolean              @default(false)
+  registrationOpenAt   DateTime?
+  registrationCloseAt  DateTime?
+  price                Float?
+  url                  String?
+  organizerId          String?
+  // organizer relation intentionally not modeled to avoid ambiguous relations on User
+  cancellationReason   String?
+  tags                 Json? // array of tags stored as JSON
+  recurrenceGroupId    String?
+  deletedAt            DateTime?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime?            @updatedAt
+  rsvps                EventRSVP[]
+  volunteerRoles       EventVolunteerRole[]
+  facilityBookings     FacilityBooking[]
 }
 
 model EventRSVP {
-  id        String     @id @default(cuid())
-  userId    String
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  eventId   String
-  event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  status    RSVPStatus @default(GOING)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id          String     @id @default(cuid())
+  userId      String?
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId     String
+  event       Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  guestEmail  String?
+  guestName   String?
+  status      RSVPStatus @default(GOING)
+  role        String?    @default("ATTENDEE")
+  volunteerRoleId String?
+  volunteerRole   EventVolunteerRole? @relation(fields: [volunteerRoleId], references: [id])
+  notes       String?
+  checkInTime DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  @@unique([userId, eventId])
+  @@unique([userId, eventId], name: "unique_user_event_rsvp")
+}
+
+model EventVolunteerRole {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roleName  String
+  capacity  Int      @default(1)
+  rsvps     EventRSVP[]
+  createdAt DateTime @default(now())
+
+  @@index([eventId])
 }
 
 model MediaItem {
@@ -757,36 +812,36 @@ model SmallGroupMembership {
 // --- TRIP MODELS ---
 
 model Trip {
-  id                    String               @id @default(cuid())
+  id                    String              @id @default(cuid())
   tenantId              String
-  tenant                Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant                Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   name                  String
   summary               String?
   description           String?
   imageUrl              String?
   leaderUserId          String?
-  leader                User?                @relation("TripLeader", fields: [leaderUserId], references: [id])
+  leader                User?               @relation("TripLeader", fields: [leaderUserId], references: [id])
   coLeaderUserId        String?
-  coLeader              User?                @relation("TripCoLeader", fields: [coLeaderUserId], references: [id])
+  coLeader              User?               @relation("TripCoLeader", fields: [coLeaderUserId], references: [id])
   createdByUserId       String?
-  creator               User?                @relation("TripCreator", fields: [createdByUserId], references: [id])
+  creator               User?               @relation("TripCreator", fields: [createdByUserId], references: [id])
   startDate             DateTime?
   endDate               DateTime?
   departureLocation     String?
   destination           String?
   meetingPoint          String?
-  status                TripStatus           @default(PLANNING)
-  joinPolicy            JoinPolicy           @default(APPROVAL)
+  status                TripStatus          @default(PLANNING)
+  joinPolicy            JoinPolicy          @default(APPROVAL)
   capacity              Int?
-  waitlistEnabled       Boolean              @default(true)
+  waitlistEnabled       Boolean             @default(true)
   costCents             Int?
-  currency              String               @default("USD")
+  currency              String              @default("USD")
   depositCents          Int?
-  allowPartialPayments  Boolean              @default(false)
-  allowScholarships     Boolean              @default(false)
-  allowMessages         Boolean              @default(true)
-  allowPhotos           Boolean              @default(true)
-  waiverRequired        Boolean              @default(false)
+  allowPartialPayments  Boolean             @default(false)
+  allowScholarships     Boolean             @default(false)
+  allowMessages         Boolean             @default(true)
+  allowPhotos           Boolean             @default(true)
+  waiverRequired        Boolean             @default(false)
   waiverUrl             String?
   formUrl               String?
   packingList           Json?
@@ -795,16 +850,16 @@ model Trip {
   itineraryJson         Json?
   travelDetails         Json?
   safetyNotes           String?
-  fundraisingEnabled    Boolean              @default(false)
+  fundraisingEnabled    Boolean             @default(false)
   fundraisingGoalCents  Int?
   fundraisingDeadline   DateTime?
   fundraisingVisibility String?
-  allowSponsorship      Boolean              @default(false)
-  colorHex              String?              // calendar color for trips
-  isPublic              Boolean              @default(false)
-  isHidden              Boolean              @default(false)
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
+  allowSponsorship      Boolean             @default(false)
+  colorHex              String? // calendar color for trips
+  isPublic              Boolean             @default(false)
+  isHidden              Boolean             @default(false)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
   archivedAt            DateTime?
   members               TripMember[]
   itineraryItems        TripItineraryItem[]
@@ -817,14 +872,14 @@ model Trip {
 }
 
 model TripMember {
-  id                String             @id @default(cuid())
+  id                String           @id @default(cuid())
   tripId            String
-  trip              Trip               @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  trip              Trip             @relation(fields: [tripId], references: [id], onDelete: Cascade)
   userId            String
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role              TripMemberRole     @default(MEMBER)
-  status            MembershipStatus   @default(PENDING)
-  joinedAt          DateTime           @default(now())
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role              TripMemberRole   @default(MEMBER)
+  status            MembershipStatus @default(PENDING)
+  joinedAt          DateTime         @default(now())
   leftAt            DateTime?
   waiverAcceptedAt  DateTime?
   emergencyContact  Json?
@@ -835,16 +890,16 @@ model TripMember {
 }
 
 model TripItineraryItem {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   tripId      String
-  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  trip        Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
   title       String
   description String?
   startsAt    DateTime
   endsAt      DateTime?
   location    String?
   order       Int?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 }
 
 model TripTravelSegment {
@@ -874,33 +929,33 @@ model TripMessage {
 }
 
 model TripPhoto {
-  id            String   @id @default(cuid())
-  tripId        String
-  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  uploadedById  String
-  uploadedBy    User     @relation("TripPhotoUploader", fields: [uploadedById], references: [id], onDelete: Cascade)
-  imageUrl      String
-  caption       String?
-  phase         String?  // pre, during, post
-  createdAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  tripId       String
+  trip         Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  uploadedById String
+  uploadedBy   User     @relation("TripPhotoUploader", fields: [uploadedById], references: [id], onDelete: Cascade)
+  imageUrl     String
+  caption      String?
+  phase        String? // pre, during, post
+  createdAt    DateTime @default(now())
 }
 
 model TripDonation {
-  id               String             @id @default(cuid())
-  tripId           String
-  trip             Trip               @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  donorUserId      String?
-  donorUser        User?              @relation("TripDonationDonor", fields: [donorUserId], references: [id], onDelete: Cascade)
-  sponsoredUserId  String?
-  sponsoredUser    User?              @relation("TripDonationSponsored", fields: [sponsoredUserId], references: [id], onDelete: Cascade)
-  amountCents      Int
-  currency         String             @default("USD")
-  status           TripDonationStatus @default(PLEDGED)
-  message          String?
-  displayName      String?
-  isAnonymous      Boolean            @default(false)
-  coverFees        Boolean            @default(false)
-  createdAt        DateTime           @default(now())
+  id              String             @id @default(cuid())
+  tripId          String
+  trip            Trip               @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  donorUserId     String?
+  donorUser       User?              @relation("TripDonationDonor", fields: [donorUserId], references: [id], onDelete: Cascade)
+  sponsoredUserId String?
+  sponsoredUser   User?              @relation("TripDonationSponsored", fields: [sponsoredUserId], references: [id], onDelete: Cascade)
+  amountCents     Int
+  currency        String             @default("USD")
+  status          TripDonationStatus @default(PLEDGED)
+  message         String?
+  displayName     String?
+  isAnonymous     Boolean            @default(false)
+  coverFees       Boolean            @default(false)
+  createdAt       DateTime           @default(now())
 
   @@index([tripId])
   @@index([tripId, status])
@@ -1077,71 +1132,71 @@ enum ReactionType {
 }
 
 model ProfilePost {
-  id          String              @id @default(cuid())
-  userId      String
-  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type        ProfilePostType
-  content     String?
-  linkUrl     String?
-  linkTitle   String?
-  linkImage   String?
-  privacy     ProfilePostPrivacy  @default(PUBLIC)
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  deletedAt   DateTime?
-  
-  media       ProfilePostMedia[]
-  reactions   ProfilePostReaction[]
-  comments    ProfilePostComment[]
+  id        String             @id @default(cuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      ProfilePostType
+  content   String?
+  linkUrl   String?
+  linkTitle String?
+  linkImage String?
+  privacy   ProfilePostPrivacy @default(PUBLIC)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  deletedAt DateTime?
+
+  media         ProfilePostMedia[]
+  reactions     ProfilePostReaction[]
+  comments      ProfilePostComment[]
   hiddenRecords ProfilePostHidden[]
-  
+
   @@index([userId, createdAt])
   @@index([userId, privacy, createdAt])
 }
 
 model ProfilePostMedia {
-  id          String      @id @default(cuid())
-  postId      String
-  post        ProfilePost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  type        MediaType
-  url         String
-  storageKey  String
-  mimeType    String
-  fileSize    Int
-  width       Int?
-  height      Int?
-  duration    Int?
-  order       Int         @default(0)
-  createdAt   DateTime    @default(now())
-  
+  id         String      @id @default(cuid())
+  postId     String
+  post       ProfilePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  type       MediaType
+  url        String
+  storageKey String
+  mimeType   String
+  fileSize   Int
+  width      Int?
+  height     Int?
+  duration   Int?
+  order      Int         @default(0)
+  createdAt  DateTime    @default(now())
+
   @@index([postId, order])
 }
 
 model ProfilePostReaction {
-  id          String       @id @default(cuid())
-  postId      String
-  post        ProfilePost  @relation(fields: [postId], references: [id], onDelete: Cascade)
-  userId      String
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type        ReactionType @default(LIKE)
-  createdAt   DateTime     @default(now())
-  
+  id        String       @id @default(cuid())
+  postId    String
+  post      ProfilePost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      ReactionType @default(LIKE)
+  createdAt DateTime     @default(now())
+
   @@unique([postId, userId])
   @@index([postId])
   @@index([userId])
 }
 
 model ProfilePostComment {
-  id          String      @id @default(cuid())
-  postId      String
-  post        ProfilePost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  userId      String
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content     String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  deletedAt   DateTime?
-  
+  id        String      @id @default(cuid())
+  postId    String
+  post      ProfilePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  deletedAt DateTime?
+
   @@index([postId, createdAt])
   @@index([userId])
 }

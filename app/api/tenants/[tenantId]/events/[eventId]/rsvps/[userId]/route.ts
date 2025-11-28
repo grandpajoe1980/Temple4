@@ -35,18 +35,10 @@ export async function PATCH(
           return validationError(result.error.flatten().fieldErrors);
         }
 
-        const updatedRsvp = await prisma.eventRSVP.update({
-            where: {
-                userId_eventId: {
-                    userId: userId,
-                    eventId: eventId,
-                },
-            },
-            data: {
-                status: result.data.status as RSVPStatus,
-            },
-        });
-
+        // Find existing RSVP (compound unique may be named differently after schema changes)
+        const existing = await prisma.eventRSVP.findFirst({ where: { userId: userId, eventId } });
+        if (!existing) return validationError({ rsvp: ['Not found'] });
+        const updatedRsvp = await prisma.eventRSVP.update({ where: { id: existing.id }, data: { status: result.data.status as RSVPStatus } });
         return NextResponse.json(updatedRsvp);
     } catch (error) {
       console.error(`Failed to update RSVP for user ${userId} from event ${eventId}:`, error);
@@ -73,18 +65,13 @@ export async function DELETE(
     return forbidden('Forbidden');
   }
 
-  try {
-    await prisma.eventRSVP.delete({
-      where: {
-        userId_eventId: {
-          userId: userId,
-          eventId: eventId,
-        },
-      },
-    });
+    try {
+      const existing = await prisma.eventRSVP.findFirst({ where: { userId: userId, eventId } });
+      if (!existing) return new NextResponse(null, { status: 204 });
+      await prisma.eventRSVP.delete({ where: { id: existing.id } });
 
-    return new NextResponse(null, { status: 204 });
-  } catch (error) {
+      return new NextResponse(null, { status: 204 });
+    } catch (error) {
     // This will error if the RSVP doesn't exist, which is fine.
     console.error(`Failed to delete RSVP for user ${userId} from event ${eventId}:`, error);
     return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/events/[eventId]/rsvps/[userId]', tenantId, eventId, userId });

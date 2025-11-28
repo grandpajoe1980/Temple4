@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
+import { updateEventSchema } from '../schemas';
 import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 
 // 10.3 Get Single Event
@@ -54,15 +55,7 @@ export async function GET(
   }
 }
 
-const eventUpdateSchema = z.object({
-    title: z.string().min(1).optional(),
-    description: z.string().optional(),
-    startDateTime: z.string().datetime().optional(),
-    endDateTime: z.string().datetime().optional(),
-    locationText: z.string().optional(),
-    isOnline: z.boolean().optional(),
-    onlineUrl: z.string().url().optional(),
-});
+// Using shared update schema from ../schemas
 
 // 10.4 Update Event
 export async function PATCH(
@@ -89,7 +82,7 @@ export async function PATCH(
       return forbidden('You do not have permission to update events.');
     }
 
-    const result = eventUpdateSchema.safeParse(await request.json());
+    const result = updateEventSchema.safeParse(await request.json());
     if (!result.success) {
       return validationError(result.error.flatten().fieldErrors);
     }

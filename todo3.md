@@ -86,3 +86,101 @@ This document outlines the next phase of improvements for the Temple4 codebase. 
 3. Fix Failing Tests (High impact on correctness)
 4. API Standardization
 5. UI/Performance Improvements
+
+## 8. Missing Features (from arch.md)
+
+### 8.1 Notification Outbox Pattern
+**Problem:** Notifications are currently synchronous or ad-hoc. `arch.md` specifies an Outbox pattern for reliability.
+**Solution:** Implement `Outbox` table and worker.
+- [ ] Create `Outbox` model in Prisma schema.
+- [ ] Implement `lib/outbox.ts` to write events.
+- [ ] Create a background worker (or Next.js API route cron) to process outbox events and send emails/notifications.
+
+### 8.2 Row-Level Security (RLS) Pilot
+**Problem:** Tenant isolation is currently enforced by application logic. `arch.md` suggests RLS for defense-in-depth.
+**Solution:** Pilot RLS on a few tables.
+- [ ] Research and document RLS strategy for Prisma + Postgres.
+- [ ] Implement RLS policies for `Post` or `Event` tables in a migration.
+- [ ] Verify RLS works with a test user.
+
+### 8.3 Visitor Follow-up Flow
+**Problem:** `arch.md` mentions a visitor follow-up pipeline which is missing.
+- [ ] Create `Visitor` model (or use `ContactSubmission`).
+- [ ] Implement a "Follow-up Task" system for admins.
+- [ ] Create UI for tracking visitor status (New -> Contacted -> Resolved).
+
+### 8.4 Event Check-in System
+**Problem:** No way to check people in to events.
+- [ ] Create `EventCheckIn` model.
+- [ ] Build a "Greeter Mode" UI for checking in attendees by name or QR code.
+
+### 8.5 Multi-language Support (i18n)
+**Problem:** App is English-only.
+- [ ] Set up `next-intl` or similar library.
+- [ ] Extract hardcoded strings from `app/components` into message files.
+- [ ] Add locale selector to the UI.
+
+### 8.6 Admin Analytics Dashboard
+**Problem:** No high-level view of tenant stats.
+- [ ] Create `app/admin/dashboard` page.
+- [ ] Implement aggregated queries for active members, events, and donations.
+
+### 8.7 Operational Runbooks
+**Problem:** Missing documentation for operations.
+- [ ] Create `docs/ops-runbook.md` for incident response.
+- [ ] Create `docs/onboarding.md` for 60-minute developer setup.
+
+---
+
+**Priority Order:**
+1. Refactor `lib/data.ts` (High impact on maintainability)
+2. Fix Type Safety issues (High impact on stability)
+3. Fix Failing Tests (High impact on correctness)
+4. Notification Outbox Pattern (High impact on reliability)
+5. API Standardization
+6. UI/Performance Improvements
+7. Missing Features (Visitor, Check-in, Analytics)
+
+## 9. Event System Implementation (See `docs/specs/event-system-spec.md`)
+
+### 9.1 Phase 1: Core Event Management (MVP)
+**Goal:** Admins can create/manage events, and members can view them on a calendar.
+- [ ] **Schema**: Update `schema.prisma` with `Event` model (title, dates, visibility, location, poster).
+- [ ] **Service**: Create `lib/services/event-service.ts` (migrate existing logic, add new CRUD).
+- [ ] **API**: Create `app/api/tenants/[tenantId]/events` endpoints (GET, POST).
+- [ ] **UI**: Build `EventForm` component (React Hook Form + Zod) with "Quick Add" and "Full Editor" modes.
+- [ ] **UI**: Update `Calendar` component to fetch from new API and support "Public" vs "Members Only" filters.
+- [ ] **UI**: Create `EventDetailPage` with hero image and details.
+
+### 9.2 Phase 2: RSVP & Engagement
+**Goal:** Users can register for events.
+- [ ] **Schema**: Add `EventRSVP` model.
+- [ ] **Service**: Add `rsvpToEvent`, `cancelRsvp`, `getEventAttendees` to `event-service.ts`.
+- [ ] **API**: Add RSVP endpoints.
+- [ ] **UI**: Add "Register / RSVP" button and modal to Event Detail page.
+- [ ] **UI**: Add "My Events" view for users.
+- [ ] **Email**: Send confirmation emails on RSVP.
+
+### 9.3 Phase 3: Advanced Features
+**Goal:** Full event operations (Waitlist, Volunteers, Check-in).
+- [ ] **Schema**: Add `waitlistEnabled`, `capacityLimit` to Event; add `EventVolunteerRole`.
+- [ ] **Logic**: Implement waitlist promotion logic (auto-promote or manual).
+- [ ] **UI**: Add Volunteer signup flow within RSVP modal.
+- [ ] **UI**: Build "Greeter Mode" for checking in attendees.
+- [ ] **Export**: Add CSV export for attendee lists.
+
+---
+
+**Priority Order:**
+1. Refactor `lib/data.ts` (Critical dependency for Event System)
+2. Fix Type Safety issues (High impact on stability)
+3. Event System Phase 1 (Core Features)
+4. Fix Failing Tests (High impact on correctness)
+5. Event System Phase 2 (RSVP)
+6. Notification Outbox Pattern (Reliability)
+7. Event System Phase 3 (Advanced)
+8. API Standardization
+9. UI/Performance Improvements
+10. Other Missing Features
+
+

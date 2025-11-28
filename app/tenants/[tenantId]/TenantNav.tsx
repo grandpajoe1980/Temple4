@@ -43,6 +43,7 @@ const contentSubItems: { key: string; label: string; path: string; feature?: Nav
 ];
 
 const communitySubItems: { key: string; label: string; path: string; feature?: NavItemFeature }[] = [
+  { key: 'events', label: 'Events', path: '/events', feature: 'enableEvents' },
   { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
   { key: 'wall', label: 'Wall', path: '/community/wall' },
   { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },

@@ -4,9 +4,10 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
+import { createEventSchema } from './schemas';
 import { handleApiError, forbidden, unauthorized, validationError } from '@/lib/api-response';
 import { createRouteLogger } from '@/lib/logger';
-import { listTenantEvents, EventPermissionError, mapEventToResponseDto } from '@/lib/services/event-service';
+import { listTenantEvents, EventPermissionError, mapEventToResponseDto, createEvent } from '@/lib/services/event-service';
 
 // 10.1 List Events
 export async function GET(
@@ -48,15 +49,7 @@ export async function GET(
   }
 }
 
-const eventCreateSchema = z.object({
-    title: z.string().min(1),
-    description: z.string(),
-    startDateTime: z.string().datetime(),
-    endDateTime: z.string().datetime(),
-    locationText: z.string(),
-    isOnline: z.boolean().optional(),
-    onlineUrl: z.string().url().optional(),
-});
+// using shared schema from ./schemas
 
 // 10.2 Create Event
 export async function POST(
@@ -91,21 +84,17 @@ export async function POST(
         return forbidden('You do not have permission to create events.');
       }
 
-      const result = eventCreateSchema.safeParse(await request.json());
+      const result = createEventSchema.safeParse(await request.json());
       if (!result.success) {
         logger.warn('Event creation validation failed', { errors: result.error.flatten().fieldErrors });
         return validationError(result.error.flatten().fieldErrors);
       }
 
-      const newEvent = await prisma.event.create({
-        data: {
-          ...result.data,
-          tenantId: resolvedParams.tenantId,
-          createdByUserId: userId,
-          startDateTime: new Date(result.data.startDateTime),
-          endDateTime: new Date(result.data.endDateTime),
-        },
-      });
+      const newEvent = await createEvent({
+        ...result.data,
+        tenantId: resolvedParams.tenantId,
+        createdByUserId: userId,
+      } as any);
 
       logger.info('Event created successfully', { userId, eventId: newEvent.id });
       return NextResponse.json(mapEventToResponseDto({ ...(newEvent as any), creator: { profile: null, email: user.email }, _count: { rsvps: 0 } } as any), { status: 201 });

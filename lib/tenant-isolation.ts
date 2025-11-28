@@ -6,6 +6,7 @@
  */
 
 import { Prisma } from '@prisma/client';
+import { prisma } from './db';
 
 /**
  * Ensures a where clause includes tenantId filter
@@ -152,5 +153,41 @@ export function requireTenantAccess(
     throw new Error(
       `Access denied: User does not have valid membership in tenant ${tenantId}${userContext}`
     );
+  }
+}
+
+/**
+ * Checks whether a user has an approved membership for a tenant.
+ * Returns true/false and is safe to call from services/helpers.
+ */
+export async function isApprovedMember(userId: string, tenantId: string): Promise<boolean> {
+  if (!userId || !tenantId) return false;
+
+  const membership = await prisma.userTenantMembership.findFirst({
+    where: { userId, tenantId },
+    select: { status: true },
+  });
+
+  return membership?.status === 'APPROVED';
+}
+
+/**
+ * Assert that a user is an approved member of the tenant. Throws an Error suitable for route guards.
+ */
+export async function assertApprovedMember(userId: string, tenantId: string, opts?: { allowPlatformAdmin?: boolean }) {
+  if (!userId || !tenantId) {
+    throw new Error('Missing userId or tenantId for membership assertion');
+  }
+
+  // Optionally allow platform admin bypass (callers can set allowPlatformAdmin)
+  if (opts?.allowPlatformAdmin) {
+    // quick check for platform admin role (legacy flag: isSuperAdmin)
+    const roleCheck = await prisma.user.findUnique({ where: { id: userId }, select: { isSuperAdmin: true } });
+    if (roleCheck?.isSuperAdmin) return;
+  }
+
+  const ok = await isApprovedMember(userId, tenantId);
+  if (!ok) {
+    throw new Error(`User ${userId} is not an approved member of tenant ${tenantId}`);
   }
 }

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db';
+import { assertApprovedMember } from '@/lib/tenant-isolation';
 
 export interface EnqueueParams {
   tenantId?: string;
@@ -8,10 +9,19 @@ export interface EnqueueParams {
   html: string;
   text?: string;
   runAt?: Date;
+  actorUserId?: string; // optional actor performing the enqueue
 }
 
 export async function enqueueNotification(params: EnqueueParams) {
-  const { tenantId, type, to, subject, html, text, runAt } = params;
+  const { tenantId, type, to, subject, html, text, runAt, actorUserId } = params;
+
+  // If tenant-scoped notification is requested, require an actor and validate membership
+  if (tenantId) {
+    if (!actorUserId) {
+      throw new Error('unauthorized: tenant-scoped enqueue requires actorUserId');
+    }
+    await assertApprovedMember(actorUserId, tenantId);
+  }
 
   return prisma.outbox.create({
     data: {

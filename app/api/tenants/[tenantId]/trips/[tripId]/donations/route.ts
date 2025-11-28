@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { addTripDonation, getMembershipForUserInTenant } from '@/lib/data';
+import { assertApprovedMember } from '@/lib/tenant-isolation';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import { validationError, notFound, forbidden, handleApiError } from '@/lib/api-response';
@@ -34,8 +35,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
 
     // If fundraiser is tenant-private, require membership
     if (trip.fundraisingVisibility !== 'PUBLIC') {
-      const membership = donorUserId ? await getMembershipForUserInTenant(donorUserId, tenantId) : null;
-      if (!membership) return forbidden('Membership required to donate to this trip');
+      if (!donorUserId) {
+        return forbidden('Membership required to donate to this trip');
+      }
+      // Centralized membership assertion (throws on failure)
+      await assertApprovedMember(donorUserId, tenantId);
     }
 
     const donation = await addTripDonation(tripId, { ...result.data, donorUserId });

@@ -2,8 +2,10 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import NotificationService from '@/lib/services/notification-service';
 import { z } from 'zod';
-import { requireTenantAccess } from '@/lib/tenant-isolation';
+import { requireTenantAccess, assertApprovedMember } from '@/lib/tenant-isolation';
+import MessageService from '@/lib/services/message-service';
 
 const messageCreateSchema = z.object({
   content: z.string().min(1, 'Message content is required').max(5000, 'Message too long'),
@@ -35,19 +37,9 @@ export async function GET(
 
     if (conversation?.scope === 'TENANT') {
       const tenantId = conversation.tenantId!;
-      const membership = await prisma.userTenantMembership.findUnique({
-        where: {
-          userId_tenantId: {
-            userId,
-            tenantId,
-          }
-        },
-        select: { status: true }
-      });
-
       try {
-        requireTenantAccess(membership, tenantId, userId);
-      } catch (error) {
+        await assertApprovedMember(userId, tenantId);
+      } catch (err) {
         return NextResponse.json({ message: 'You are not a member of this tenant' }, { status: 403 });
       }
     }
@@ -67,64 +59,16 @@ export async function GET(
       );
     }
 
-    // Fetch messages
-    const messages = await prisma.chatMessage.findMany({
-      where: {
-        conversationId,
-        isDeleted: false,
-      },
-      include: {
-        user: {
-          include: {
-            profile: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'asc',
-      },
-    });
-
-    // Fetch full conversation details (including tenant) to evaluate permissions
-    const conversationDetails = await prisma.conversation.findUnique({
-      where: { id: conversationId },
-      include: { tenant: true },
-    });
-
-    // Get current user object for permission checks
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-
-    // Compute per-message canDelete flag server-side
-    const messagesWithPermissions = await Promise.all(
-      messages.map(async (m) => {
-        let canDelete = false;
-        try {
-          if (user && conversationDetails && conversationDetails.tenant) {
-            // Importing canDeleteMessage is acceptable on server side
-            const { canDeleteMessage } = await import('@/lib/permissions');
-            canDelete = await canDeleteMessage(user as any, m as any, conversationDetails as any, conversationDetails.tenant as any);
-          }
-        } catch (e) {
-          console.warn('canDelete evaluation failed', e);
-        }
-        return { ...m, canDelete };
-      })
-    );
-
-    // Update last read message to the latest message
-    if (messagesWithPermissions.length > 0) {
-      const latestMessage = messagesWithPermissions[messagesWithPermissions.length - 1];
-      await prisma.conversationParticipant.update({
-        where: {
-          id: participant.id,
-        },
-        data: {
-          lastReadMessageId: latestMessage.id,
-        },
-      });
+    // Delegate to MessageService to fetch messages with proper validation
+    try {
+      const messagesWithPermissions = await MessageService.getMessagesForConversation(userId, conversationId);
+      return NextResponse.json(messagesWithPermissions);
+    } catch (err: any) {
+      if (String(err.message).startsWith('forbidden')) return NextResponse.json({ message: 'You are not a participant in this conversation' }, { status: 403 });
+      if (String(err.message) === 'not_found') return NextResponse.json({ message: 'Conversation not found' }, { status: 404 });
+      console.error(`Failed to fetch messages for conversation ${conversationId}:`, err);
+      return NextResponse.json({ message: 'Failed to fetch messages' }, { status: 500 });
     }
-
-    return NextResponse.json(messagesWithPermissions);
   } catch (error) {
     console.error(`Failed to fetch messages for conversation ${conversationId}:`, error);
     return NextResponse.json({ message: 'Failed to fetch messages' }, { status: 500 });
@@ -153,19 +97,9 @@ export async function POST(
 
     if (conversation?.scope === 'TENANT') {
       const tenantId = conversation.tenantId!;
-      const membership = await prisma.userTenantMembership.findUnique({
-        where: {
-          userId_tenantId: {
-            userId,
-            tenantId,
-          }
-        },
-        select: { status: true }
-      });
-
       try {
-        requireTenantAccess(membership, tenantId, userId);
-      } catch (error) {
+        await assertApprovedMember(userId, tenantId);
+      } catch (err) {
         return NextResponse.json({ message: 'You are not a member of this tenant' }, { status: 403 });
       }
     }
@@ -196,73 +130,16 @@ export async function POST(
     }
 
     const { content } = result.data;
-
-    // Create the message
-    const message = await prisma.chatMessage.create({
-      data: {
-        conversationId,
-        userId,
-        text: content.trim(),
-      },
-      include: {
-        user: {
-          include: {
-            profile: true,
-          },
-        },
-      },
-    });
-
-    // Update sender's last read message
-    await prisma.conversationParticipant.update({
-      where: {
-        id: participant.id,
-      },
-      data: {
-        lastReadMessageId: message.id,
-      },
-    });
-
-    // Get conversation details for notification
-    const conversationDetails = await prisma.conversation.findUnique({
-      where: { id: conversationId },
-      include: {
-        participants: {
-          where: {
-            userId: { not: userId }
-          },
-          include: {
-            user: true
-          }
-        },
-        tenant: {
-          select: {
-            name: true
-          }
-        }
-      }
-    });
-
-    // Create notifications for other participants
-    if (conversationDetails) {
-      const notifications = conversationDetails.participants.map((p: any) => ({
-        userId: p.userId,
-        actorUserId: userId,
-        type: 'NEW_DIRECT_MESSAGE' as const,
-        message: conversationDetails.kind === 'DM'
-          ? 'sent you a message'
-          : `sent a message in ${conversationDetails.name || conversationDetails.tenant?.name || 'group chat'}`,
-        link: `/messages/${conversationId}`,
-      }));
-
-      if (notifications.length > 0) {
-        await prisma.notification.createMany({
-          data: notifications
-        });
-      }
+    try {
+      const message = await MessageService.addMessage(userId, conversationId, content);
+      return NextResponse.json(message, { status: 201 });
+    } catch (err: any) {
+      if (String(err.message).startsWith('forbidden')) return NextResponse.json({ message: 'You are not a participant or member' }, { status: 403 });
+      if (String(err.message) === 'not_found') return NextResponse.json({ message: 'Conversation not found' }, { status: 404 });
+      if (String(err.message).startsWith('validation')) return NextResponse.json({ error: 'Invalid input' , details: { content: ['Invalid content'] } }, { status: 400 });
+      console.error(`Failed to create message in conversation ${conversationId}:`, err);
+      return NextResponse.json({ message: 'Failed to create message' }, { status: 500 });
     }
-
-    return NextResponse.json(message, { status: 201 });
   } catch (error) {
     console.error(`Failed to create message in conversation ${conversationId}:`, error);
     return NextResponse.json({ message: 'Failed to create message' }, { status: 500 });
@@ -291,20 +168,9 @@ export async function PATCH(
 
     if (conversation?.tenantId) {
       const tenantId = conversation.tenantId;
-      // tenantId is checked truthy above
-      const membership = await prisma.userTenantMembership.findUnique({
-        where: {
-          userId_tenantId: {
-            userId,
-            tenantId: tenantId as string,
-          }
-        },
-        select: { status: true }
-      });
-
       try {
-        requireTenantAccess(membership, tenantId as string, userId);
-      } catch (error) {
+        await assertApprovedMember(userId, tenantId as string);
+      } catch (err) {
         return NextResponse.json({ message: 'You are not a member of this tenant' }, { status: 403 });
       }
     }

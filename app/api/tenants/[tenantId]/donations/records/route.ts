@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import NotificationService from '@/lib/services/notification-service';
 import { canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
 import { DonationSettings, MembershipStatus } from '@/types';
@@ -190,15 +191,34 @@ export async function POST(
     });
 
     if (adminMemberships.length > 0) {
-      await prisma.notification.createMany({
-        data: adminMemberships.map((membership: any) => ({
-          userId: membership.userId,
-          actorUserId: userId,
-          type: 'NEW_ANNOUNCEMENT' as const, // Using announcement type for donations
-          message: `New donation received: ${currency} ${amount}`,
-          link: `/tenants/${tenantId}/donations`,
-        }))
-      });
+      // If donor is authenticated, use NotificationService to enqueue tenant-scoped notifications
+      // This ensures actor validation and uses the outbox for downstream delivery.
+      if (userId) {
+        await Promise.all(
+          adminMemberships.map((membership: any) =>
+            NotificationService.enqueueNotification({
+              tenantId,
+              actorUserId: userId,
+              to: membership.userId,
+              type: 'NEW_DONATION',
+              subject: `New donation received: ${currency} ${amount}`,
+              html: `A new donation was received for ${tenantId}: ${currency} ${amount}`,
+            })
+          )
+        );
+      } else {
+        // Fallback for anonymous donors: preserve existing behavior by creating notifications directly.
+        // These notifications won't be validated via the outbox (no actor), matching prior behavior.
+        await prisma.notification.createMany({
+          data: adminMemberships.map((membership: any) => ({
+            userId: membership.userId,
+            actorUserId: null,
+            type: 'NEW_ANNOUNCEMENT' as const,
+            message: `New donation received: ${currency} ${amount}`,
+            link: `/tenants/${tenantId}/donations`,
+          }))
+        });
+      }
     }
 
     return NextResponse.json(donation, { status: 201 });

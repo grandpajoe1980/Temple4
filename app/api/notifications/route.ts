@@ -1,12 +1,21 @@
 import { withErrorHandling } from '@/lib/api-response';
 import { enqueueNotification } from '@/lib/services/notification-service';
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export const POST = withErrorHandling(async (req) => {
   const body = await req.json();
 
   if (!body?.to || !body?.subject || !body?.html) {
     return NextResponse.json({ message: 'Missing required fields: to, subject, html' }, { status: 400 });
+  }
+
+  // If tenantId provided, require authenticated actor to validate membership
+  const session = await getServerSession(authOptions);
+  const actorUserId = session?.user?.id as string | undefined;
+  if (body.tenantId && !actorUserId) {
+    return NextResponse.json({ message: 'Not authenticated for tenant-scoped notification' }, { status: 401 });
   }
 
   const record = await enqueueNotification({
@@ -17,12 +26,12 @@ export const POST = withErrorHandling(async (req) => {
     tenantId: body.tenantId,
     type: body.type,
     runAt: body.runAt ? new Date(body.runAt) : undefined,
+    actorUserId,
   });
 
   return NextResponse.json({ id: record.id });
 });
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+
 import { prisma } from '@/lib/db';
 
 // GET /api/notifications - List notifications for current user

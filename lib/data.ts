@@ -27,6 +27,7 @@ import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
 import { listTenantEvents, mapEventDtoToClient } from './services/event-service';
 import { listTenantPosts, mapPostDtoToClient } from './services/post-service';
+import MessageService from '@/lib/services/message-service';
 
 export type TenantWithRelations = Tenant & {
   settings: TenantSettings | null;
@@ -987,17 +988,18 @@ export async function getOrCreateDirectConversation(userId1: string, userId2: st
 
     if (existing) return existing;
 
-    return await prisma.conversation.create({
+    try {
+      return await prisma.conversation.create({
         data: {
-        isDirectMessage: true,
-        scope: 'GLOBAL',
-        kind: 'DM',
-        participants: {
-          create: [
-            { userId: userId1 },
-            { userId: userId2 },
-          ]
-        }
+          isDirectMessage: true,
+          scope: 'GLOBAL',
+          kind: 'DM',
+          participants: {
+            create: [
+              { userId: userId1 },
+              { userId: userId2 },
+            ]
+          }
         },
         include: {
           participants: {
@@ -1016,7 +1018,31 @@ export async function getOrCreateDirectConversation(userId1: string, userId2: st
             }
           }
         }
-    });
+      });
+    } catch (err: any) {
+      // Handle race where another process created the conversation concurrently
+      if (err?.code === 'P2002') {
+        const fallback = await prisma.conversation.findFirst({
+          where: {
+            isDirectMessage: true,
+            AND: [
+              { participants: { some: { userId: userId1 } } },
+              { participants: { some: { userId: userId2 } } },
+            ],
+          },
+          include: {
+            participants: {
+              include: { user: { include: { profile: true } } },
+            },
+            tenant: { select: { id: true, name: true } },
+          },
+        });
+
+        if (fallback) return fallback;
+      }
+
+      throw err;
+    }
 }
 
 export async function getConversationsForUser(userId: string) {
@@ -1128,47 +1154,58 @@ export async function createChannelWithAllMembers(
   return result;
 }
 
+/**
+ * @deprecated Use actor-aware APIs in `lib/services/message-service.ts`.
+ * This function is kept for backward compatibility but will be removed in a future release.
+ */
 export async function getMessagesForConversation(conversationId: string) {
-    return await prisma.chatMessage.findMany({
-        where: {
-            conversationId: conversationId
-        },
+  console.warn('DEPRECATION: getMessagesForConversation is deprecated. Use MessageService.getMessagesForConversation(actorUserId, conversationId)');
+  return await prisma.chatMessage.findMany({
+    where: {
+      conversationId: conversationId
+    },
+    include: {
+      user: {
         include: {
-            user: {
-                include: {
-                    profile: true
-                }
-            }
-        },
-        orderBy: {
-            createdAt: 'asc'
+          profile: true
         }
-    });
+      }
+    },
+    orderBy: {
+      createdAt: 'asc'
+    }
+  });
 }
 
+/**
+ * @deprecated Use `MessageService.addMessage(actorUserId, conversationId, content)` instead.
+ */
 export async function addMessage(conversationId: string, senderId: string, content: string) {
-    const message = await prisma.chatMessage.create({
-        data: {
-            conversationId,
-            userId: senderId,
-            text: content
-        },
-        include: {
-            user: {
-                include: {
-                    profile: true
-                }
-            }
-        }
-    });
-
-    return message;
+  console.warn('DEPRECATION: addMessage is deprecated. Use MessageService.addMessage(actorUserId, conversationId, content)');
+  // Delegate to the actor-aware service using the provided senderId as the actor
+  return await MessageService.addMessage(senderId, conversationId, content);
 }
 
+/**
+ * @deprecated Use `MessageService.deleteMessage(actorUserId, messageId)` instead.
+ * Note: this legacy helper performs an unconditional delete and is retained only for compatibility.
+ */
 export async function deleteMessage(messageId: string) {
-    return await prisma.chatMessage.delete({
-        where: { id: messageId }
-    });
+  console.warn('DEPRECATION: deleteMessage is deprecated. Use MessageService.deleteMessage(actorUserId, messageId) for actor-aware deletion.');
+  return await prisma.chatMessage.delete({ where: { id: messageId } });
+}
+
+// New actor-aware convenience wrappers that delegate to MessageService
+export async function getMessagesForConversationAs(actorUserId: string, conversationId: string) {
+  return await MessageService.getMessagesForConversation(actorUserId, conversationId);
+}
+
+export async function addMessageAs(actorUserId: string, conversationId: string, content: string) {
+  return await MessageService.addMessage(actorUserId, conversationId, content);
+}
+
+export async function deleteMessageAs(actorUserId: string, messageId: string) {
+  return await MessageService.deleteMessage(actorUserId, messageId);
 }
 
 export async function markConversationAsRead(conversationId: string, userId: string) {

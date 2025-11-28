@@ -79,20 +79,34 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
     }
   };
 
-  const handleDelete = async (storageKey: string, id: string) => {
+  const handleDelete = async (storageKey: string | null | undefined, id: string) => {
     if (!isAdmin) return;
     if (!confirm('Delete this photo? This action cannot be undone.')) return;
 
     try {
-      const res = await fetch('/api/upload/delete', {
+      // If there is a storageKey, attempt to delete the file first
+      if (storageKey) {
+        const res = await fetch('/api/upload/delete', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ storageKey, tenantId: tenant.id }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ message: 'Delete failed' }));
+          toast.error(err.message || 'Failed to delete photo file');
+          return;
+        }
+      }
+
+      // Always attempt to remove the media item record from the tenant gallery
+      const dbRes = await fetch(`/api/tenants/${tenant.id}/photos/${id}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storageKey, tenantId: tenant.id }),
       });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: 'Delete failed' }));
-        toast.error(err.message || 'Failed to delete photo');
+      if (!dbRes.ok && dbRes.status !== 204) {
+        const err = await dbRes.json().catch(() => ({ message: 'Failed to remove photo record' }));
+        toast.error(err.message || 'Failed to remove photo record');
         return;
       }
 
@@ -136,9 +150,15 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
                   <span className="text-sm leading-none">−</span>
                 </button>
               )}
-              <a href={`/storage/${photo.storageKey}`} target="_blank" rel="noopener noreferrer" className="block">
-                <img src={`/storage/${photo.storageKey}`} alt={photo.title || 'Photo'} className="w-full h-48 object-cover" />
-              </a>
+              {photo.storageKey ? (
+                <a href={`/storage/${photo.storageKey}`} target="_blank" rel="noopener noreferrer" className="block">
+                  <img src={`/storage/${photo.storageKey}`} alt={photo.title || 'Photo'} className="w-full h-48 object-cover" />
+                </a>
+              ) : (
+                <div className="w-full h-48 flex items-center justify-center bg-gray-50 text-gray-500 text-sm">
+                  No image available
+                </div>
+              )}
               <div className="p-2 text-xs text-gray-600">{photo.authorDisplayName}</div>
             </div>
           ))}

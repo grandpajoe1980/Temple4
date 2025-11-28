@@ -25,7 +25,7 @@ const RespondSubmissionModal: React.FC<RespondSubmissionModalProps> = ({ isOpen,
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Respond to ${submission.name}`}>
+    <Modal isOpen={isOpen} onClose={onClose} dataTest="respond-submission-modal" title={`Respond to ${submission.name}`}>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
             <p className="text-sm text-gray-500">Replying to: <span className="font-medium text-gray-800">{submission.email}</span></p>

@@ -149,10 +149,10 @@ export function ProfileFeed({ userId, isOwnProfile, tenantId }: ProfileFeedProps
         <div>
             {isOwnProfile && (
                 <div className="mb-4">
-                    <Button onClick={() => setShowForm(true)} variant="primary">
+                    <Button data-test="create-post-trigger-profile" onClick={() => setShowForm(true)} variant="primary">
                         Create Post
                     </Button>
-                    <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="Create Post">
+                    <Modal isOpen={showForm} onClose={() => setShowForm(false)} dataTest="create-post-modal-profile" title="Create Post">
                         <ProfilePostForm userId={userId} tenantId={tenantId} onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
                     </Modal>
                 </div>

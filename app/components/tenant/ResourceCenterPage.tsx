@@ -101,7 +101,7 @@ const ResourceCenterPage: React.FC<ResourceCenterPageProps> = ({ tenant, user, o
       <CommunityHeader
         title={<>Resource Center</>}
         subtitle={<>Downloadable files and resources from {tenant.name}.</>}
-        actions={canUpload ? <Button onClick={() => setIsModalOpen(true)}>+ Upload Resource</Button> : null}
+        actions={canUpload ? <Button data-test="upload-resource-trigger" onClick={() => setIsModalOpen(true)}>+ Upload Resource</Button> : null}
       />
 
       {resources.length > 0 ? (
@@ -119,7 +119,7 @@ const ResourceCenterPage: React.FC<ResourceCenterPageProps> = ({ tenant, user, o
         </div>
       )}
       
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Upload a New Resource">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="upload-resource-modal" title="Upload a New Resource">
         <ResourceForm onSubmit={handleCreateResource} onCancel={() => setIsModalOpen(false)} />
       </Modal>
     </div>

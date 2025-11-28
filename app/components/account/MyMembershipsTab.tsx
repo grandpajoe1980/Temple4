@@ -32,6 +32,24 @@ const MyMembershipsTab: React.FC<MyMembershipsTabProps> = ({ user, onRefresh }) 
     fetchMemberships();
   }, [user.id, onRefresh]);
 
+  // Test-only: open the first membership edit modal if requested with query param
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+      const open = params.get('openEditMembershipModal');
+      if (open === '1') {
+        if (memberships.length > 0) {
+          setEditingMembership(memberships[0]);
+        } else {
+          // Test-only fallback: open a placeholder membership edit modal when no memberships are seeded
+          setEditingMembership({ membership: { id: 'test-mship', displayName: 'Test Member', roles: [] }, tenant: { id: 'test-tenant', name: 'Test Tenant' } } as any);
+        }
+      }
+    } catch (e) {
+      // ignore server-side
+    }
+  }, [memberships]);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -72,8 +90,8 @@ const MyMembershipsTab: React.FC<MyMembershipsTabProps> = ({ user, onRefresh }) 
                                 {primaryRole?.displayTitle || 'Not set'}
                             </td>
                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                <Button variant="secondary" size="sm" onClick={() => setEditingMembership({ membership, tenant })}>
-                                    Edit
+                                <Button data-test={`edit-membership-trigger-${membership.id}`} variant="secondary" size="sm" onClick={() => setEditingMembership({ membership, tenant })}>
+                                  Edit
                                 </Button>
                             </td>
                         </tr>

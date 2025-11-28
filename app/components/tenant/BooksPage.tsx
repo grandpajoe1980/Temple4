@@ -43,7 +43,7 @@ const BooksPage: React.FC<BooksPageProps> = ({ tenant, user, books: initialBooks
         subtitle={<>Read long-form content and teachings from {tenant.name}.</>}
         actions={
           canCreate ? (
-            <Button onClick={() => setIsModalOpen(true)}>+ New Book/Chapter</Button>
+            <Button data-test="create-book-trigger" onClick={() => setIsModalOpen(true)}>+ New Book/Chapter</Button>
           ) : undefined
         }
       />
@@ -63,7 +63,7 @@ const BooksPage: React.FC<BooksPageProps> = ({ tenant, user, books: initialBooks
         </div>
       )}
       
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create a New Book/Chapter">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-book-modal" title="Create a New Book/Chapter">
         <PostForm onSubmit={handleCreatePost} onCancel={() => setIsModalOpen(false)} />
       </Modal>
     </div>

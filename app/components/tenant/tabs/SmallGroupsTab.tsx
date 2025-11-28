@@ -117,7 +117,7 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
           <h3 className="text-lg font-medium leading-6 text-gray-900">Small Group Management</h3>
           <p className="mt-1 text-sm text-gray-500">Create and manage small groups for your members.</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>+ Create Group</Button>
+        <Button data-test="create-smallgroup-trigger" onClick={() => setIsModalOpen(true)}>+ Create Group</Button>
       </div>
       
       <div className="flow-root">
@@ -168,7 +168,7 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingGroup(null); }} title={editingGroup ? 'Edit Small Group' : 'Create Small Group'}>
+      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingGroup(null); }} dataTest={editingGroup ? 'edit-smallgroup-modal' : 'create-smallgroup-modal'} title={editingGroup ? 'Edit Small Group' : 'Create Small Group'}>
         <SmallGroupForm
           onSubmit={editingGroup ? handleUpdateGroup : handleCreateGroup}
           onCancel={() => { setIsModalOpen(false); setEditingGroup(null); }}

@@ -81,7 +81,7 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
         subtitle={<>Listen to the latest episodes from {tenant.name}.</>}
         actions={
           canCreate ? (
-            <Button onClick={() => setIsModalOpen(true)}>+ New Podcast</Button>
+            <Button data-test="create-podcast-trigger" onClick={() => setIsModalOpen(true)}>+ New Podcast</Button>
           ) : undefined
         }
       />
@@ -101,7 +101,7 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create a New Podcast Episode">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-podcast-modal" title="Create a New Podcast Episode">
         <PodcastForm onSubmit={handleCreatePodcast} onCancel={() => setIsModalOpen(false)} isSubmitting={isSubmitting} />
       </Modal>
     </div>

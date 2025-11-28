@@ -39,6 +39,16 @@ const MessagesPage: React.FC<MessagesPageProps> = ({
   });
 
   useEffect(() => {
+    // Support a testing query param to open the New Message modal automatically.
+    try {
+      const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+      if (params.get('openNewMessageModal') === '1') {
+        setIsNewMessageModalOpen(true);
+      }
+    } catch (e) {
+      // ignore
+    }
+
     const conversationIdToSelect = newlyCreatedConvId || initialActiveConversationId;
     if (conversationIdToSelect) {
       const conversationToActivate = conversations.find(c => c.id === conversationIdToSelect);
@@ -91,7 +101,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({
               <Button variant="secondary" size="sm" onClick={onBack}>&larr; Back</Button>
               <h1 className="text-xl font-bold text-gray-800">Messages</h1>
             </div>
-            <Button onClick={() => setIsNewMessageModalOpen(true)}>
+            <Button data-test="new-message-trigger" onClick={() => setIsNewMessageModalOpen(true)}>
               + New Message
             </Button>
           </div>
@@ -133,7 +143,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({
             </div>
             </div>
         </div>
-        <Modal isOpen={isNewMessageModalOpen} onClose={() => setIsNewMessageModalOpen(false)} title="Start a New Conversation">
+        <Modal dataTest="new-message-modal" isOpen={isNewMessageModalOpen} onClose={() => setIsNewMessageModalOpen(false)} title="Start a New Conversation">
             <NewMessageModal 
                 currentUser={currentUser}
                 onClose={() => setIsNewMessageModalOpen(false)}

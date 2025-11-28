@@ -230,7 +230,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
         )}
       </Card>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingFacilityId ? 'Edit Facility' : 'Create Facility'}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest={editingFacilityId ? 'edit-facility-modal' : 'create-facility-modal'} title={editingFacilityId ? 'Edit Facility' : 'Create Facility'}>
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium text-gray-700">Name</label>

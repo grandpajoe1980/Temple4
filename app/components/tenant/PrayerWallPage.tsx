@@ -104,7 +104,7 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
       <CommunityHeader
         title={<>Community Prayer Wall</>}
         subtitle={<>Share prayer requests and tangible needs with the {tenant.name} community.</>}
-        actions={<Button onClick={() => setIsModalOpen(true)}>+ Submit a Request</Button>}
+        actions={<Button data-test="submit-prayer-trigger" onClick={() => setIsModalOpen(true)}>+ Submit a Request</Button>}
       />
 
       {posts.length > 0 ? (
@@ -122,7 +122,7 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Submit a Request">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="submit-prayer-modal" title="Submit a Request">
         <SubmitPrayerPostForm
           onSubmit={handleCreatePost}
           onCancel={() => setIsModalOpen(false)}

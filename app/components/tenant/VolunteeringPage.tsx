@@ -44,7 +44,7 @@ const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs
       <CommunityHeader
         title={<>Volunteer Opportunities</>}
         subtitle={<>Find ways to get involved and serve at {tenant.name}.</>}
-        actions={<Button onClick={() => setIsModalOpen(true)}>+ New</Button>}
+        actions={<Button data-test="create-volunteer-trigger" onClick={() => setIsModalOpen(true)}>+ New</Button>}
       />
 
       {needs.length > 0 ? (
@@ -60,7 +60,7 @@ const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Volunteer Need">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-volunteer-modal" title="Create Volunteer Need">
         <VolunteerNeedForm onSubmit={handleCreateNeed} onCancel={() => setIsModalOpen(false)} />
       </Modal>
     </div>

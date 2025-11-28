@@ -108,7 +108,7 @@ function ToastContainer({ toasts, onRemove }: ToastContainerProps) {
   }
 
   return createPortal(
-    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-md">
+    <div aria-live="polite" aria-atomic="true" className="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-md">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
       ))}
@@ -174,6 +174,8 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
     }
   };
 
+  const ariaRole = toast.type === 'error' ? 'alert' : 'status';
+
   return (
     <div
       className={`
@@ -182,7 +184,7 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
         transform transition-all duration-300 ease-in-out
         ${isExiting ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}
       `}
-      role="alert"
+      role={ariaRole}
     >
       <div className="flex-shrink-0">{getIcon()}</div>
       <div className="flex-1 pt-0.5">

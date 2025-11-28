@@ -15,6 +15,16 @@ function ResetPasswordContent() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const errorRef = React.useRef<HTMLDivElement | null>(null);
+  const successRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    if (error && errorRef.current) errorRef.current.focus();
+  }, [error]);
+
+  React.useEffect(() => {
+    if (success && successRef.current) successRef.current.focus();
+  }, [success]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +60,7 @@ function ResetPasswordContent() {
       <div className="max-w-md mx-auto">
         <Card title="Password Reset Successful">
           <div className="text-center">
-              <div className="p-4 bg-green-100 border border-green-200 text-green-800 rounded-md text-sm">
+              <div ref={successRef} tabIndex={-1} role="status" className="p-4 bg-green-100 border border-green-200 text-green-800 rounded-md text-sm">
                   <p>Your password has been successfully updated.</p>
               </div>
               <Button className="mt-6" onClick={() => router.push('/auth/login')}>
@@ -67,7 +77,7 @@ function ResetPasswordContent() {
       <Card title="Reset Your Password" description={email ? `Enter a new password for ${email}.` : 'Enter a new password.'}>
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="p-3 bg-red-100 border border-red-200 text-red-800 rounded-md text-sm">
+            <div ref={errorRef} tabIndex={-1} role="alert" className="p-3 bg-red-100 border border-red-200 text-red-800 rounded-md text-sm">
                 {error}
             </div>
           )}

@@ -84,7 +84,7 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
           <h3 className="text-lg font-medium leading-6 text-gray-900">Resource Management</h3>
           <p className="mt-1 text-sm text-gray-500">Manage all downloadable resources for your members.</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>+ Add Resource</Button>
+        <Button data-test="add-resource-trigger" onClick={() => setIsModalOpen(true)}>+ Add Resource</Button>
       </div>
 
       <div className="flow-root">
@@ -121,7 +121,7 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Resource">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="add-resource-modal" title="Add New Resource">
         <ResourceForm onSubmit={handleCreateResource} onCancel={() => setIsModalOpen(false)} />
       </Modal>
     </div>

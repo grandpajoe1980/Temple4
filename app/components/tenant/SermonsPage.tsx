@@ -77,7 +77,7 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initia
         subtitle={<>Watch recent sermons from {tenant.name}.</>}
         actions={
           canCreate ? (
-            <Button onClick={() => setIsModalOpen(true)}>+ New Sermon</Button>
+            <Button data-test="create-sermon-trigger" onClick={() => setIsModalOpen(true)}>+ New Sermon</Button>
           ) : undefined
         }
       />
@@ -97,7 +97,7 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initia
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create a New Sermon">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-sermon-modal" title="Create a New Sermon">
         <SermonForm onSubmit={handleCreateSermon} onCancel={() => setIsModalOpen(false)} isSubmitting={isSubmitting} />
       </Modal>
     </div>

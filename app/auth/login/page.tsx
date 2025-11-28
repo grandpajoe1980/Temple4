@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Card from '@/app/components/ui/Card';
@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('admin@temple.com');
   const [password, setPassword] = useState('password');
   const [error, setError] = useState('');
+  const errorRef = useRef<HTMLDivElement | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const toast = useToast();
@@ -46,6 +47,13 @@ export default function LoginPage() {
     }
   };
 
+  useEffect(() => {
+    if (error && errorRef.current) {
+      // Move focus to the error region so screen readers announce it
+      errorRef.current.focus();
+    }
+  }, [error]);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-5xl">
@@ -65,7 +73,12 @@ export default function LoginPage() {
           <Card title="Platform Login" description="Enter your credentials to continue.">
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <div className="p-3 bg-amber-50 border border-amber-100 text-amber-800 rounded-md text-sm">
+                <div
+                  ref={errorRef}
+                  tabIndex={-1}
+                  role="alert"
+                  className="p-3 bg-amber-50 border border-amber-100 text-amber-800 rounded-md text-sm"
+                >
                   {error}
                 </div>
               )}

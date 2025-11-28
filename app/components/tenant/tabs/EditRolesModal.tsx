@@ -71,7 +71,7 @@ const EditRolesModal: React.FC<EditRolesModalProps> = ({ isOpen, onClose, member
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Edit Roles for ${member.profile?.displayName}`}>
+    <Modal isOpen={isOpen} onClose={onClose} dataTest="edit-roles-modal" title={`Edit Roles for ${member.profile?.displayName}`}>
       <div className="space-y-6">
         <div>
           <h3 className="text-sm font-medium text-gray-900">Assigned Roles</h3>

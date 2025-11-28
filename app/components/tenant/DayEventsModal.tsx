@@ -20,7 +20,7 @@ const DayEventsModal: React.FC<DayEventsModalProps> = ({ isOpen, onClose, date, 
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Events for ${formattedDate}`}>
+    <Modal isOpen={isOpen} onClose={onClose} dataTest="day-events-modal" title={`Events for ${formattedDate}`}>
       {events.length > 0 ? (
         <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
           {events.map((event: any) => (

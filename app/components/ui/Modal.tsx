@@ -1,15 +1,17 @@
 "use client"
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import useFocusTrap from '@/app/hooks/useFocusTrap';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  dataTest?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, dataTest }) => {
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -22,6 +24,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
     };
   }, [onClose]);
 
+  // refs and hooks must be called unconditionally to satisfy React Hooks rules
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  useFocusTrap(modalRef, isOpen);
+
   if (!isOpen) return null;
 
   return (
@@ -31,10 +37,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
       role="dialog"
       aria-modal="true"
       onClick={onClose}
+      data-test={dataTest ? `${dataTest}-overlay` : undefined}
     >
       <div
         className="bg-white rounded-lg shadow-xl max-w-lg w-full overflow-hidden"
         onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
+        ref={modalRef}
+        data-test={dataTest}
       >
         <div className="flex justify-between items-center p-4 border-b border-gray-200">
           <h2 id="modal-title" className="text-lg font-semibold text-gray-900">

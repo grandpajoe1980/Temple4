@@ -33,7 +33,7 @@ export default function WallCreateButton({ userId, tenantId }: { userId: string;
   return (
     <div className="mb-4">
       <Button onClick={() => setOpen(true)} variant="primary">Create Post</Button>
-      <Modal isOpen={open} onClose={() => setOpen(false)} title="Create Post">
+      <Modal isOpen={open} onClose={() => setOpen(false)} dataTest="wall-create-post-modal" title="Create Post">
         <ProfilePostForm userId={userId} tenantId={tenantId} onSubmit={handleCreate} onCancel={() => setOpen(false)} />
       </Modal>
     </div>

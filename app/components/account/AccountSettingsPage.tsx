@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { User as PrismaUser, UserProfile as PrismaUserProfile } from '@prisma/client';
@@ -30,6 +31,7 @@ const TABS = ['Profile', 'Privacy', 'My Memberships', 'Account', 'Notifications'
 const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user }) => {
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleRefresh = () => {
     router.refresh();
@@ -60,6 +62,18 @@ const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user }) => {
   const handleBack = () => {
     router.back();
   };
+
+  // Respect a `tab` query param for deterministic testing and deep-linking
+  useEffect(() => {
+    try {
+      const tab = searchParams?.get('tab');
+      if (tab && TABS.includes(tab)) {
+        setActiveTab(tab);
+      }
+    } catch (e) {
+      // ignore on server
+    }
+  }, [searchParams]);
 
   const renderTabContent = () => {
     if (!user.profile) {

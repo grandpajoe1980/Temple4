@@ -62,7 +62,7 @@ const EditUserProfileModal: React.FC<EditUserProfileModalProps> = ({ isOpen, onC
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Edit Profile for ${member.profile?.displayName}`}>
+    <Modal isOpen={isOpen} onClose={onClose} dataTest="edit-user-profile-modal" title={`Edit Profile for ${member.profile?.displayName}`}>
       <form onSubmit={handleSubmit} className="space-y-6">
         <Input 
           label="Display Name" 

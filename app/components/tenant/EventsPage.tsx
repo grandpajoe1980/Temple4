@@ -186,7 +186,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
             </button>
           </div>
            {canCreate && (
-            <Button onClick={() => setIsModalOpen(true)}>
+            <Button data-test="create-event-trigger" onClick={() => setIsModalOpen(true)}>
             + Add Event
             </Button>
            )}
@@ -247,7 +247,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
         </>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => !isSubmitting && setIsModalOpen(false)} title="Create a New Event">
+      <Modal isOpen={isModalOpen} onClose={() => !isSubmitting && setIsModalOpen(false)} dataTest="create-event-modal" title="Create a New Event">
         <EventForm 
           onSubmit={handleCreateEvent} 
           onCancel={() => setIsModalOpen(false)}
@@ -266,7 +266,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
       )}
 
       {selectedEvent && (
-        <Modal isOpen={Boolean(selectedEvent)} onClose={() => setSelectedEvent(null)} title={selectedEvent.title}>
+        <Modal isOpen={Boolean(selectedEvent)} onClose={() => setSelectedEvent(null)} dataTest="view-event-modal" title={selectedEvent.title}>
           <EventCard event={selectedEvent} currentUserId={user.id} />
         </Modal>
       )}

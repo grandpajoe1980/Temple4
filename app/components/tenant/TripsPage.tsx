@@ -75,7 +75,7 @@ const TripsPage: React.FC<TripsPageProps> = ({ tenant, user, trips, onRefresh, i
         subtitle={<>Plan, coordinate, and fund trips for your community. Track signups, logistics, and fundraising in one place.</>}
         actions={
           isAdmin ? (
-            <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+            <Button data-test="create-trip-trigger" variant="primary" onClick={() => setIsModalOpen(true)}>
               Create Trip
             </Button>
           ) : null
@@ -109,7 +109,7 @@ const TripsPage: React.FC<TripsPageProps> = ({ tenant, user, trips, onRefresh, i
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create trip">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-trip-modal" title="Create trip">
         <TripForm onSubmit={handleCreate} onCancel={() => setIsModalOpen(false)} submitting={isSubmitting} />
       </Modal>
     </div>

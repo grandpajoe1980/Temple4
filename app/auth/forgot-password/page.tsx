@@ -9,6 +9,7 @@ import Button from '@/app/components/ui/Button';
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+    const submittedRef = React.useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,13 +26,17 @@ export default function ForgotPasswordPage() {
     setSubmitted(true);
   };
 
+    React.useEffect(() => {
+        if (submitted && submittedRef.current) submittedRef.current.focus();
+    }, [submitted]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md w-full">
             <Card title="Forgot Password" description="Enter your email address and we'll send you a link to reset your password.">
                 {submitted ? (
                 <div className="text-center">
-                    <div className="p-4 bg-green-100 border border-green-200 text-green-800 rounded-md text-sm">
+                    <div ref={submittedRef} tabIndex={-1} role="status" className="p-4 bg-green-100 border border-green-200 text-green-800 rounded-md text-sm">
                         <h3 className="font-semibold">Check your email</h3>
                         <p className="mt-1">If an account with that email exists, a password reset link has been sent.</p>
                     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Card from '@/app/components/ui/Card';
 import Input from '@/app/components/ui/Input';
@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const errorRef = useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const toast = useToast();
@@ -56,15 +57,24 @@ export default function RegisterPage() {
     }
   };
 
+  useEffect(() => {
+    if (error && errorRef.current) errorRef.current.focus();
+  }, [error]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md w-full">
             <Card title="Create an Account" description="Join the platform to connect with communities.">
                 <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                    <div className="p-3 bg-red-100 border border-red-200 text-red-800 rounded-md text-sm">
-                        {error}
-                    </div>
+                  <div
+                    ref={errorRef}
+                    tabIndex={-1}
+                    role="alert"
+                    className="p-3 bg-red-100 border border-red-200 text-red-800 rounded-md text-sm"
+                  >
+                    {error}
+                  </div>
                 )}
                 <Input 
                     id="displayName" 

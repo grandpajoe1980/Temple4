@@ -52,7 +52,7 @@ const EditMembershipModal: React.FC<EditMembershipModalProps> = ({ isOpen, onClo
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Editing Profile for ${tenant.name}`}>
+    <Modal isOpen={isOpen} onClose={onClose} dataTest="edit-membership-modal" title={`Editing Profile for ${tenant.name}`}>
       <form onSubmit={handleSubmit} className="space-y-6">
         <Input 
           label="Display Name in this Tenant" 

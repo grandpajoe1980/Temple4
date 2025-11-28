@@ -486,7 +486,7 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
         </ul>
       </div>
 
-      <Modal isOpen={showJoinForm} onClose={() => (!joining ? setShowJoinForm(false) : null)} title="Join this trip">
+      <Modal isOpen={showJoinForm} onClose={() => (!joining ? setShowJoinForm(false) : null)} dataTest="join-trip-modal" title="Join this trip">
         <TripJoinForm
           user={currentUser}
           tripName={trip?.name}
@@ -495,7 +495,7 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
           onSubmit={handleJoin}
         />
       </Modal>
-      <Modal isOpen={showEditTrip} onClose={() => (!savingTrip ? setShowEditTrip(false) : null)} title="Edit trip">
+      <Modal isOpen={showEditTrip} onClose={() => (!savingTrip ? setShowEditTrip(false) : null)} dataTest="edit-trip-modal" title="Edit trip">
         {initialEditValues ? (
           <TripForm
             initial={initialEditValues}

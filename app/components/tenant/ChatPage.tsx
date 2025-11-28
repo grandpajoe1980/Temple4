@@ -169,7 +169,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
               <p className="text-sm text-gray-500">Conversations in {tenant.name}</p>
             </div>
             {canCreate && (
-              <Button size="sm" onClick={() => setIsModalOpen(true)}>
+              <Button size="sm" data-test="create-channel-trigger" onClick={() => setIsModalOpen(true)}>
                 New
               </Button>
             )}
@@ -224,7 +224,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
         )}
 
       </div>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create a New Channel">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-channel-modal" title="Create a New Channel">
         <CreateChannelForm
           tenant={tenant}
           currentUser={user}

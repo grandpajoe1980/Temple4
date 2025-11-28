@@ -72,7 +72,7 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
           <h3 className="text-lg font-medium leading-6 text-gray-900">Volunteer Management</h3>
           <p className="mt-1 text-sm text-gray-500">Create and manage volunteer opportunities for your members.</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>+ New</Button>
+        <Button data-test="create-volunteer-trigger-tab" onClick={() => setIsModalOpen(true)}>+ New</Button>
       </div>
 
       <div className="space-y-4">
@@ -120,7 +120,7 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
         )}
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Volunteer Need">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-volunteer-modal" title="Create Volunteer Need">
         <VolunteerNeedForm onSubmit={handleCreateNeed} onCancel={() => setIsModalOpen(false)} />
       </Modal>
     </div>

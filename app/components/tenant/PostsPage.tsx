@@ -57,7 +57,7 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
       <CommunityHeader
         title={<>Posts &amp; Announcements</>}
         subtitle={<>Read the latest updates from {tenant.name}.</>}
-        actions={canCreate ? <Button onClick={() => setIsModalOpen(true)}>+ New Post</Button> : null}
+        actions={canCreate ? <Button data-test="create-post-trigger" onClick={() => setIsModalOpen(true)}>+ New Post</Button> : null}
       />
 
       {posts.length > 0 ? (
@@ -79,7 +79,7 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
           </p>
           {canCreate && (
             <div className="mt-6">
-              <Button onClick={() => setIsModalOpen(true)}>
+              <Button data-test="create-post-trigger-2" onClick={() => setIsModalOpen(true)}>
                 Create First Post
               </Button>
             </div>
@@ -87,7 +87,7 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
         </div>
       )}
       
-      <Modal isOpen={isModalOpen} onClose={() => !isSubmitting && setIsModalOpen(false)} title="Create a New Post">
+      <Modal isOpen={isModalOpen} onClose={() => !isSubmitting && setIsModalOpen(false)} dataTest="create-post-modal" title="Create a New Post">
         <PostForm 
           onSubmit={handleCreatePost} 
           onCancel={() => setIsModalOpen(false)}

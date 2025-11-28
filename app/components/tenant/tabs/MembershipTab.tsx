@@ -177,7 +177,7 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
                                 </>
                              )}
                               {member.membership.status === MembershipStatus.APPROVED && canApprove && (
-                                <Button variant="secondary" size="sm" onClick={() => setEditingMember(member)}>Edit Roles</Button>
+                                <Button data-test={`edit-roles-trigger-${member.id}`} variant="secondary" size="sm" onClick={() => setEditingMember(member)}>Edit Roles</Button>
                               )}
                              {member.membership.status === MembershipStatus.APPROVED && canBan && (
                                 <Button variant="danger" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.BANNED, member.profile?.displayName)}>Ban</Button>

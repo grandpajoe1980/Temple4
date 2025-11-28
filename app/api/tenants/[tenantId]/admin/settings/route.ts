@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, unauthorized, forbidden, validationError } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { hasRole } from '@/lib/permissions';
 import { z } from 'zod';
@@ -16,13 +17,13 @@ export async function GET(
     const user = session?.user as any;
 
     if (!user) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     try {
         const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
-            return NextResponse.json({ message: 'You do not have permission to view tenant settings.' }, { status: 403 });
+            return forbidden('You do not have permission to view tenant settings.');
         }
 
         const settings = await prisma.tenantSettings.findUnique({
@@ -31,8 +32,7 @@ export async function GET(
 
         return NextResponse.json(settings);
     } catch (error) {
-        console.error(`Failed to fetch tenant settings for tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to fetch tenant settings' }, { status: 500 });
+        return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/admin/settings', tenantId, userId: user?.id });
     }
 }
 
@@ -53,18 +53,18 @@ export async function PUT(
     const user = session?.user as any;
 
     if (!user) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     const result = settingsSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
         const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
-            return NextResponse.json({ message: 'You do not have permission to update tenant settings.' }, { status: 403 });
+            return forbidden('You do not have permission to update tenant settings.');
         }
 
         // If permissions present, persist to Tenant.permissions
@@ -88,7 +88,6 @@ export async function PUT(
 
         return NextResponse.json(updatedSettings ?? { success: true });
     } catch (error) {
-        console.error(`Failed to update tenant settings for tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to update tenant settings' }, { status: 500 });
+        return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]/admin/settings', tenantId, userId: user?.id });
     }
 }

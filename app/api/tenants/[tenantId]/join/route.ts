@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { MembershipStatus, MembershipApprovalMode,  } from '@/types';
 import { TenantRole } from '@/types';
+import { handleApiError, unauthorized, notFound, validationError } from '@/lib/api-response';
 
 export async function POST(
   request: Request,
@@ -13,7 +14,7 @@ export async function POST(
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const userId = (session.user as any).id;
@@ -25,7 +26,7 @@ export async function POST(
     });
 
     if (!tenant) {
-      return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+      return notFound('Tenant');
     }
 
     const existingMembership = await prisma.userTenantMembership.findUnique({
@@ -38,7 +39,7 @@ export async function POST(
     });
 
     if (existingMembership) {
-      return NextResponse.json({ message: 'You are already a member or have a pending request.' }, { status: 400 });
+      return validationError({ membership: ['You are already a member or have a pending request.'] });
     }
 
     const status =
@@ -63,6 +64,6 @@ export async function POST(
     return NextResponse.json({ message: 'Successfully joined tenant', status });
   } catch (error) {
     console.error('Failed to join tenant:', error);
-    return NextResponse.json({ message: 'Failed to join tenant' }, { status: 500 });
+    return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/join', tenantId });
   }
 }

@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
+import { unauthorized, forbidden, handleApiError } from '@/lib/api-response';
 
 // 17.7 Get Audit Logs
 export async function GET(
@@ -15,13 +16,13 @@ export async function GET(
     const user = session?.user as any;
 
     if (!user) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     try {
         const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
-            return NextResponse.json({ message: 'You do not have permission to view audit logs.' }, { status: 403 });
+            return forbidden('You do not have permission to view audit logs.');
         }
 
         const auditLogs = await prisma.auditLog.findMany({
@@ -38,6 +39,6 @@ export async function GET(
         return NextResponse.json(auditLogs);
     } catch (error) {
         console.error(`Failed to fetch audit logs for tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to fetch audit logs' }, { status: 500 });
+        return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/admin/audit-logs', tenantId });
     }
 }

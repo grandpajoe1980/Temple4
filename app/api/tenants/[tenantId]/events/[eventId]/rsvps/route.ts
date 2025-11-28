@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { can, canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
 import { RSVPStatus } from '@/types';
+import { unauthorized, forbidden, validationError, handleApiError } from '@/lib/api-response';
 
 // 10.6 List Event RSVPs
 export async function GET(
@@ -16,7 +17,7 @@ export async function GET(
   const userId = (session?.user as any)?.id;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   try {
@@ -24,7 +25,7 @@ export async function GET(
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+      return validationError({ request: ['Invalid user or tenant'] });
     }
 
     // Only event creators or admins/staff can see the full RSVP list
@@ -32,7 +33,7 @@ export async function GET(
     const canManage = await can(user, tenant, 'canCreateEvents'); // Assuming this permission level
     
     if (event?.createdByUserId !== userId && !canManage) {
-        return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+      return forbidden('Forbidden');
     }
 
     const rsvps = await prisma.eventRSVP.findMany({
@@ -50,7 +51,7 @@ export async function GET(
     return NextResponse.json(rsvps);
   } catch (error) {
     console.error(`Failed to fetch RSVPs for event ${eventId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch RSVPs' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/events/[eventId]/rsvps', eventId, tenantId });
   }
 }
 
@@ -68,20 +69,20 @@ export async function POST(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
 
     try {
         // Check if user can view the event in the first place
         const canView = await canUserViewContent(userId, tenantId, 'calendar');
         if (!canView) {
-            return NextResponse.json({ message: 'Cannot RSVP to an event you cannot see.' }, { status: 403 });
+          return forbidden('Cannot RSVP to an event you cannot see.');
         }
 
         const body = await request.json();
         const result = rsvpCreateSchema.safeParse(body);
         if (!result.success) {
-            return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+          return validationError(result.error.flatten().fieldErrors);
         }
 
         // Check if user is already RSVP'd
@@ -108,7 +109,7 @@ export async function POST(
 
         return NextResponse.json(newRsvp, { status: 201 });
     } catch (error) {
-        console.error(`Failed to RSVP to event ${eventId}:`, error);
-        return NextResponse.json({ message: 'Failed to RSVP to event' }, { status: 500 });
+      console.error(`Failed to RSVP to event ${eventId}:`, error);
+      return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/events/[eventId]/rsvps', eventId, tenantId });
     }
 }

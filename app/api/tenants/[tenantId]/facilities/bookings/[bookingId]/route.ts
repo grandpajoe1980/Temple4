@@ -6,6 +6,7 @@ import { getTenantById, getUserById, updateFacilityBookingStatus } from '@/lib/d
 import { can, hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
 import { z } from 'zod';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 
 const statusSchema = z.object({
   status: z.enum([BookingStatus.APPROVED, BookingStatus.REJECTED, BookingStatus.CANCELLED]),
@@ -18,27 +19,27 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ te
   const userId = (session?.user as any)?.id ?? null;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const tenant = await getTenantById(tenantId);
   const user = await getUserById(userId);
 
   if (!tenant || !user) {
-    return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+    return notFound('Tenant or User');
   }
 
   const canManage = (await can(user, tenant as any, 'canManageFacilities')) || (await hasRole(userId, tenantId, [TenantRole.ADMIN]));
 
   if (!canManage) {
-    return NextResponse.json({ message: 'You do not have permission to manage bookings.' }, { status: 403 });
+    return forbidden('You do not have permission to manage bookings.');
   }
 
   const payload = await request.json();
   const parsed = statusSchema.safeParse(payload);
 
   if (!parsed.success) {
-    return NextResponse.json({ errors: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(parsed.error.flatten().fieldErrors);
   }
 
   try {
@@ -50,11 +51,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ te
     );
 
     if (!updated) {
-      return NextResponse.json({ message: 'Booking not found' }, { status: 404 });
+      return notFound('Booking');
     }
 
     return NextResponse.json(updated);
   } catch (error: any) {
-    return NextResponse.json({ message: error.message || 'Unable to update booking' }, { status: 409 });
+    return handleApiError(error, { route: 'PATCH /api/tenants/[tenantId]/facilities/bookings/[bookingId]', tenantId, bookingId });
   }
 }

@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 
 // 12.3 Get Single Podcast
 export async function GET(
@@ -17,7 +18,7 @@ export async function GET(
   try {
     const canView = await canUserViewContent(userId, tenantId, 'podcasts');
     if (!canView) {
-      return NextResponse.json({ message: 'You do not have permission to view this podcast.' }, { status: 403 });
+      return forbidden('You do not have permission to view this podcast.');
     }
 
     const podcast = await prisma.podcast.findUnique({
@@ -25,13 +26,13 @@ export async function GET(
     });
 
     if (!podcast) {
-      return NextResponse.json({ message: 'Podcast not found' }, { status: 404 });
+      return notFound('Podcast');
     }
 
     return NextResponse.json(podcast);
   } catch (error) {
     console.error(`Failed to fetch podcast ${podcastId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch podcast' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/podcasts/[podcastId]', tenantId, podcastId });
   }
 }
 
@@ -53,24 +54,24 @@ export async function PUT(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+      return validationError({ tenant: ['Invalid user or tenant'] });
     }
 
     const canUpdate = await can(user, tenant, 'canCreatePodcasts');
     if (!canUpdate) {
-        return NextResponse.json({ message: 'You do not have permission to update podcasts.' }, { status: 403 });
+      return forbidden('You do not have permission to update podcasts.');
     }
 
     const result = podcastUpdateSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
@@ -81,8 +82,8 @@ export async function PUT(
 
         return NextResponse.json(updatedPodcast);
     } catch (error) {
-        console.error(`Failed to update podcast ${podcastId}:`, error);
-        return NextResponse.json({ message: 'Failed to update podcast' }, { status: 500 });
+      console.error(`Failed to update podcast ${podcastId}:`, error);
+      return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]/podcasts/[podcastId]', tenantId, podcastId });
     }
 }
 
@@ -96,19 +97,19 @@ export async function DELETE(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+      return validationError({ tenant: ['Invalid user or tenant'] });
     }
 
     const canDelete = await can(user, tenant, 'canCreatePodcasts');
     if (!canDelete) {
-        return NextResponse.json({ message: 'You do not have permission to delete podcasts.' }, { status: 403 });
+      return forbidden('You do not have permission to delete podcasts.');
     }
 
     try {
@@ -118,7 +119,7 @@ export async function DELETE(
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete podcast ${podcastId}:`, error);
-        return NextResponse.json({ message: 'Failed to delete podcast' }, { status: 500 });
+      console.error(`Failed to delete podcast ${podcastId}:`, error);
+      return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/podcasts/[podcastId]', tenantId, podcastId });
     }
 }

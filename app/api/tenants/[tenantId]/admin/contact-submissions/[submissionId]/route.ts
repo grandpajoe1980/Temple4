@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
 import { ContactSubmissionStatus } from '@/types';
+import { unauthorized, validationError, notFound, forbidden, handleApiError } from '@/lib/api-response';
 
 const updateSubmissionSchema = z.object({
     status: z.nativeEnum(ContactSubmissionStatus),
@@ -20,23 +21,23 @@ export async function PUT(
     const user = session?.user as any;
 
     if (!user) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     const result = updateSubmissionSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
         const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
-            return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+            return notFound('Tenant');
         }
 
         const canUpdateSubmissions = await can(user, tenant, 'canManageContactSubmissions');
         if (!canUpdateSubmissions) {
-            return NextResponse.json({ message: 'You do not have permission to update contact submissions.' }, { status: 403 });
+            return forbidden('You do not have permission to update contact submissions.');
         }
 
         const updatedSubmission = await prisma.contactSubmission.update({
@@ -47,6 +48,6 @@ export async function PUT(
         return NextResponse.json(updatedSubmission);
     } catch (error) {
         console.error(`Failed to update contact submission ${submissionId}:`, error);
-        return NextResponse.json({ message: 'Failed to update contact submission' }, { status: 500 });
+        return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]/admin/contact-submissions/[submissionId]', tenantId, submissionId });
     }
 }

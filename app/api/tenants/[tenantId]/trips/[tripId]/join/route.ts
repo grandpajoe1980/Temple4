@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { joinTrip, getMembershipForUserInTenant } from '@/lib/data';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
+import { handleApiError, unauthorized, forbidden, validationError } from '@/lib/api-response';
 
 const intakeSchema = z.object({
   // top-level flag required to enforce consent
@@ -85,28 +86,25 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
-  if (!userId) return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  if (!userId) return unauthorized();
 
   try {
     const membership = await getMembershipForUserInTenant(userId, tenantId);
-    if (!membership) return NextResponse.json({ message: 'You must be a tenant member to join a trip' }, { status: 403 });
+    if (!membership) return forbidden('You must be a tenant member to join a trip');
 
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, include: { settings: true } });
-    if (!tenant?.settings?.enableTrips) return NextResponse.json({ message: 'Trips feature disabled' }, { status: 403 });
+    if (!tenant?.settings?.enableTrips) return forbidden('Trips feature disabled');
 
     const rawBody = await request.json().catch(() => ({}));
     const parsed = intakeSchema.safeParse(rawBody);
     if (!parsed.success || !parsed.data.waiverAccepted) {
-      return NextResponse.json(
-        { message: 'Please complete the required join form and accept the waiver before joining.' },
-        { status: 400 }
-      );
+      return validationError({ form: ['Please complete the required join form and accept the waiver before joining.'] });
     }
 
     const result = await joinTrip(tenantId, tripId, userId, parsed.data);
     return NextResponse.json(result);
   } catch (error) {
     console.error(`Failed to join trip ${tripId}:`, error);
-    return NextResponse.json({ message: error instanceof Error ? error.message : 'Failed to join trip' }, { status: 500 });
+    return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/trips/[tripId]/join', tenantId, tripId });
   }
 }

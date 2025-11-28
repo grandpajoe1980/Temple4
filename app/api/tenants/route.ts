@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { MembershipStatus, } from '@/types';
 import { TenantRole } from '@/types';
 import { z } from 'zod';
+import { handleApiError, unauthorized, validationError, conflict } from '@/lib/api-response';
 
 const tenantCreateSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -22,7 +23,7 @@ const tenantCreateSchema = z.object({
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session || !(session.user as any)?.id) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
   const currentUserId = (session.user as any).id;
 
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
   const result = tenantCreateSchema.safeParse(json);
 
   if (!result.success) {
-    return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(result.error.flatten().fieldErrors);
   }
 
   const { name, slug, ...restOfData } = result.data;
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
     // Check if slug is unique
     const existingTenant = await prisma.tenant.findUnique({ where: { slug } });
     if (existingTenant) {
-      return NextResponse.json({ message: 'A tenant with this slug already exists.' }, { status: 409 });
+      return conflict('A tenant with this slug already exists.');
     }
 
     const newTenant = await prisma.tenant.create({
@@ -138,7 +139,7 @@ export async function POST(request: Request) {
     return NextResponse.json(newTenant, { status: 201 });
   } catch (error) {
     console.error('Failed to create tenant:', error);
-    return NextResponse.json({ message: 'Failed to create tenant' }, { status: 500 });
+    return handleApiError(error, { route: 'POST /api/tenants' });
   }
 }
 
@@ -191,6 +192,6 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error('Failed to fetch tenants:', error);
-    return NextResponse.json({ message: 'Failed to fetch tenants' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants' });
   }
 }

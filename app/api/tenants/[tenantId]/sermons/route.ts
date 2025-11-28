@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
+import { forbidden, handleApiError, unauthorized, validationError } from '@/lib/api-response';
 
 // 11.1 List Sermons
 export async function GET(
@@ -17,7 +18,7 @@ export async function GET(
   try {
     const canView = await canUserViewContent(userId, resolvedParams.tenantId, 'sermons');
     if (!canView) {
-      return NextResponse.json({ message: 'You do not have permission to view sermons.' }, { status: 403 });
+      return forbidden('You do not have permission to view sermons.');
     }
 
     const sermons = await prisma.mediaItem.findMany({
@@ -32,7 +33,7 @@ export async function GET(
     return NextResponse.json(sermons);
   } catch (error) {
     console.error(`Failed to fetch sermons for tenant ${resolvedParams.tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch sermons' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/sermons', tenantId: resolvedParams.tenantId });
   }
 }
 
@@ -52,24 +53,24 @@ export async function POST(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const tenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+      return validationError({ request: ['Invalid user or tenant'] });
     }
 
     const canCreate = await can(user, tenant, 'canCreateSermons');
     if (!canCreate) {
-        return NextResponse.json({ message: 'You do not have permission to create sermons.' }, { status: 403 });
+      return forbidden('You do not have permission to create sermons.');
     }
 
     const result = sermonSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
@@ -84,7 +85,7 @@ export async function POST(
 
         return NextResponse.json(newSermon, { status: 201 });
     } catch (error) {
-        console.error(`Failed to create sermon in tenant ${resolvedParams.tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to create sermon' }, { status: 500 });
+      console.error(`Failed to create sermon in tenant ${resolvedParams.tenantId}:`, error);
+      return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/sermons', tenantId: resolvedParams.tenantId });
     }
 }

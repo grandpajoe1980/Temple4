@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
-import { handleApiError, forbidden, unauthorized } from '@/lib/api-response';
+import { handleApiError, forbidden, unauthorized, validationError } from '@/lib/api-response';
 import { createRouteLogger } from '@/lib/logger';
 import { listTenantEvents, EventPermissionError, mapEventToResponseDto } from '@/lib/services/event-service';
 
@@ -82,7 +82,7 @@ export async function POST(
 
       if (!user || !tenant) {
         logger.warn('Invalid user or tenant during event creation', { userId });
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+        return validationError({ _global: ['Invalid user or tenant'] }, 'Invalid user or tenant');
       }
 
       const canCreate = await can(user, tenant, 'canCreateEvents');
@@ -94,7 +94,7 @@ export async function POST(
       const result = eventCreateSchema.safeParse(await request.json());
       if (!result.success) {
         logger.warn('Event creation validation failed', { errors: result.error.flatten().fieldErrors });
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
       }
 
       const newEvent = await prisma.event.create({

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { canUserViewContent, hasRole } from '@/lib/permissions';
 import { z } from 'zod';
 import { TenantRole } from '@/types';
+import { forbidden, validationError, unauthorized, handleApiError } from '@/lib/api-response';
 
 const volunteerNeedSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
@@ -34,19 +35,13 @@ export async function GET(
     });
 
     if (!tenantSettings || !tenantSettings.enableVolunteering) {
-      return NextResponse.json(
-        { message: 'Volunteering is not enabled for this tenant' },
-        { status: 403 }
-      );
+      return forbidden('Volunteering is not enabled for this tenant');
     }
 
     // Check if user can view content
     const canView = await canUserViewContent(userId, tenantId, 'posts');
     if (!canView) {
-      return NextResponse.json(
-        { message: 'You do not have permission to view volunteer needs' },
-        { status: 403 }
-      );
+      return forbidden('You do not have permission to view volunteer needs');
     }
 
     const { searchParams } = new URL(request.url);
@@ -105,7 +100,7 @@ export async function GET(
     });
   } catch (error) {
     console.error(`Failed to fetch volunteer needs for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch volunteer needs' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/volunteer-needs', tenantId });
   }
 }
 
@@ -118,7 +113,7 @@ export async function POST(
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const userId = (session.user as { id: string }).id;
@@ -133,19 +128,13 @@ export async function POST(
     });
 
     if (!tenantSettings || !tenantSettings.enableVolunteering) {
-      return NextResponse.json(
-        { message: 'Volunteering is not enabled for this tenant' },
-        { status: 403 }
-      );
+      return forbidden('Volunteering is not enabled for this tenant');
     }
 
     // Check if user is staff or admin
     const isStaff = await hasRole(userId, tenantId, [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.CLERGY]);
     if (!isStaff) {
-      return NextResponse.json(
-        { message: 'You must be staff or admin to create volunteer needs' },
-        { status: 403 }
-      );
+      return forbidden('You must be staff or admin to create volunteer needs');
     }
 
     // Validate input
@@ -153,10 +142,7 @@ export async function POST(
     const result = volunteerNeedSchema.safeParse(body);
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: result.error.flatten().fieldErrors },
-        { status: 400 }
-      );
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     const { title, description, date, slotsNeeded, eventId, location } = result.data;
@@ -169,10 +155,7 @@ export async function POST(
       });
 
       if (!event || event.tenantId !== tenantId) {
-        return NextResponse.json(
-          { message: 'Invalid event ID' },
-          { status: 400 }
-        );
+        return validationError({ eventId: ['Invalid event ID'] });
       }
     }
 
@@ -194,6 +177,6 @@ export async function POST(
     return NextResponse.json(volunteerNeed, { status: 201 });
   } catch (error) {
     console.error(`Failed to create volunteer need for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to create volunteer need' }, { status: 500 });
+    return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/volunteer-needs', tenantId });
   }
 }

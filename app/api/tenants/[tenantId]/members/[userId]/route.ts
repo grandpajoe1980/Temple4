@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { TenantRole, MembershipStatus } from '@/types';
 import { z } from 'zod';
@@ -19,7 +20,7 @@ export async function PUT(
     const currentUserId = (session?.user as any)?.id;
 
     if (!currentUserId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     // Check if the current user is an ADMIN of this tenant
@@ -31,17 +32,17 @@ export async function PUT(
     const hasPermission = currentUserMembership?.roles.some((role: any) => role.role === TenantRole.ADMIN);
 
     if (!hasPermission) {
-        return NextResponse.json({ message: 'Forbidden: You must be an admin to change roles.' }, { status: 403 });
+        return forbidden('You must be an admin to change roles.');
     }
 
     // Prevent user from changing their own role
     if (currentUserId === userId) {
-        return NextResponse.json({ message: 'Admins cannot change their own role.' }, { status: 400 });
+        return validationError({ self: ['Admins cannot change their own role.'] });
     }
 
     const result = roleUpdateSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
@@ -50,7 +51,7 @@ export async function PUT(
         });
 
         if (!membership) {
-            return NextResponse.json({ message: 'Member not found' }, { status: 404 });
+            return notFound('Member');
         }
 
         // Disconnect all existing roles and connect the new ones
@@ -76,8 +77,7 @@ export async function PUT(
 
         return NextResponse.json(updatedMembership);
     } catch (error) {
-        console.error(`Failed to update role for user ${userId} in tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to update role' }, { status: 500 });
+        return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]/members/[userId]', tenantId, userId: currentUserId });
     }
 }
 
@@ -91,7 +91,7 @@ export async function PATCH(
     const currentUserId = (session?.user as any)?.id;
 
     if (!currentUserId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     // Check if the current user is an ADMIN of this tenant
@@ -103,20 +103,20 @@ export async function PATCH(
     const hasPermission = currentUserMembership?.roles.some((role: any) => role.role === TenantRole.ADMIN);
 
     if (!hasPermission) {
-        return NextResponse.json({ message: 'Forbidden: You must be an admin to change membership status.' }, { status: 403 });
+        return forbidden('You must be an admin to change membership status.');
     }
 
     try {
         const body = await request.json();
         const { status } = body;
-        if (!status) return NextResponse.json({ message: 'Missing status' }, { status: 400 });
+        if (!status) return validationError({ status: ['Missing status'] });
 
         const membership = await prisma.userTenantMembership.findUnique({
             where: { userId_tenantId: { userId: userId, tenantId: tenantId } },
         });
 
         if (!membership) {
-            return NextResponse.json({ message: 'Member not found' }, { status: 404 });
+            return notFound('Member');
         }
 
         const updated = await prisma.userTenantMembership.update({
@@ -126,8 +126,7 @@ export async function PATCH(
 
         return NextResponse.json(updated);
     } catch (error) {
-        console.error(`Failed to update status for user ${userId} in tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to update status' }, { status: 500 });
+        return handleApiError(error, { route: 'PATCH /api/tenants/[tenantId]/members/[userId]', tenantId, userId: currentUserId });
     }
 }
 
@@ -141,7 +140,7 @@ export async function DELETE(
     const currentUserId = (session?.user as any)?.id;
 
     if (!currentUserId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     // Check if the current user is an ADMIN of this tenant
@@ -153,12 +152,12 @@ export async function DELETE(
     const hasPermission = currentUserMembership?.roles.some((role: any) => role.role === TenantRole.ADMIN);
 
     if (!hasPermission) {
-        return NextResponse.json({ message: 'Forbidden: You must be an admin to remove members.' }, { status: 403 });
+        return forbidden('You must be an admin to remove members.');
     }
 
     // Prevent user from removing themselves
     if (currentUserId === userId) {
-        return NextResponse.json({ message: 'Admins cannot remove themselves.' }, { status: 400 });
+        return validationError({ self: ['Admins cannot remove themselves.'] });
     }
 
     try {
@@ -167,7 +166,7 @@ export async function DELETE(
         });
 
         if (!membership) {
-            return NextResponse.json({ message: 'Member not found' }, { status: 404 });
+            return notFound('Member');
         }
 
         await prisma.userTenantRole.deleteMany({ where: { membershipId: membership.id } });
@@ -176,7 +175,6 @@ export async function DELETE(
         });
         return new NextResponse(null, { status: 204 }); // No Content
     } catch (error) {
-        console.error(`Failed to remove user ${userId} from tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to remove member' }, { status: 500 });
+        return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/members/[userId]', tenantId, userId: currentUserId });
     }
 }

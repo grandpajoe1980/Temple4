@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 
 // 10.3 Get Single Event
 export async function GET(
@@ -17,7 +18,7 @@ export async function GET(
   try {
     const canView = await canUserViewContent(userId, tenantId, 'calendar');
     if (!canView) {
-      return NextResponse.json({ message: 'You do not have permission to view this event.' }, { status: 403 });
+      return forbidden('You do not have permission to view this event.');
     }
 
     const event = await prisma.event.findUnique({
@@ -36,7 +37,7 @@ export async function GET(
     });
 
     if (!event || event.deletedAt) {
-      return NextResponse.json({ message: 'Event not found' }, { status: 404 });
+      return notFound('Event');
     }
 
     // Transform to include RSVP count
@@ -49,7 +50,7 @@ export async function GET(
     return NextResponse.json(eventWithCount);
   } catch (error) {
     console.error(`Failed to fetch event ${eventId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch event' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/events/[eventId]', tenantId, eventId });
   }
 }
 
@@ -73,30 +74,30 @@ export async function PATCH(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+      return validationError({ tenant: ['Invalid user or tenant'] });
     }
 
     const canUpdate = await can(user, tenant, 'canCreateEvents'); // Assuming same permission for update
     if (!canUpdate) {
-        return NextResponse.json({ message: 'You do not have permission to update events.' }, { status: 403 });
+      return forbidden('You do not have permission to update events.');
     }
 
     const result = eventUpdateSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
         const event = await prisma.event.findUnique({ where: { id: eventId, tenantId: tenantId } });
         if (!event || event.deletedAt) {
-            return NextResponse.json({ message: 'Event not found' }, { status: 404 });
+          return notFound('Event');
         }
 
         // Convert date strings to Date objects
@@ -115,8 +116,8 @@ export async function PATCH(
 
         return NextResponse.json(updatedEvent);
     } catch (error) {
-        console.error(`Failed to update event ${eventId}:`, error);
-        return NextResponse.json({ message: 'Failed to update event' }, { status: 500 });
+      console.error(`Failed to update event ${eventId}:`, error);
+      return handleApiError(error, { route: 'PATCH /api/tenants/[tenantId]/events/[eventId]', tenantId, eventId });
     }
 }
 
@@ -130,25 +131,25 @@ export async function DELETE(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true, name: true, slug: true, creed: true, street: true, city: true, state: true, country: true, postalCode: true, contactEmail: true, phoneNumber: true, description: true, permissions: true } });
 
     if (!user || !tenant) {
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+      return validationError({ tenant: ['Invalid user or tenant'] });
     }
 
     const canDelete = await can(user, tenant, 'canCreateEvents'); // Assuming same permission for delete
     if (!canDelete) {
-        return NextResponse.json({ message: 'You do not have permission to delete events.' }, { status: 403 });
+      return forbidden('You do not have permission to delete events.');
     }
 
     try {
         const event = await prisma.event.findUnique({ where: { id: eventId, tenantId: tenantId } });
         if (!event || event.deletedAt) {
-            return NextResponse.json({ message: 'Event not found' }, { status: 404 });
+          return notFound('Event');
         }
 
         // Soft delete by setting deletedAt timestamp
@@ -159,7 +160,7 @@ export async function DELETE(
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete event ${eventId}:`, error);
-        return NextResponse.json({ message: 'Failed to delete event' }, { status: 500 });
+      console.error(`Failed to delete event ${eventId}:`, error);
+      return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/events/[eventId]', tenantId, eventId });
     }
 }

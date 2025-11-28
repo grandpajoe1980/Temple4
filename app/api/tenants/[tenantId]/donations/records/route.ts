@@ -6,6 +6,7 @@ import { canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
 import { DonationSettings, MembershipStatus } from '@/types';
 import { getTenantContext } from '@/lib/tenant-context';
+import { notFound, forbidden, validationError, handleApiError } from '@/lib/api-response';
 
 const donationRecordSchema = z.object({
   amount: z.number().positive('Amount must be positive'),
@@ -28,21 +29,18 @@ export async function GET(
     const context = await getTenantContext(tenantId, userId);
 
     if (!context) {
-      return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+      return notFound('Tenant');
     }
 
     if (!context.tenant.settings?.enableDonations) {
-      return NextResponse.json(
-        { message: 'Donations are not enabled for this tenant' },
-        { status: 403 }
-      );
+      return forbidden('Donations are not enabled for this tenant');
     }
 
     const donationSettings = context.tenant.settings
       ?.donationSettings as DonationSettings | null;
 
     if (!donationSettings) {
-      return NextResponse.json({ message: 'Donation settings not found' }, { status: 404 });
+      return notFound('Donation settings');
     }
 
     // Check leaderboard visibility
@@ -52,18 +50,12 @@ export async function GET(
         context.membership?.status === MembershipStatus.APPROVED;
 
       if (!canView || !isApprovedMember) {
-        return NextResponse.json(
-          { message: 'You must be a member to view the donation leaderboard' },
-          { status: 403 }
-        );
+        return forbidden('You must be a member to view the donation leaderboard');
       }
     }
 
     if (!donationSettings.leaderboardEnabled) {
-      return NextResponse.json(
-        { message: 'Leaderboard is not enabled' },
-        { status: 403 }
-      );
+      return forbidden('Leaderboard is not enabled');
     }
 
     // Calculate date filter based on timeframe
@@ -111,7 +103,7 @@ export async function GET(
     });
   } catch (error) {
     console.error(`Failed to fetch donation records for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch donation records' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/donations/records', tenantId });
   }
 }
 
@@ -128,29 +120,23 @@ export async function POST(
     const context = await getTenantContext(tenantId, userId);
 
     if (!context) {
-      return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+      return notFound('Tenant');
     }
 
     if (!context.tenant.settings?.enableDonations) {
-      return NextResponse.json(
-        { message: 'Donations are not enabled for this tenant' },
-        { status: 403 }
-      );
+      return forbidden('Donations are not enabled for this tenant');
     }
 
     const donationSettings = context.tenant.settings
       ?.donationSettings as DonationSettings | null;
 
     if (!donationSettings) {
-      return NextResponse.json({ message: 'Donation settings not found' }, { status: 404 });
+      return notFound('Donation settings');
     }
 
     const isApprovedMember = context.membership?.status === MembershipStatus.APPROVED;
     if (!context.isPublic && !isApprovedMember) {
-      return NextResponse.json(
-        { message: 'Membership approval is required to donate to this tenant' },
-        { status: 403 }
-      );
+      return forbidden('Membership approval is required to donate to this tenant');
     }
 
     // Validate input
@@ -158,28 +144,19 @@ export async function POST(
     const result = donationRecordSchema.safeParse(body);
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: result.error.flatten().fieldErrors },
-        { status: 400 }
-      );
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     const { amount, currency, displayName, isAnonymousOnLeaderboard, message } = result.data;
 
     // Validate currency matches settings
     if (currency !== donationSettings.currency) {
-      return NextResponse.json(
-        { message: `Currency must be ${donationSettings.currency}` },
-        { status: 400 }
-      );
+      return validationError({ currency: [`Currency must be ${donationSettings.currency}`] });
     }
 
     // Validate amount is allowed
     if (!donationSettings.allowCustomAmounts && !donationSettings.suggestedAmounts.includes(amount)) {
-      return NextResponse.json(
-        { message: 'Amount must be one of the suggested amounts' },
-        { status: 400 }
-      );
+      return validationError({ amount: ['Amount must be one of the suggested amounts'] });
     }
 
     // In a real implementation, this would integrate with Stripe/PayPal
@@ -227,6 +204,6 @@ export async function POST(
     return NextResponse.json(donation, { status: 201 });
   } catch (error) {
     console.error(`Failed to create donation record for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to record donation' }, { status: 500 });
+    return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/donations/records', tenantId });
   }
 }

@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, unauthorized, forbidden, notFound } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 
 // 14.8 Remove Group Member
@@ -13,7 +14,7 @@ export async function DELETE(
     const currentUserId = (session?.user as any)?.id;
 
     if (!currentUserId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     try {
@@ -23,7 +24,7 @@ export async function DELETE(
         });
 
         if (!group) {
-            return NextResponse.json({ message: 'Group not found' }, { status: 404 });
+            return notFound('Group');
         }
 
         const isLeader = group.members.some((m: any) => m.userId === currentUserId && m.role === 'LEADER');
@@ -31,7 +32,7 @@ export async function DELETE(
 
         // A user can leave a group, or a leader can remove them.
         if (!isLeader && !isSelf) {
-            return NextResponse.json({ message: 'You can only remove yourself from the group.' }, { status: 403 });
+            return forbidden('You can only remove yourself from the group.');
         }
 
         await prisma.smallGroupMembership.delete({
@@ -46,6 +47,6 @@ export async function DELETE(
         return new NextResponse(null, { status: 204 });
     } catch (error) {
         console.error(`Failed to remove member from group ${groupId}:`, error);
-        return NextResponse.json({ message: 'Failed to remove member' }, { status: 500 });
+        return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/small-groups/[groupId]/members/[userId]', tenantId, groupId, userId });
     }
 }

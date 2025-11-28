@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { ContactSubmissionStatus } from '@prisma/client';
+import { handleApiError, validationError } from '@/lib/api-response';
 
 const contactSubmissionSchema = z.object({
   name: z.string().min(1),
@@ -17,7 +18,7 @@ export async function POST(
   const parsed = contactSubmissionSchema.safeParse(await request.json());
 
   if (!parsed.success) {
-    return NextResponse.json({ errors: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(parsed.error.flatten().fieldErrors);
   }
 
   try {
@@ -34,6 +35,6 @@ export async function POST(
     return NextResponse.json(submission, { status: 201 });
   } catch (error) {
     console.error(`Failed to create contact submission for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to send message' }, { status: 500 });
+    return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/contact-submissions', tenantId });
   }
 }

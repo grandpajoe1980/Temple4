@@ -3,6 +3,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { can } from '@/lib/permissions';
+import { unauthorized, notFound, forbidden, handleApiError } from '@/lib/api-response';
 
 // 17.5 Get Contact Submissions
 export async function GET(
@@ -14,18 +15,18 @@ export async function GET(
     const user = session?.user as any;
 
     if (!user) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     try {
         const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
-            return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+            return notFound('Tenant');
         }
 
         const canViewSubmissions = await can(user, tenant, 'canManageContactSubmissions');
         if (!canViewSubmissions) {
-            return NextResponse.json({ message: 'You do not have permission to view contact submissions.' }, { status: 403 });
+            return forbidden('You do not have permission to view contact submissions.');
         }
 
         const submissions = await prisma.contactSubmission.findMany({
@@ -36,6 +37,6 @@ export async function GET(
         return NextResponse.json(submissions);
     } catch (error) {
         console.error(`Failed to fetch contact submissions for tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to fetch contact submissions' }, { status: 500 });
+        return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/admin/contact-submissions', tenantId });
     }
 }

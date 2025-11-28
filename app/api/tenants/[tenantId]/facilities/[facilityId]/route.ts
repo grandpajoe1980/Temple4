@@ -6,6 +6,7 @@ import { can, hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
 import { z } from 'zod';
 import { FacilityType } from '@prisma/client';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 
 const FACILITY_TYPE_VALUES: [FacilityType, ...FacilityType[]] = ['ROOM', 'HALL', 'EQUIPMENT', 'VEHICLE', 'OTHER'];
 
@@ -26,7 +27,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ tenantI
   const facility = await getFacilityById(tenantId, facilityId, true);
 
   if (!facility) {
-    return NextResponse.json({ message: 'Facility not found' }, { status: 404 });
+    return notFound('Facility');
   }
 
   return NextResponse.json(facility);
@@ -38,27 +39,27 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ te
   const userId = (session?.user as any)?.id ?? null;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const tenant = await getTenantById(tenantId);
   const user = await getUserById(userId);
 
   if (!tenant || !user) {
-    return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+    return notFound('Tenant or User');
   }
 
   const canManage = (await can(user, tenant as any, 'canManageFacilities')) || (await hasRole(userId, tenantId, [TenantRole.ADMIN]));
 
   if (!canManage) {
-    return NextResponse.json({ message: 'You do not have permission to manage facilities.' }, { status: 403 });
+    return forbidden('You do not have permission to manage facilities.');
   }
 
   const payload = await request.json();
   const parsed = updateSchema.safeParse(payload);
 
   if (!parsed.success) {
-    return NextResponse.json({ errors: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(parsed.error.flatten().fieldErrors);
   }
 
   const normalized = {
@@ -71,7 +72,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ te
   const updated = await updateFacility(tenantId, facilityId, normalized);
 
   if (!updated) {
-    return NextResponse.json({ message: 'Facility not found' }, { status: 404 });
+    return notFound('Facility');
   }
 
   return NextResponse.json(updated);
@@ -83,20 +84,20 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ t
   const userId = (session?.user as any)?.id ?? null;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const tenant = await getTenantById(tenantId);
   const user = await getUserById(userId);
 
   if (!tenant || !user) {
-    return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+    return notFound('Tenant or User');
   }
 
   const canManage = (await can(user, tenant as any, 'canManageFacilities')) || (await hasRole(userId, tenantId, [TenantRole.ADMIN]));
 
   if (!canManage) {
-    return NextResponse.json({ message: 'You do not have permission to manage facilities.' }, { status: 403 });
+    return forbidden('You do not have permission to manage facilities.');
   }
 
   try {
@@ -105,13 +106,13 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ t
     const ok = await deleteFacility(tenantId, facilityId);
 
     if (!ok) {
-      return NextResponse.json({ message: 'Facility not found' }, { status: 404 });
+      return notFound('Facility');
     }
 
     return NextResponse.json({ message: 'Deleted' }, { status: 200 });
   } catch (err: any) {
     // eslint-disable-next-line no-console
     console.error('Failed to delete facility', err);
-    return NextResponse.json({ message: 'Unable to delete facility' }, { status: 500 });
+    return handleApiError(err, { route: 'DELETE /api/tenants/[tenantId]/facilities/[facilityId]', tenantId, facilityId });
   }
 }

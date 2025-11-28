@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import { TenantRole } from '@/types';
@@ -20,12 +21,12 @@ export async function PATCH(
   const currentUserId = (session?.user as any)?.id;
 
   if (!currentUserId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const result = profileUpdateSchema.safeParse(await request.json());
   if (!result.success) {
-    return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(result.error.flatten().fieldErrors);
   }
 
   try {
@@ -38,7 +39,7 @@ export async function PATCH(
 
       const isAdmin = currentUserMembership?.roles.some((r: any) => r.role === TenantRole.ADMIN);
       if (!isAdmin) {
-        return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+        return forbidden('Forbidden');
       }
     }
 
@@ -47,7 +48,7 @@ export async function PATCH(
     });
 
     if (!membership) {
-      return NextResponse.json({ message: 'Membership not found' }, { status: 404 });
+      return notFound('Membership');
     }
 
     // Update membership displayName if provided
@@ -74,6 +75,6 @@ export async function PATCH(
     return NextResponse.json(updatedMembership);
   } catch (error) {
     console.error(`Failed to update membership profile for ${userId} in tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to update membership profile' }, { status: 500 });
+    return handleApiError(error, { route: 'PATCH /api/tenants/[tenantId]/members/[userId]/profile', tenantId, userId });
   }
 }

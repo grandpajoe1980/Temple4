@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, unauthorized, forbidden, validationError } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { hasRole, isGroupLeader } from '@/lib/permissions';
 import { TenantRole } from '@/types';
@@ -12,8 +13,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     return NextResponse.json({ items });
   } catch (err: any) {
     console.error(`Failed to list announcements for tenant=${tenantId} group=${groupId}:`, err);
-    const message = err?.message || 'Failed to list announcements';
-    return NextResponse.json({ message, details: String(err) }, { status: 500 });
+    return handleApiError(err, { route: 'GET /api/tenants/[tenantId]/small-groups/[groupId]/announcements', tenantId, groupId });
   }
 }
 
@@ -21,7 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   const { tenantId, groupId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
-  if (!userId) return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  if (!userId) return unauthorized();
 
   try {
     const userRecord = await prisma.user.findUnique({ where: { id: userId } });
@@ -29,17 +29,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     const isLeader = await isGroupLeader(userId, groupId);
     const isTenantAdmin = await hasRole(userId, tenantId, [TenantRole.ADMIN]);
     if (!isLeader && !isTenantAdmin && !isSuperAdmin) {
-      return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+      return forbidden('Forbidden');
     }
 
     const body = await request.json();
     const { title, body: content } = body;
-    if (!title || !content) return NextResponse.json({ message: 'title and body required' }, { status: 400 });
+    if (!title || !content) return validationError({ title: ['title required'], body: ['content required'] });
 
     const item = await prisma.smallGroupAnnouncement.create({ data: { tenantId, groupId, authorUserId: userId, title, body: content } });
     return NextResponse.json(item, { status: 201 });
   } catch (err) {
     console.error(`Failed to create announcement for group ${groupId}:`, err);
-    return NextResponse.json({ message: 'Failed to create announcement' }, { status: 500 });
+    return handleApiError(err, { route: 'POST /api/tenants/[tenantId]/small-groups/[groupId]/announcements', tenantId, groupId });
   }
 }

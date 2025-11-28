@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getMembershipForUserInTenant } from '@/lib/data';
 import { can } from '@/lib/permissions';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 import { z } from 'zod';
 import { CommunityPostType, CommunityPostStatus } from '@/types';
 
@@ -18,7 +19,7 @@ export async function GET(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     try {
@@ -29,12 +30,12 @@ export async function GET(
             include: { settings: true }
         });
         if (!tenant) {
-            return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+            return notFound('Tenant');
         }
 
         // Check if prayer wall is enabled
         if (!tenant.settings?.enablePrayerWall) {
-            return NextResponse.json({ message: 'Prayer wall is not enabled for this tenant' }, { status: 403 });
+            return forbidden('Prayer wall is not enabled for this tenant');
         }
 
         let statusFilter: { status?: CommunityPostStatus } = { status: CommunityPostStatus.PUBLISHED };
@@ -42,12 +43,12 @@ export async function GET(
         if (includePrivate) {
             const user = await prisma.user.findUnique({ where: { id: userId } });
             if (!user) {
-                return NextResponse.json({ message: 'User not found' }, { status: 404 });
+                return notFound('User');
             }
 
             const canViewAllPosts = await can(user, tenant, 'canManagePrayerWall');
             if (!canViewAllPosts) {
-                return NextResponse.json({ message: 'You do not have permission to manage the prayer wall.' }, { status: 403 });
+                return forbidden('You do not have permission to manage the prayer wall.');
             }
 
             statusFilter = {};
@@ -73,7 +74,7 @@ export async function GET(
         return NextResponse.json(enrichedPosts);
     } catch (error) {
         console.error(`Failed to fetch community posts for tenant ${resolvedParams.tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to fetch community posts' }, { status: 500 });
+        return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/community-posts', tenantId: resolvedParams.tenantId });
     }
 }
 
@@ -93,18 +94,18 @@ export async function POST(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     const result = postSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
         const membership = await getMembershipForUserInTenant(userId, resolvedParams.tenantId);
         if (!membership || membership.status !== 'APPROVED') {
-            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+            return forbidden('Forbidden');
         }
 
         const tenant = await prisma.tenant.findUnique({
@@ -112,17 +113,17 @@ export async function POST(
             include: { settings: true }
         });
         if (!tenant) {
-            return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+            return notFound('Tenant');
         }
 
         // Check if prayer wall is enabled
         if (!tenant.settings?.enablePrayerWall) {
-            return NextResponse.json({ message: 'Prayer wall is not enabled for this tenant' }, { status: 403 });
+            return forbidden('Prayer wall is not enabled for this tenant');
         }
 
         const user = await prisma.user.findUnique({ where: { id: userId } });
         if (!user) {
-            return NextResponse.json({ message: 'User not found' }, { status: 404 });
+            return notFound('User');
         }
 
         const newPost = await prisma.communityPost.create({
@@ -139,6 +140,6 @@ export async function POST(
         return NextResponse.json(newPost, { status: 201 });
     } catch (error) {
         console.error(`Failed to create community post for tenant ${resolvedParams.tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to create community post' }, { status: 500 });
+        return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/community-posts', tenantId: resolvedParams.tenantId });
     }
 }

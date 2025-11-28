@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { BookingStatus } from '@prisma/client';
 import { getFacilityBookings, getMembershipForUserInTenant } from '@/lib/data';
 import { TenantRole } from '@/types';
+import { handleApiError } from '@/lib/api-response';
 
 export async function GET(request: Request, { params }: { params: Promise<{ tenantId: string; facilityId: string }> }) {
   const { tenantId, facilityId } = await params;
@@ -22,6 +23,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     }
   }
 
-  const bookings = await getFacilityBookings(tenantId, facilityId, statuses);
-  return NextResponse.json(bookings);
+  try {
+    const bookings = await getFacilityBookings(tenantId, facilityId, statuses);
+    return NextResponse.json(bookings);
+  } catch (err: any) {
+    console.error(`Failed to fetch bookings for facility ${facilityId}:`, err);
+    return handleApiError(err, { route: 'GET /api/tenants/[tenantId]/facilities/[facilityId]/bookings', tenantId, facilityId });
+  }
 }

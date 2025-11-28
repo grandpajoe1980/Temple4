@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 import { TenantRole } from '@/types';
 import { prisma } from '@/lib/db';
 import { canUserViewContent } from '@/lib/permissions';
@@ -18,7 +19,7 @@ export async function GET(
   try {
     const canView = await canUserViewContent(userId, tenantId, 'posts');
     if (!canView) {
-      return NextResponse.json({ message: 'You do not have permission to view this post.' }, { status: 403 });
+      return forbidden('You do not have permission to view this post.');
     }
 
     const post = await prisma.post.findUnique({
@@ -34,13 +35,13 @@ export async function GET(
     });
 
     if (!post || post.deletedAt) {
-      return NextResponse.json({ message: 'Post not found' }, { status: 404 });
+      return notFound('Post not found');
     }
 
     return NextResponse.json(post);
   } catch (error) {
     console.error(`Failed to fetch post ${postId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch post' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/posts/[postId]', tenantId, postId, userId });
   }
 }
 
@@ -60,18 +61,18 @@ export async function PATCH(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
 
     const result = postUpdateSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
         const post = await prisma.post.findUnique({ where: { id: postId } });
         if (!post || post.tenantId !== tenantId || post.deletedAt) {
-            return NextResponse.json({ message: 'Post not found' }, { status: 404 });
+          return notFound('Post not found');
         }
 
         // Check if user is the author or a moderator
@@ -85,7 +86,7 @@ export async function PATCH(
         );
 
         if (!isAuthor && !canModerate) {
-            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+          return forbidden('Forbidden');
         }
 
         const updatedPost = await prisma.post.update({
@@ -95,8 +96,8 @@ export async function PATCH(
 
         return NextResponse.json(updatedPost);
     } catch (error) {
-        console.error(`Failed to update post ${postId}:`, error);
-        return NextResponse.json({ message: 'Failed to update post' }, { status: 500 });
+      console.error(`Failed to update post ${postId}:`, error);
+      return handleApiError(error, { route: 'PATCH /api/tenants/[tenantId]/posts/[postId]', tenantId, postId, userId });
     }
 }
 
@@ -110,13 +111,13 @@ export async function DELETE(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
 
     try {
         const post = await prisma.post.findUnique({ where: { id: postId } });
         if (!post || post.tenantId !== tenantId || post.deletedAt) {
-            return NextResponse.json({ message: 'Post not found' }, { status: 404 });
+          return notFound('Post not found');
         }
 
         // Check if user is the author or a moderator/admin
@@ -130,7 +131,7 @@ export async function DELETE(
         );
 
         if (!isAuthor && !canModerate) {
-            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+          return forbidden('Forbidden');
         }
 
         // Soft delete by setting deletedAt timestamp
@@ -141,7 +142,7 @@ export async function DELETE(
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error(`Failed to delete post ${postId}:`, error);
-        return NextResponse.json({ message: 'Failed to delete post' }, { status: 500 });
+      console.error(`Failed to delete post ${postId}:`, error);
+      return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/posts/[postId]', tenantId, postId, userId });
     }
 }

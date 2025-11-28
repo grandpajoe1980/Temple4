@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
+import { handleApiError, forbidden, notFound, unauthorized, validationError } from '@/lib/api-response';
 
 // 13.3 Get Single Book
 export async function GET(
@@ -16,23 +17,23 @@ export async function GET(
 
   try {
     const canView = await canUserViewContent(userId, tenantId, 'books');
-    if (!canView) {
-      return NextResponse.json({ message: 'You do not have permission to view this book.' }, { status: 403 });
-    }
+        if (!canView) {
+            return forbidden('You do not have permission to view this book.');
+        }
 
     const book = await prisma.book.findUnique({
       where: { id: bookId, tenantId: tenantId },
     });
 
-    if (!book) {
-      return NextResponse.json({ message: 'Book not found' }, { status: 404 });
-    }
+        if (!book) {
+            return notFound('Book');
+        }
 
     return NextResponse.json(book);
-  } catch (error) {
-    console.error(`Failed to fetch book ${bookId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch book' }, { status: 500 });
-  }
+    } catch (error) {
+        console.error(`Failed to fetch book ${bookId}:`, error);
+        return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/books/[bookId]', bookId, tenantId });
+    }
 }
 
 const bookUpdateSchema = z.object({
@@ -54,7 +55,7 @@ export async function PUT(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -64,17 +65,17 @@ export async function PUT(
     });
 
     if (!user || !tenant) {
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+        return validationError({ request: ['Invalid user or tenant'] });
     }
 
     const canUpdate = await can(user, tenant, 'canCreateBooks');
     if (!canUpdate) {
-        return NextResponse.json({ message: 'You do not have permission to update books.' }, { status: 403 });
+        return forbidden('You do not have permission to update books.');
     }
 
     const result = bookUpdateSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
@@ -86,7 +87,7 @@ export async function PUT(
         return NextResponse.json(updatedBook);
     } catch (error) {
         console.error(`Failed to update book ${bookId}:`, error);
-        return NextResponse.json({ message: 'Failed to update book' }, { status: 500 });
+        return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]/books/[bookId]', bookId, tenantId });
     }
 }
 
@@ -100,7 +101,7 @@ export async function DELETE(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -110,12 +111,12 @@ export async function DELETE(
     });
 
     if (!user || !tenant) {
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+        return validationError({ request: ['Invalid user or tenant'] });
     }
 
     const canDelete = await can(user, tenant, 'canCreateBooks');
     if (!canDelete) {
-        return NextResponse.json({ message: 'You do not have permission to delete books.' }, { status: 403 });
+        return forbidden('You do not have permission to delete books.');
     }
 
     try {
@@ -126,6 +127,6 @@ export async function DELETE(
         return new NextResponse(null, { status: 204 });
     } catch (error) {
         console.error(`Failed to delete book ${bookId}:`, error);
-        return NextResponse.json({ message: 'Failed to delete book' }, { status: 500 });
+        return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/books/[bookId]', bookId, tenantId });
     }
 }

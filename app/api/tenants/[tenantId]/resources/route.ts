@@ -6,6 +6,7 @@ import { getMembershipForUserInTenant } from '@/lib/data';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
 import { ResourceVisibility, FileType } from '@/types';
+import { handleApiError, unauthorized, validationError, notFound, forbidden } from '@/lib/api-response';
 
 // 16.1 List Resources
 export async function GET(
@@ -31,11 +32,11 @@ export async function GET(
             },
         });
 
-        return NextResponse.json(resources);
-    } catch (error) {
-        console.error(`Failed to fetch resources for tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to fetch resources' }, { status: 500 });
-    }
+            return NextResponse.json(resources);
+        } catch (error) {
+            console.error(`Failed to fetch resources for tenant ${tenantId}:`, error);
+            return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/resources', tenantId });
+        }
 }
 
 const resourceSchema = z.object({
@@ -56,23 +57,23 @@ export async function POST(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     const result = resourceSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
         const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
-            return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+            return notFound('Tenant');
         }
 
         const canUpload = await can(userId, tenant, 'canUploadResources');
         if (!canUpload) {
-            return NextResponse.json({ message: 'You do not have permission to upload resources.' }, { status: 403 });
+            return forbidden('You do not have permission to upload resources.');
         }
 
         const newResource = await prisma.resourceItem.create({
@@ -86,6 +87,6 @@ export async function POST(
         return NextResponse.json(newResource, { status: 201 });
     } catch (error) {
         console.error(`Failed to upload resource for tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to upload resource' }, { status: 500 });
+        return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/resources', tenantId });
     }
 }

@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
@@ -20,32 +21,32 @@ export async function PUT(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     const result = updateStatusSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
         const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, include: { settings: true } });
         if (!tenant) {
-            return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+            return notFound('Tenant');
         }
 
         if (!tenant.settings?.enablePrayerWall) {
-            return NextResponse.json({ message: 'Prayer wall is not enabled for this tenant' }, { status: 403 });
+            return forbidden('Prayer wall is not enabled for this tenant');
         }
 
         const user = await prisma.user.findUnique({ where: { id: userId } });
         if (!user) {
-            return NextResponse.json({ message: 'User not found' }, { status: 404 });
+            return notFound('User');
         }
 
         const canUpdate = await can(user, tenant, 'canManagePrayerWall');
         if (!canUpdate) {
-            return NextResponse.json({ message: 'You do not have permission to manage the prayer wall.' }, { status: 403 });
+            return forbidden('You do not have permission to manage the prayer wall.');
         }
 
         const updatedPost = await prisma.communityPost.update({
@@ -61,7 +62,7 @@ export async function PUT(
         return NextResponse.json(updatedPost);
     } catch (error) {
         console.error(`Failed to update community post ${postId}:`, error);
-        return NextResponse.json({ message: 'Failed to update community post' }, { status: 500 });
+        return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]/community-posts/[postId]', tenantId, postId });
     }
 }
 

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { getMembershipForUserInTenant } from '@/lib/data';
 import { isGroupLeader } from '@/lib/permissions';
 import { hasRole } from '@/lib/permissions';
+import { handleApiError, unauthorized, forbidden } from '@/lib/api-response';
 import { TenantRole } from '@/types';
 
 export async function GET(request: Request, { params }: { params: Promise<{ tenantId: string; groupId: string }> }) {
@@ -13,7 +14,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
   const userId = (session?.user as any)?.id;
   const isSuperAdmin = (session?.user as any)?.isSuperAdmin;
 
-  if (!userId) return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  if (!userId) return unauthorized();
 
   try {
     // Allow if user is tenant admin/staff/moderator or a group leader
@@ -22,7 +23,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     const isTenantAdmin = await hasRole(userId, tenantId, [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.MODERATOR]);
 
     if (!isLeader && !isTenantAdmin && !isSuperAdmin) {
-      return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+      return forbidden('Forbidden');
     }
 
     // Fetch tenant users (members) with basic profile info
@@ -36,6 +37,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     return NextResponse.json({ users });
   } catch (err) {
     console.error(`Failed to list tenant users for tenant=${tenantId} group=${groupId}:`, err);
-    return NextResponse.json({ message: 'Failed to list tenant users' }, { status: 500 });
+    return handleApiError(err, { route: 'GET /api/tenants/[tenantId]/small-groups/[groupId]/tenant-users', tenantId, groupId });
   }
 }

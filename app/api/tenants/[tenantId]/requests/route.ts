@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, unauthorized, forbidden } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { TenantRole, MembershipStatus } from '@/types';
 
@@ -14,7 +15,7 @@ export async function GET(
   const userId = (session?.user as any)?.id;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   // Check if the user has permission to view requests (ADMIN or STAFF)
@@ -28,7 +29,7 @@ export async function GET(
   );
 
   if (!hasPermission) {
-    return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    return forbidden('Forbidden');
   }
 
   try {
@@ -59,6 +60,6 @@ export async function GET(
     return NextResponse.json(requests);
   } catch (error) {
     console.error(`Failed to fetch membership requests for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch requests' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/requests', tenantId });
   }
 }

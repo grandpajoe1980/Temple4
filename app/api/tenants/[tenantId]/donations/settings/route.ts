@@ -6,6 +6,7 @@ import { hasRole } from '@/lib/permissions';
 import { z } from 'zod';
 import { DonationSettings, MembershipStatus, TenantRole } from '@/types';
 import { getTenantContext } from '@/lib/tenant-context';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 
 const donationSettingsSchema = z.object({
   mode: z.enum(['EXTERNAL', 'INTEGRATED']),
@@ -43,35 +44,29 @@ export async function GET(
     const context = await getTenantContext(tenantId, (session?.user as any)?.id);
 
     if (!context) {
-      return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+      return notFound('Tenant');
     }
 
     if (!context.tenant.settings?.enableDonations) {
-      return NextResponse.json(
-        { message: 'Donations are not enabled for this tenant' },
-        { status: 403 }
-      );
+      return forbidden('Donations are not enabled for this tenant');
     }
 
     const donationSettings = context.tenant.settings
       ?.donationSettings as DonationSettings | null;
 
     if (!donationSettings) {
-      return NextResponse.json({ message: 'Donation settings not found' }, { status: 404 });
+      return notFound('Donation settings');
     }
 
     const isApprovedMember = context.membership?.status === MembershipStatus.APPROVED;
     if (!context.isPublic && !isApprovedMember) {
-      return NextResponse.json(
-        { message: 'You must be an approved member to view donation settings' },
-        { status: 403 }
-      );
+      return forbidden('You must be an approved member to view donation settings');
     }
 
     return NextResponse.json(donationSettings);
   } catch (error) {
     console.error(`Failed to fetch donation settings for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch donation settings' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/donations/settings', tenantId });
   }
 }
 
@@ -84,7 +79,7 @@ export async function PATCH(
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const userId = (session.user as { id: string }).id;
@@ -94,10 +89,7 @@ export async function PATCH(
     const isAdmin = await hasRole(userId, tenantId, [TenantRole.ADMIN]);
 
     if (!isAdmin) {
-      return NextResponse.json(
-        { message: 'You must be an admin to update donation settings' },
-        { status: 403 }
-      );
+      return forbidden('You must be an admin to update donation settings');
     }
 
     // Validate input
@@ -105,10 +97,7 @@ export async function PATCH(
     const result = donationSettingsSchema.safeParse(body);
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: result.error.flatten().fieldErrors },
-        { status: 400 }
-      );
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     const newSettings = result.data;
@@ -141,6 +130,6 @@ export async function PATCH(
     return NextResponse.json(updatedTenantSettings.donationSettings);
   } catch (error) {
     console.error(`Failed to update donation settings for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to update donation settings' }, { status: 500 });
+    return handleApiError(error, { route: 'PATCH /api/tenants/[tenantId]/donations/settings', tenantId });
   }
 }

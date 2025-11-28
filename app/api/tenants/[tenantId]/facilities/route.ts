@@ -12,6 +12,7 @@ import {
 } from '@/lib/data';
 import { can, hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 
 const FACILITY_TYPE_VALUES: [FacilityType, ...FacilityType[]] = ['ROOM', 'HALL', 'EQUIPMENT', 'VEHICLE', 'OTHER'];
 
@@ -48,13 +49,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     }
 
     const facilities = await getFacilitiesForTenant(tenantId, { includeInactive });
-
     return NextResponse.json(facilities);
   } catch (err: any) {
     // Ensure we always return a JSON error response and log the issue
     // eslint-disable-next-line no-console
     console.error('Facilities GET failed', err);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return handleApiError(err, { route: 'GET /api/tenants/[tenantId]/facilities' });
   }
 }
 
@@ -64,27 +64,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   const userId = (session?.user as any)?.id ?? null;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const tenant = await getTenantById(tenantId);
   const user = await getUserById(userId);
 
   if (!tenant || !user) {
-    return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+    return notFound('Tenant or User');
   }
 
   const canManage = (await can(user, tenant as any, 'canManageFacilities')) || (await hasRole(userId, tenantId, [TenantRole.ADMIN]));
 
   if (!canManage) {
-    return NextResponse.json({ message: 'You do not have permission to manage facilities.' }, { status: 403 });
+    return forbidden('You do not have permission to manage facilities.');
   }
 
   const payload = await request.json();
   const parsed = facilitySchema.safeParse(payload);
 
   if (!parsed.success) {
-    return NextResponse.json({ errors: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(parsed.error.flatten().fieldErrors);
   }
 
   const normalized = {

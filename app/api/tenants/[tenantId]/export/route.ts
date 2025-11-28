@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { exportTenantData } from '@/lib/data';
 import { hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
+import { unauthorized, forbidden, notFound } from '@/lib/api-response';
 
 function escapeCsv(value: unknown): string {
   if (value === null || value === undefined) return '';
@@ -98,19 +99,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
   const userId = (session?.user as any)?.id ?? null;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const isAdmin = await hasRole(userId, tenantId, [TenantRole.ADMIN]);
 
   if (!isAdmin) {
-    return NextResponse.json({ message: 'You do not have permission to export this tenant.' }, { status: 403 });
+    return forbidden('You do not have permission to export this tenant.');
   }
 
   const data = await exportTenantData(tenantId);
 
   if (!data) {
-    return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+    return notFound('Tenant');
   }
 
   const url = new URL(request.url);

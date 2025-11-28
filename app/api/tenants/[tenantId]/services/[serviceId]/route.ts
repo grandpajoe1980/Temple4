@@ -10,6 +10,7 @@ import {
   deleteServiceOffering,
 } from '@/lib/data';
 import { hasRole } from '@/lib/permissions';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 import { TenantRole } from '@/types';
 
 const SERVICE_CATEGORY_VALUES: [ServiceCategory, ...ServiceCategory[]] = [
@@ -53,7 +54,7 @@ export async function GET(
   const service = await getServiceOfferingById(tenantId, serviceId, includePrivate);
 
   if (!service) {
-    return NextResponse.json({ message: 'Service not found' }, { status: 404 });
+    return notFound('Service');
   }
 
   return NextResponse.json(service);
@@ -68,20 +69,20 @@ export async function PATCH(
   const userId = (session?.user as any)?.id ?? null;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const isManager = await hasRole(userId, tenantId, [TenantRole.ADMIN, TenantRole.STAFF]);
 
   if (!isManager) {
-    return NextResponse.json({ message: 'You do not have permission to manage services.' }, { status: 403 });
+    return forbidden('You do not have permission to manage services.');
   }
 
   const payload = await request.json();
   const parsed = updateSchema.safeParse(payload);
 
   if (!parsed.success) {
-    return NextResponse.json({ errors: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(parsed.error.flatten().fieldErrors);
   }
 
   const normalizedData = {
@@ -97,7 +98,7 @@ export async function PATCH(
   const updated = await updateServiceOffering(tenantId, serviceId, normalizedData);
 
   if (!updated) {
-    return NextResponse.json({ message: 'Service not found' }, { status: 404 });
+    return notFound('Service');
   }
 
   return NextResponse.json(updated);
@@ -112,19 +113,19 @@ export async function DELETE(
   const userId = (session?.user as any)?.id ?? null;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const isManager = await hasRole(userId, tenantId, [TenantRole.ADMIN, TenantRole.STAFF]);
 
   if (!isManager) {
-    return NextResponse.json({ message: 'You do not have permission to manage services.' }, { status: 403 });
+    return forbidden('You do not have permission to manage services.');
   }
 
   const deleted = await deleteServiceOffering(tenantId, serviceId);
 
   if (!deleted) {
-    return NextResponse.json({ message: 'Service not found' }, { status: 404 });
+    return notFound('Service');
   }
 
   return NextResponse.json({ success: true });

@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/db';
+import { unauthorized, handleApiError } from '@/lib/api-response';
 
 export async function GET(
   request: Request,
@@ -12,7 +13,7 @@ export async function GET(
   const userId = (session?.user as any)?.id;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   try {
@@ -24,6 +25,6 @@ export async function GET(
     return NextResponse.json({ membership });
   } catch (error) {
     console.error(`Failed to fetch membership for user ${userId} in tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch membership' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/members/me', tenantId, userId });
   }
 }

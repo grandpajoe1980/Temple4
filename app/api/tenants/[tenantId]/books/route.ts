@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
+import { handleApiError, forbidden, unauthorized, validationError } from '@/lib/api-response';
 
 // 13.1 List Books
 export async function GET(
@@ -17,7 +18,7 @@ export async function GET(
   try {
     const canView = await canUserViewContent(userId, resolvedParams.tenantId, 'books');
     if (!canView) {
-      return NextResponse.json({ message: 'You do not have permission to view books.' }, { status: 403 });
+      return forbidden('You do not have permission to view books.');
     }
 
     const books = await prisma.book.findMany({
@@ -31,7 +32,7 @@ export async function GET(
     return NextResponse.json(books);
   } catch (error) {
     console.error(`Failed to fetch books for tenant ${resolvedParams.tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch books' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/books', tenantId: resolvedParams.tenantId });
   }
 }
 
@@ -54,7 +55,7 @@ export async function POST(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -64,17 +65,17 @@ export async function POST(
     });
 
     if (!user || !tenant) {
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+      return validationError({ request: ['Invalid user or tenant'] });
     }
 
     const canCreate = await can(user, tenant, 'canCreateBooks');
     if (!canCreate) {
-        return NextResponse.json({ message: 'You do not have permission to create books.' }, { status: 403 });
+      return forbidden('You do not have permission to create books.');
     }
 
     const result = bookSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
@@ -88,7 +89,7 @@ export async function POST(
 
         return NextResponse.json(newBook, { status: 201 });
     } catch (error) {
-        console.error(`Failed to create book in tenant ${resolvedParams.tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to create book' }, { status: 500 });
+      console.error(`Failed to create book in tenant ${resolvedParams.tenantId}:`, error);
+      return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/books', tenantId: resolvedParams.tenantId });
     }
 }

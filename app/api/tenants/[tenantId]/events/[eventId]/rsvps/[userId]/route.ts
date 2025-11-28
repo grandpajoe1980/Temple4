@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import { RSVPStatus } from '@/types';
+import { unauthorized, forbidden, validationError, handleApiError } from '@/lib/api-response';
 
 const rsvpUpdateSchema = z.object({
     status: z.enum(['GOING', 'INTERESTED', 'NOT_GOING']),
@@ -19,19 +20,19 @@ export async function PATCH(
     const currentUserId = (session?.user as any)?.id;
 
     if (!currentUserId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
 
     // Users can only update their own RSVP
     if (currentUserId !== userId) {
-        return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+      return forbidden('Forbidden');
     }
 
     try {
         const body = await request.json();
         const result = rsvpUpdateSchema.safeParse(body);
         if (!result.success) {
-            return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+          return validationError(result.error.flatten().fieldErrors);
         }
 
         const updatedRsvp = await prisma.eventRSVP.update({
@@ -48,8 +49,8 @@ export async function PATCH(
 
         return NextResponse.json(updatedRsvp);
     } catch (error) {
-        console.error(`Failed to update RSVP for user ${userId} from event ${eventId}:`, error);
-        return NextResponse.json({ message: 'Failed to update RSVP' }, { status: 500 });
+      console.error(`Failed to update RSVP for user ${userId} from event ${eventId}:`, error);
+      return handleApiError(error, { route: 'PATCH /api/tenants/[tenantId]/events/[eventId]/rsvps/[userId]', tenantId, eventId, userId });
     }
 }
 
@@ -63,13 +64,13 @@ export async function DELETE(
   const currentUserId = (session?.user as any)?.id;
 
   if (!currentUserId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   // Users can only cancel their own RSVP.
   // Admins could also be allowed, but for now, we'll keep it simple.
   if (currentUserId !== userId) {
-    return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    return forbidden('Forbidden');
   }
 
   try {
@@ -86,6 +87,6 @@ export async function DELETE(
   } catch (error) {
     // This will error if the RSVP doesn't exist, which is fine.
     console.error(`Failed to delete RSVP for user ${userId} from event ${eventId}:`, error);
-    return NextResponse.json({ message: 'Failed to cancel RSVP' }, { status: 500 });
+    return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/events/[eventId]/rsvps/[userId]', tenantId, eventId, userId });
   }
 }

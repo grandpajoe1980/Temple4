@@ -1,5 +1,6 @@
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
+import { handleApiError, notFound } from '@/lib/api-response';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/db';
 import { getTenantContext } from '@/lib/tenant-context';
@@ -17,7 +18,7 @@ export async function GET(
   try {
     const ctx = await getTenantContext(tenantId, userId);
     if (!ctx) {
-      return NextResponse.json({ message: 'Tenant not found or access denied' }, { status: 404 });
+      return notFound('Tenant');
     }
 
     const membership = ctx.membership;
@@ -48,6 +49,6 @@ export async function GET(
     return NextResponse.json({ membership, tenant: { id: tenant.id, slug: tenant.slug }, permissions });
   } catch (error) {
     console.error('[tenant me] Error:', error);
-    return NextResponse.json({ message: 'Failed to fetch tenant context' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/me', tenantId });
   }
 }

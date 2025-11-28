@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, unauthorized, forbidden, validationError } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { TenantRole, MembershipStatus } from '@/types';
 import { z } from 'zod';
@@ -19,7 +20,7 @@ export async function PUT(
   const currentUserId = (session?.user as any)?.id;
 
   if (!currentUserId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   // Check if the current user has permission to manage requests
@@ -33,12 +34,12 @@ export async function PUT(
   );
 
   if (!hasPermission) {
-    return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    return forbidden('Forbidden');
   }
 
   const result = requestActionSchema.safeParse(await request.json());
   if (!result.success) {
-    return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(result.error.flatten().fieldErrors);
   }
 
   const { action } = result.data;
@@ -62,6 +63,6 @@ export async function PUT(
   } catch (error) {
     // This could fail if the request doesn't exist or wasn't in a 'REQUESTED' state
     console.error(`Failed to ${action.toLowerCase()} membership for user ${userId} in tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: `Failed to ${action.toLowerCase()} membership request` }, { status: 500 });
+    return handleApiError(error, { route: `PUT /api/tenants/[tenantId]/requests/[userId]`, tenantId, userId });
   }
 }

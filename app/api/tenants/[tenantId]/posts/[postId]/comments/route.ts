@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { canUserViewContent } from '@/lib/permissions';
-import { forbidden, handleApiError, unauthorized } from '@/lib/api-response';
+import { forbidden, handleApiError, unauthorized, notFound, validationError } from '@/lib/api-response';
 
 const commentSchema = z.object({
   body: z.string().min(1, 'Comment cannot be empty'),
@@ -28,7 +28,7 @@ export async function GET(
     });
 
     if (!post) {
-      return NextResponse.json({ message: 'Post not found' }, { status: 404 });
+      return notFound('Post not found');
     }
 
     const comments = await prisma.postComment.findMany({
@@ -91,12 +91,12 @@ export async function POST(
     });
 
     if (!post) {
-      return NextResponse.json({ message: 'Post not found' }, { status: 404 });
+      return notFound('Post not found');
     }
 
     const result = commentSchema.safeParse(await request.json());
     if (!result.success) {
-      return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     const newComment = await prisma.postComment.create({

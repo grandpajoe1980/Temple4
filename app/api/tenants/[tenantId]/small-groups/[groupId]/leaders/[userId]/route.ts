@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { isGroupLeader, hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
+import { unauthorized, forbidden, notFound, handleApiError } from '@/lib/api-response';
 
 export async function DELETE(
   request: Request,
@@ -13,14 +14,14 @@ export async function DELETE(
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
-  if (!userId) return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  if (!userId) return unauthorized();
 
   try {
     const allowed = (await isGroupLeader(userId, groupId)) || (await hasRole(userId, tenantId, [TenantRole.ADMIN]));
-    if (!allowed) return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    if (!allowed) return forbidden('Forbidden');
 
     const membership = await prisma.smallGroupMembership.findUnique({ where: { groupId_userId: { groupId, userId: targetUserId } } });
-    if (!membership) return NextResponse.json({ message: 'Membership not found' }, { status: 404 });
+    if (!membership) return notFound('Membership');
 
     // Demote to MEMBER rather than deleting membership
     const updated = await prisma.smallGroupMembership.update({ where: { id: membership.id }, data: { role: 'MEMBER' } });
@@ -34,6 +35,6 @@ export async function DELETE(
     return NextResponse.json(updated);
   } catch (error) {
     console.error(`Failed to remove leader role for ${targetUserId} in group ${groupId}:`, error);
-    return NextResponse.json({ message: 'Failed to remove leader' }, { status: 500 });
+    return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/small-groups/[groupId]/leaders/[userId]', tenantId, groupId, targetUserId });
   }
 }

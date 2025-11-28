@@ -6,6 +6,7 @@ import { getMembershipForUserInTenant } from '@/lib/data';
 import { z } from 'zod';
 import { hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
+import { handleApiError, unauthorized, forbidden, notFound, conflict, validationError } from '@/lib/api-response';
 
 // 14.6 List Group Members
 export async function GET(
@@ -16,9 +17,9 @@ export async function GET(
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
-  if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
-  }
+    if (!userId) {
+        return unauthorized();
+    }
 
   try {
         const membership = userId ? await getMembershipForUserInTenant(userId, tenantId) : null;
@@ -30,7 +31,7 @@ export async function GET(
         });
 
         if (!group) {
-            return NextResponse.json({ message: 'Group not found' }, { status: 404 });
+            return notFound('Group');
         }
 
         const isMember = group.members.some((m: any) => m.userId === userId);
@@ -38,11 +39,11 @@ export async function GET(
         const isSuperAdmin = !!(session as any)?.user?.isSuperAdmin;
 
         if (!group.isPublic && !isMember && !isTenantAdmin && !isSuperAdmin && !isLeader) {
-            return NextResponse.json({ message: 'This is a private group.' }, { status: 403 });
+            return forbidden('This is a private group.');
         }
 
         if (!membership && !isTenantAdmin && !isSuperAdmin && !isLeader) {
-            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+            return forbidden('Forbidden');
         }
 
         const members = await prisma.smallGroupMembership.findMany({
@@ -61,7 +62,7 @@ export async function GET(
         return NextResponse.json(members);
     } catch (error) {
         console.error(`Failed to fetch group members for group ${groupId}:`, error);
-        return NextResponse.json({ message: 'Failed to fetch group members' }, { status: 500 });
+        return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/small-groups/[groupId]/members', tenantId, groupId });
     }
 }
 
@@ -79,12 +80,12 @@ export async function POST(
     const currentUserId = (session?.user as any)?.id;
 
     if (!currentUserId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     const result = addMemberSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
     const { userId } = result.data;
 
@@ -96,7 +97,7 @@ export async function POST(
         });
 
         if (!group) {
-            return NextResponse.json({ message: 'Group not found' }, { status: 404 });
+            return notFound('Group');
         }
 
         const userRecord = await prisma.user.findUnique({ where: { id: currentUserId } });
@@ -107,7 +108,7 @@ export async function POST(
 
         // If not a manager, user can only add themselves
         if (!canManage && currentUserId !== userId) {
-            return NextResponse.json({ message: 'You can only request to join for yourself.' }, { status: 403 });
+            return forbidden('You can only request to join for yourself.');
         }
 
         // Check if user is already a member
@@ -116,13 +117,13 @@ export async function POST(
         });
 
         if (existingMembership) {
-            return NextResponse.json({ message: 'User is already a member of this group.' }, { status: 409 });
+            return conflict('User is already a member of this group.');
         }
 
         // Ensure target user is an approved tenant member when inviting/adding
         const targetTenantMembership = await getMembershipForUserInTenant(userId, tenantId);
         if (!targetTenantMembership || targetTenantMembership.status !== 'APPROVED') {
-            return NextResponse.json({ message: 'Invites can only be sent to approved tenant members.' }, { status: 400 });
+            return validationError({ userId: ['Invites can only be sent to approved tenant members.'] });
         }
 
         // If a manager is adding someone else, treat it as an invitation that immediately approves membership
@@ -149,6 +150,6 @@ export async function POST(
         return NextResponse.json(membership, { status: 201 });
     } catch (error) {
         console.error(`Failed to add member to group ${groupId}:`, error);
-        return NextResponse.json({ message: 'Failed to add member' }, { status: 500 });
+        return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/small-groups/[groupId]/members', tenantId, groupId });
     }
 }

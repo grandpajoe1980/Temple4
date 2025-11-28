@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
 import { sendEmail } from '@/lib/email';
+import { unauthorized, validationError, notFound, forbidden, handleApiError } from '@/lib/api-response';
 
 const respondSchema = z.object({ response: z.string().min(1) });
 
@@ -18,26 +19,26 @@ export async function POST(
   const user = session?.user as any;
 
   if (!user) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const body = await request.json();
   const result = respondSchema.safeParse(body);
   if (!result.success) {
-    return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(result.error.flatten().fieldErrors);
   }
 
   try {
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
-    if (!tenant) return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+    if (!tenant) return notFound('Tenant');
 
     const isAllowed = await can(user, tenant, 'canManageContactSubmissions');
     if (!isAllowed) {
-      return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+      return forbidden('Forbidden');
     }
 
     const submission = await prisma.contactSubmission.findUnique({ where: { id: submissionId } });
-    if (!submission) return NextResponse.json({ message: 'Submission not found' }, { status: 404 });
+    if (!submission) return notFound('Submission');
 
     // Mark as read
     await prisma.contactSubmission.update({ where: { id: submissionId }, data: { status: 'READ' } });
@@ -54,6 +55,6 @@ export async function POST(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to respond to contact submission:', error);
-    return NextResponse.json({ message: 'Failed to send response' }, { status: 500 });
+    return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/admin/contact-submissions/[submissionId]/respond', tenantId, submissionId });
   }
 }

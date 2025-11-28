@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSmallGroupsForTenant, createSmallGroup, getMembershipForUserInTenant } from '@/lib/data';
 import { z } from 'zod';
+import { handleApiError, unauthorized, forbidden, validationError } from '@/lib/api-response';
 
 const groupSchema = z.object({
   name: z.string().min(3),
@@ -18,14 +19,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
-  if (!userId) return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  if (!userId) return unauthorized();
 
   try {
     const membership = await getMembershipForUserInTenant(userId, tenantId);
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, include: { settings: true } });
 
     if (!tenant || !tenant.settings || !tenant.settings.enableSmallGroups || !membership) {
-      return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+      return forbidden('Forbidden');
     }
 
     const groups = await getSmallGroupsForTenant(tenantId);
@@ -45,9 +46,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     }
 
     return NextResponse.json({ groups: visibleGroups });
-  } catch (error) {
+    } catch (error) {
     console.error(`Failed to fetch small groups for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch small groups' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/small-groups', tenantId });
   }
 }
 
@@ -57,19 +58,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
-  if (!userId) return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  if (!userId) return unauthorized();
 
   const membership = await getMembershipForUserInTenant(userId, tenantId);
-  if (!membership) return NextResponse.json({ message: 'You must be a member of this tenant to create a group.' }, { status: 403 });
+  if (!membership) return forbidden('You must be a member of this tenant to create a group.');
 
   const result = groupSchema.safeParse(await request.json());
-  if (!result.success) return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+  if (!result.success) return validationError(result.error.flatten().fieldErrors);
 
   try {
     const group = await createSmallGroup(tenantId, { ...result.data }, userId);
     return NextResponse.json(group, { status: 201 });
   } catch (error) {
     console.error(`Failed to create small group in tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to create small group' }, { status: 500 });
+    return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/small-groups', tenantId });
   }
 }

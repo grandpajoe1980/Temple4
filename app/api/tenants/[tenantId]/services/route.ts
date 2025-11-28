@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { ServiceCategory } from '@prisma/client';
 import { getMembershipForUserInTenant, getServiceOfferingsForTenant, createServiceOffering } from '@/lib/data';
 import { hasRole } from '@/lib/permissions';
+import { handleApiError, unauthorized, forbidden, validationError } from '@/lib/api-response';
 import { TenantRole } from '@/types';
 
 const SERVICE_CATEGORY_VALUES: [ServiceCategory, ...ServiceCategory[]] = [
@@ -62,20 +63,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   const userId = (session?.user as any)?.id ?? null;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const isManager = await hasRole(userId, tenantId, [TenantRole.ADMIN, TenantRole.STAFF]);
 
   if (!isManager) {
-    return NextResponse.json({ message: 'You do not have permission to manage services.' }, { status: 403 });
+    return forbidden('You do not have permission to manage services.');
   }
 
   const payload = await request.json();
   const parsed = serviceOfferingSchema.safeParse(payload);
 
   if (!parsed.success) {
-    return NextResponse.json({ errors: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(parsed.error.flatten().fieldErrors);
   }
 
   const normalizedData = {

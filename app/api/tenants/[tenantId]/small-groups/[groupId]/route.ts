@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { getMembershipForUserInTenant } from '@/lib/data';
 import { hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
+import { handleApiError, unauthorized, forbidden, notFound, validationError } from '@/lib/api-response';
 
 // 14.3 Get Single Small Group
 export async function GET(
@@ -30,26 +31,26 @@ export async function GET(
       }
     });
 
-    if (!group) {
-      return NextResponse.json({ message: 'Group not found' }, { status: 404 });
-    }
+        if (!group) {
+            return notFound('Group');
+        }
 
-    if (group.tenantId !== tenantId) return NextResponse.json({ message: 'Tenant mismatch' }, { status: 400 });
+        if (group.tenantId !== tenantId) return validationError({ tenant: ['Tenant mismatch'] });
 
     // If group is not public, only approved tenant members / group members can see it
     if (!group.isPublic) {
         if (!membership || membership.status !== 'APPROVED') {
-            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+            return forbidden('Forbidden');
         }
         const isMember = group.members.some((m: any) => m.userId === userId);
-        if (!isMember) return NextResponse.json({ message: 'This is a private group.' }, { status: 403 });
+        if (!isMember) return forbidden('This is a private group.');
     }
 
     return NextResponse.json(group);
-  } catch (error) {
-    console.error(`Failed to fetch group ${groupId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch group' }, { status: 500 });
-  }
+        } catch (error) {
+        console.error(`Failed to fetch group ${groupId}:`, error);
+        return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/small-groups/[groupId]', tenantId, groupId });
+    }
 }
 
 const groupUpdateSchema = z.object({
@@ -72,12 +73,12 @@ export async function PUT(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
     
     const result = groupUpdateSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
@@ -89,8 +90,8 @@ export async function PUT(
         const userRecord = await prisma.user.findUnique({ where: { id: userId } });
         const isSuperAdmin = !!userRecord?.isSuperAdmin;
         const isAdmin = isSuperAdmin || await hasRole(userId, tenantId, [TenantRole.ADMIN]);
-        if (groupMembership?.role !== 'LEADER' && !isAdmin) {
-            return NextResponse.json({ message: 'Only group leaders, tenant admins, or platform super-admins can update the group.' }, { status: 403 });
+            if (groupMembership?.role !== 'LEADER' && !isAdmin) {
+            return forbidden('Only group leaders, tenant admins, or platform super-admins can update the group.');
         }
 
         // If leaderUserId is provided, ensure the leader membership exists and is APPROVED/LEADER
@@ -126,7 +127,7 @@ export async function PUT(
         return NextResponse.json(updatedGroup);
     } catch (error) {
         console.error(`Failed to update group ${groupId}:`, error);
-        return NextResponse.json({ message: 'Failed to update group' }, { status: 500 });
+        return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]/small-groups/[groupId]', tenantId, groupId });
     }
 }
 
@@ -140,7 +141,7 @@ export async function DELETE(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     try {
@@ -154,7 +155,7 @@ export async function DELETE(
         const isSuperAdmin = !!userRecord?.isSuperAdmin;
         const isAdminDelete = isSuperAdmin || await hasRole(userId, tenantId, [TenantRole.ADMIN]);
         if (groupMembership?.role !== 'LEADER' && !isAdminDelete) {
-            return NextResponse.json({ message: 'Only group leaders, tenant admins, or platform super-admins can archive the group.' }, { status: 403 });
+            return forbidden('Only group leaders, tenant admins, or platform super-admins can archive the group.');
         }
 
         await prisma.smallGroup.update({
@@ -165,6 +166,6 @@ export async function DELETE(
         return new NextResponse(null, { status: 204 });
     } catch (error) {
         console.error(`Failed to delete group ${groupId}:`, error);
-        return NextResponse.json({ message: 'Failed to delete group' }, { status: 500 });
+        return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/small-groups/[groupId]', tenantId, groupId });
     }
 }

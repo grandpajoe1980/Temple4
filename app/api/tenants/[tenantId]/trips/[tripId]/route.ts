@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { getTripById, getMembershipForUserInTenant } from '@/lib/data';
 import { hasRole } from '@/lib/permissions';
 import { TenantRole } from '@/types';
+import { notFound, forbidden, unauthorized, validationError, handleApiError } from '@/lib/api-response';
 
 const tripUpdateSchema = z.object({
   name: z.string().min(3).optional(),
@@ -52,19 +53,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     const membership = userId ? await getMembershipForUserInTenant(userId, tenantId) : null;
     const trip = await getTripById(tripId);
 
-    if (!trip) return NextResponse.json({ message: 'Trip not found' }, { status: 404 });
-    if ((trip as any).tenantId !== tenantId) return NextResponse.json({ message: 'Tenant mismatch' }, { status: 400 });
+    if (!trip) return notFound('Trip');
+    if ((trip as any).tenantId !== tenantId) return validationError({ tenant: ['Tenant mismatch'] });
 
     if (!trip.isPublic) {
       if (!membership || membership.status !== 'APPROVED') {
-        return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+        return forbidden('Forbidden');
       }
     }
 
     return NextResponse.json(trip);
   } catch (error) {
     console.error(`Failed to fetch trip ${tripId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch trip' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/trips/[tripId]', tripId, tenantId });
   }
 }
 
@@ -74,18 +75,18 @@ export async function PUT(request: Request, { params }: { params: Promise<{ tena
   const userId = (session?.user as any)?.id;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const result = tripUpdateSchema.safeParse(await request.json());
   if (!result.success) {
-    return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(result.error.flatten().fieldErrors);
   }
 
   try {
     const trip = await prisma.trip.findUnique({ where: { id: tripId } });
-    if (!trip) return NextResponse.json({ message: 'Trip not found' }, { status: 404 });
-    if (trip.tenantId !== tenantId) return NextResponse.json({ message: 'Tenant mismatch' }, { status: 400 });
+    if (!trip) return notFound('Trip');
+    if (trip.tenantId !== tenantId) return validationError({ tenant: ['Tenant mismatch'] });
 
     const tripMembership = await prisma.tripMember.findUnique({
       where: { tripId_userId: { tripId, userId } },
@@ -95,7 +96,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ tena
     const isAdmin = isSuperAdmin || (await hasRole(userId, tenantId, [TenantRole.ADMIN]));
 
     if (tripMembership?.role !== 'LEADER' && tripMembership?.role !== 'CO_LEADER' && !isAdmin) {
-      return NextResponse.json({ message: 'Only trip leaders, tenant admins, or platform super-admins can update the trip.' }, { status: 403 });
+      return forbidden('Only trip leaders, tenant admins, or platform super-admins can update the trip.');
     }
 
     const updatedTrip = await prisma.trip.update({
@@ -139,7 +140,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ tena
     return NextResponse.json(updatedTrip);
   } catch (error) {
     console.error(`Failed to update trip ${tripId}:`, error);
-    return NextResponse.json({ message: 'Failed to update trip' }, { status: 500 });
+    return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]/trips/[tripId]', tripId, tenantId });
   }
 }
 
@@ -149,7 +150,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ t
   const userId = (session?.user as any)?.id;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   try {
@@ -160,7 +161,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ t
     const isSuperAdmin = !!userRecord?.isSuperAdmin;
     const isAdminDelete = isSuperAdmin || (await hasRole(userId, tenantId, [TenantRole.ADMIN]));
     if (tripMembership?.role !== 'LEADER' && tripMembership?.role !== 'CO_LEADER' && !isAdminDelete) {
-      return NextResponse.json({ message: 'Only trip leaders, tenant admins, or platform super-admins can archive the trip.' }, { status: 403 });
+      return forbidden('Only trip leaders, tenant admins, or platform super-admins can archive the trip.');
     }
 
     await prisma.trip.update({
@@ -171,6 +172,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ t
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error(`Failed to delete trip ${tripId}:`, error);
-    return NextResponse.json({ message: 'Failed to delete trip' }, { status: 500 });
+    return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/trips/[tripId]', tripId, tenantId });
   }
 }

@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, unauthorized, forbidden, notFound } from '@/lib/api-response';
 import { TenantRole, MembershipStatus } from '@/types';
 import { prisma } from '@/lib/db';
 import { getMembersForTenant } from '@/lib/data';
@@ -15,7 +16,7 @@ export async function GET(
   const userId = (session?.user as any)?.id;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const { searchParams } = new URL(request.url);
@@ -37,7 +38,7 @@ export async function GET(
     ]);
 
     if (!tenant) {
-        return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+      return notFound('Tenant');
     }
 
     // Deny access if the directory is disabled and the user is not an admin/staff
@@ -48,7 +49,7 @@ export async function GET(
         roleNames.some((role: any) => allowedRoles.includes(role));
 
     if (!canViewDirectory) {
-        return NextResponse.json({ message: 'You do not have permission to view the member directory.' }, { status: 403 });
+      return forbidden('You do not have permission to view the member directory.');
     }
 
     // Use shared helper to return enriched member objects (keeps the same shape as client expects)
@@ -70,7 +71,6 @@ export async function GET(
         }
     });
   } catch (error) {
-    console.error(`Failed to fetch members for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch members' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/members', tenantId, userId });
   }
 }

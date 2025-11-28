@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getTripsForTenant, createTrip, getMembershipForUserInTenant } from '@/lib/data';
 import { z } from 'zod';
+import { unauthorized, forbidden, validationError, handleApiError } from '@/lib/api-response';
 
 const tripSchema = z.object({
   name: z.string().min(3),
@@ -41,14 +42,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
-  if (!userId) return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  if (!userId) return unauthorized();
 
   try {
     const membership = await getMembershipForUserInTenant(userId, tenantId);
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, include: { settings: true } });
 
     if (!tenant || !tenant.settings || !tenant.settings.enableTrips || !membership) {
-      return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+      return forbidden('Forbidden');
     }
 
     const trips = await getTripsForTenant(tenantId);
@@ -69,7 +70,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     return NextResponse.json({ trips: visibleTrips });
   } catch (error) {
     console.error(`Failed to fetch trips for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch trips' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/trips', tenantId });
   }
 }
 
@@ -79,7 +80,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
-  if (!userId) return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  if (!userId) return unauthorized();
 
   const membership = await getMembershipForUserInTenant(userId, tenantId);
   const isPlatformAdmin = Boolean((session?.user as any)?.isSuperAdmin);
@@ -87,20 +88,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   const isTenantManager = membershipRoles.some((role: string) => ['ADMIN', 'OWNER', 'STAFF', 'CLERGY'].includes(role));
 
   if (!membership && !isPlatformAdmin) {
-    return NextResponse.json({ message: 'You must be a member of this tenant to create a trip.' }, { status: 403 });
+    return forbidden('You must be a member of this tenant to create a trip.');
   }
   if (!isPlatformAdmin && !isTenantManager) {
-    return NextResponse.json({ message: 'You do not have permission to create trips.' }, { status: 403 });
+    return forbidden('You do not have permission to create trips.');
   }
 
   const result = tripSchema.safeParse(await request.json());
-  if (!result.success) return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+  if (!result.success) return validationError(result.error.flatten().fieldErrors);
 
   try {
     const trip = await createTrip(tenantId, { ...result.data }, userId);
     return NextResponse.json(trip, { status: 201 });
   } catch (error) {
     console.error(`Failed to create trip in tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to create trip' }, { status: 500 });
+    return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/trips', tenantId });
   }
 }

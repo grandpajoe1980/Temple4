@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { approveSmallGroupMember } from '@/lib/data';
 import { hasRole, isGroupLeader } from '@/lib/permissions';
 import { TenantRole } from '@/types';
+import { unauthorized, notFound, forbidden, handleApiError } from '@/lib/api-response';
 
 export async function POST(
   request: Request,
@@ -15,7 +16,7 @@ export async function POST(
   const currentUserId = (session?.user as any)?.id;
 
   if (!currentUserId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   try {
@@ -24,7 +25,7 @@ export async function POST(
     });
 
     if (!membership) {
-      return NextResponse.json({ message: 'Membership not found' }, { status: 404 });
+      return notFound('Membership');
     }
 
     const userRecord = await prisma.user.findUnique({ where: { id: currentUserId } });
@@ -33,13 +34,13 @@ export async function POST(
     const leader = await isGroupLeader(currentUserId, groupId);
 
     if (!leader && !isTenantAdmin && !isSuperAdmin) {
-      return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+      return forbidden('Forbidden');
     }
 
     const updated = await approveSmallGroupMember(groupId, userId, currentUserId);
     return NextResponse.json(updated);
   } catch (error) {
     console.error(`Failed to approve member ${userId} for group ${groupId}:`, error);
-    return NextResponse.json({ message: 'Failed to approve member' }, { status: 500 });
+    return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/small-groups/[groupId]/members/[userId]/approve', tenantId, groupId, userId });
   }
 }

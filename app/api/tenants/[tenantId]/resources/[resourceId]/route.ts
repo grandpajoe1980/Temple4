@@ -6,6 +6,7 @@ import { getMembershipForUserInTenant } from '@/lib/data';
 import { can } from '@/lib/permissions';
 import { z } from 'zod';
 import { ResourceVisibility, FileType } from '@/types';
+import { notFound, forbidden, handleApiError, unauthorized, validationError } from '@/lib/api-response';
 
 // 16.3 Get Resource
 export async function GET(
@@ -22,20 +23,20 @@ export async function GET(
         });
 
         if (!resource) {
-            return NextResponse.json({ message: 'Resource not found' }, { status: 404 });
+            return notFound('Resource');
         }
 
         if (resource.visibility === 'MEMBERS_ONLY') {
             const membership = await getMembershipForUserInTenant(userId, tenantId);
             if (!membership) {
-                return NextResponse.json({ message: 'This resource is for members only.' }, { status: 403 });
+                return forbidden('This resource is for members only.');
             }
         }
 
         return NextResponse.json(resource);
     } catch (error) {
         console.error(`Failed to fetch resource ${resourceId}:`, error);
-        return NextResponse.json({ message: 'Failed to fetch resource' }, { status: 500 });
+        return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/resources/[resourceId]', resourceId, tenantId });
     }
 }
 
@@ -55,23 +56,23 @@ export async function PUT(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     const result = updateResourceSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
         const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
-            return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+            return notFound('Tenant');
         }
 
         const canManage = await can(userId, tenant, 'canManageResources');
         if (!canManage) {
-            return NextResponse.json({ message: 'You do not have permission to manage resources.' }, { status: 403 });
+            return forbidden('You do not have permission to manage resources.');
         }
 
         const updatedResource = await prisma.resourceItem.update({
@@ -82,7 +83,7 @@ export async function PUT(
         return NextResponse.json(updatedResource);
     } catch (error) {
         console.error(`Failed to update resource ${resourceId}:`, error);
-        return NextResponse.json({ message: 'Failed to update resource' }, { status: 500 });
+        return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]/resources/[resourceId]', resourceId, tenantId });
     }
 }
 
@@ -96,18 +97,18 @@ export async function DELETE(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     try {
         const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
         if (!tenant) {
-            return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+            return notFound('Tenant');
         }
 
         const canManage = await can(userId, tenant, 'canManageResources');
         if (!canManage) {
-            return NextResponse.json({ message: 'You do not have permission to manage resources.' }, { status: 403 });
+            return forbidden('You do not have permission to manage resources.');
         }
 
         await prisma.resourceItem.delete({
@@ -117,6 +118,6 @@ export async function DELETE(
         return new NextResponse(null, { status: 204 });
     } catch (error) {
         console.error(`Failed to delete resource ${resourceId}:`, error);
-        return NextResponse.json({ message: 'Failed to delete resource' }, { status: 500 });
+        return handleApiError(error, { route: 'DELETE /api/tenants/[tenantId]/resources/[resourceId]', resourceId, tenantId });
     }
 }

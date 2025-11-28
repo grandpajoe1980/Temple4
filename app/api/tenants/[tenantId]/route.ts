@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { TenantRole } from '@/types';
 import { TenantRole as PrismaTenantRole } from '@prisma/client';
 import { z } from 'zod';
+import { handleApiError, notFound, forbidden, unauthorized, validationError, conflict } from '@/lib/api-response';
 
 // 7.2 Get Tenant Details
 export async function GET(
@@ -25,7 +26,7 @@ export async function GET(
     });
 
     if (!tenant) {
-      return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+      return notFound('Tenant');
     }
 
     // Check if user is a member of the tenant
@@ -40,7 +41,7 @@ export async function GET(
 
     // If tenant is not public and user is not a member, deny access
     if (!tenant.settings?.isPublic && !membership) {
-        return NextResponse.json({ message: 'You do not have permission to view this tenant.' }, { status: 403 });
+      return forbidden('You do not have permission to view this tenant.');
     }
 
     // Non-members of public tenants see a limited view
@@ -55,7 +56,7 @@ export async function GET(
 
   } catch (error) {
     console.error(`Failed to fetch tenant ${resolvedParams.tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch tenant' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]', tenantId: resolvedParams.tenantId });
   }
 }
 
@@ -88,8 +89,8 @@ export async function PUT(
     const isSuperAdmin = Boolean((session?.user as any)?.isSuperAdmin);
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
-    }
+          return unauthorized();
+      }
 
     // Check if the user is an ADMIN of this tenant
     const membership = await prisma.userTenantMembership.findUnique({
@@ -108,12 +109,12 @@ export async function PUT(
       isSuperAdmin || membership?.roles.some((role: any) => role.role === PrismaTenantRole.ADMIN);
 
     if (!hasPermission) {
-        return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+      return forbidden();
     }
 
     const result = tenantUpdateSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     const { name, slug, description, settings, branding, creed, contactEmail, phoneNumber, street, city, state, country, postalCode } = result.data;
@@ -128,7 +129,7 @@ export async function PUT(
                 }
             });
             if (existingTenant) {
-                return NextResponse.json({ message: 'A tenant with this slug already exists.' }, { status: 409 });
+              return conflict('A tenant with this slug already exists.');
             }
         }
 
@@ -157,7 +158,7 @@ export async function PUT(
 
         return NextResponse.json(updatedTenant);
     } catch (error) {
-        console.error(`Failed to update tenant ${resolvedParams.tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to update tenant' }, { status: 500 });
+      console.error(`Failed to update tenant ${resolvedParams.tenantId}:`, error);
+      return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]', tenantId: resolvedParams.tenantId });
     }
 }

@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { handleApiError, unauthorized } from '@/lib/api-response';
+import { handleApiError, unauthorized, validationError } from '@/lib/api-response';
 import { createRouteLogger } from '@/lib/logger';
 import { addComment } from '@/lib/services/profile-post-service';
 import { getTenantContext } from '@/lib/tenant-context';
@@ -22,7 +22,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     const body = await request.json();
     const parsed = createCommentSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: 'invalid' }, { status: 400 });
+      return validationError(parsed.error.flatten().fieldErrors);
     }
 
     const { postId, content } = parsed.data;

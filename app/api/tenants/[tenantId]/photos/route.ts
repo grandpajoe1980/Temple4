@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
+import { handleApiError, notFound, forbidden } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 
 export async function GET(
@@ -18,7 +19,7 @@ export async function GET(
     });
 
     if (!tenant) {
-      return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+      return notFound('Tenant');
     }
 
     // Check membership
@@ -27,7 +28,7 @@ export async function GET(
     }) : null;
 
     if (!tenant.settings?.isPublic && !membership) {
-      return NextResponse.json({ message: 'You do not have permission to view this tenant.' }, { status: 403 });
+      return forbidden('You do not have permission to view this tenant.');
     }
 
     const photos = await prisma.mediaItem.findMany({
@@ -51,7 +52,6 @@ export async function GET(
 
     return NextResponse.json({ photos: mapped });
   } catch (error) {
-    console.error('Failed to list photos', error);
-    return NextResponse.json({ message: 'Failed to list photos' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/photos', tenantId: resolved.tenantId, userId: userId });
   }
 }

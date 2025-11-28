@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { hasRole } from '@/lib/permissions';
 import { z } from 'zod';
 import { TenantRole } from '@/types';
+import { unauthorized, forbidden, validationError, handleApiError } from '@/lib/api-response';
 
 // 17.3 Get Tenant Branding
 export async function GET(
@@ -16,13 +17,13 @@ export async function GET(
     const user = session?.user as any;
 
     if (!user) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     try {
         const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
-            return NextResponse.json({ message: 'You do not have permission to view tenant branding.' }, { status: 403 });
+            return forbidden('You do not have permission to view tenant branding.');
         }
 
         const branding = await prisma.tenantBranding.findUnique({
@@ -32,7 +33,7 @@ export async function GET(
         return NextResponse.json(branding);
     } catch (error) {
         console.error(`Failed to fetch tenant branding for tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to fetch tenant branding' }, { status: 500 });
+        return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/admin/branding', tenantId });
     }
 }
 
@@ -60,18 +61,18 @@ export async function PUT(
     const user = session?.user as any;
 
     if (!user) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+        return unauthorized();
     }
 
     const result = brandingSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+        return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
         const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
         if (!isAdmin) {
-            return NextResponse.json({ message: 'You do not have permission to update tenant branding.' }, { status: 403 });
+            return forbidden('You do not have permission to update tenant branding.');
         }
 
         const updatedBranding = await prisma.tenantBranding.update({
@@ -82,7 +83,7 @@ export async function PUT(
         return NextResponse.json(updatedBranding);
     } catch (error) {
         console.error(`Failed to update tenant branding for tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to update tenant branding' }, { status: 500 });
+        return handleApiError(error, { route: 'PUT /api/tenants/[tenantId]/admin/branding', tenantId });
     }
 }
 

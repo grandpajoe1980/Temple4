@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { z } from 'zod';
 import { getTenantById, getUserById, requestFacilityBooking } from '@/lib/data';
 import { getMembershipForUserInTenant } from '@/lib/data';
+import { handleApiError, unauthorized, forbidden, notFound, conflict, validationError } from '@/lib/api-response';
 
 const bookingSchema = z.object({
   startAt: z.string().datetime(),
@@ -19,27 +20,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   const userId = (session?.user as any)?.id ?? null;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    return unauthorized();
   }
 
   const membership = await getMembershipForUserInTenant(userId, tenantId);
 
   if (!membership || membership.status !== 'APPROVED') {
-    return NextResponse.json({ message: 'You must be a member to request a booking.' }, { status: 403 });
+    return forbidden('You must be a member to request a booking.');
   }
 
   const tenant = await getTenantById(tenantId);
   const user = await getUserById(userId);
 
   if (!tenant || !user) {
-    return NextResponse.json({ message: 'Tenant not found' }, { status: 404 });
+    return notFound('Tenant or User');
   }
 
   const payload = await request.json();
   const parsed = bookingSchema.safeParse(payload);
 
   if (!parsed.success) {
-    return NextResponse.json({ errors: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return validationError(parsed.error.flatten().fieldErrors);
   }
 
   const startAt = new Date(parsed.data.startAt);
@@ -58,11 +59,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     });
 
     if (!booking) {
-      return NextResponse.json({ message: 'Facility is not available for the selected time.' }, { status: 409 });
+      return conflict('Facility is not available for the selected time.');
     }
 
     return NextResponse.json(booking, { status: 201 });
   } catch (error: any) {
-    return NextResponse.json({ message: error.message || 'Unable to request booking.' }, { status: 400 });
+    return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/facilities/[facilityId]/book', tenantId, facilityId });
   }
 }

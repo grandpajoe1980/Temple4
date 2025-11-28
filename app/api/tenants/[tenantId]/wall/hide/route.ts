@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { handleApiError, unauthorized } from '@/lib/api-response';
+import { handleApiError, unauthorized, validationError } from '@/lib/api-response';
 import { createRouteLogger } from '@/lib/logger';
 import { hideProfilePost } from '@/lib/services/profile-post-service';
 
@@ -20,7 +20,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
 
     const body = await request.json();
     const parsed = hideSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: 'invalid' }, { status: 400 });
+    if (!parsed.success) return validationError(parsed.error.flatten().fieldErrors);
 
     const { postId } = parsed.data;
 
@@ -30,6 +30,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    return handleApiError(err, { route: 'POST /api/tenants/[tenantId]/wall/hide', tenantId: (await params).tenantId });
+    return handleApiError(err, { route: 'POST /api/tenants/[tenantId]/wall/hide', tenantId: resolvedParams.tenantId });
   }
 }

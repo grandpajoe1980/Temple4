@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { getMembershipForUserInTenant } from '@/lib/data';
 import { hasRole, isGroupLeader } from '@/lib/permissions';
 import { TenantRole } from '@/types';
+import { handleApiError, unauthorized, forbidden, validationError } from '@/lib/api-response';
 
 export async function GET(request: Request, { params }: { params: Promise<{ tenantId: string; groupId: string }> }) {
   const { tenantId, groupId } = await params;
@@ -13,7 +14,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     return NextResponse.json({ items });
   } catch (err) {
     console.error(`Failed to list resources for group ${groupId}:`, err);
-    return NextResponse.json({ message: 'Failed to list resources' }, { status: 500 });
+    return handleApiError(err, { route: 'GET /api/tenants/[tenantId]/small-groups/[groupId]/resources', tenantId, groupId });
   }
 }
 
@@ -21,7 +22,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   const { tenantId, groupId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
-  if (!userId) return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  if (!userId) return unauthorized();
 
   try {
     // Check permissions: group leader, tenant admin, or platform super-admin
@@ -31,17 +32,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     const membership = await getMembershipForUserInTenant(userId, tenantId);
     const isTenantAdmin = await hasRole(userId, tenantId, [TenantRole.ADMIN]);
     if (!isLeader && !isTenantAdmin && !isSuperAdmin) {
-      return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+      return forbidden('Forbidden');
     }
 
     const body = await request.json();
     const { title, description, url } = body;
-    if (!title) return NextResponse.json({ message: 'title required' }, { status: 400 });
+    if (!title) return validationError({ title: ['title required'] });
 
     const item = await prisma.smallGroupResource.create({ data: { tenantId, groupId, uploaderUserId: userId, title, description: description ?? null, url: url ?? null } });
     return NextResponse.json(item, { status: 201 });
   } catch (err) {
     console.error(`Failed to create resource for group ${groupId}:`, err);
-    return NextResponse.json({ message: 'Failed to create resource' }, { status: 500 });
+    return handleApiError(err, { route: 'POST /api/tenants/[tenantId]/small-groups/[groupId]/resources', tenantId, groupId });
   }
 }

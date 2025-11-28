@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { handleApiError, forbidden, unauthorized } from '@/lib/api-response';
+import { handleApiError, forbidden, unauthorized, validationError } from '@/lib/api-response';
 import { createRouteLogger } from '@/lib/logger';
 import { createTenantPost, listTenantPosts, PostPermissionError } from '@/lib/services/post-service';
 
@@ -85,11 +85,7 @@ export async function POST(
     const result = postCreateSchema.safeParse(requestBody);
     if (!result.success) {
       logger.warn('Validation failed', { userId, errors: result.error.issues });
-      return handleApiError(result.error, { 
-        route: 'POST /api/tenants/[tenantId]/posts',
-        tenantId: resolvedParams.tenantId,
-        userId 
-      });
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     const { title, body, type } = result.data;

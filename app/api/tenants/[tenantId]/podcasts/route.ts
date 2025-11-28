@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { canUserViewContent, can } from '@/lib/permissions';
 import { z } from 'zod';
+import { handleApiError, unauthorized, forbidden, validationError } from '@/lib/api-response';
 
 // 12.1 List Podcasts
 export async function GET(
@@ -17,7 +18,7 @@ export async function GET(
   try {
     const canView = await canUserViewContent(userId, tenantId, 'podcasts');
     if (!canView) {
-      return NextResponse.json({ message: 'You do not have permission to view podcasts.' }, { status: 403 });
+      return forbidden('You do not have permission to view podcasts.');
     }
 
     const podcasts = await prisma.mediaItem.findMany({
@@ -45,7 +46,7 @@ export async function GET(
     );
   } catch (error) {
     console.error(`Failed to fetch podcasts for tenant ${tenantId}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch podcasts' }, { status: 500 });
+    return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/podcasts', tenantId });
   }
 }
 
@@ -65,7 +66,7 @@ export async function POST(
     const userId = (session?.user as any)?.id;
 
     if (!userId) {
-        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+      return unauthorized();
     }
     
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -75,17 +76,17 @@ export async function POST(
     });
 
     if (!user || !tenant) {
-        return NextResponse.json({ message: 'Invalid user or tenant' }, { status: 400 });
+      return validationError({ tenant: ['Invalid user or tenant'] });
     }
 
     const canCreate = await can(user, tenant, 'canCreatePodcasts');
     if (!canCreate) {
-        return NextResponse.json({ message: 'You do not have permission to create podcasts.' }, { status: 403 });
+      return forbidden('You do not have permission to create podcasts.');
     }
 
     const result = podcastSchema.safeParse(await request.json());
     if (!result.success) {
-        return NextResponse.json({ errors: result.error.flatten().fieldErrors }, { status: 400 });
+      return validationError(result.error.flatten().fieldErrors);
     }
 
     try {
@@ -102,7 +103,7 @@ export async function POST(
 
         return NextResponse.json(newPodcast, { status: 201 });
     } catch (error) {
-        console.error(`Failed to create podcast in tenant ${tenantId}:`, error);
-        return NextResponse.json({ message: 'Failed to create podcast' }, { status: 500 });
+      console.error(`Failed to create podcast in tenant ${tenantId}:`, error);
+      return handleApiError(error, { route: 'POST /api/tenants/[tenantId]/podcasts', tenantId });
     }
 }

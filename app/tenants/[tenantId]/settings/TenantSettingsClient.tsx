@@ -49,8 +49,15 @@ export default function TenantSettingsClient({ tenant, user }: TenantSettingsCli
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Failed to update tenant' }));
-      throw new Error(error.message || 'Failed to update tenant');
+        const error = await response.json().catch(() => ({ message: 'Failed to update tenant' }));
+        // If the API returned structured validation errors, include them in the thrown message
+        if (error && error.errors && typeof error.errors === 'object') {
+          const details = Object.entries(error.errors)
+            .map(([field, msgs]: any) => `${field}: ${(msgs || []).join(', ')}`)
+            .join('; ');
+          throw new Error(`${error.message || 'Failed to update tenant'} — ${details}`);
+        }
+        throw new Error(error.message || 'Failed to update tenant');
     }
 
     const updated = await response.json();

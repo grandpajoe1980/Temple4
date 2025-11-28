@@ -501,6 +501,16 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       );
                   })}
               </div>
+              {/* Divider and site-level links */}
+              <div className="border-t border-gray-100 mt-2" />
+              <div className="py-2">
+                <Link href="/" className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50" onClick={handleNavClick} role="menuitem">
+                  Temple
+                </Link>
+                <Link href="/explore" className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50" onClick={handleNavClick} role="menuitem">
+                  Explore
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -639,6 +649,10 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                     </Link>
                   );
                 })}
+                {/* Divider and site-level links for desktop menu */}
+                <div className="border-t border-gray-100 mt-1" />
+                <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={handleNavClick} role="menuitem">Temple</Link>
+                <Link href="/explore" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={handleNavClick} role="menuitem">Explore</Link>
               </div>
 
               {/* Right column: submenu (shows when hovered) */}

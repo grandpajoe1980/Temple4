@@ -31,14 +31,12 @@ const ExplorePage: React.FC<ExplorePageProps> = ({ initialSearchTerm, tenants, o
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const qParam = searchParams?.get('q') ?? null;
+
   useEffect(() => {
-    try {
-      const q = searchParams?.get('q') ?? '';
-      if (q && q !== searchTerm) setSearchTerm(q);
-    } catch (err) {
-      // ignore malformed search params
-    }
-  }, [searchParams, searchTerm]);
+    if (qParam === null) return;
+    setSearchTerm((prev) => (qParam !== prev ? qParam : prev));
+  }, [qParam]);
 
   const handleBack = () => {
     if (onBack) {

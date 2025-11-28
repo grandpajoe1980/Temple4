@@ -69,8 +69,18 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search for a temple by name, creed, or location..."
-                    className="w-full h-14 rounded-full border border-slate-200 bg-white px-12 text-base text-slate-900 placeholder:text-slate-400 shadow-inner focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
+                    className="w-full h-14 rounded-full border border-slate-200 bg-white pl-12 pr-16 text-base text-slate-900 placeholder:text-slate-400 shadow-inner focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
                   />
+
+                  <button
+                    type="submit"
+                    aria-label="Search"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-amber-500 hover:bg-amber-600 text-white shadow-md focus:outline-none focus:ring-2 focus:ring-amber-300"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </button>
                 </div>
               </form>
 

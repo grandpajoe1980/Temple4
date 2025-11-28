@@ -24,7 +24,7 @@ const GeneralTab: React.FC<GeneralTabProps> = ({ tenant, onUpdate, onSave }) => 
     const { name, value } = e.target;
     onUpdate({
         ...tenant,
-        address: { ...tenant.address, [name]: value },
+        address: { ...(tenant.address || {}), [name]: value },
     });
   };
 
@@ -62,12 +62,12 @@ const GeneralTab: React.FC<GeneralTabProps> = ({ tenant, onUpdate, onSave }) => 
             <h3 className="text-lg font-medium leading-6 text-gray-900">Location</h3>
             <p className="mt-1 text-sm text-gray-500">Where your community is located.</p>
         </div>
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input containerClassName="md:col-span-2" label="Street Address" id="street" name="street" value={tenant.address.street || ''} onChange={handleAddressChange} />
-            <Input label="City" id="city" name="city" value={tenant.address.city} onChange={handleAddressChange} />
-            <Input label="State / Province" id="state" name="state" value={tenant.address.state} onChange={handleAddressChange} />
-            <Input label="Country" id="country" name="country" value={tenant.address.country} onChange={handleAddressChange} />
-            <Input label="Postal Code" id="postalCode" name="postalCode" value={tenant.address.postalCode} onChange={handleAddressChange} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input containerClassName="md:col-span-2" label="Street Address" id="street" name="street" value={tenant.address?.street || ''} onChange={handleAddressChange} />
+          <Input label="City" id="city" name="city" value={tenant.address?.city || ''} onChange={handleAddressChange} />
+          <Input label="State / Province" id="state" name="state" value={tenant.address?.state || ''} onChange={handleAddressChange} />
+          <Input label="Country" id="country" name="country" value={tenant.address?.country || ''} onChange={handleAddressChange} />
+          <Input label="Postal Code" id="postalCode" name="postalCode" value={tenant.address?.postalCode || ''} onChange={handleAddressChange} />
         </div>
         
         <div className="border-t border-gray-200 pt-8">
@@ -76,7 +76,7 @@ const GeneralTab: React.FC<GeneralTabProps> = ({ tenant, onUpdate, onSave }) => 
         <ToggleSwitch
             label="Public Tenant"
             description="Allow this temple to be discovered in public search results."
-            enabled={tenant.settings.isPublic}
+          enabled={tenant.settings?.isPublic ?? false}
             onChange={handleToggle}
         />
         
@@ -87,18 +87,18 @@ const GeneralTab: React.FC<GeneralTabProps> = ({ tenant, onUpdate, onSave }) => 
                 try {
                   setIsSaving(true);
                   await onSave({
-                    name: tenant.name,
-                    creed: tenant.creed,
-                    contactEmail: tenant.contactEmail,
-                    phoneNumber: tenant.phoneNumber,
-                    description: tenant.description,
-                    street: tenant.address.street,
-                    city: tenant.address.city,
-                    state: tenant.address.state,
-                    country: tenant.address.country,
-                    postalCode: tenant.address.postalCode,
-                    settings: { ...tenant.settings },
-                  });
+                      name: tenant.name,
+                      creed: tenant.creed,
+                      contactEmail: tenant.contactEmail,
+                      phoneNumber: tenant.phoneNumber,
+                      description: tenant.description,
+                      street: tenant.address?.street,
+                      city: tenant.address?.city,
+                      state: tenant.address?.state,
+                      country: tenant.address?.country,
+                      postalCode: tenant.address?.postalCode,
+                      settings: tenant.settings ? { ...tenant.settings } : undefined,
+                    });
                   alert('Settings saved');
                 } catch (error: any) {
                   alert(error.message || 'Failed to save settings');

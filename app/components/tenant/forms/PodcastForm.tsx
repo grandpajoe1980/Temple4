@@ -14,12 +14,22 @@ interface PodcastFormProps {
   onSubmit: (data: PodcastFormData) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
+  defaultValues?: Partial<PodcastFormData>;
 }
 
-const PodcastForm: React.FC<PodcastFormProps> = ({ onSubmit, onCancel, isSubmitting = false }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [embedUrl, setEmbedUrl] = useState('');
+const PodcastForm: React.FC<PodcastFormProps> = ({ onSubmit, onCancel, isSubmitting = false, defaultValues }) => {
+  const [title, setTitle] = useState(defaultValues?.title ?? '');
+  const [description, setDescription] = useState(defaultValues?.description ?? '');
+  const [embedUrl, setEmbedUrl] = useState(defaultValues?.embedUrl ?? '');
+
+  // update local state if defaultValues change (e.g., when editing a different podcast)
+  React.useEffect(() => {
+    if (defaultValues) {
+      if (defaultValues.title !== undefined) setTitle(defaultValues.title || '');
+      if (defaultValues.description !== undefined) setDescription(defaultValues.description || '');
+      if (defaultValues.embedUrl !== undefined) setEmbedUrl(defaultValues.embedUrl || '');
+    }
+  }, [defaultValues]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

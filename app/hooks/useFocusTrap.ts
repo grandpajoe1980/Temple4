@@ -57,6 +57,7 @@ export default function useFocusTrap(containerRef: RefObject<HTMLElement | null>
     }
 
     function handleFocusIn(e: FocusEvent) {
+      if (!container) return
       if (!container.contains(e.target as Node)) {
         // If focus moves outside, bring it back to the container
         const focusList = getFocusableElements(container);

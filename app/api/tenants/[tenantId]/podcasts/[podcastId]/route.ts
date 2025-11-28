@@ -21,11 +21,8 @@ export async function GET(
       return forbidden('You do not have permission to view this podcast.');
     }
 
-    const podcast = await prisma.podcast.findUnique({
-      where: { id: podcastId, tenantId: tenantId },
-    });
-
-    if (!podcast) {
+    const podcast = await prisma.mediaItem.findUnique({ where: { id: podcastId } });
+    if (!podcast || podcast.tenantId !== tenantId) {
       return notFound('Podcast');
     }
 
@@ -37,11 +34,9 @@ export async function GET(
 }
 
 const podcastUpdateSchema = z.object({
-    title: z.string().min(1).optional(),
-    description: z.string().optional(),
-    audioUrl: z.string().url().optional(),
-    imageUrl: z.string().url().optional(),
-    duration: z.number().int().positive().optional(),
+  title: z.string().min(1).optional(),
+  description: z.string().optional(),
+  embedUrl: z.string().url().optional(),
 });
 
 // 12.4 Update Podcast
@@ -75,9 +70,19 @@ export async function PUT(
     }
 
     try {
-        const updatedPodcast = await prisma.podcast.update({
-            where: { id: podcastId, tenantId: tenantId },
-            data: result.data,
+        // ensure podcast exists and belongs to tenant
+        const existing = await prisma.mediaItem.findUnique({ where: { id: podcastId } });
+        if (!existing || existing.tenantId !== tenantId) {
+          return notFound('Podcast');
+        }
+
+        const updatedPodcast = await prisma.mediaItem.update({
+            where: { id: podcastId },
+            data: {
+              title: result.data.title,
+              description: result.data.description,
+              embedUrl: result.data.embedUrl,
+            },
         });
 
         return NextResponse.json(updatedPodcast);
@@ -113,9 +118,11 @@ export async function DELETE(
     }
 
     try {
-        await prisma.podcast.delete({
-            where: { id: podcastId, tenantId: tenantId },
-        });
+        // Use deleteMany to avoid throwing when record not found and ensure tenant scoping
+        const del = await prisma.mediaItem.deleteMany({ where: { id: podcastId, tenantId: tenantId } });
+        if (del.count === 0) {
+          return notFound('Podcast');
+        }
 
         return new NextResponse(null, { status: 204 });
     } catch (error) {

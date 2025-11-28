@@ -69,6 +69,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const searchParams = useSearchParams();
   const basePath = `/tenants/${tenant.id}`;
   const navRef = React.useRef<HTMLElement | null>(null);
+  const navTabsRef = React.useRef<HTMLDivElement | null>(null);
   const deriveLockedSubmenu = React.useCallback((): SubmenuKey | null => {
     if (
       pathname.startsWith(`${basePath}/content`) ||
@@ -121,6 +122,12 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     document.documentElement.style.setProperty('--tenant-nav-height', `${height}px`);
   }, []);
 
+  const updateNavTabsHeightVar = React.useCallback(() => {
+    if (!navTabsRef.current) return;
+    const height = navTabsRef.current.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--tenant-nav-tabs-height', `${height}px`);
+  }, []);
+
   const clearTimer = (timerRef: React.MutableRefObject<NodeJS.Timeout | null>) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -133,25 +140,30 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   };
 
   const scheduleShow = (key: SubmenuKey) => {
-    if (lockedSubmenu && lockedSubmenu !== key) return;
-
     const showTimer = submenuTimers[key].show;
     const hideTimer = submenuTimers[key].hide;
     clearTimer(hideTimer);
     clearTimer(showTimer);
+    // If we're hovering the submenu for the current page, leave the visible state as-is.
+    if (lockedSubmenu === key) {
+      setVisibleSubmenu(lockedSubmenu);
+      return;
+    }
     setVisibleSubmenu(key);
   };
 
   const scheduleHide = (key: SubmenuKey) => {
-    if (lockedSubmenu) return;
-
+    if (lockedSubmenu === key) return;
     const showTimer = submenuTimers[key].show;
     const hideTimer = submenuTimers[key].hide;
     clearTimer(showTimer);
     clearTimer(hideTimer);
     hideTimer.current = setTimeout(() => {
-      setActiveSubmenu((prev) => (prev === key ? null : prev));
-    }, 750);
+      setActiveSubmenu((prev) => {
+        if (prev !== key) return prev;
+        return lockedSubmenu ?? null;
+      });
+    }, 400);
   };
 
   React.useEffect(() => {
@@ -178,6 +190,13 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     updateNavHeightVar();
   }, [activeSubmenu, updateNavHeightVar]);
 
+  React.useEffect(() => {
+    const handleResize = () => updateNavTabsHeightVar();
+    updateNavTabsHeightVar();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [updateNavTabsHeightVar]);
+
   const isFeatureEnabled = (feature?: NavItemFeature) =>
     !feature || (tenant.settings ? Boolean(tenant.settings[feature as keyof TenantSettings]) : false);
 
@@ -195,46 +214,95 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     key: SubmenuKey,
     items: { key: string; label: string; path: string; feature?: NavItemFeature }[]
   ) => {
-    if (activeSubmenu !== key) return null;
-
     // Determine active category from the URL (if present)
     const activeCategory = searchParams?.get('category') || '';
 
+    return items
+      .filter((sub) => isFeatureEnabled(sub.feature))
+      .map((sub) => {
+        const match = sub.path.match(/\?category=([^&]+)/);
+        const subCategory = match ? match[1] : '';
+        let isActive = false;
+        if (subCategory) {
+          isActive = subCategory === activeCategory;
+        } else {
+          isActive = pathname.startsWith(`${basePath}${sub.path}`);
+        }
+        const activeClasses =
+          'inline-flex items-center rounded-full border border-amber-500 bg-amber-100 px-4 py-2 text-sm font-medium text-amber-800 transition-colors';
+        return (
+          <Link key={sub.key} href={`${basePath}${sub.path}`} className={isActive ? activeClasses : submenuChipClasses}>
+            {sub.label}
+          </Link>
+        );
+      });
+  };
+
+  const renderActiveSubmenuOverlay = () => {
+    if (!activeSubmenu || activeSubmenu === lockedSubmenu) return null;
+    const itemsByKey: Record<SubmenuKey, { key: string; label: string; path: string; feature?: NavItemFeature }[]> = {
+      content: contentSubItems,
+      community: communitySubItems,
+      services: serviceSubItems,
+      settings: CONTROL_PANEL_TABS.map((tab) => {
+        const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        return { key: tab, label: tab, path: `/settings${slug ? `?category=${slug}` : ''}` };
+      }),
+    };
+    const items = itemsByKey[activeSubmenu];
+    if (!items?.length) return null;
+
     return (
       <div
-        className="flex flex-wrap gap-2"
-        onMouseEnter={() => clearTimer(submenuTimers[key].hide)}
-        onMouseLeave={() => scheduleHide(key)}
+        className="pointer-events-auto fixed inset-x-0 z-[9999] px-4 pb-3 sm:px-6 lg:px-8"
+        style={{ top: 'calc(var(--site-header-height, 0px) + var(--tenant-nav-height, 0px) + 12px)' }}
+        onMouseEnter={() => clearTimer(submenuTimers[activeSubmenu].hide)}
+        onMouseLeave={() => scheduleHide(activeSubmenu)}
       >
-        {items
-          .filter((sub) => isFeatureEnabled(sub.feature))
-          .map((sub) => {
-            // If the submenu item includes a ?category= param, extract it for active comparison
-            const match = sub.path.match(/\?category=([^&]+)/);
-            const subCategory = match ? match[1] : '';
-            // Determine active state:
-            // - For items with a category query (services), compare to the activeCategory from search params
-            // - For regular submenu items (content/community), match the pathname prefix
-            let isActive = false;
-            if (subCategory) {
-              isActive = subCategory === activeCategory;
-            } else {
-              isActive = pathname.startsWith(`${basePath}${sub.path}`);
-            }
-            const activeClasses = 'inline-flex items-center rounded-full border border-amber-500 bg-amber-100 px-4 py-2 text-sm font-medium text-amber-800 transition-colors';
-            return (
-              <Link key={sub.key} href={`${basePath}${sub.path}`} className={isActive ? activeClasses : submenuChipClasses}>
-                {sub.label}
-              </Link>
-            );
-          })}
+        <div className="mx-auto max-w-5xl rounded-full border border-amber-100 bg-white px-4 py-3 shadow-lg shadow-amber-100/60 backdrop-blur-sm">
+          <div className="flex flex-wrap items-center justify-start gap-2">
+            {activeSubmenu === 'settings'
+              ? renderSubmenu(activeSubmenu, items.map((item) => ({ ...item, feature: undefined })))
+              : renderSubmenu(activeSubmenu, items)}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderInlineLockedSubmenu = () => {
+    if (!lockedSubmenu) return null;
+    const itemsByKey: Record<SubmenuKey, { key: string; label: string; path: string; feature?: NavItemFeature }[]> = {
+      content: contentSubItems,
+      community: communitySubItems,
+      services: serviceSubItems,
+      settings: CONTROL_PANEL_TABS.map((tab) => {
+        const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        return { key: tab, label: tab, path: `/settings${slug ? `?category=${slug}` : ''}` };
+      }),
+    };
+    const items = itemsByKey[lockedSubmenu];
+    if (!items?.length) return null;
+
+    return (
+      <div className="space-y-2 border-t border-gray-200 pt-1 pb-0">
+        <div
+          className="flex flex-wrap gap-2"
+          onMouseEnter={() => clearTimer(submenuTimers[lockedSubmenu].hide)}
+          onMouseLeave={() => scheduleHide(lockedSubmenu)}
+        >
+          {lockedSubmenu === 'settings'
+            ? renderSubmenu(lockedSubmenu, items.map((item) => ({ ...item, feature: undefined })))
+            : renderSubmenu(lockedSubmenu, items)}
+        </div>
       </div>
     );
   };
 
   return (
-    <nav ref={navRef} className="border-t border-gray-200" style={{ ['--tenant-nav-height' as any]: '6rem' }}>
-      <div className="-mb-px flex flex-wrap items-stretch gap-4 border-b border-gray-200 pb-1">
+    <nav ref={navRef} className="relative z-[10] border-t border-gray-200" style={{ ['--tenant-nav-height' as any]: '6rem' }}>
+      {renderActiveSubmenuOverlay()}
+      <div ref={navTabsRef} className="-mb-px flex flex-wrap items-stretch gap-4 border-b border-gray-200 pb-1">
         {navItems.map((item) => {
           const isEnabled = isFeatureEnabled(item.feature);
           if (!isEnabled) return null;
@@ -318,37 +386,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
           );
         })}
       </div>
-
-      <div className="space-y-2 border-t border-gray-200 pt-1 pb-0">
-        {renderSubmenu('content', contentSubItems)}
-        {renderSubmenu('community', communitySubItems)}
-        {renderSubmenu('services', serviceSubItems)}
-        {activeSubmenu === 'settings' && (
-          <div
-            className="flex flex-wrap gap-2"
-            onMouseEnter={() => clearTimer(submenuTimers.settings.hide)}
-            onMouseLeave={() => scheduleHide('settings')}
-          >
-                {(() => {
-                  const activeCategory = searchParams?.get('category') || '';
-                  return CONTROL_PANEL_TABS.map((tab) => {
-                    const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                    const isActive = slug === activeCategory;
-                    const activeClasses = 'inline-flex items-center rounded-full border border-amber-500 bg-amber-100 px-4 py-2 text-sm font-medium text-amber-800 transition-colors';
-                    return (
-                      <Link
-                        key={tab}
-                        href={`${basePath}/settings${slug ? `?category=${slug}` : ''}`}
-                        className={isActive ? activeClasses : submenuChipClasses}
-                      >
-                        {tab}
-                      </Link>
-                    );
-                  });
-                })()}
-          </div>
-        )}
-      </div>
+      {renderInlineLockedSubmenu()}
     </nav>
   );
 }

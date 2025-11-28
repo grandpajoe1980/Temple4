@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { CONTROL_PANEL_TABS } from '@/constants';
 import { useSession } from 'next-auth/react';
 import type { Notification } from '@/types';
@@ -11,6 +11,8 @@ import Button from './Button';
 import UserMenu from './UserMenu';
 
 const navItems: { label: string; href: string; authOnly?: boolean }[] = [];
+
+type TenantSubmenuKey = 'content' | 'community' | 'services' | 'settings';
 
 const SiteHeader = () => {
   const { data: session } = useSession();
@@ -221,22 +223,49 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
   const [open, setOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [tenantSettings, setTenantSettings] = useState<any | null>(null);
-  const [showContentSubmenu, setShowContentSubmenu] = useState(false);
-  const [showCommunitySubmenu, setShowCommunitySubmenu] = useState(false);
-  const showTimer = useRef<number | null>(null);
-  const hideTimer = useRef<number | null>(null);
-  const showCommunityTimer = useRef<number | null>(null);
-  const hideCommunityTimer = useRef<number | null>(null);
+  const [activeSubmenu, setActiveSubmenu] = useState<TenantSubmenuKey | null>(null);
+  const submenuShowTimer = useRef<number | null>(null);
+  const submenuHideTimer = useRef<number | null>(null);
   const menuCloseTimer = useRef<number | null>(null);
-  const [showServicesSubmenu, setShowServicesSubmenu] = useState(false);
-  const showServicesTimer = useRef<number | null>(null);
-  const hideServicesTimer = useRef<number | null>(null);
-  const [showSettingsSubmenu, setShowSettingsSubmenu] = useState(false);
-  const showSettingsTimer = useRef<number | null>(null);
-  const hideSettingsTimer = useRef<number | null>(null);
   const ref = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const mobilePanelRef = useRef<HTMLDivElement | null>(null);
+
+  const clearTimer = (timerRef: MutableRefObject<number | null>) => {
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const closeAllSubmenus = () => {
+    clearTimer(submenuShowTimer);
+    clearTimer(submenuHideTimer);
+    setActiveSubmenu(null);
+  };
+
+  const scheduleSubmenuShow = (key: TenantSubmenuKey) => {
+    clearTimer(submenuHideTimer);
+    clearTimer(submenuShowTimer);
+    setActiveSubmenu((prev) => (prev && prev !== key ? null : prev));
+    submenuShowTimer.current = window.setTimeout(() => {
+      setActiveSubmenu(key);
+    }, 300);
+  };
+
+  const scheduleSubmenuHide = (key: TenantSubmenuKey) => {
+    clearTimer(submenuShowTimer);
+    clearTimer(submenuHideTimer);
+    submenuHideTimer.current = window.setTimeout(() => {
+      setActiveSubmenu((prev) => (prev === key ? null : prev));
+    }, 750);
+  };
+
+  const handleNavClick = () => {
+    clearTimer(menuCloseTimer);
+    closeAllSubmenus();
+    setOpen(false);
+  };
 
   useEffect(() => {
     if (!pathname) return;
@@ -320,24 +349,27 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
 
   useEffect(() => {
     return () => {
-      if (showTimer.current) window.clearTimeout(showTimer.current);
-      if (hideTimer.current) window.clearTimeout(hideTimer.current);
-      if (menuCloseTimer.current) window.clearTimeout(menuCloseTimer.current);
+      clearTimer(submenuShowTimer);
+      clearTimer(submenuHideTimer);
+      clearTimer(menuCloseTimer);
     };
   }, []);
+
+  useEffect(() => {
+    if (!open) {
+      closeAllSubmenus();
+    }
+  }, [open]);
 
   return (
     <div
       className="relative flex items-center gap-3"
       ref={ref}
       onMouseEnter={() => {
-        if (menuCloseTimer.current) {
-          window.clearTimeout(menuCloseTimer.current);
-          menuCloseTimer.current = null;
-        }
+        clearTimer(menuCloseTimer);
       }}
       onMouseLeave={() => {
-        if (menuCloseTimer.current) window.clearTimeout(menuCloseTimer.current);
+        clearTimer(menuCloseTimer);
         menuCloseTimer.current = window.setTimeout(() => setOpen(false), 2000);
       }}
     >
@@ -391,13 +423,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                             <Link
                               href={`${basePath}${item.path}`}
                               className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
-                              onClick={() => {
-                                if (menuCloseTimer.current) {
-                                  window.clearTimeout(menuCloseTimer.current);
-                                  menuCloseTimer.current = null;
-                                }
-                                setOpen(false);
-                              }}
+                              onClick={handleNavClick}
                               role="menuitem"
                               tabIndex={0}
                             >
@@ -434,7 +460,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                                           : 'text-gray-600 hover:bg-gray-50'
                                       }`
                                     }
-                                    onClick={() => setOpen(false)}
+                                    onClick={handleNavClick}
                                   >
                                     {sub.label}
                                   </Link>
@@ -446,20 +472,14 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       }
 
                       return (
-                        <Link
-                          key={item.key}
-                          href={`${basePath}${item.path}`}
-                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
-                          onClick={() => {
-                            if (menuCloseTimer.current) {
-                              window.clearTimeout(menuCloseTimer.current);
-                              menuCloseTimer.current = null;
-                            }
-                            setOpen(false);
-                          }}
-                          role="menuitem"
-                          tabIndex={0}
-                        >
+                          <Link
+                            key={item.key}
+                            href={`${basePath}${item.path}`}
+                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
+                            onClick={handleNavClick}
+                            role="menuitem"
+                            tabIndex={0}
+                          >
                           {item.key === 'settings' ? (
                             <span className="inline-flex items-center gap-2">
                               <span>{item.label}</span>
@@ -486,10 +506,11 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
 
           {/* Desktop / larger screens: dropdown anchored under button */}
           <div className="hidden sm:block absolute left-0 top-full mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-[calc(100vh-6rem)] overflow-y-auto">
-              <div className="py-1 flex" role="menu" id={`tenant-menu-desktop-${tenantId || 'global'}`}>
+            <div className="py-1 flex" role="menu" id={`tenant-menu-desktop-${tenantId || 'global'}`}>
               {/* Left column: primary menu items */}
               <div className="min-w-[18rem]">
-                {[{ key: 'home', label: 'Home', path: '' },
+                {[
+                  { key: 'home', label: 'Home', path: '' },
                   { key: 'content', label: 'Content', path: '/content' },
                   { key: 'community', label: 'Community', path: '/community' },
                   { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
@@ -506,32 +527,13 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       <div
                         key={item.key}
                         className="relative"
-                        onMouseEnter={() => {
-                          // cancel any pending hide, start delayed show
-                          if (hideTimer.current) {
-                            window.clearTimeout(hideTimer.current);
-                            hideTimer.current = null;
-                          }
-                          if (showTimer.current) window.clearTimeout(showTimer.current);
-                          showTimer.current = window.setTimeout(() => setShowContentSubmenu(true), 300);
-                        }}
-                        onMouseLeave={() => {
-                          // cancel pending show and start delayed hide
-                          if (showTimer.current) {
-                            window.clearTimeout(showTimer.current);
-                            showTimer.current = null;
-                          }
-                          if (hideTimer.current) window.clearTimeout(hideTimer.current);
-                          hideTimer.current = window.setTimeout(() => {
-                            hideTimer.current = null;
-                            setShowContentSubmenu(false);
-                          }, 750);
-                        }}
+                        onMouseEnter={() => scheduleSubmenuShow('content')}
+                        onMouseLeave={() => scheduleSubmenuHide('content')}
                       >
                         <Link
                           href={`${basePath}${item.path}`}
                           className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`}
-                          onClick={() => setOpen(false)}
+                          onClick={handleNavClick}
                           role="menuitem"
                           tabIndex={0}
                         >
@@ -551,30 +553,13 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       <div
                         key={item.key}
                         className="relative"
-                        onMouseEnter={() => {
-                          if (hideCommunityTimer.current) {
-                            window.clearTimeout(hideCommunityTimer.current);
-                            hideCommunityTimer.current = null;
-                          }
-                          if (showCommunityTimer.current) window.clearTimeout(showCommunityTimer.current);
-                          showCommunityTimer.current = window.setTimeout(() => setShowCommunitySubmenu(true), 300);
-                        }}
-                        onMouseLeave={() => {
-                          if (showCommunityTimer.current) {
-                            window.clearTimeout(showCommunityTimer.current);
-                            showCommunityTimer.current = null;
-                          }
-                          if (hideCommunityTimer.current) window.clearTimeout(hideCommunityTimer.current);
-                          hideCommunityTimer.current = window.setTimeout(() => {
-                            hideCommunityTimer.current = null;
-                            setShowCommunitySubmenu(false);
-                          }, 750);
-                        }}
+                        onMouseEnter={() => scheduleSubmenuShow('community')}
+                        onMouseLeave={() => scheduleSubmenuHide('community')}
                       >
                         <Link
                           href={`${basePath}${item.path}`}
                           className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`}
-                          onClick={() => setOpen(false)}
+                          onClick={handleNavClick}
                           role="menuitem"
                           tabIndex={0}
                         >
@@ -594,30 +579,13 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       <div
                         key={item.key}
                         className="relative"
-                        onMouseEnter={() => {
-                          if (hideServicesTimer.current) {
-                            window.clearTimeout(hideServicesTimer.current);
-                            hideServicesTimer.current = null;
-                          }
-                          if (showServicesTimer.current) window.clearTimeout(showServicesTimer.current);
-                          showServicesTimer.current = window.setTimeout(() => setShowServicesSubmenu(true), 300);
-                        }}
-                        onMouseLeave={() => {
-                          if (showServicesTimer.current) {
-                            window.clearTimeout(showServicesTimer.current);
-                            showServicesTimer.current = null;
-                          }
-                          if (hideServicesTimer.current) window.clearTimeout(hideServicesTimer.current);
-                          hideServicesTimer.current = window.setTimeout(() => {
-                            hideServicesTimer.current = null;
-                            setShowServicesSubmenu(false);
-                          }, 750);
-                        }}
+                        onMouseEnter={() => scheduleSubmenuShow('services')}
+                        onMouseLeave={() => scheduleSubmenuHide('services')}
                       >
                         <Link
                           href={`${basePath}${item.path}`}
                           className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`}
-                          onClick={() => setOpen(false)}
+                          onClick={handleNavClick}
                           role="menuitem"
                           tabIndex={0}
                         >
@@ -637,30 +605,13 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       <div
                         key={item.key}
                         className="relative"
-                        onMouseEnter={() => {
-                          if (hideSettingsTimer.current) {
-                            window.clearTimeout(hideSettingsTimer.current);
-                            hideSettingsTimer.current = null;
-                          }
-                          if (showSettingsTimer.current) window.clearTimeout(showSettingsTimer.current);
-                          showSettingsTimer.current = window.setTimeout(() => setShowSettingsSubmenu(true), 300);
-                        }}
-                        onMouseLeave={() => {
-                          if (showSettingsTimer.current) {
-                            window.clearTimeout(showSettingsTimer.current);
-                            showSettingsTimer.current = null;
-                          }
-                          if (hideSettingsTimer.current) window.clearTimeout(hideSettingsTimer.current);
-                          hideSettingsTimer.current = window.setTimeout(() => {
-                            hideSettingsTimer.current = null;
-                            setShowSettingsSubmenu(false);
-                          }, 750);
-                        }}
+                        onMouseEnter={() => scheduleSubmenuShow('settings')}
+                        onMouseLeave={() => scheduleSubmenuHide('settings')}
                       >
                         <Link
                           href={`${basePath}${item.path}`}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                          onClick={() => setOpen(false)}
+                          onClick={handleNavClick}
                           role="menuitem"
                           tabIndex={0}
                         >
@@ -680,7 +631,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       key={item.key}
                       href={`${basePath}${item.path}`}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={() => setOpen(false)}
+                      onClick={handleNavClick}
                       role="menuitem"
                       tabIndex={0}
                     >
@@ -690,125 +641,75 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                 })}
               </div>
 
-              {/* Right column: content submenu (shows when hovered) */}
-              {showContentSubmenu && (
+              {/* Right column: submenu (shows when hovered) */}
+              {activeSubmenu === 'content' && (
                 <div
                   className="w-44 border-l border-gray-100 bg-white"
                   onMouseEnter={() => {
-                    // Cancel pending hide when entering the submenu
-                    if (hideTimer.current) {
-                      window.clearTimeout(hideTimer.current);
-                      hideTimer.current = null;
-                    }
+                    clearTimer(submenuHideTimer);
+                    setActiveSubmenu('content');
                   }}
-                  onMouseLeave={() => {
-                    // Start delayed hide when leaving the submenu
-                    if (showTimer.current) {
-                      window.clearTimeout(showTimer.current);
-                      showTimer.current = null;
-                    }
-                    if (hideTimer.current) window.clearTimeout(hideTimer.current);
-                    hideTimer.current = window.setTimeout(() => {
-                      hideTimer.current = null;
-                      setShowContentSubmenu(false);
-                    }, 750);
-                  }}
+                  onMouseLeave={() => scheduleSubmenuHide('content')}
                 >
                   <div className="py-1">
-                    <Link href={`${basePath}/photos`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/photos`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Photos</Link>
-                    <Link href={`${basePath}/podcasts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/podcasts`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Podcasts</Link>
-                    <Link href={`${basePath}/sermons`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/sermons`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Sermons</Link>
-                    <Link href={`${basePath}/books`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/books`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Books</Link>
-                    <Link href={`${basePath}/livestream`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/livestream`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowContentSubmenu(false); }}>Live Stream</Link>
+                    <Link href={`${basePath}/photos`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/photos`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Photos</Link>
+                    <Link href={`${basePath}/podcasts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/podcasts`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Podcasts</Link>
+                    <Link href={`${basePath}/sermons`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/sermons`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Sermons</Link>
+                    <Link href={`${basePath}/books`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/books`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Books</Link>
+                    <Link href={`${basePath}/livestream`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/livestream`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Live Stream</Link>
                   </div>
                 </div>
               )}
-              {showCommunitySubmenu && (
+              {activeSubmenu === 'community' && (
                 <div
                   className="w-44 border-l border-gray-100 bg-white"
                   onMouseEnter={() => {
-                    if (hideCommunityTimer.current) {
-                      window.clearTimeout(hideCommunityTimer.current);
-                      hideCommunityTimer.current = null;
-                    }
+                    clearTimer(submenuHideTimer);
+                    setActiveSubmenu('community');
                   }}
-                  onMouseLeave={() => {
-                    if (showCommunityTimer.current) {
-                      window.clearTimeout(showCommunityTimer.current);
-                      showCommunityTimer.current = null;
-                    }
-                    if (hideCommunityTimer.current) window.clearTimeout(hideCommunityTimer.current);
-                    hideCommunityTimer.current = window.setTimeout(() => {
-                      hideCommunityTimer.current = null;
-                      setShowCommunitySubmenu(false);
-                    }, 750);
-                  }}
+                  onMouseLeave={() => scheduleSubmenuHide('community')}
                 >
                   <div className="py-1">
-                    <Link href={`${basePath}/posts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/posts`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Posts</Link>
-                    <Link href={`${basePath}/community/wall`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/community/wall`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Wall</Link>
-                    <Link href={`${basePath}/calendar`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/calendar`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Calendar</Link>
-                    <Link href={`${basePath}/prayer-wall`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/prayer-wall`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Prayer Wall</Link>
-                    <Link href={`${basePath}/members`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/members`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Members</Link>
-                    <Link href={`${basePath}/staff`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/staff`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Staff</Link>
-                    <Link href={`${basePath}/chat`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/chat`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Chat</Link>
-                    <Link href={`${basePath}/small-groups`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/small-groups`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Small Groups</Link>
-                    <Link href={`${basePath}/trips`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/trips`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Trips</Link>
-                    <Link href={`${basePath}/volunteering`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/volunteering`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Volunteering</Link>
-                    <Link href={`${basePath}/resources`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/resources`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowCommunitySubmenu(false); }}>Resources</Link>
+                    <Link href={`${basePath}/posts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/posts`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Posts</Link>
+                    <Link href={`${basePath}/community/wall`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/community/wall`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Wall</Link>
+                    <Link href={`${basePath}/calendar`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/calendar`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Calendar</Link>
+                    <Link href={`${basePath}/prayer-wall`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/prayer-wall`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Prayer Wall</Link>
+                    <Link href={`${basePath}/members`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/members`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Members</Link>
+                    <Link href={`${basePath}/staff`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/staff`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Staff</Link>
+                    <Link href={`${basePath}/chat`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/chat`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Chat</Link>
+                    <Link href={`${basePath}/small-groups`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/small-groups`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Small Groups</Link>
+                    <Link href={`${basePath}/trips`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/trips`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Trips</Link>
+                    <Link href={`${basePath}/volunteering`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/volunteering`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Volunteering</Link>
+                    <Link href={`${basePath}/resources`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/resources`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Resources</Link>
                   </div>
                 </div>
               )}
-              {showServicesSubmenu && (
+              {activeSubmenu === 'services' && (
                 <div
                   className="w-44 border-l border-gray-100 bg-white"
                   onMouseEnter={() => {
-                    if (hideServicesTimer.current) {
-                      window.clearTimeout(hideServicesTimer.current);
-                      hideServicesTimer.current = null;
-                    }
+                    clearTimer(submenuHideTimer);
+                    setActiveSubmenu('services');
                   }}
-                  onMouseLeave={() => {
-                    if (showServicesTimer.current) {
-                      window.clearTimeout(showServicesTimer.current);
-                      showServicesTimer.current = null;
-                    }
-                    if (hideServicesTimer.current) window.clearTimeout(hideServicesTimer.current);
-                    hideServicesTimer.current = window.setTimeout(() => {
-                      hideServicesTimer.current = null;
-                      setShowServicesSubmenu(false);
-                    }, 750);
-                  }}
+                  onMouseLeave={() => scheduleSubmenuHide('services')}
                 >
                   <div className="py-1">
-                          <Link href={`${basePath}/services?category=CEREMONY`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Ceremony</Link>
-                          <Link href={`${basePath}/services?category=EDUCATION`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Education</Link>
-                          <Link href={`${basePath}/services?category=COUNSELING`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Counseling</Link>
-                          <Link href={`${basePath}/services?category=FACILITY`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Facilities</Link>
-                          <Link href={`${basePath}/services?category=OTHER`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => { setOpen(false); setShowServicesSubmenu(false); }}>Other</Link>
+                    <Link href={`${basePath}/services?category=CEREMONY`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Ceremony</Link>
+                    <Link href={`${basePath}/services?category=EDUCATION`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Education</Link>
+                    <Link href={`${basePath}/services?category=COUNSELING`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Counseling</Link>
+                    <Link href={`${basePath}/services?category=FACILITY`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Facilities</Link>
+                    <Link href={`${basePath}/services?category=OTHER`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/services`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Other</Link>
                   </div>
                 </div>
               )}
-              {showSettingsSubmenu && (
+              {activeSubmenu === 'settings' && (
                 <div
                   className="w-64 border-l border-gray-100 bg-white"
                   onMouseEnter={() => {
-                    if (hideSettingsTimer.current) {
-                      window.clearTimeout(hideSettingsTimer.current);
-                      hideSettingsTimer.current = null;
-                    }
+                    clearTimer(submenuHideTimer);
+                    setActiveSubmenu('settings');
                   }}
-                  onMouseLeave={() => {
-                    if (showSettingsTimer.current) {
-                      window.clearTimeout(showSettingsTimer.current);
-                      showSettingsTimer.current = null;
-                    }
-                    if (hideSettingsTimer.current) window.clearTimeout(hideSettingsTimer.current);
-                    hideSettingsTimer.current = window.setTimeout(() => {
-                      hideSettingsTimer.current = null;
-                      setShowSettingsSubmenu(false);
-                    }, 750);
-                  }}
+                  onMouseLeave={() => scheduleSubmenuHide('settings')}
                 >
                   <div className="py-2 px-1">
                     {/* Map control panel tabs to chips/links */}
@@ -821,10 +722,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                             key={tab}
                             href={`${basePath}/settings${slug ? `?category=${slug}` : ''}`}
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                            onClick={() => {
-                              setOpen(false);
-                              setShowSettingsSubmenu(false);
-                            }}
+                            onClick={handleNavClick}
                           >
                             {tab}
                           </Link>

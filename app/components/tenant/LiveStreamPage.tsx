@@ -12,6 +12,22 @@ interface LiveStreamPageProps {
     settings: any; // Transformed settings with nested structure
   };
 }
+function normalizeYoutubeEmbed(url?: string) {
+  if (!url) return url;
+  try {
+    const u = url.trim();
+    if (u.includes('/embed/')) return u;
+    const short = /https?:\/\/youtu\.be\/([\w-\-]{11})/i.exec(u);
+    if (short && short[1]) return `https://www.youtube.com/embed/${short[1]}`;
+    const v = /[?&]v=([\w-\-]{11})/i.exec(u);
+    if (v && v[1]) return `https://www.youtube.com/embed/${v[1]}`;
+    const pathId = /([\w-\-]{11})(?:\?.*)?$/i.exec(u);
+    if (pathId && pathId[1]) return `https://www.youtube.com/embed/${pathId[1]}`;
+    return u;
+  } catch (err) {
+    return url;
+  }
+}
 
 const LiveStreamPage: React.FC<LiveStreamPageProps> = ({ tenant }) => {
   const liveStreamSettings = (tenant.settings as any)?.liveStreamSettings;
@@ -36,8 +52,8 @@ const LiveStreamPage: React.FC<LiveStreamPageProps> = ({ tenant }) => {
       />
         <Card className="!p-0 overflow-hidden">
             <div className="aspect-w-16 aspect-h-9">
-                <iframe
-                src={liveStreamSettings.embedUrl}
+          <iframe
+          src={normalizeYoutubeEmbed(liveStreamSettings.embedUrl)}
                 title={`${tenant.name} Live Stream`}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

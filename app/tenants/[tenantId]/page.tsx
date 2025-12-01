@@ -51,8 +51,10 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
 
   let eventsResponse: Response | null = null;
   let postsResponse: Response | null = null;
+  let communityResponse: Response | null = null;
+  let servicesResponse: Response | null = null;
   try {
-    [eventsResponse, postsResponse] = await Promise.all([
+    [eventsResponse, postsResponse, communityResponse, servicesResponse] = await Promise.all([
       fetch(`${baseUrl}/api/tenants/${tenant.id}/events`, {
         headers: {
           'Content-Type': 'application/json',
@@ -67,10 +69,26 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
         },
         cache: 'no-store',
       }),
+      fetch(`${baseUrl}/api/tenants/${tenant.id}/community-posts?limit=3`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(cookieHeader ? { cookie: cookieHeader } : {}),
+        },
+        cache: 'no-store',
+      }),
+      fetch(`${baseUrl}/api/tenants/${tenant.id}/services`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(cookieHeader ? { cookie: cookieHeader } : {}),
+        },
+        cache: 'no-store',
+      }),
     ]);
   } catch (fetchErr) {
     eventsResponse = null;
     postsResponse = null;
+    communityResponse = null;
+    servicesResponse = null;
   }
 
   const eventDtos: EventResponseDto[] = eventsResponse && eventsResponse.ok ? await eventsResponse.json() : [];
@@ -83,6 +101,15 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
     publishedAt: post.publishedAt ? new Date(post.publishedAt) : new Date(),
   }));
 
+  const communityJson = communityResponse && communityResponse.ok ? await communityResponse.json().catch(() => ({ posts: [] })) : { posts: [] };
+  const recentCommunity = (communityJson.posts || []).map((p: any) => ({
+    ...p,
+    createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
+  }));
+
+  const servicesJson = servicesResponse && servicesResponse.ok ? await servicesResponse.json().catch(() => ([])) : [];
+  const services = servicesJson || [];
+
   return (
     <HomePageClient
       tenant={tenant}
@@ -90,6 +117,8 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
       membership={membership}
       upcomingEvents={upcomingEvents.filter((e: any) => e.startDateTime > new Date()).slice(0, 3)}
       recentPosts={recentPosts.slice(0, 3)}
+      recentCommunity={recentCommunity.slice(0, 3)}
+      services={services}
     />
   );
 }

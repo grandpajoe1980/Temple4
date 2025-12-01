@@ -6,6 +6,7 @@ import { EventWithCreator, MembershipStatus, MembershipApprovalMode } from '@/ty
 import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';
 import { useRouter } from 'next/navigation';
+import TenantCarousel from '@/app/components/TenantCarousel';
 
 interface HomePagePost {
   id: string;
@@ -14,15 +15,32 @@ interface HomePagePost {
   author: { profile: UserProfile | null } | null;
 }
 
+interface CommunityPostItem {
+  id: string;
+  title: string;
+  body?: string;
+  createdAt: Date;
+  author?: { profile: UserProfile | null } | null;
+}
+
+interface ServiceItem {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl?: string | null;
+}
+
 interface HomePageClientProps {
   tenant: Tenant & { settings: TenantSettings | null; branding: TenantBranding | null; };
   user: (User & { profile: UserProfile | null }) | null;
   membership: UserTenantMembership | null;
   upcomingEvents: EventWithCreator[];
   recentPosts: HomePagePost[];
+  recentCommunity: CommunityPostItem[];
+  services: ServiceItem[];
 }
 
-export default function HomePageClient({ tenant, user, membership, upcomingEvents, recentPosts }: HomePageClientProps) {
+export default function HomePageClient({ tenant, user, membership, upcomingEvents, recentPosts, recentCommunity, services }: HomePageClientProps) {
   const router = useRouter();
 
   const handleJoin = async () => {
@@ -83,17 +101,48 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
   const isLive = tenant.settings?.enableLiveStream && liveStreamSettings?.isLive;
 
 
+  // Build carousel slides: content sections (posts), community posts, services
+  const slides: Array<{ title: string; subtitle?: string; imageUrl?: string | null; logoUrl?: string | null; link?: string }> = [];
+
+  recentPosts.forEach((p) => {
+    slides.push({
+      title: p.title,
+      subtitle: `Post • ${new Date(p.publishedAt).toLocaleDateString()}`,
+      imageUrl: undefined,
+      logoUrl: undefined,
+      link: `/tenants/${tenant.id}/posts/${p.id}`,
+    });
+  });
+
+  if (recentCommunity && recentCommunity.length > 0) {
+    recentCommunity.forEach((c) => {
+      slides.push({
+        title: c.title || 'Community',
+        subtitle: `Community • ${new Date(c.createdAt).toLocaleDateString()}`,
+        imageUrl: undefined,
+        logoUrl: undefined,
+        link: `/tenants/${tenant.id}/community`,
+      });
+    });
+  }
+
+  if (services && services.length > 0) {
+    services.forEach((s) => {
+      slides.push({
+        title: s.name,
+        subtitle: s.description || 'Service',
+        imageUrl: s.imageUrl || undefined,
+        logoUrl: undefined,
+        link: `/tenants/${tenant.id}/services`,
+      });
+    });
+  }
+
   return (
     <div className="space-y-8">
       {isLive && (
-        <div 
-          onClick={() => onNavigate('livestream')}
-          className="bg-red-600 text-white rounded-lg shadow-lg p-4 flex items-center justify-center space-x-3 cursor-pointer hover:bg-red-700 transition-colors animate-pulse"
-        >
-          <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
-          </span>
+        <div className="bg-amber-50 border border-amber-200 rounded-md p-4 flex items-center space-x-4 cursor-pointer" onClick={() => router.push(`/tenants/${tenant.id}/live`)}>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 animate-pulse" aria-hidden="true"></span>
           <span className="font-bold text-lg">We’re Live! Click here to join.</span>
         </div>
       )}
@@ -196,6 +245,11 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
                 </ul>
             </Card>
         </div>
+      </div>
+
+      {/* Tenant-level carousel (inserted under existing content) */}
+      <div>
+        <TenantCarousel slides={slides.length > 0 ? slides : [{ title: tenant.name, subtitle: tenant.creed, imageUrl: tenant.branding?.bannerImageUrl || undefined, logoUrl: tenant.branding?.logoUrl || undefined, link: `/tenants/${tenant.id}` }]} />
       </div>
 
     </div>

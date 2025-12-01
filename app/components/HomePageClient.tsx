@@ -84,6 +84,8 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                 </div>
               </form>
 
+              {/* Tenant carousel removed from website homepage per UX change (moved to tenant home) */}
+
               {memberTenants.length > 0 && (
                 <div className="mt-6 w-full">
                   <div className="mb-3 flex items-center justify-between gap-4">

@@ -140,7 +140,7 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {photos.map((photo) => (
-            <div key={photo.id} className="relative rounded overflow-hidden bg-white shadow-sm">
+            <div key={photo.id} className="relative rounded bg-white shadow-sm">
               {isAdmin && (
                 <button
                   aria-label="Delete photo"
@@ -152,10 +152,10 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
               )}
               {photo.storageKey ? (
                 <a href={`/storage/${photo.storageKey}`} target="_blank" rel="noopener noreferrer" className="block">
-                  <img src={`/storage/${photo.storageKey}`} alt={photo.title || 'Photo'} className="w-full h-48 object-cover" />
+                  <img src={`/storage/${photo.storageKey}`} alt={photo.title || 'Photo'} className="w-full h-auto max-h-64 object-contain" />
                 </a>
               ) : (
-                <div className="w-full h-48 flex items-center justify-center bg-gray-50 text-gray-500 text-sm">
+                <div className="w-full max-h-64 flex items-center justify-center bg-gray-50 text-gray-500 text-sm">
                   No image available
                 </div>
               )}

@@ -75,17 +75,17 @@ export async function PATCH(
           return notFound('Post not found');
         }
 
-        // Check if user is the author or a moderator
+        // Check if user is the author or a moderator (platform super-admins bypass)
         const membership = await prisma.userTenantMembership.findUnique({
             where: { userId_tenantId: { userId, tenantId: tenantId } },
             include: { roles: true },
         });
+        const isPlatformAdmin = Boolean((session?.user as any)?.isSuperAdmin);
         const isAuthor = post.authorUserId === userId;
         const canModerate = membership?.roles.some((role: any) =>
             (role.role === TenantRole.ADMIN || role.role === TenantRole.MODERATOR)
         );
-
-        if (!isAuthor && !canModerate) {
+        if (!isAuthor && !canModerate && !isPlatformAdmin) {
           return forbidden('Forbidden');
         }
 
@@ -125,12 +125,13 @@ export async function DELETE(
             where: { userId_tenantId: { userId, tenantId: tenantId } },
             include: { roles: true },
         });
+        const isPlatformAdmin = Boolean((session?.user as any)?.isSuperAdmin);
         const isAuthor = post.authorUserId === userId;
         const canModerate = membership?.roles.some((role: any) =>
             (role.role === TenantRole.ADMIN || role.role === TenantRole.MODERATOR)
         );
 
-        if (!isAuthor && !canModerate) {
+        if (!isAuthor && !canModerate && !isPlatformAdmin) {
           return forbidden('Forbidden');
         }
 

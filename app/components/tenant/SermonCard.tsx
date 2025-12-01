@@ -2,6 +2,26 @@ import React from 'react';
 import type { EnrichedMediaItem } from '@/types';
 import Card from '../ui/Card';
 
+function normalizeYoutubeEmbed(url?: string) {
+  if (!url) return url;
+  try {
+    const u = url.trim();
+    if (u.includes('/embed/')) return u;
+    // youtu.be short link
+    const short = /https?:\/\/youtu\.be\/([\w-\-]{11})/i.exec(u);
+    if (short && short[1]) return `https://www.youtube.com/embed/${short[1]}`;
+    // watch?v= ID in query
+    const v = /[?&]v=([\w-\-]{11})/i.exec(u);
+    if (v && v[1]) return `https://www.youtube.com/embed/${v[1]}`;
+    // fallback: if the URL path ends with an 11-char id
+    const pathId = /([\w-\-]{11})(?:\?.*)?$/i.exec(u);
+    if (pathId && pathId[1]) return `https://www.youtube.com/embed/${pathId[1]}`;
+    return u;
+  } catch (err) {
+    return url;
+  }
+}
+
 interface SermonCardProps {
   sermon: EnrichedMediaItem;
   canEdit?: boolean;
@@ -25,7 +45,7 @@ const SermonCard: React.FC<SermonCardProps> = ({ sermon, canEdit = false, onEdit
 
       <div className="aspect-w-16 aspect-h-9">
         <iframe
-          src={sermon.embedUrl}
+          src={normalizeYoutubeEmbed(sermon.embedUrl)}
           title={sermon.title}
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

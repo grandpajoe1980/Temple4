@@ -104,7 +104,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                         >
                           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 ring-1 ring-amber-100 overflow-hidden">
                             {logoUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
+                               
                               <img src={logoUrl} alt={`${tenant.name} logo`} className="h-full w-full object-cover" />
                             ) : (
                               <span className="text-lg font-semibold">{initial}</span>

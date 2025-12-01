@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import type { Tenant, User } from '@prisma/client';
+import type { EnrichedMediaItem } from '@/types';
 import Button from '../ui/Button';
 import SermonCard from './SermonCard';
 import Modal from '../ui/Modal';
@@ -9,33 +10,18 @@ import SermonForm, { type SermonFormData } from './forms/SermonForm';
 import ContentChips from './content-chips';
 import CommunityHeader from './CommunityHeader';
 
-// Enriched media item type from data layer
-type EnrichedSermon = {
-  id: string;
-  description: string;
-  tenantId: string;
-  authorUserId: string;
-  type: string;
-  title: string;
-  publishedAt: Date;
-  deletedAt: Date | null;
-  embedUrl: string;
-  authorDisplayName: string;
-  authorAvatarUrl?: string;
-};
-
 interface SermonsPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
   user: User;
-  sermons: EnrichedSermon[];
+  sermons: EnrichedMediaItem[];
   canCreate: boolean;
 }
 
 const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initialSermons, canCreate }) => {
-  const [sermons, setSermons] = useState<EnrichedSermon[]>(initialSermons);
+  const [sermons, setSermons] = useState<EnrichedMediaItem[]>(initialSermons);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [editingSermon, setEditingSermon] = useState<EnrichedSermon | null>(null);
+  const [editingSermon, setEditingSermon] = useState<EnrichedMediaItem | null>(null);
 
   const handleCreateSermon = async (data: SermonFormData) => {
     setIsSubmitting(true);
@@ -70,7 +56,7 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initia
     }
   };
 
-  const handleEditSermon = (sermon: EnrichedSermon) => {
+  const handleEditSermon = (sermon: EnrichedMediaItem) => {
     setEditingSermon(sermon);
     setIsModalOpen(true);
   };
@@ -97,7 +83,7 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initia
     }
   };
 
-  const handleDeleteSermon = async (sermon: EnrichedSermon) => {
+  const handleDeleteSermon = async (sermon: EnrichedMediaItem) => {
     if (!confirm('Delete this sermon?')) return;
     try {
       const res = await fetch(`/api/tenants/${tenant.id}/sermons/${sermon.id}`, { method: 'DELETE' });

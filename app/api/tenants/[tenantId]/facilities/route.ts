@@ -42,7 +42,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
         includeInactive = membership?.status === 'APPROVED' && Array.isArray(roles) && roles.some((role: any) => role?.role === TenantRole.ADMIN);
       } catch (err) {
         // Log and continue with includeInactive=false
-        // eslint-disable-next-line no-console
+         
         console.error('Error loading membership for facilities GET', err);
         includeInactive = false;
       }
@@ -52,7 +52,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
     return NextResponse.json(facilities);
   } catch (err: any) {
     // Ensure we always return a JSON error response and log the issue
-    // eslint-disable-next-line no-console
+     
     console.error('Facilities GET failed', err);
     return handleApiError(err, { route: 'GET /api/tenants/[tenantId]/facilities' });
   }

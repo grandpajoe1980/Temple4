@@ -42,7 +42,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
 
   useEffect(() => {
     loadFacilities();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [tenant.id]);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
       return;
     }
     loadBookings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [facilities]);
 
   const loadFacilities = async () => {
@@ -331,7 +331,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                   variant="danger"
                   onClick={async () => {
                     // confirm delete
-                    // eslint-disable-next-line no-restricted-globals
+                     
                     if (!confirm('Delete this facility? This will remove related bookings.')) return;
 
                     try {

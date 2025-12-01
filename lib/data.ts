@@ -157,7 +157,7 @@ export async function getTenantsForUser(userId: string): Promise<TenantWithBrand
   } catch (err: any) {
     // If the Prisma client/schema is out of sync (missing columns), avoid crashing the whole app in dev.
     if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
+       
       console.error('getTenantsForUser: database query failed - returning empty tenant list as fallback', err?.message || err);
     }
     return [];
@@ -1392,7 +1392,7 @@ export async function getSmallGroupsForTenant(tenantId: string) {
         } catch (err) {
           // Defensive: if Prisma validation or other error occurs, log and continue without leader
           // This prevents a single bad group row from crashing the tenant page.
-          // eslint-disable-next-line no-console
+           
           console.error(`Failed to load leader for group ${group.id}:`, err);
           leader = null;
         }

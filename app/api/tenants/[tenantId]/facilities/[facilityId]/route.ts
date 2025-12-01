@@ -111,7 +111,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ t
 
     return NextResponse.json({ message: 'Deleted' }, { status: 200 });
   } catch (err: any) {
-    // eslint-disable-next-line no-console
+     
     console.error('Failed to delete facility', err);
     return handleApiError(err, { route: 'DELETE /api/tenants/[tenantId]/facilities/[facilityId]', tenantId, facilityId });
   }

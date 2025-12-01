@@ -10,13 +10,14 @@ interface PostFormProps {
   onSubmit: (postData: PostInput) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
+  initial?: Partial<PostInput>;
 }
 
-const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel, isSubmitting = false }) => {
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [type, setType] = useState<'BLOG' | 'ANNOUNCEMENT' | 'BOOK'>('BLOG');
-  const [isPublished, setIsPublished] = useState(true);
+const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel, isSubmitting = false, initial }) => {
+  const [title, setTitle] = useState(initial?.title ?? '');
+  const [body, setBody] = useState(initial?.body ?? '');
+  const [type, setType] = useState<'BLOG' | 'ANNOUNCEMENT' | 'BOOK'>(initial?.type ?? 'BLOG');
+  const [isPublished, setIsPublished] = useState(initial?.isPublished ?? true);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

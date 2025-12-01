@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 export default function AdminVolunteerRolesEditor({ tenantId, eventId }: { tenantId: string; eventId: string }) {
   const [roles, setRoles] = useState<any[]>([]);
@@ -8,7 +8,7 @@ export default function AdminVolunteerRolesEditor({ tenantId, eventId }: { tenan
   const [capacity, setCapacity] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
 
-  async function load() {
+  const load = useCallback(async () => {
     try {
       const res = await fetch(`/api/tenants/${tenantId}/events/${eventId}/volunteer-roles`);
       if (!res.ok) throw new Error('Failed to load');
@@ -18,9 +18,9 @@ export default function AdminVolunteerRolesEditor({ tenantId, eventId }: { tenan
       console.error(e);
       setError(e?.message || 'Error');
     }
-  }
+  }, [tenantId, eventId]);
 
-  useEffect(() => { load(); }, [tenantId, eventId]);
+  useEffect(() => { load(); }, [load]);
 
   async function createRole(e: React.FormEvent) {
     e.preventDefault();

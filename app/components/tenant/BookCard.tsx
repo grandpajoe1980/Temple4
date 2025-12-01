@@ -3,16 +3,19 @@ import type { PostWithAuthor } from '@/types';
 import Card from '../ui/Card';
 
 interface BookCardProps {
-  post: PostWithAuthor;
+    post: PostWithAuthor;
+    canEdit?: boolean;
+    onEdit?: (post: PostWithAuthor) => void;
+    onDelete?: (post: PostWithAuthor) => void;
 }
 
-const BookCard: React.FC<BookCardProps> = ({ post }) => {
+const BookCard: React.FC<BookCardProps> = ({ post, canEdit = false, onEdit, onDelete }) => {
 
   return (
-    <Card className="!p-0 overflow-visible">
-        <div className="p-6">
-            <div className="flex justify-between items-start">
-                <div>
+        <Card className="relative !p-0 overflow-visible">
+                <div className="p-6">
+                        <div className="flex justify-between items-start">
+                                <div>
                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800`}>
                         {post.type}
                     </span>
@@ -20,14 +23,18 @@ const BookCard: React.FC<BookCardProps> = ({ post }) => {
                         {post.title}
                     </h3>
                 </div>
-                 <div className="flex-shrink-0 ml-4">
-                    {/* Placeholder for edit/delete menu */}
-                    <button className="text-gray-400 hover:text-gray-600">
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="http://www.w3.org/2000/svg" fill="currentColor">
-                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                        </svg>
-                    </button>
-                </div>
+                                 <div className="flex-shrink-0 ml-4">
+                                        {canEdit ? (
+                                            <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
+                                                <button onClick={() => onEdit?.(post)} className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center" title="Edit">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5z" fill="currentColor"/></svg>
+                                                </button>
+                                                <button onClick={() => onDelete?.(post)} className="h-9 w-9 rounded-full bg-red-600 text-white flex items-center justify-center" title="Delete">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 7L5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                                </button>
+                                            </div>
+                                        ) : null}
+                                </div>
             </div>
             
             <p className="mt-4 text-sm text-gray-700 whitespace-pre-line leading-relaxed">

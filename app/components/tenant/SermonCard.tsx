@@ -4,11 +4,25 @@ import Card from '../ui/Card';
 
 interface SermonCardProps {
   sermon: EnrichedMediaItem;
+  canEdit?: boolean;
+  onEdit?: (sermon: EnrichedMediaItem) => void;
+  onDelete?: (sermon: EnrichedMediaItem) => void;
 }
 
-const SermonCard: React.FC<SermonCardProps> = ({ sermon }) => {
+const SermonCard: React.FC<SermonCardProps> = ({ sermon, canEdit = false, onEdit, onDelete }) => {
   return (
-    <Card className="!p-0 overflow-hidden flex flex-col">
+    <Card className="relative !p-0 overflow-hidden flex flex-col">
+      {canEdit ? (
+        <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
+          <button onClick={() => onEdit?.(sermon)} className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center" title="Edit">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5z" fill="currentColor"/></svg>
+          </button>
+          <button onClick={() => onDelete?.(sermon)} className="h-9 w-9 rounded-full bg-red-600 text-white flex items-center justify-center" title="Delete">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 7L5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+        </div>
+      ) : null}
+
       <div className="aspect-w-16 aspect-h-9">
         <iframe
           src={sermon.embedUrl}

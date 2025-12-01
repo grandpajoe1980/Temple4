@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, type MutableRefObject } from 'react';
+import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { CONTROL_PANEL_TABS } from '@/constants';
 import { useSession } from 'next-auth/react';
 import type { Notification } from '@/types';
@@ -238,11 +238,11 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
     }
   };
 
-  const closeAllSubmenus = () => {
+  const closeAllSubmenus = useCallback(() => {
     clearTimer(submenuShowTimer);
     clearTimer(submenuHideTimer);
     setActiveSubmenu(null);
-  };
+  }, []);
 
   const scheduleSubmenuShow = (key: TenantSubmenuKey) => {
     clearTimer(submenuHideTimer);
@@ -359,7 +359,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
     if (!open) {
       closeAllSubmenus();
     }
-  }, [open]);
+  }, [open, closeAllSubmenus]);
 
   return (
     <div

@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { TenantRole } from '@/types';
+import { TenantRole, MembershipApprovalMode, MembershipStatus } from '@/types';
 import { TenantRole as PrismaTenantRole } from '@prisma/client';
 import { z } from 'zod';
 import { handleApiError, notFound, forbidden, unauthorized, validationError, conflict } from '@/lib/api-response';
@@ -120,6 +120,8 @@ export async function PUT(
     const { name, slug, description, settings, branding, creed, contactEmail, phoneNumber, street, city, state, country, postalCode } = result.data;
 
     try {
+      // load existing tenant/settings so we can detect changes
+      const existingTenant = await prisma.tenant.findUnique({ where: { id: resolvedParams.tenantId }, include: { settings: true } });
         // If slug is being updated, check for uniqueness
         if (slug) {
             const existingTenant = await prisma.tenant.findFirst({
@@ -155,6 +157,20 @@ export async function PUT(
                 settings: true,
             }
         });
+
+        // If membership approval mode is OPEN after the update, approve any existing pending requests.
+        // We run this sweep unconditionally when the updated settings are OPEN so that toggling
+        // back and forth doesn't leave stray pending rows.
+        try {
+          if (updatedTenant?.settings?.membershipApprovalMode === MembershipApprovalMode.OPEN) {
+            await prisma.userTenantMembership.updateMany({
+              where: { tenantId: resolvedParams.tenantId, status: MembershipStatus.PENDING },
+              data: { status: MembershipStatus.APPROVED },
+            });
+          }
+        } catch (e) {
+          console.error('Failed to auto-approve pending memberships after settings change:', e);
+        }
 
         return NextResponse.json(updatedTenant);
     } catch (error) {

@@ -87,4 +87,5 @@ async function run() {
 
 if (require.main === module) run();
 
-export default { run };
+const suite = { run };
+export default suite;

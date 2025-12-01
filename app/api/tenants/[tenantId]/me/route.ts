@@ -28,22 +28,22 @@ export async function GET(
 
     const permissions = {
       isAdmin: false,
-      canApprove: false,
-      canBan: false,
-      canManagePrayer: false,
+      canApproveMembership: false,
+      canBanMembers: false,
+      canManagePrayerWall: false,
       canManageResources: false,
-      canManageContact: false,
+      canManageContactSubmissions: false,
       canCreatePosts: false,
       canCreateEvents: false,
     } as Record<string, boolean>;
 
     if (user && tenant) {
       permissions.isAdmin = await hasRole(user.id, tenant.id, [TenantRole.ADMIN]);
-      permissions.canApprove = await can(user as any, tenant as any, 'canApproveMembership');
-      permissions.canBan = await can(user as any, tenant as any, 'canBanMembers');
-      permissions.canManagePrayer = await can(user as any, tenant as any, 'canManagePrayerWall');
+      permissions.canApproveMembership = await can(user as any, tenant as any, 'canApproveMembership');
+      permissions.canBanMembers = await can(user as any, tenant as any, 'canBanMembers');
+      permissions.canManagePrayerWall = await can(user as any, tenant as any, 'canManagePrayerWall');
       permissions.canManageResources = await can(user as any, tenant as any, 'canManageResources');
-      permissions.canManageContact = await can(user as any, tenant as any, 'canManageContactSubmissions');
+      permissions.canManageContactSubmissions = await can(user as any, tenant as any, 'canManageContactSubmissions');
       permissions.canCreatePosts = await can(user as any, tenant as any, 'canCreatePosts');
       permissions.canCreateEvents = await can(user as any, tenant as any, 'canCreateEvents');
     }

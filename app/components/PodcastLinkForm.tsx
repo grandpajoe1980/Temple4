@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import PodcastEmbed from './PodcastEmbed'
 
 type PodcastItem = {
@@ -17,11 +17,7 @@ export default function PodcastLinkForm({ tenantId, authorUserId }: { tenantId?:
   const [editValue, setEditValue] = useState('')
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
 
-  useEffect(() => {
-    loadList()
-  }, [])
-
-  async function loadList() {
+  const loadList = useCallback(async () => {
     try {
       const q = tenantId ? `?tenantId=${encodeURIComponent(tenantId)}` : ''
       const res = await fetch(`/api/podcasts${q}`)
@@ -31,7 +27,11 @@ export default function PodcastLinkForm({ tenantId, authorUserId }: { tenantId?:
     } catch (err) {
       console.warn('failed to load podcasts', err)
     }
-  }
+  }, [tenantId])
+
+  useEffect(() => {
+    loadList()
+  }, [loadList])
 
   async function addUrl(e?: React.FormEvent) {
     if (e) e.preventDefault()

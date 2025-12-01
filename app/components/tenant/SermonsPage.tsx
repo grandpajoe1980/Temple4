@@ -35,6 +35,7 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initia
   const [sermons, setSermons] = useState<EnrichedSermon[]>(initialSermons);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingSermon, setEditingSermon] = useState<EnrichedSermon | null>(null);
 
   const handleCreateSermon = async (data: SermonFormData) => {
     setIsSubmitting(true);
@@ -69,6 +70,49 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initia
     }
   };
 
+  const handleEditSermon = (sermon: EnrichedSermon) => {
+    setEditingSermon(sermon);
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateSermon = async (data: SermonFormData) => {
+    if (!editingSermon) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/sermons/${editingSermon.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update sermon');
+      const updated = await res.json();
+      setSermons(sermons.map(s => s.id === updated.id ? { ...s, ...updated, publishedAt: new Date(updated.publishedAt) } : s));
+      setIsModalOpen(false);
+      setEditingSermon(null);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to update sermon');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteSermon = async (sermon: EnrichedSermon) => {
+    if (!confirm('Delete this sermon?')) return;
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/sermons/${sermon.id}`, { method: 'DELETE' });
+      if (res.ok || res.status === 204) {
+        setSermons(sermons.filter(s => s.id !== sermon.id));
+      } else {
+        const err = await res.json().catch(() => null);
+        alert(err?.message || 'Failed to delete sermon');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed to delete sermon');
+    }
+  };
+
   return (
     <div className="space-y-8">
       <ContentChips tenantId={tenant.id} active="Sermons" />
@@ -85,7 +129,7 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initia
       {sermons.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {sermons.map((sermon) => (
-            <SermonCard key={sermon.id} sermon={sermon as any} />
+            <SermonCard key={sermon.id} sermon={sermon as any} canEdit={canCreate} onEdit={handleEditSermon} onDelete={handleDeleteSermon} />
           ))}
         </div>
       ) : (
@@ -97,8 +141,8 @@ const SermonsPage: React.FC<SermonsPageProps> = ({ tenant, user, sermons: initia
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-sermon-modal" title="Create a New Sermon">
-        <SermonForm onSubmit={handleCreateSermon} onCancel={() => setIsModalOpen(false)} isSubmitting={isSubmitting} />
+      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingSermon(null); }} dataTest="create-sermon-modal" title={editingSermon ? 'Edit Sermon' : 'Create a New Sermon'}>
+        <SermonForm onSubmit={editingSermon ? handleUpdateSermon : handleCreateSermon} onCancel={() => { setIsModalOpen(false); setEditingSermon(null); }} isSubmitting={isSubmitting} initial={editingSermon ? { title: editingSermon.title, description: editingSermon.description, embedUrl: editingSermon.embedUrl } : undefined} />
       </Modal>
     </div>
   );

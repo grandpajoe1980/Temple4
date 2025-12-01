@@ -14,12 +14,13 @@ interface SermonFormProps {
   onSubmit: (data: SermonFormData) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
+  initial?: Partial<SermonFormData>;
 }
 
-const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, onCancel, isSubmitting = false }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [embedUrl, setEmbedUrl] = useState('');
+const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, onCancel, isSubmitting = false, initial }) => {
+  const [title, setTitle] = useState(initial?.title ?? '');
+  const [description, setDescription] = useState(initial?.description ?? '');
+  const [embedUrl, setEmbedUrl] = useState(initial?.embedUrl ?? '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -54,6 +54,13 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
         <div>
           <h3 className="text-md font-semibold text-gray-900">Notifications</h3>
           <p className="text-xs text-gray-500">Stay on top of approvals and updates</p>
+          <button
+            type="button"
+            onClick={() => onNavigate?.('/notifications/mindfulness')}
+            className="mt-2 inline-flex items-center gap-2 rounded-md bg-amber-50 px-2 py-1 text-xs text-amber-700 hover:bg-amber-100"
+          >
+            Mindfulness bell
+          </button>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" onClick={onMarkAllAsRead}>

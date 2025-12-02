@@ -914,6 +914,7 @@ export async function updateTenant(tenant: Partial<TenantWithRelations>): Promis
             update: {
                 ...restOfBranding,
                 customLinks: restOfBranding.customLinks || undefined,
+                socialLinks: restOfBranding.socialLinks || undefined,
             }
         };
     }

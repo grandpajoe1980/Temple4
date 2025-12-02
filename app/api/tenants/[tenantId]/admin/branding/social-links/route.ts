@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { forbidden, handleApiError, notFound, unauthorized, validationError } from '@/lib/api-response';
@@ -9,6 +10,32 @@ import { enforceRateLimit } from '@/lib/rate-limit';
 import { hasRole } from '@/lib/permissions';
 import { logAuditEvent } from '@/lib/audit';
 import { ActionType, TenantRole } from '@/types';
+
+/** Social link type for JSON storage */
+interface SocialLink {
+  platform: string;
+  url: string;
+  label?: string;
+  showInFooter?: boolean;
+}
+
+/** Type guard to check if a value is a valid social link object */
+function isSocialLink(value: unknown): value is SocialLink {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'platform' in value &&
+    typeof (value as SocialLink).platform === 'string' &&
+    'url' in value &&
+    typeof (value as SocialLink).url === 'string'
+  );
+}
+
+/** Parse socialLinks JSON to typed array, filtering out invalid entries */
+function parseSocialLinks(json: unknown): SocialLink[] {
+  if (!Array.isArray(json)) return [];
+  return json.filter(isSocialLink);
+}
 
 const secureUrl = z.string().url().refine((value) => value.startsWith('https://'), {
   message: 'URL must use https://',
@@ -107,7 +134,7 @@ export async function POST(
       return notFound('Tenant branding');
     }
 
-    const socialLinks = Array.isArray(branding.socialLinks) ? [...branding.socialLinks] : [];
+    const socialLinks = parseSocialLinks(branding.socialLinks);
     const exists = socialLinks.some((link) => link.platform === result.data.platform);
 
     if (exists) {
@@ -118,7 +145,7 @@ export async function POST(
 
     const updated = await prisma.tenantBranding.update({
       where: { tenantId: resolvedParams.tenantId },
-      data: { socialLinks },
+      data: { socialLinks: socialLinks as unknown as Prisma.InputJsonValue },
       select: { socialLinks: true },
     });
 
@@ -166,7 +193,7 @@ export async function PATCH(
       return notFound('Tenant branding');
     }
 
-    const socialLinks = Array.isArray(branding.socialLinks) ? [...branding.socialLinks] : [];
+    const socialLinks = parseSocialLinks(branding.socialLinks);
     const index = socialLinks.findIndex((link) => link.platform === result.data.platform);
 
     if (index === -1) {
@@ -178,7 +205,7 @@ export async function PATCH(
 
     const updated = await prisma.tenantBranding.update({
       where: { tenantId: resolvedParams.tenantId },
-      data: { socialLinks },
+      data: { socialLinks: socialLinks as unknown as Prisma.InputJsonValue },
       select: { socialLinks: true },
     });
 
@@ -227,7 +254,7 @@ export async function DELETE(
       return notFound('Tenant branding');
     }
 
-    const socialLinks = Array.isArray(branding.socialLinks) ? [...branding.socialLinks] : [];
+    const socialLinks = parseSocialLinks(branding.socialLinks);
     const nextSocialLinks = socialLinks.filter((link) => link.platform !== platform);
 
     if (nextSocialLinks.length === socialLinks.length) {
@@ -236,7 +263,7 @@ export async function DELETE(
 
     const updated = await prisma.tenantBranding.update({
       where: { tenantId: resolvedParams.tenantId },
-      data: { socialLinks: nextSocialLinks },
+      data: { socialLinks: nextSocialLinks as unknown as Prisma.InputJsonValue },
       select: { socialLinks: true },
     });
 

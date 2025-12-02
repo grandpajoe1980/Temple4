@@ -5,9 +5,9 @@
 - [x] **Validation**: Admin branding API now enforces HTTPS and supports `showInFooter` flags on custom + social links.
 - [x] **Public UI**: Contact page and tenant footer render social/custom links (including TikTok/X) with aria labels and `rel="noopener"`, honoring `showInFooter`.
 - [x] **API**: Secure CRUD endpoints for tenant admins; include partial updates; audit trail entry for each change; rate-limit to prevent abuse.
-- [ ] **Admin UI**: Settings panel with add/edit/delete, inline URL validation, icon picker, drag-to-reorder, and live preview of footer rendering.
-- [ ] **Caching & CDN**: Cache tenant footer config; bust cache on update; support ISR/SSR hydration with stale-while-revalidate.
-- [ ] **QA**: Visual regression screenshot for footer; unit tests for rendering permutations; e2e for admin update flow.
+- [x] **Admin UI**: Settings panel with add/edit/delete, inline URL validation, icon picker, drag-to-reorder, and live preview of footer rendering.
+- [x] **Caching & CDN**: Cache tenant footer config; bust cache on update; support ISR/SSR hydration with stale-while-revalidate.
+- [x] **QA**: Visual regression screenshot for footer; unit tests for rendering permutations; e2e for admin update flow.
 
 ## 2) Welcome packet & staff alerts for new members
 - **Data model**: Add `welcome_packet_url`, `welcome_packet_version`, `onboarding_status`, `alert_sent_at`, and `alert_channels` to member profile; store staff notification preferences. Migration + Prisma typing.

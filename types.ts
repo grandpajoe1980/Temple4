@@ -22,6 +22,13 @@ export enum MembershipStatus {
   BANNED = 'BANNED',
 }
 
+export enum OnboardingStatus {
+  PENDING = 'PENDING',
+  PACKET_QUEUED = 'PACKET_QUEUED',
+  PACKET_SENT = 'PACKET_SENT',
+  COMPLETED = 'COMPLETED',
+}
+
 export enum MembershipApprovalMode {
   OPEN = 'OPEN',
   APPROVAL_REQUIRED = 'APPROVAL_REQUIRED',
@@ -305,6 +312,9 @@ export interface TenantSettings {
     prayerWall: boolean;
     photos?: boolean;
   };
+  welcomePacketUrl?: string | null;
+  welcomePacketVersion?: number | null;
+  newMemberAlertChannels?: string[];
 }
 
 
@@ -341,6 +351,11 @@ export interface UserTenantMembership {
   status: MembershipStatus;
   roles: UserTenantRole[];
   displayName?: string; // Tenant-specific display name override
+  welcomePacketUrl?: string | null;
+  welcomePacketVersion?: number | null;
+  onboardingStatus?: OnboardingStatus;
+  alertSentAt?: Date | null;
+  alertChannels?: string[];
 }
 
 export interface UserTenantRole {

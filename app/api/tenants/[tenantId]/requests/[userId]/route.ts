@@ -3,8 +3,10 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { handleApiError, unauthorized, forbidden, validationError } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
-import { TenantRole, MembershipStatus } from '@/types';
+import { TenantRole, MembershipStatus, OnboardingStatus } from '@/types';
 import { z } from 'zod';
+import { deriveOnboardingFields } from '@/lib/services/onboarding-service';
+import { TenantSettings as PrismaTenantSettings } from '@prisma/client';
 
 const requestActionSchema = z.object({
   action: z.enum(['APPROVE', 'REJECT']),
@@ -46,6 +48,22 @@ export async function PUT(
   const newStatus = action === 'APPROVE' ? MembershipStatus.APPROVED : MembershipStatus.REJECTED;
 
   try {
+    const tenantSettings = await prisma.tenantSettings.findUnique({
+      where: { tenantId: tenantId },
+    });
+
+    const onboardingUpdates =
+      newStatus === MembershipStatus.APPROVED
+        ? deriveOnboardingFields({
+            status: newStatus,
+            settings: tenantSettings as PrismaTenantSettings | null,
+          })
+        : {
+            onboardingStatus: OnboardingStatus.PENDING,
+            alertSentAt: null,
+            alertChannels: [],
+          };
+
     const updatedRequest = await prisma.userTenantMembership.update({
       where: {
         userId_tenantId: { userId: userId, tenantId: tenantId },
@@ -53,6 +71,7 @@ export async function PUT(
       },
       data: {
         status: newStatus,
+        ...onboardingUpdates,
       },
     });
 

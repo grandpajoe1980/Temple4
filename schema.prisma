@@ -27,6 +27,13 @@ enum MembershipStatus {
   BANNED
 }
 
+enum OnboardingStatus {
+  PENDING
+  PACKET_QUEUED
+  PACKET_SENT
+  COMPLETED
+}
+
 enum MembershipApprovalMode {
   OPEN
   APPROVAL_REQUIRED
@@ -462,6 +469,9 @@ model TenantSettings {
   visitorVisibility      Json // visitorVisibility
   maxStorageMB           Int                    @default(1000) // Phase F2: Storage quota per tenant
   enableBirthdays        Boolean                @default(false)
+  welcomePacketUrl       String?
+  welcomePacketVersion   Int?                   @default(1)
+  newMemberAlertChannels Json                   @default("[\"email\"]")
 }
 
 model UserTenantMembership {
@@ -473,6 +483,11 @@ model UserTenantMembership {
   status      MembershipStatus
   roles       UserTenantRole[]
   displayName String?
+  welcomePacketUrl     String?
+  welcomePacketVersion Int?
+  onboardingStatus     OnboardingStatus @default(PENDING)
+  alertSentAt          DateTime?
+  alertChannels        Json             @default("[]")
 
   @@unique([userId, tenantId])
 }

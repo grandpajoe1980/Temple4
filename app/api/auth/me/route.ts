@@ -44,7 +44,26 @@ export async function GET(request: Request) {
 
     // Remove password from response
     const { password, ...userWithoutPassword } = user;
-    
+
+    const formatAlertChannels = (channels: any) => {
+      if (Array.isArray(channels)) {
+        return channels.filter((entry: any): entry is string => typeof entry === 'string');
+      }
+
+      if (typeof channels === 'string') {
+        try {
+          const parsed = JSON.parse(channels);
+          if (Array.isArray(parsed)) {
+            return parsed.filter((entry: any): entry is string => typeof entry === 'string');
+          }
+        } catch {
+          // fall through to empty array
+        }
+      }
+
+      return [];
+    };
+
     // Format memberships for easier consumption
     const tenantMemberships = user.memberships.map((membership: any) => ({
       tenantId: membership.tenant.id,
@@ -52,6 +71,11 @@ export async function GET(request: Request) {
       tenantSlug: membership.tenant.slug,
       status: membership.status,
       roles: membership.roles.map((r: any) => r.role),
+      welcomePacketUrl: membership.welcomePacketUrl,
+      welcomePacketVersion: membership.welcomePacketVersion,
+      onboardingStatus: membership.onboardingStatus,
+      alertSentAt: membership.alertSentAt,
+      alertChannels: formatAlertChannels(membership.alertChannels),
     }));
 
     return NextResponse.json({

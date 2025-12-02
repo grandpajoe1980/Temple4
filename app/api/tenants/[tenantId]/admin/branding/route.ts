@@ -37,18 +37,38 @@ export async function GET(
     }
 }
 
+const secureUrl = z.string().url().refine((value) => value.startsWith('https://'), {
+    message: 'URL must use https://',
+});
+
 const brandingSchema = z.object({
-    logoUrl: z.string().url().optional(),
-    bannerImageUrl: z.string().url().optional(),
+    logoUrl: secureUrl.optional(),
+    bannerImageUrl: secureUrl.optional(),
     primaryColor: z.string().optional(),
     accentColor: z.string().optional(),
-    customLinks: z.array(z.object({ label: z.string(), url: z.string().url() })).optional(),
-    facebookUrl: z.string().url().optional().or(z.literal('')),
-    instagramUrl: z.string().url().optional().or(z.literal('')),
-    twitterUrl: z.string().url().optional().or(z.literal('')),
-    youtubeUrl: z.string().url().optional().or(z.literal('')),
-    websiteUrl: z.string().url().optional().or(z.literal('')),
-    linkedInUrl: z.string().url().optional().or(z.literal('')),
+    customLinks: z.array(
+        z.object({
+            label: z.string(),
+            url: secureUrl,
+            showInFooter: z.boolean().optional(),
+        })
+    ).optional(),
+    socialLinks: z.array(
+        z.object({
+            platform: z.string(),
+            url: secureUrl,
+            label: z.string().optional(),
+            showInFooter: z.boolean().optional(),
+        })
+    ).optional(),
+    facebookUrl: secureUrl.optional().or(z.literal('')),
+    instagramUrl: secureUrl.optional().or(z.literal('')),
+    twitterUrl: secureUrl.optional().or(z.literal('')),
+    xUrl: secureUrl.optional().or(z.literal('')),
+    tiktokUrl: secureUrl.optional().or(z.literal('')),
+    youtubeUrl: secureUrl.optional().or(z.literal('')),
+    websiteUrl: secureUrl.optional().or(z.literal('')),
+    linkedInUrl: secureUrl.optional().or(z.literal('')),
 });
 
 // 17.4 Update Tenant Branding

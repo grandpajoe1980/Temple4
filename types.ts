@@ -188,10 +188,13 @@ export interface TenantBranding {
   bannerImageUrl: string;
   primaryColor: string;
   accentColor: string;
-  customLinks: Array<{ label: string; url: string }>;
+  customLinks: Array<{ label: string; url: string; showInFooter?: boolean }>;
+  socialLinks?: Array<{ platform: string; url: string; label?: string; showInFooter?: boolean }>;
   facebookUrl?: string;
   instagramUrl?: string;
   twitterUrl?: string;
+  xUrl?: string;
+  tiktokUrl?: string;
   youtubeUrl?: string;
   websiteUrl?: string;
   linkedInUrl?: string;
@@ -517,6 +520,9 @@ export enum ActionType {
   USER_PROFILE_UPDATED = 'USER_PROFILE_UPDATED',
   ADMIN_UPDATED_USER_PROFILE = 'ADMIN_UPDATED_USER_PROFILE',
   TENANT_PERMISSIONS_UPDATED = 'TENANT_PERMISSIONS_UPDATED',
+  TENANT_BRANDING_SOCIAL_LINK_CREATED = 'TENANT_BRANDING_SOCIAL_LINK_CREATED',
+  TENANT_BRANDING_SOCIAL_LINK_UPDATED = 'TENANT_BRANDING_SOCIAL_LINK_UPDATED',
+  TENANT_BRANDING_SOCIAL_LINK_DELETED = 'TENANT_BRANDING_SOCIAL_LINK_DELETED',
 }
 
 export interface AuditLog {

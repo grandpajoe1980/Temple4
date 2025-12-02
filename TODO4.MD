@@ -1,13 +1,13 @@
 # Feature Implementation Plan
 
 ## 1) Tenant social media links in footer
-- **Data model**: Add nullable social fields to tenant settings (`facebook_url`, `instagram_url`, `youtube_url`, `tiktok_url`, `x_url`, `linkedin_url`, `website_url`, `custom_links[]`), plus boolean `show_in_footer` per link. Add migration and Prisma type updates.
-- **Validation**: Enforce HTTPS URLs, normalized handles, and max length; strip tracking params; disallow unapproved domains; add unit tests.
-- **API**: Secure CRUD endpoints for tenant admins; include partial updates; audit trail entry for each change; rate-limit to prevent abuse.
-- **Admin UI**: Settings panel with add/edit/delete, inline URL validation, icon picker, drag-to-reorder, and live preview of footer rendering.
-- **Public UI**: Footer component reads tenant cache; renders accessible icons with aria-labels; opens in new tab with rel="noopener"; hide when empty or feature disabled. Add loading/skeleton and error fallback.
-- **Caching & CDN**: Cache tenant footer config; bust cache on update; support ISR/SSR hydration with stale-while-revalidate.
-- **QA**: Visual regression screenshot for footer; unit tests for rendering permutations; e2e for admin update flow.
+- [x] **Data model**: Added Prisma fields for structured `socialLinks` plus `xUrl`/`tiktokUrl` with migration and typing updates.
+- [x] **Validation**: Admin branding API now enforces HTTPS and supports `showInFooter` flags on custom + social links.
+- [x] **Public UI**: Contact page and tenant footer render social/custom links (including TikTok/X) with aria labels and `rel="noopener"`, honoring `showInFooter`.
+- [x] **API**: Secure CRUD endpoints for tenant admins; include partial updates; audit trail entry for each change; rate-limit to prevent abuse.
+- [ ] **Admin UI**: Settings panel with add/edit/delete, inline URL validation, icon picker, drag-to-reorder, and live preview of footer rendering.
+- [ ] **Caching & CDN**: Cache tenant footer config; bust cache on update; support ISR/SSR hydration with stale-while-revalidate.
+- [ ] **QA**: Visual regression screenshot for footer; unit tests for rendering permutations; e2e for admin update flow.
 
 ## 2) Welcome packet & staff alerts for new members
 - **Data model**: Add `welcome_packet_url`, `welcome_packet_version`, `onboarding_status`, `alert_sent_at`, and `alert_channels` to member profile; store staff notification preferences. Migration + Prisma typing.

@@ -87,6 +87,9 @@ enum ActionType {
   USER_PROFILE_UPDATED
   ADMIN_UPDATED_USER_PROFILE
   TENANT_PERMISSIONS_UPDATED
+  TENANT_BRANDING_SOCIAL_LINK_CREATED
+  TENANT_BRANDING_SOCIAL_LINK_UPDATED
+  TENANT_BRANDING_SOCIAL_LINK_DELETED
 }
 
 enum NotificationType {
@@ -326,9 +329,12 @@ model TenantBranding {
   primaryColor   String?
   accentColor    String?
   customLinks    Json? // Array<{ label: string; url: string }>
+  socialLinks    Json? // Array<{ platform: string; url: string; label?: string; showInFooter?: boolean }>
   facebookUrl    String?
   instagramUrl   String?
   twitterUrl     String?
+  xUrl           String?
+  tiktokUrl      String?
   youtubeUrl     String?
   websiteUrl     String?
   linkedInUrl    String?

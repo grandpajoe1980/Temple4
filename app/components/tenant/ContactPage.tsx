@@ -6,6 +6,7 @@ import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube, FaLinkedin, FaGlobe } from 'react-icons/fa';
+import { FaTiktok, FaXTwitter } from 'react-icons/fa6';
 
 interface ContactPageProps {
   tenant: {
@@ -24,9 +25,13 @@ interface ContactPageProps {
       facebookUrl?: string | null;
       instagramUrl?: string | null;
       twitterUrl?: string | null;
+      xUrl?: string | null;
+      tiktokUrl?: string | null;
       youtubeUrl?: string | null;
       websiteUrl?: string | null;
       linkedInUrl?: string | null;
+      socialLinks?: Array<{ platform: string; url: string; label?: string; showInFooter?: boolean } | null> | null;
+      customLinks?: Array<{ label: string; url: string; showInFooter?: boolean } | null> | null;
     } | null;
   };
   initialServiceName?: string;
@@ -84,6 +89,57 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
     }
   };
 
+  const branding = tenant.branding;
+
+  const socialIconMap: Record<string, React.ReactNode> = {
+    facebook: <FaFacebook size={24} />,
+    instagram: <FaInstagram size={24} />,
+    twitter: <FaTwitter size={24} />,
+    x: <FaXTwitter size={24} />,
+    youtube: <FaYoutube size={24} />,
+    linkedin: <FaLinkedin size={24} />,
+    tiktok: <FaTiktok size={24} />,
+    website: <FaGlobe size={24} />,
+    custom: <FaGlobe size={24} />,
+  };
+
+  const normalizeLinks = () => {
+    if (!branding) return [] as Array<{ url: string; ariaLabel: string; icon: React.ReactNode; showInFooter: boolean }>;
+
+    const structuredSocial = Array.isArray(branding.socialLinks)
+      ? branding.socialLinks.filter((link): link is NonNullable<typeof link> => Boolean(link))
+      : [];
+
+    const customLinks = Array.isArray(branding.customLinks)
+      ? branding.customLinks.filter((link): link is NonNullable<typeof link> => Boolean(link))
+      : [];
+
+    const baseLinks: Array<{ platform: string; url?: string | null; label?: string; showInFooter?: boolean }> = [
+      { platform: 'facebook', url: branding.facebookUrl },
+      { platform: 'instagram', url: branding.instagramUrl },
+      { platform: 'twitter', url: branding.twitterUrl },
+      { platform: 'x', url: branding.xUrl ?? branding.twitterUrl },
+      { platform: 'youtube', url: branding.youtubeUrl },
+      { platform: 'linkedin', url: branding.linkedInUrl },
+      { platform: 'tiktok', url: branding.tiktokUrl },
+      { platform: 'website', url: branding.websiteUrl, label: 'Website' },
+      ...structuredSocial,
+      ...customLinks.map((link) => ({ platform: 'custom', url: link.url, label: link.label, showInFooter: link.showInFooter })),
+    ];
+
+    return baseLinks
+      .filter((link) => !!link.url)
+      .map((link) => ({
+        url: link.url as string,
+        ariaLabel: link.label ?? link.platform,
+        icon: socialIconMap[link.platform] ?? <FaGlobe size={24} />,
+        showInFooter: link.showInFooter ?? true,
+      }))
+      .filter((link) => link.showInFooter);
+  };
+
+  const socialLinks = normalizeLinks();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       {/* Left Column: Info & Map */}
@@ -108,83 +164,22 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
               </div>
             )}
             {/* Social Links */}
-            {tenant.branding && (
-              tenant.branding.facebookUrl || 
-              tenant.branding.instagramUrl || 
-              tenant.branding.twitterUrl || 
-              tenant.branding.youtubeUrl || 
-              tenant.branding.websiteUrl || 
-              tenant.branding.linkedInUrl
-            ) && (
+            {branding && socialLinks.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-500 mb-2">Follow Us</h4>
                 <div className="flex gap-3">
-                  {tenant.branding.facebookUrl && (
-                    <a 
-                      href={tenant.branding.facebookUrl} 
-                      target="_blank" 
+                  {socialLinks.map((link) => (
+                    <a
+                      key={link.ariaLabel + link.url}
+                      href={link.url}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-600 hover:text-amber-600 transition-colors"
-                      aria-label="Facebook"
+                      aria-label={link.ariaLabel}
                     >
-                      <FaFacebook size={24} />
+                      {link.icon}
                     </a>
-                  )}
-                  {tenant.branding.instagramUrl && (
-                    <a 
-                      href={tenant.branding.instagramUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-amber-600 transition-colors"
-                      aria-label="Instagram"
-                    >
-                      <FaInstagram size={24} />
-                    </a>
-                  )}
-                  {tenant.branding.twitterUrl && (
-                    <a 
-                      href={tenant.branding.twitterUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-amber-600 transition-colors"
-                      aria-label="Twitter"
-                    >
-                      <FaTwitter size={24} />
-                    </a>
-                  )}
-                  {tenant.branding.youtubeUrl && (
-                    <a 
-                      href={tenant.branding.youtubeUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-amber-600 transition-colors"
-                      aria-label="YouTube"
-                    >
-                      <FaYoutube size={24} />
-                    </a>
-                  )}
-                  {tenant.branding.linkedInUrl && (
-                    <a 
-                      href={tenant.branding.linkedInUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-amber-600 transition-colors"
-                      aria-label="LinkedIn"
-                    >
-                      <FaLinkedin size={24} />
-                    </a>
-                  )}
-                  {tenant.branding.websiteUrl && (
-                    <a 
-                      href={tenant.branding.websiteUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-amber-600 transition-colors"
-                      aria-label="Website"
-                    >
-                      <FaGlobe size={24} />
-                    </a>
-                  )}
+                  ))}
                 </div>
               </div>
             )}

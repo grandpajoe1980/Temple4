@@ -28,6 +28,7 @@ import bcrypt from 'bcryptjs';
 import { listTenantEvents, mapEventDtoToClient } from './services/event-service';
 import { listTenantPosts, mapPostDtoToClient } from './services/post-service';
 import MessageService from '@/lib/services/message-service';
+import { deriveOnboardingFields } from './services/onboarding-service';
 
 export type TenantWithRelations = Tenant & {
   settings: TenantSettings | null;
@@ -328,6 +329,13 @@ export async function exportTenantData(tenantId: string): Promise<TenantDataExpo
       status: membership.status as MembershipStatus,
       roles: membership.roles.map((role) => role.role as TenantRole),
       joinedAt: new Date(), // Fallback since createdAt is missing
+      onboardingStatus: membership.onboardingStatus as any,
+      welcomePacketUrl: membership.welcomePacketUrl,
+      welcomePacketVersion: membership.welcomePacketVersion,
+      alertSentAt: membership.alertSentAt,
+      alertChannels: Array.isArray(membership.alertChannels)
+        ? (membership.alertChannels as unknown as string[])
+        : [],
       user: {
         id: membership.user.id,
         email: membership.user.email,
@@ -930,6 +938,8 @@ export async function requestToJoinTenant(userId: string, tenantId: string): Pro
 if (existingMembership) {
         return existingMembership;
     }
+    const tenantSettings = await prisma.tenantSettings.findUnique({ where: { tenantId } });
+    const onboarding = deriveOnboardingFields({ status: MembershipStatus.PENDING, settings: tenantSettings });
     return await prisma.userTenantMembership.create({
         data: {
             userId,
@@ -940,6 +950,7 @@ if (existingMembership) {
                 }
             },
             status: MembershipStatus.PENDING,
+            ...onboarding,
         }
     });
 }

@@ -2,9 +2,10 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { MembershipStatus, MembershipApprovalMode,  } from '@/types';
-import { TenantRole } from '@/types';
+import { MembershipStatus, MembershipApprovalMode, TenantRole } from '@/types';
 import { handleApiError, unauthorized, notFound, validationError } from '@/lib/api-response';
+import { deriveOnboardingFields } from '@/lib/services/onboarding-service';
+import { TenantSettings as PrismaTenantSettings } from '@prisma/client';
 
 export async function POST(
   request: Request,
@@ -47,11 +48,17 @@ export async function POST(
         ? MembershipStatus.PENDING
         : MembershipStatus.APPROVED;
 
+    const onboarding = deriveOnboardingFields({
+      status,
+      settings: tenant.settings as PrismaTenantSettings | null,
+    });
+
     await prisma.userTenantMembership.create({
       data: {
         userId,
         tenantId,
         status,
+        ...onboarding,
         roles: {
             create: {
                 role: TenantRole.MEMBER,

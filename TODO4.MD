@@ -10,22 +10,22 @@
 - [x] **QA**: Visual regression screenshot for footer; unit tests for rendering permutations; e2e for admin update flow.
 
 ## 2) Welcome packet & staff alerts for new members
-- **Data model**: Add `welcome_packet_url`, `welcome_packet_version`, `onboarding_status`, `alert_sent_at`, and `alert_channels` to member profile; store staff notification preferences. Migration + Prisma typing.
-- **Content management**: Allow per-tenant packet uploads or external URLs; version history with rollback; store MIME/type and size; virus scan on upload.
-- **Automation**: On member creation, enqueue job to send packet via email/SMS with templated personalization; record delivery status. Respect quiet hours and opt-outs.
-- **Staff alerts**: Configurable channels (email, Slack/webhook, SMS); batching to avoid spam; include quick links (profile, follow-up). Mark alerts as acknowledged/resend.
-- **UI**: Admin dashboard widget showing new members, packet sent state, and alert status; actions to resend packet, mark onboarding complete, or skip. Member detail shows packet history.
-- **Error handling**: Retries with exponential backoff; fallback to alternate channel; monitoring and alerts on failures.
-- **QA**: Unit tests for job enqueue and status transitions; e2e for create-member flow triggering packet and staff alert; fixture templates.
+- [x] **Data model**: Add `welcome_packet_url`, `welcome_packet_version`, `onboarding_status`, `alert_sent_at`, and `alert_channels` to member profile; store staff notification preferences. Migration + Prisma typing.
+- [ ] **Content management**: Allow per-tenant packet uploads or external URLs; version history with rollback; store MIME/type and size; virus scan on upload.
+- [x] **Automation**: On member creation, enqueue job to send packet via email/SMS with templated personalization; record delivery status. Respect quiet hours and opt-outs.
+- [x] **Staff alerts**: Configurable channels (email, Slack/webhook, SMS); batching to avoid spam; include quick links (profile, follow-up). Mark alerts as acknowledged/resend.
+- [x] **UI**: Admin dashboard widget showing new members, packet sent state, and alert status; actions to resend packet, mark onboarding complete, or skip. Member detail shows packet history.
+- [ ] **Error handling**: Retries with exponential backoff; fallback to alternate channel; monitoring and alerts on failures.
+- [ ] **QA**: Unit tests for job enqueue and status transitions; e2e for create-member flow triggering packet and staff alert; fixture templates.
 
 ## 3) Donations: tithing, special funds, designation
-- **Data model**: Create `funds` table with type (`tithe`, `offering`, `project`, `special`), visibility, goal amount, start/end, and archived flag. Donations reference fund; add nullable campaign metadata.
-- **Business rules**: Require fund selection for donation; hide archived/closed funds; enforce min/max amounts per fund; optional anonymous toggle; currency support; soft delete for funds with history.
-- **Admin UI**: Fund management page (list/create/edit/archive/delete) with goal tracking and visibility toggles; progress bars; CSV import/export; audit log display.
-- **Donor UI**: Donation form shows fund descriptions, suggested amounts, goal progress, and recurring option; allow dedication notes; receipts include fund details.
-- **Integrations**: Webhooks/accounting export includes fund and designation; ensure PCI-compliant tokenization; store last4/brand only.
-- **Reporting**: Per-fund summaries, time-range filters, pledge vs. received, and charts; scheduled report exports.
-- **QA**: Unit tests for validation; integration tests for form submission and fund filtering; snapshot for fund listing UI.
+- [x] **Data model**: Create `funds` table with type (`tithe`, `offering`, `project`, `special`), visibility, goal amount, start/end, and archived flag. Donations reference fund; add nullable campaign metadata.
+- [x] **Business rules**: Require fund selection for donation; hide archived/closed funds; enforce min/max amounts per fund; optional anonymous toggle; currency support; soft delete for funds with history.
+- [x] **Admin UI**: Fund management page (list/create/edit/archive/delete) with goal tracking and visibility toggles; progress bars; CSV import/export; audit log display.
+- [x] **Donor UI**: Donation form shows fund descriptions, suggested amounts, goal progress, and recurring option; allow dedication notes; receipts include fund details.
+- [x] **Integrations**: Webhooks/accounting export includes fund and designation; ensure PCI-compliant tokenization; store last4/brand only.
+- [x] **Reporting**: Per-fund summaries, time-range filters, pledge vs. received, and charts; scheduled report exports.
+- [ ] **QA**: Unit tests for validation; integration tests for form submission and fund filtering; snapshot for fund listing UI.
 
 ## 4) Recurring pledges
 - **Data model**: `pledges` table with amount, currency, frequency, start/end, next_charge_at, fund_id, payment_method_token, status (`active`, `paused`, `cancelled`, `failed`), and fulfillment counters.

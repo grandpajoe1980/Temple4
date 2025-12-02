@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { DonationSettings, FundVisibility, MembershipStatus } from '@/types';
 import { getTenantContext } from '@/lib/tenant-context';
 import { notFound, forbidden, validationError, handleApiError } from '@/lib/api-response';
+import { sendDonationCreatedWebhook } from '@/lib/webhook';
 
 const donationRecordSchema = z.object({
   amount: z.number().positive('Amount must be positive'),
@@ -19,7 +20,7 @@ const donationRecordSchema = z.object({
   designationNote: z.string().max(500).optional(),
 });
 
-// GET /api/tenants/[tenantId]/donations/records - List donation records (for leaderboard)
+// GET /api/tenants/[tenantId]/donations/records - List donation records (for leaderboard) or export CSV
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ tenantId: string }> }
@@ -44,6 +45,76 @@ export async function GET(
 
     if (!donationSettings) {
       return notFound('Donation settings');
+    }
+
+    // Check for CSV export query parameter
+    const url = new URL(request.url);
+    const exportFormat = url.searchParams.get('export');
+    const startDate = url.searchParams.get('startDate');
+    const endDate = url.searchParams.get('endDate');
+    const fundId = url.searchParams.get('fundId');
+
+    // For CSV export, user must be admin/staff
+    if (exportFormat === 'csv') {
+      const isAdmin = context.membership?.roles?.some((r: any) => 
+        ['ADMIN', 'STAFF'].includes(r.role)
+      );
+      
+      if (!isAdmin) {
+        return forbidden('Only admins can export donation records');
+      }
+
+      // Build date filter
+      let dateFilter: any = {};
+      if (startDate) {
+        dateFilter.gte = new Date(startDate);
+      }
+      if (endDate) {
+        dateFilter.lte = new Date(endDate);
+      }
+
+      // Build fund filter
+      let fundFilter: any = {};
+      if (fundId) {
+        fundFilter.fundId = fundId;
+      }
+
+      // Fetch all donations for export
+      const donations = await prisma.donationRecord.findMany({
+        where: {
+          tenantId,
+          ...fundFilter,
+          ...(Object.keys(dateFilter).length > 0 && { donatedAt: dateFilter }),
+        },
+        include: {
+          fund: {
+            select: { name: true },
+          },
+        },
+        orderBy: { donatedAt: 'desc' },
+      });
+
+      // Generate CSV
+      const csvHeader = 'ID,Date,Display Name,Amount,Currency,Fund,Anonymous,Message,Designation Note';
+      const csvRows = donations.map((d: any) => {
+        const date = new Date(d.donatedAt).toISOString().split('T')[0];
+        const escapedMessage = (d.message || '').replace(/"/g, '""');
+        const escapedNote = (d.designationNote || '').replace(/"/g, '""');
+        const escapedName = (d.displayName || '').replace(/"/g, '""');
+        const fundName = (d.fund?.name || '').replace(/"/g, '""');
+        
+        return `"${d.id}","${date}","${escapedName}",${d.amount},"${d.currency}","${fundName}",${d.isAnonymousOnLeaderboard},"${escapedMessage}","${escapedNote}"`;
+      });
+
+      const csv = `${csvHeader}\n${csvRows.join('\n')}`;
+
+      return new NextResponse(csv, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="donations-${tenantId}-${new Date().toISOString().split('T')[0]}.csv"`,
+        },
+      });
     }
 
     // Check leaderboard visibility
@@ -227,6 +298,20 @@ export async function POST(
         message,
         designationNote,
       }
+    });
+
+    // Send webhook notification (fire-and-forget)
+    sendDonationCreatedWebhook(tenantId, {
+      id: donation.id,
+      amount,
+      currency,
+      fundId,
+      fundName: fund.name,
+      displayName,
+      isAnonymous: isAnonymousOnLeaderboard,
+      donatedAt: donation.donatedAt,
+    }).catch((err) => {
+      console.error('Failed to send donation webhook:', err);
     });
 
     // Create notification for tenant admins

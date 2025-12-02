@@ -568,6 +568,90 @@ export async function sendWelcomeEmail(params: {
 }
 
 /**
+ * Send a welcome packet email to a new member.
+ */
+export async function sendWelcomePacketEmail(params: {
+  email: string;
+  displayName?: string;
+  tenantName: string;
+  welcomePacketUrl?: string | null;
+  tenantId?: string;
+}): Promise<EmailSendResult> {
+  const { email, displayName, tenantName, welcomePacketUrl, tenantId } = params;
+
+  const welcomePacketSection = welcomePacketUrl
+    ? `
+      <div style="margin: 20px 0; padding: 20px; background-color: #fef3c7; border-radius: 8px;">
+        <h3 style="color: #92400e; margin: 0 0 10px 0;">📦 Welcome Packet</h3>
+        <p style="margin: 0 0 15px 0;">We've prepared a welcome packet to help you get started:</p>
+        <a href="${welcomePacketUrl}" style="background-color: #f59e0b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Welcome Packet</a>
+      </div>
+    `
+    : '';
+
+  const welcomePacketText = welcomePacketUrl
+    ? `\n\nWelcome Packet: ${welcomePacketUrl}\n`
+    : '';
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Welcome to ${tenantName}</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #f59e0b; padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">${tenantName}</h1>
+        </div>
+        <div style="padding: 30px; background-color: #f9fafb;">
+          <h2 style="color: #1f2937;">🎉 Your Membership Has Been Approved!</h2>
+          ${displayName ? `<p>Hi ${displayName},</p>` : '<p>Hi there,</p>'}
+          <p>Great news! Your membership request to <strong>${tenantName}</strong> has been approved. You're now an official member of our community!</p>
+          ${welcomePacketSection}
+          <p>As a member, you can now:</p>
+          <ul>
+            <li>Access member-only content and resources</li>
+            <li>Participate in events and activities</li>
+            <li>Connect with other members</li>
+            <li>Receive important announcements</li>
+          </ul>
+          <p>We're excited to have you with us!</p>
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+          <p style="color: #9ca3af; font-size: 12px;">You're receiving this because your membership at ${tenantName} was approved.</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+    Welcome to ${tenantName}!
+
+    ${displayName ? `Hi ${displayName},` : 'Hi there,'}
+
+    Great news! Your membership request to ${tenantName} has been approved. You're now an official member of our community!
+    ${welcomePacketText}
+    As a member, you can now:
+    - Access member-only content and resources
+    - Participate in events and activities
+    - Connect with other members
+    - Receive important announcements
+
+    We're excited to have you with us!
+
+    You're receiving this because your membership at ${tenantName} was approved.
+  `.trim();
+
+  return sendEmail({
+    to: email,
+    subject: `Welcome to ${tenantName}! Your Membership Has Been Approved`,
+    html,
+    text,
+    tenantId,
+  });
+}
+
+/**
  * Send bulk emails (stub for Phase G campaigns).
  * For now, this is a placeholder that sends individual emails.
  * In Phase G, this will be optimized for batch sending.

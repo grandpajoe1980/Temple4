@@ -49,7 +49,8 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
     const loadMembers = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`/api/tenants/${tenant.id}/members`);
+        // Request all members (large limit) to ensure pending requests are included
+        const res = await fetch(`/api/tenants/${tenant.id}/members?limit=1000`);
         if (!res.ok) throw new Error('Failed to load members');
         const payload = await res.json();
         // API may return either an array or an object { members, pagination }

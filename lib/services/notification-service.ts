@@ -23,10 +23,16 @@ export async function enqueueNotification(params: EnqueueParams) {
     await assertApprovedMember(actorUserId, tenantId);
   }
 
+  // Map any legacy or alternative type strings to the Prisma NotificationType enum
+  // `NEW_DONATION` was historically used in code but the Prisma enum uses `DONATION_FUND_UPDATED`.
+  const mappedType =
+    type === 'NEW_DONATION' ? 'DONATION_FUND_UPDATED' : (type as string | undefined) || null;
+
   return prisma.outbox.create({
     data: {
       tenantId: tenantId || null,
-      type: (type as any) || null,
+      // cast to any here because Prisma client expects the enum type at runtime
+      type: (mappedType as any) || null,
       payload: {
         to,
         subject,

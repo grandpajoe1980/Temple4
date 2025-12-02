@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type { Tenant, TenantSettings } from '@prisma/client';
@@ -241,6 +242,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
 
   const renderActiveSubmenuOverlay = () => {
     if (!activeSubmenu || activeSubmenu === lockedSubmenu) return null;
+    if (typeof document === 'undefined') return null; // SSR guard
     const itemsByKey: Record<SubmenuKey, { key: string; label: string; path: string; feature?: NavItemFeature }[]> = {
       content: contentSubItems,
       community: communitySubItems,
@@ -253,21 +255,22 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     const items = itemsByKey[activeSubmenu];
     if (!items?.length) return null;
 
-    return (
+    return createPortal(
       <div
-        className="pointer-events-auto fixed inset-x-0 z-[9999] px-4 pb-3 sm:px-6 lg:px-8"
-        style={{ top: 'calc(var(--site-header-height, 0px) + var(--tenant-nav-height, 0px) + 12px)' }}
+        className="pointer-events-auto fixed inset-x-0 z-[2147483647] px-4 pt-2 sm:px-6 lg:px-8"
+        style={{ top: 0 }}
         onMouseEnter={() => clearTimer(submenuTimers[activeSubmenu].hide)}
         onMouseLeave={() => scheduleHide(activeSubmenu)}
       >
-        <div className="mx-auto max-w-5xl rounded-full border border-amber-100 bg-white px-4 py-3 shadow-lg shadow-amber-100/60 backdrop-blur-sm">
-          <div className="flex flex-wrap items-center justify-start gap-2">
+        <div className="mx-auto max-w-5xl rounded-full border border-amber-100 bg-white px-4 py-3 shadow-lg shadow-amber-100/60 backdrop-blur-sm overflow-x-auto">
+          <div className="flex flex-nowrap items-center justify-start gap-2 whitespace-nowrap">
             {activeSubmenu === 'settings'
               ? renderSubmenu(activeSubmenu, items.map((item) => ({ ...item, feature: undefined })))
               : renderSubmenu(activeSubmenu, items)}
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     );
   };
 

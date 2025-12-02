@@ -23,20 +23,24 @@ export async function PUT(
         return unauthorized();
     }
 
-    // Check if the current user is an ADMIN of this tenant
-    const currentUserMembership = await prisma.userTenantMembership.findUnique({
-        where: { userId_tenantId: { userId: currentUserId, tenantId: tenantId } },
-        include: { roles: true },
-    });
+    // Check if the current user is a super admin or an ADMIN of this tenant
+    const [currentUser, currentUserMembership] = await Promise.all([
+        prisma.user.findUnique({ where: { id: currentUserId }, select: { isSuperAdmin: true } }),
+        prisma.userTenantMembership.findUnique({
+            where: { userId_tenantId: { userId: currentUserId, tenantId: tenantId } },
+            include: { roles: true },
+        }),
+    ]);
 
-    const hasPermission = currentUserMembership?.roles.some((role: any) => role.role === TenantRole.ADMIN);
+    const isTenantAdmin = currentUserMembership?.roles.some((role: any) => role.role === TenantRole.ADMIN);
+    const hasPermission = currentUser?.isSuperAdmin || isTenantAdmin;
 
     if (!hasPermission) {
         return forbidden('You must be an admin to change roles.');
     }
 
-    // Prevent user from changing their own role
-    if (currentUserId === userId) {
+    // Prevent user from changing their own role, unless they're a super admin
+    if (currentUserId === userId && !currentUser?.isSuperAdmin) {
         return validationError({ self: ['Admins cannot change their own role.'] });
     }
 
@@ -94,13 +98,17 @@ export async function PATCH(
         return unauthorized();
     }
 
-    // Check if the current user is an ADMIN of this tenant
-    const currentUserMembership = await prisma.userTenantMembership.findUnique({
-        where: { userId_tenantId: { userId: currentUserId, tenantId: tenantId } },
-        include: { roles: true },
-    });
+    // Check if the current user is a super admin or an ADMIN of this tenant
+    const [currentUser, currentUserMembership] = await Promise.all([
+        prisma.user.findUnique({ where: { id: currentUserId }, select: { isSuperAdmin: true } }),
+        prisma.userTenantMembership.findUnique({
+            where: { userId_tenantId: { userId: currentUserId, tenantId: tenantId } },
+            include: { roles: true },
+        }),
+    ]);
 
-    const hasPermission = currentUserMembership?.roles.some((role: any) => role.role === TenantRole.ADMIN);
+    const isTenantAdmin = currentUserMembership?.roles.some((role: any) => role.role === TenantRole.ADMIN);
+    const hasPermission = currentUser?.isSuperAdmin || isTenantAdmin;
 
     if (!hasPermission) {
         return forbidden('You must be an admin to change membership status.');

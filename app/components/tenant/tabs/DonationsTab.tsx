@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import type { Tenant, DonationSettings, FundWithProgress } from '@/types';
+import type { Tenant, DonationSettings, FundWithProgress, FundType, FundVisibility } from '@/types';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
@@ -10,6 +10,26 @@ interface DonationsTabProps {
   tenant: Tenant;
   onUpdate: (tenant: Tenant) => void;
   onSave: (updates: any) => Promise<any>;
+}
+
+interface FundFormState {
+  name: string;
+  description: string;
+  type: FundType;
+  visibility: FundVisibility;
+  currency: string;
+  goalAmount: string;
+  minAmount: string;
+  maxAmount: string;
+  allowAnonymous: boolean;
+}
+
+interface DonationSummary {
+  fundId: string;
+  fundName: string;
+  totalAmount: number;
+  donationCount: number;
+  currency: string;
 }
 
 const DEFAULT_SUGGESTED_AMOUNTS = [5, 10, 25, 50, 100];
@@ -44,11 +64,11 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
   const [funds, setFunds] = React.useState<FundWithProgress[]>([]);
   const [fundsLoading, setFundsLoading] = React.useState(false);
   const [editingFundId, setEditingFundId] = React.useState<string | null>(null);
-  const [fundForm, setFundForm] = React.useState({
+  const [fundForm, setFundForm] = React.useState<FundFormState>({
     name: '',
     description: '',
-    type: 'TITHE' as const,
-    visibility: 'PUBLIC' as const,
+    type: 'TITHE',
+    visibility: 'PUBLIC',
     currency: settings.currency,
     goalAmount: '',
     minAmount: '',
@@ -57,6 +77,14 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
   });
   const [csvText, setCsvText] = React.useState('');
   const [auditLogs, setAuditLogs] = React.useState<any[]>([]);
+
+  // Reporting state
+  const [reportStartDate, setReportStartDate] = React.useState<string>('');
+  const [reportEndDate, setReportEndDate] = React.useState<string>('');
+  const [reportFundId, setReportFundId] = React.useState<string>('');
+  const [donationSummaries, setDonationSummaries] = React.useState<DonationSummary[]>([]);
+  const [reportLoading, setReportLoading] = React.useState(false);
+  const [reportTotal, setReportTotal] = React.useState<{ amount: number; count: number } | null>(null);
 
   const handleSettingsChange = (field: keyof DonationSettings, value: any) => {
     onUpdate({
@@ -256,6 +284,73 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
     await loadAuditLogs();
     setCsvText('');
     alert('Import complete');
+  };
+
+  // Generate donation report from fund data
+  // Note: This shows running totals from fund data. For date-filtered reports,
+  // use the CSV export which fetches actual records.
+  const loadDonationReport = React.useCallback(async () => {
+    setReportLoading(true);
+    try {
+      // Calculate summaries from current fund data
+      const summaries: DonationSummary[] = funds
+        .filter(f => !reportFundId || f.id === reportFundId)
+        .map(fund => ({
+          fundId: fund.id,
+          fundName: fund.name,
+          totalAmount: fund.amountRaisedCents / 100,
+          donationCount: 0,
+          currency: fund.currency,
+        }));
+
+      setDonationSummaries(summaries);
+      
+      const total = summaries.reduce((acc, s) => ({
+        amount: acc.amount + s.totalAmount,
+        count: acc.count + s.donationCount,
+      }), { amount: 0, count: 0 });
+      
+      setReportTotal(total);
+    } catch (error) {
+      console.error('Failed to load donation report', error);
+    } finally {
+      setReportLoading(false);
+    }
+  }, [funds, reportFundId]);
+
+  // Load report when filters change or funds are loaded
+  React.useEffect(() => {
+    if (funds.length > 0) {
+      loadDonationReport();
+    }
+  }, [funds, loadDonationReport]);
+
+  // Export donation records as CSV
+  const exportDonationsCsv = async () => {
+    try {
+      const params = new URLSearchParams();
+      params.set('export', 'csv');
+      if (reportStartDate) params.set('startDate', reportStartDate);
+      if (reportEndDate) params.set('endDate', reportEndDate);
+      if (reportFundId) params.set('fundId', reportFundId);
+
+      const res = await fetch(`/api/tenants/${tenant.id}/donations/records?${params.toString()}`);
+      
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Failed to parse error response' }));
+        throw new Error(err.message || 'Failed to export donations');
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `donations-${tenant.slug}-${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      alert(error.message || 'Failed to export donations');
+    }
   };
 
   return (
@@ -562,6 +657,89 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
                 );
               })}
             </div>
+          </div>
+
+          {/* Donation Reporting Section */}
+          <div className="border-t border-gray-200 pt-6 space-y-4">
+            <div>
+              <h4 className="text-md font-semibold text-gray-900">Donation Reports</h4>
+              <p className="text-sm text-gray-500 mt-1">View donation summaries by fund and export records.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  value={reportStartDate}
+                  onChange={(e) => setReportStartDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                <input
+                  type="date"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  value={reportEndDate}
+                  onChange={(e) => setReportEndDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Fund</label>
+                <select
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  value={reportFundId}
+                  onChange={(e) => setReportFundId(e.target.value)}
+                >
+                  <option value="">All Funds</option>
+                  {funds.map((fund) => (
+                    <option key={fund.id} value={fund.id}>{fund.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-end">
+                <Button type="button" variant="secondary" onClick={exportDonationsCsv}>
+                  Export CSV
+                </Button>
+              </div>
+            </div>
+
+            {/* Fund Summaries */}
+            {reportLoading ? (
+              <p className="text-sm text-gray-500">Loading report...</p>
+            ) : (
+              <div className="space-y-3">
+                {donationSummaries.length === 0 ? (
+                  <p className="text-sm text-gray-600">No donation data available.</p>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {donationSummaries.map((summary) => (
+                        <div key={summary.fundId} className="rounded-lg border border-gray-200 p-4 bg-white">
+                          <h5 className="font-medium text-gray-900">{summary.fundName}</h5>
+                          <p className="text-2xl font-bold text-amber-600 mt-1">
+                            {summary.totalAmount.toLocaleString(undefined, { style: 'currency', currency: summary.currency })}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">Total raised</p>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {reportTotal && reportTotal.amount > 0 && (
+                      <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-gray-900">Total Across All Funds</span>
+                          <span className="text-2xl font-bold text-amber-700">
+                            {reportTotal.amount.toLocaleString(undefined, { style: 'currency', currency: settings.currency })}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

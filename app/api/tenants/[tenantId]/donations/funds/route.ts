@@ -21,7 +21,7 @@ const fundSchema = z.object({
   minAmountCents: z.number().int().nonnegative().nullable().optional(),
   maxAmountCents: z.number().int().nonnegative().nullable().optional(),
   allowAnonymous: z.boolean().optional(),
-  campaignMetadata: z.record(z.any()).optional(),
+  campaignMetadata: z.record(z.string(), z.any()).optional(),
 });
 
 export async function GET(request: Request, { params }: { params: Promise<{ tenantId: string }> }) {

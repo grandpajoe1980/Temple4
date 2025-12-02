@@ -5,7 +5,7 @@ import { handleApiError, unauthorized, forbidden, validationError } from '@/lib/
 import { prisma } from '@/lib/db';
 import { TenantRole, MembershipStatus, OnboardingStatus } from '@/types';
 import { z } from 'zod';
-import { deriveOnboardingFields } from '@/lib/services/onboarding-service';
+import { deriveOnboardingFields, processApprovedMember } from '@/lib/services/onboarding-service';
 import { TenantSettings as PrismaTenantSettings } from '@prisma/client';
 
 const requestActionSchema = z.object({
@@ -62,6 +62,8 @@ export async function PUT(
             onboardingStatus: OnboardingStatus.PENDING,
             alertSentAt: null,
             alertChannels: [],
+            welcomePacketUrl: null,
+            welcomePacketVersion: null,
           };
 
     const updatedRequest = await prisma.userTenantMembership.update({
@@ -75,8 +77,18 @@ export async function PUT(
       },
     });
 
-    // Here you would typically trigger a notification to the user
-    // e.g., createNotification(userId, 'Your membership request was ' + newStatus.toLowerCase());
+    // If approved, send welcome email and notify staff (fire-and-forget)
+    if (newStatus === MembershipStatus.APPROVED) {
+      // Don't await - this runs in the background
+      processApprovedMember({
+        userId,
+        tenantId,
+        approvedByUserId: currentUserId,
+        welcomePacketUrl: onboardingUpdates.welcomePacketUrl,
+      }).catch((err) => {
+        console.error('Failed to process approved member:', err);
+      });
+    }
 
     return NextResponse.json(updatedRequest);
   } catch (error) {

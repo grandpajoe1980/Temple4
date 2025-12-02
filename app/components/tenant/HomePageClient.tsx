@@ -38,9 +38,13 @@ interface HomePageClientProps {
   recentPosts: HomePagePost[];
   recentCommunity: CommunityPostItem[];
   services: ServiceItem[];
+  recentPhotos?: Array<{ id: string; storageKey?: string | null; title?: string; uploadedAt?: string | Date; authorDisplayName?: string | null }>;
+  recentPodcasts?: Array<{ id: string; title: string; publishedAt?: string | Date; embedUrl?: string; artworkUrl?: string | null }>;
+  recentSermons?: Array<{ id: string; title: string; publishedAt?: string | Date; embedUrl?: string; artworkUrl?: string | null }>;
+  recentBooks?: Array<{ id: string; title: string; author?: string | null }>;
 }
 
-export default function HomePageClient({ tenant, user, membership, upcomingEvents, recentPosts, recentCommunity, services }: HomePageClientProps) {
+export default function HomePageClient({ tenant, user, membership, upcomingEvents, recentPosts, recentCommunity, services, recentPhotos, recentPodcasts, recentSermons, recentBooks }: HomePageClientProps) {
   const router = useRouter();
 
   const handleJoin = async () => {
@@ -110,7 +114,8 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
       subtitle: `Post • ${new Date(p.publishedAt).toLocaleDateString()}`,
       imageUrl: undefined,
       logoUrl: undefined,
-      link: `/tenants/${tenant.id}/posts/${p.id}`,
+      // Link to the posts listing page instead of the individual post
+      link: `/tenants/${tenant.id}/posts`,
     });
   });
 
@@ -137,6 +142,50 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
       });
     });
   }
+
+  // Add recent photos
+  (recentPhotos || []).forEach((ph) => {
+    slides.push({
+      title: ph.title || 'Photo',
+      subtitle: `Photo • ${ph.uploadedAt ? new Date(ph.uploadedAt).toLocaleDateString() : ''}`,
+      imageUrl: ph.storageKey ? `/storage/${ph.storageKey}` : undefined,
+      logoUrl: undefined,
+      link: `/tenants/${tenant.id}/photos`,
+    });
+  });
+
+  // Add recent podcasts
+  (recentPodcasts || []).forEach((pc) => {
+    slides.push({
+      title: pc.title,
+      subtitle: `Podcast • ${pc.publishedAt ? new Date(pc.publishedAt).toLocaleDateString() : ''}`,
+      imageUrl: pc.artworkUrl || undefined,
+      logoUrl: undefined,
+      link: `/tenants/${tenant.id}/podcasts`,
+    });
+  });
+
+  // Add recent sermons
+  (recentSermons || []).forEach((sr) => {
+    slides.push({
+      title: sr.title,
+      subtitle: `Sermon • ${sr.publishedAt ? new Date(sr.publishedAt).toLocaleDateString() : ''}`,
+      imageUrl: sr.artworkUrl || undefined,
+      logoUrl: undefined,
+      link: `/tenants/${tenant.id}/sermons`,
+    });
+  });
+
+  // Add recent books
+  (recentBooks || []).forEach((b) => {
+    slides.push({
+      title: b.title,
+      subtitle: `Book${b.author ? ` • ${b.author}` : ''}`,
+      imageUrl: undefined,
+      logoUrl: undefined,
+      link: `/tenants/${tenant.id}/books`,
+    });
+  });
 
   return (
     <div className="space-y-8">

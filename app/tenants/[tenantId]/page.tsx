@@ -53,8 +53,12 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
   let postsResponse: Response | null = null;
   let communityResponse: Response | null = null;
   let servicesResponse: Response | null = null;
+  let photosResponse: Response | null = null;
+  let podcastsResponse: Response | null = null;
+  let sermonsResponse: Response | null = null;
+  let booksResponse: Response | null = null;
   try {
-    [eventsResponse, postsResponse, communityResponse, servicesResponse] = await Promise.all([
+    [eventsResponse, postsResponse, communityResponse, servicesResponse, photosResponse, podcastsResponse, sermonsResponse, booksResponse] = await Promise.all([
       fetch(`${baseUrl}/api/tenants/${tenant.id}/events`, {
         headers: {
           'Content-Type': 'application/json',
@@ -83,21 +87,57 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
         },
         cache: 'no-store',
       }),
+      // additional tenant resources for the homepage carousel
+      fetch(`${baseUrl}/api/tenants/${tenant.id}/photos?limit=3`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(cookieHeader ? { cookie: cookieHeader } : {}),
+        },
+        cache: 'no-store',
+      }),
+      fetch(`${baseUrl}/api/tenants/${tenant.id}/podcasts?limit=3`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(cookieHeader ? { cookie: cookieHeader } : {}),
+        },
+        cache: 'no-store',
+      }),
+      fetch(`${baseUrl}/api/tenants/${tenant.id}/sermons?limit=3`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(cookieHeader ? { cookie: cookieHeader } : {}),
+        },
+        cache: 'no-store',
+      }),
+      fetch(`${baseUrl}/api/tenants/${tenant.id}/books?limit=3`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(cookieHeader ? { cookie: cookieHeader } : {}),
+        },
+        cache: 'no-store',
+      }),
     ]);
   } catch (fetchErr) {
     eventsResponse = null;
     postsResponse = null;
     communityResponse = null;
     servicesResponse = null;
+    photosResponse = null;
+    podcastsResponse = null;
+    sermonsResponse = null;
+    booksResponse = null;
   }
 
   const eventDtos: EventResponseDto[] = eventsResponse && eventsResponse.ok ? await eventsResponse.json() : [];
   const upcomingEvents = eventDtos.map(mapEventDtoToClient);
 
   const postsJson = postsResponse && postsResponse.ok ? await postsResponse.json().catch(() => ({ posts: [] })) : { posts: [] };
+  // API returns posts as PostResponseDto (with authorDisplayName/authorAvatarUrl).
+  // Normalize to the shape expected by the client component (author.profile.displayName)
   const recentPosts = (postsJson.posts || []).map((post: any) => ({
     ...post,
-    author: post.author ?? null,
+    // If API returned an embedded author object use it, otherwise map authorDisplayName into the expected shape
+    author: post.author ?? (post.authorDisplayName ? { profile: { displayName: post.authorDisplayName, avatarUrl: post.authorAvatarUrl ?? null } } : null),
     publishedAt: post.publishedAt ? new Date(post.publishedAt) : new Date(),
   }));
 
@@ -110,6 +150,18 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
   const servicesJson = servicesResponse && servicesResponse.ok ? await servicesResponse.json().catch(() => ([])) : [];
   const services = servicesJson || [];
 
+  const photosJson = photosResponse && photosResponse.ok ? await photosResponse.json().catch(() => ({ photos: [] })) : { photos: [] };
+  const recentPhotos = (photosJson.photos || []).map((p: any) => ({ ...p }));
+
+  const podcastsJson = podcastsResponse && podcastsResponse.ok ? await podcastsResponse.json().catch(() => ({ podcasts: [] })) : { podcasts: [] };
+  const recentPodcasts = (podcastsJson.podcasts || []).map((p: any) => ({ ...p }));
+
+  const sermonsJson = sermonsResponse && sermonsResponse.ok ? await sermonsResponse.json().catch(() => ({ sermons: [] })) : { sermons: [] };
+  const recentSermons = (sermonsJson.sermons || []).map((s: any) => ({ ...s }));
+
+  const booksJson = booksResponse && booksResponse.ok ? await booksResponse.json().catch(() => ({ books: [] })) : { books: [] };
+  const recentBooks = (booksJson.books || []).map((b: any) => ({ ...b }));
+
   return (
     <HomePageClient
       tenant={tenant}
@@ -119,6 +171,10 @@ export default async function TenantHomePage({ params }: { params: Promise<{ ten
       recentPosts={recentPosts.slice(0, 3)}
       recentCommunity={recentCommunity.slice(0, 3)}
       services={services}
+      recentPhotos={recentPhotos.slice(0,3)}
+      recentPodcasts={recentPodcasts.slice(0,3)}
+      recentSermons={recentSermons.slice(0,3)}
+      recentBooks={recentBooks.slice(0,3)}
     />
   );
 }

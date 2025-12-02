@@ -568,6 +568,18 @@ export async function sendWelcomeEmail(params: {
 }
 
 /**
+ * Escape HTML special characters to prevent XSS
+ */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
  * Send a welcome packet email to a new member.
  */
 export async function sendWelcomePacketEmail(params: {
@@ -579,18 +591,23 @@ export async function sendWelcomePacketEmail(params: {
 }): Promise<EmailSendResult> {
   const { email, displayName, tenantName, welcomePacketUrl, tenantId } = params;
 
-  const welcomePacketSection = welcomePacketUrl
+  // Sanitize all user-provided content
+  const safeTenantName = escapeHtml(tenantName);
+  const safeDisplayName = displayName ? escapeHtml(displayName) : undefined;
+  const safeWelcomePacketUrl = welcomePacketUrl ? encodeURI(welcomePacketUrl) : null;
+
+  const welcomePacketSection = safeWelcomePacketUrl
     ? `
       <div style="margin: 20px 0; padding: 20px; background-color: #fef3c7; border-radius: 8px;">
         <h3 style="color: #92400e; margin: 0 0 10px 0;">📦 Welcome Packet</h3>
         <p style="margin: 0 0 15px 0;">We've prepared a welcome packet to help you get started:</p>
-        <a href="${welcomePacketUrl}" style="background-color: #f59e0b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Welcome Packet</a>
+        <a href="${safeWelcomePacketUrl}" style="background-color: #f59e0b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Welcome Packet</a>
       </div>
     `
     : '';
 
-  const welcomePacketText = welcomePacketUrl
-    ? `\n\nWelcome Packet: ${welcomePacketUrl}\n`
+  const welcomePacketText = safeWelcomePacketUrl
+    ? `\n\nWelcome Packet: ${safeWelcomePacketUrl}\n`
     : '';
 
   const html = `
@@ -598,16 +615,16 @@ export async function sendWelcomePacketEmail(params: {
     <html>
       <head>
         <meta charset="utf-8">
-        <title>Welcome to ${tenantName}</title>
+        <title>Welcome to ${safeTenantName}</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background-color: #f59e0b; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">${tenantName}</h1>
+          <h1 style="color: white; margin: 0;">${safeTenantName}</h1>
         </div>
         <div style="padding: 30px; background-color: #f9fafb;">
           <h2 style="color: #1f2937;">🎉 Your Membership Has Been Approved!</h2>
-          ${displayName ? `<p>Hi ${displayName},</p>` : '<p>Hi there,</p>'}
-          <p>Great news! Your membership request to <strong>${tenantName}</strong> has been approved. You're now an official member of our community!</p>
+          ${safeDisplayName ? `<p>Hi ${safeDisplayName},</p>` : '<p>Hi there,</p>'}
+          <p>Great news! Your membership request to <strong>${safeTenantName}</strong> has been approved. You're now an official member of our community!</p>
           ${welcomePacketSection}
           <p>As a member, you can now:</p>
           <ul>
@@ -618,7 +635,7 @@ export async function sendWelcomePacketEmail(params: {
           </ul>
           <p>We're excited to have you with us!</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-          <p style="color: #9ca3af; font-size: 12px;">You're receiving this because your membership at ${tenantName} was approved.</p>
+          <p style="color: #9ca3af; font-size: 12px;">You're receiving this because your membership at ${safeTenantName} was approved.</p>
         </div>
       </body>
     </html>

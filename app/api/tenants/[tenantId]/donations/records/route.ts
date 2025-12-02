@@ -96,7 +96,7 @@ export async function GET(
 
       // Generate CSV
       const csvHeader = 'ID,Date,Display Name,Amount,Currency,Fund,Anonymous,Message,Designation Note';
-      const csvRows = donations.map((d: any) => {
+      const csvRows = donations.map((d) => {
         const date = new Date(d.donatedAt).toISOString().split('T')[0];
         const escapedMessage = (d.message || '').replace(/"/g, '""');
         const escapedNote = (d.designationNote || '').replace(/"/g, '""');

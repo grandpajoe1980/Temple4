@@ -337,7 +337,7 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
       const res = await fetch(`/api/tenants/${tenant.id}/donations/records?${params.toString()}`);
       
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
+        const err = await res.json().catch(() => ({ message: 'Failed to parse error response' }));
         throw new Error(err.message || 'Failed to export donations');
       }
 

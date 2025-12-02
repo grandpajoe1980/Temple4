@@ -60,6 +60,7 @@ export const TENANT_SCOPED_MODELS: ReadonlyArray<Prisma.ModelName> = [
   'Podcast',
   'Conversation',
   'DonationRecord',
+  'Fund',
   'VolunteerNeed',
   'VolunteerSignup',
   'SmallGroup',

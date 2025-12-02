@@ -611,6 +611,22 @@ async function main() {
 
   console.log(`✅ Created ${trips.length} mission trips`);
 
+  // 17. CREATE FUNDS
+  const generalFund = await prisma.fund.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'General Tithes',
+      description: 'Support the daily ministry needs of the community.',
+      type: 'TITHE',
+      visibility: 'PUBLIC',
+      currency: 'USD',
+      goalAmountCents: 500000,
+      allowAnonymous: true,
+    }
+  });
+
+  console.log('✅ Created default general fund');
+
   // 17. CREATE DONATIONS
   const donations = [
     { donor: 12, amount: 10000, displayName: 'Mr. Burns', note: 'From the nuclear plant. Tax deductible, of course.' },
@@ -621,6 +637,7 @@ async function main() {
     await prisma.donationRecord.create({
       data: {
         tenantId: tenant.id,
+        fundId: generalFund.id,
         userId: users[donation.donor].id,
         displayName: donation.displayName,
         amount: donation.amount,

@@ -104,6 +104,20 @@ enum NotificationType {
   NEW_ANNOUNCEMENT
   MEMBERSHIP_APPROVED
   NEW_CONTACT_SUBMISSION
+  DONATION_FUND_UPDATED
+}
+
+enum FundType {
+  TITHE
+  OFFERING
+  PROJECT
+  SPECIAL
+}
+
+enum FundVisibility {
+  PUBLIC
+  MEMBERS_ONLY
+  HIDDEN
 }
 
 enum VolunteerStatus {
@@ -313,6 +327,7 @@ model Tenant {
   podcasts                Podcast[]
   conversations           Conversation[]
   donationRecords         DonationRecord[]
+  funds                   Fund[]
   volunteerNeeds          VolunteerNeed[]
   smallGroups             SmallGroup[]
   smallGroupResources     SmallGroupResource[]
@@ -742,11 +757,41 @@ model DonationRecord {
   userId                   String?
   user                     User?    @relation(fields: [userId], references: [id])
   displayName              String
+  fundId                   String
+  fund                     Fund     @relation(fields: [fundId], references: [id], onDelete: Cascade)
   amount                   Float
   currency                 String
   donatedAt                DateTime @default(now())
   isAnonymousOnLeaderboard Boolean  @default(false)
   message                  String?
+  designationNote          String?
+  campaignMetadata         Json?
+  paymentBrand             String?
+  paymentLast4             String?
+}
+
+model Fund {
+  id                 String         @id @default(cuid())
+  tenantId           String
+  tenant             Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name               String
+  description        String?
+  type               FundType
+  visibility         FundVisibility @default(PUBLIC)
+  currency           String         @default("USD")
+  goalAmountCents    Int?
+  startDate          DateTime?
+  endDate            DateTime?
+  minAmountCents     Int?
+  maxAmountCents     Int?
+  allowAnonymous     Boolean        @default(true)
+  archivedAt         DateTime?
+  campaignMetadata   Json?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  donations          DonationRecord[]
+
+  @@index([tenantId, visibility, archivedAt])
 }
 
 // --- VOLUNTEER MODELS ---

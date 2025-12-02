@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import type { Tenant, DonationSettings } from '@/types';
+import type { Tenant, DonationSettings, FundWithProgress } from '@/types';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
@@ -41,6 +41,22 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
     settings.suggestedAmounts && settings.suggestedAmounts.length > 0
       ? settings.suggestedAmounts
       : DEFAULT_SUGGESTED_AMOUNTS;
+  const [funds, setFunds] = React.useState<FundWithProgress[]>([]);
+  const [fundsLoading, setFundsLoading] = React.useState(false);
+  const [editingFundId, setEditingFundId] = React.useState<string | null>(null);
+  const [fundForm, setFundForm] = React.useState({
+    name: '',
+    description: '',
+    type: 'TITHE' as const,
+    visibility: 'PUBLIC' as const,
+    currency: settings.currency,
+    goalAmount: '',
+    minAmount: '',
+    maxAmount: '',
+    allowAnonymous: true,
+  });
+  const [csvText, setCsvText] = React.useState('');
+  const [auditLogs, setAuditLogs] = React.useState<any[]>([]);
 
   const handleSettingsChange = (field: keyof DonationSettings, value: any) => {
     onUpdate({
@@ -75,6 +91,171 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
       })
       .filter(Boolean) as Array<{ label: string; url: string }>;
     handleSettingsChange('otherGivingLinks', links);
+  };
+
+  const resetFundForm = React.useCallback(() => {
+    setFundForm({
+      name: '',
+      description: '',
+      type: 'TITHE',
+      visibility: 'PUBLIC',
+      currency: settings.currency,
+      goalAmount: '',
+      minAmount: '',
+      maxAmount: '',
+      allowAnonymous: true,
+    });
+    setEditingFundId(null);
+  }, [settings.currency]);
+
+  const loadFunds = React.useCallback(async () => {
+    setFundsLoading(true);
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/donations/funds?includeArchived=true`);
+      if (res.ok) {
+        const data = await res.json();
+        setFunds(data || []);
+      }
+    } catch (error) {
+      console.error('Failed to load funds', error);
+    } finally {
+      setFundsLoading(false);
+    }
+  }, [tenant.id]);
+
+  const loadAuditLogs = React.useCallback(async () => {
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/admin/audit-logs`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const filtered = (data || []).filter((log: any) =>
+        ['DONATION_FUND_CREATED', 'DONATION_FUND_UPDATED', 'DONATION_FUND_ARCHIVED'].includes(log.actionType)
+      );
+      setAuditLogs(filtered);
+    } catch (error) {
+      console.error('Failed to load audit logs', error);
+    }
+  }, [tenant.id]);
+
+  React.useEffect(() => {
+    loadFunds();
+    loadAuditLogs();
+  }, [loadFunds, loadAuditLogs]);
+
+  React.useEffect(() => {
+    if (!editingFundId) {
+      setFundForm((prev) => ({ ...prev, currency: settings.currency }));
+    }
+  }, [editingFundId, settings.currency]);
+
+  const parseCurrencyInput = (value: string) => {
+    if (!value) return null;
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? null : Math.round(parsed * 100);
+  };
+
+  const handleFundSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const payload = {
+        name: fundForm.name,
+        description: fundForm.description || undefined,
+        type: fundForm.type,
+        visibility: fundForm.visibility,
+        currency: fundForm.currency,
+        goalAmountCents: parseCurrencyInput(fundForm.goalAmount),
+        minAmountCents: parseCurrencyInput(fundForm.minAmount),
+        maxAmountCents: parseCurrencyInput(fundForm.maxAmount),
+        allowAnonymous: fundForm.allowAnonymous,
+      };
+      const url = editingFundId
+        ? `/api/tenants/${tenant.id}/donations/funds/${editingFundId}`
+        : `/api/tenants/${tenant.id}/donations/funds`;
+      const method = editingFundId ? 'PATCH' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Unable to save fund');
+      }
+      resetFundForm();
+      await loadFunds();
+      await loadAuditLogs();
+      alert(editingFundId ? 'Fund updated' : 'Fund created');
+    } catch (error: any) {
+      alert(error.message || 'Failed to save fund');
+    }
+  };
+
+  const handleEditFund = (fund: FundWithProgress) => {
+    setEditingFundId(fund.id);
+    setFundForm({
+      name: fund.name,
+      description: fund.description || '',
+      type: fund.type,
+      visibility: fund.visibility,
+      currency: fund.currency,
+      goalAmount: fund.goalAmountCents ? (fund.goalAmountCents / 100).toString() : '',
+      minAmount: fund.minAmountCents ? (fund.minAmountCents / 100).toString() : '',
+      maxAmount: fund.maxAmountCents ? (fund.maxAmountCents / 100).toString() : '',
+      allowAnonymous: fund.allowAnonymous,
+    });
+  };
+
+  const handleArchiveFund = async (fundId: string) => {
+    if (!confirm('Archive this fund? Existing donation history will be preserved.')) return;
+    try {
+      const res = await fetch(`/api/tenants/${tenant.id}/donations/funds/${fundId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to archive fund');
+      await loadFunds();
+      await loadAuditLogs();
+    } catch (error: any) {
+      alert(error.message || 'Unable to archive fund');
+    }
+  };
+
+  const exportCsv = () => {
+    const header = 'name,type,visibility,currency,goalAmountCents,amountRaisedCents,allowAnonymous';
+    const rows = funds
+      .map((fund) => [fund.name, fund.type, fund.visibility, fund.currency, fund.goalAmountCents ?? '', fund.amountRaisedCents ?? 0, fund.allowAnonymous].join(','))
+      .join('\n');
+    const csv = `${header}\n${rows}`;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${tenant.slug}-funds.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = async () => {
+    if (!csvText.trim()) return;
+    const lines = csvText.trim().split('\n').slice(1);
+    for (const line of lines) {
+      const [name, type, visibility, currency, goalAmountCents, , allowAnonymous] = line.split(',');
+      if (!name) continue;
+      const payload = {
+        name,
+        type: (type || 'TITHE') as any,
+        visibility: (visibility || 'PUBLIC') as any,
+        currency: currency || settings.currency,
+        goalAmountCents: goalAmountCents ? parseInt(goalAmountCents, 10) : null,
+        allowAnonymous: allowAnonymous !== 'false',
+      };
+      await fetch(`/api/tenants/${tenant.id}/donations/funds`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    }
+    await loadFunds();
+    await loadAuditLogs();
+    setCsvText('');
+    alert('Import complete');
   };
 
   return (
@@ -281,7 +462,128 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
                 </div>
             )}
         </div>
-        
+
+        <div className="border-t border-gray-200 pt-8">
+          <h3 className="text-lg font-medium leading-6 text-gray-900">Funds & Designations</h3>
+          <p className="mt-1 text-sm text-gray-500">Create dedicated funds with visibility rules, guardrails, and goal tracking.</p>
+        </div>
+        <div className="space-y-4">
+          <form onSubmit={handleFundSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input label="Fund Name" id="fundName" name="fundName" value={fundForm.name} onChange={(e) => setFundForm({ ...fundForm, name: e.target.value })} required />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="fundType">Fund Type</label>
+              <select
+                id="fundType"
+                name="fundType"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                value={fundForm.type}
+                onChange={(e) => setFundForm({ ...fundForm, type: e.target.value as any })}
+              >
+                <option value="TITHE">Tithe</option>
+                <option value="OFFERING">Offering</option>
+                <option value="PROJECT">Project</option>
+                <option value="SPECIAL">Special</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="fundVisibility">Visibility</label>
+              <select
+                id="fundVisibility"
+                name="fundVisibility"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                value={fundForm.visibility}
+                onChange={(e) => setFundForm({ ...fundForm, visibility: e.target.value as any })}
+              >
+                <option value="PUBLIC">Public</option>
+                <option value="MEMBERS_ONLY">Members Only</option>
+                <option value="HIDDEN">Hidden</option>
+              </select>
+            </div>
+            <Input label="Currency" id="fundCurrency" name="fundCurrency" value={fundForm.currency} onChange={(e) => setFundForm({ ...fundForm, currency: e.target.value.toUpperCase() })} />
+            <Input label="Goal Amount" id="fundGoal" name="fundGoal" type="number" value={fundForm.goalAmount} onChange={(e) => setFundForm({ ...fundForm, goalAmount: e.target.value })} placeholder="e.g., 10000" />
+            <Input label="Min Amount" id="fundMin" name="fundMin" type="number" value={fundForm.minAmount} onChange={(e) => setFundForm({ ...fundForm, minAmount: e.target.value })} placeholder="Optional" />
+            <Input label="Max Amount" id="fundMax" name="fundMax" type="number" value={fundForm.maxAmount} onChange={(e) => setFundForm({ ...fundForm, maxAmount: e.target.value })} placeholder="Optional" />
+            <ToggleSwitch label="Allow Anonymous" enabled={fundForm.allowAnonymous} onChange={(enabled) => setFundForm({ ...fundForm, allowAnonymous: enabled })} />
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="fundDescription">Description</label>
+              <textarea id="fundDescription" className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900" value={fundForm.description} onChange={(e) => setFundForm({ ...fundForm, description: e.target.value })} placeholder="How will these gifts be used?" />
+            </div>
+            <div className="md:col-span-2 flex gap-3 justify-end">
+              <Button type="button" variant="secondary" onClick={resetFundForm}>{editingFundId ? 'Cancel' : 'Reset'}</Button>
+              <Button type="submit">{editingFundId ? 'Update Fund' : 'Add Fund'}</Button>
+            </div>
+          </form>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="button" variant="secondary" onClick={exportCsv}>Export CSV</Button>
+            <Button type="button" variant="secondary" onClick={handleImport}>Import from CSV</Button>
+            <p className="text-xs text-gray-500">Columns: name,type,visibility,currency,goalAmountCents,amountRaisedCents,allowAnonymous</p>
+          </div>
+          <textarea
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+            rows={3}
+            value={csvText}
+            onChange={(e) => setCsvText(e.target.value)}
+            placeholder="Paste CSV rows here to import"
+          />
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-md font-semibold text-gray-900">Fund List</h4>
+              {fundsLoading && <span className="text-xs text-gray-500">Loading…</span>}
+            </div>
+            {funds.length === 0 && !fundsLoading && (
+              <p className="text-sm text-gray-600">No funds yet. Add your first fund to start tracking donations.</p>
+            )}
+            <div className="space-y-3">
+              {funds.map((fund) => {
+                const progress = fund.goalAmountCents ? Math.min(100, Math.round((fund.amountRaisedCents / fund.goalAmountCents) * 100)) : null;
+                return (
+                  <div key={fund.id} className="rounded-lg border border-gray-200 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm uppercase tracking-wide text-amber-700">{fund.type}</p>
+                        <p className="text-lg font-semibold text-gray-900">{fund.name}</p>
+                        <p className="text-xs text-gray-500">{fund.visibility} · {fund.currency}</p>
+                        {fund.description && <p className="text-sm text-gray-600 mt-1">{fund.description}</p>}
+                        <p className="text-sm text-gray-700 mt-2">Raised {(fund.amountRaisedCents / 100).toLocaleString(undefined, { style: 'currency', currency: fund.currency })}{fund.goalAmountCents ? ` of ${(fund.goalAmountCents / 100).toLocaleString(undefined, { style: 'currency', currency: fund.currency })}` : ''}</p>
+                        {progress !== null && (
+                          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                            <div className="h-full bg-amber-500" style={{ width: `${progress}%` }} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Button type="button" variant="secondary" onClick={() => handleEditFund(fund)}>Edit</Button>
+                        {!fund.archivedAt && <Button type="button" variant="secondary" onClick={() => handleArchiveFund(fund.id)}>Archive</Button>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="text-md font-semibold text-gray-900">Recent Fund Activity (Audit Log)</h4>
+            {auditLogs.length === 0 ? (
+              <p className="text-sm text-gray-600">No fund changes recorded yet.</p>
+            ) : (
+              <ul className="divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white">
+                {auditLogs.slice(0, 10).map((log) => (
+                  <li key={log.id} className="p-3 text-sm text-gray-700">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{log.actionType}</span>
+                      <span className="text-xs text-gray-500">{new Date(log.createdAt).toLocaleString()}</span>
+                    </div>
+                    {log.metadata?.fund?.name && <p className="text-xs text-gray-600">{log.metadata.fund.name}</p>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+
         <div className="text-right border-t border-gray-200 pt-6">
             <Button
               disabled={isSaving}

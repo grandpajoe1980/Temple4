@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 import NotificationService from '@/lib/services/notification-service';
 import { canUserViewContent } from '@/lib/permissions';
 import { z } from 'zod';
-import { DonationSettings, MembershipStatus } from '@/types';
+import { DonationSettings, FundVisibility, MembershipStatus } from '@/types';
 import { getTenantContext } from '@/lib/tenant-context';
 import { notFound, forbidden, validationError, handleApiError } from '@/lib/api-response';
 
@@ -15,6 +15,8 @@ const donationRecordSchema = z.object({
   displayName: z.string().min(1, 'Display name is required'),
   isAnonymousOnLeaderboard: z.boolean().default(false),
   message: z.string().max(500).optional(),
+  fundId: z.string().min(1, 'Fund is required'),
+  designationNote: z.string().max(500).optional(),
 });
 
 // GET /api/tenants/[tenantId]/donations/records - List donation records (for leaderboard)
@@ -71,10 +73,26 @@ export async function GET(
       dateFilter = { gte: startOfYear };
     }
 
+    const fundVisibilityFilters: any = {
+      tenantId,
+      archivedAt: null,
+    };
+    if (donationSettings.leaderboardVisibility === 'PUBLIC') {
+      fundVisibilityFilters.visibility = { not: 'HIDDEN' as FundVisibility };
+    }
+
+    const funds = await prisma.fund.findMany({
+      where: fundVisibilityFilters,
+      select: { id: true },
+    });
+
+    const allowedFundIds = funds.map((fund) => fund.id);
+
     // Fetch donation records
     const donations = await prisma.donationRecord.findMany({
       where: {
         tenantId,
+        fundId: { in: allowedFundIds },
         ...(Object.keys(dateFilter).length > 0 && { donatedAt: dateFilter })
       },
       select: {
@@ -85,6 +103,7 @@ export async function GET(
         donatedAt: true,
         isAnonymousOnLeaderboard: true,
         message: true,
+        fundId: true,
       },
       orderBy: {
         amount: 'desc'
@@ -148,7 +167,7 @@ export async function POST(
       return validationError(result.error.flatten().fieldErrors);
     }
 
-    const { amount, currency, displayName, isAnonymousOnLeaderboard, message } = result.data;
+    const { amount, currency, displayName, isAnonymousOnLeaderboard, message, fundId, designationNote } = result.data;
 
     // Validate currency matches settings
     if (currency !== donationSettings.currency) {
@@ -160,17 +179,53 @@ export async function POST(
       return validationError({ amount: ['Amount must be one of the suggested amounts'] });
     }
 
-    // In a real implementation, this would integrate with Stripe/PayPal
-    // For now, we just record the donation
+    const fund = await prisma.fund.findFirst({
+      where: {
+        id: fundId,
+        tenantId,
+        archivedAt: null,
+        visibility: { not: 'HIDDEN' },
+      },
+    });
+
+    if (!fund) {
+      return forbidden('Selected fund is not available');
+    }
+
+    const now = new Date();
+    if (fund.startDate && now < fund.startDate) {
+      return forbidden('Fund is not open yet');
+    }
+    if (fund.endDate && now > fund.endDate) {
+      return forbidden('Fund is closed');
+    }
+
+    if (fund.currency !== currency) {
+      return validationError({ currency: [`Currency must be ${fund.currency}`] });
+    }
+
+    const amountCents = Math.round(amount * 100);
+    if (fund.minAmountCents && amountCents < fund.minAmountCents) {
+      return validationError({ amount: [`Minimum for this fund is ${(fund.minAmountCents / 100).toFixed(2)}`] });
+    }
+    if (fund.maxAmountCents && amountCents > fund.maxAmountCents) {
+      return validationError({ amount: [`Maximum for this fund is ${(fund.maxAmountCents / 100).toFixed(2)}`] });
+    }
+    if (!fund.allowAnonymous && isAnonymousOnLeaderboard) {
+      return validationError({ isAnonymousOnLeaderboard: ['Anonymous gifts are disabled for this fund'] });
+    }
+
     const donation = await prisma.donationRecord.create({
       data: {
         tenantId,
+        fundId,
         userId,
         displayName,
         amount,
         currency,
         isAnonymousOnLeaderboard,
         message,
+        designationNote,
       }
     });
 
@@ -201,8 +256,8 @@ export async function POST(
               actorUserId: userId,
               to: membership.userId,
               type: 'NEW_DONATION',
-              subject: `New donation received: ${currency} ${amount}`,
-              html: `A new donation was received for ${tenantId}: ${currency} ${amount}`,
+              subject: `New donation received: ${currency} ${amount} (${fund.name})`,
+              html: `A new donation was received for ${tenantId}: ${currency} ${amount} (${fund.name})`,
             })
           )
         );
@@ -214,7 +269,7 @@ export async function POST(
             userId: membership.userId,
             actorUserId: null,
             type: 'NEW_ANNOUNCEMENT' as const,
-            message: `New donation received: ${currency} ${amount}`,
+            message: `New donation received: ${currency} ${amount} (${fund.name})`,
             link: `/tenants/${tenantId}/donations`,
           }))
         });

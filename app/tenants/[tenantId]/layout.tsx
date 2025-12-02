@@ -7,6 +7,9 @@ import { TenantRole } from '@/types';
 import TenantNav from './TenantNav';
 import TenantFooter from './TenantFooter';
 
+// Enable ISR with revalidation for tenant pages
+export const revalidate = 60; // Revalidate every 60 seconds
+
 export default async function TenantLayout({
   children,
   params,

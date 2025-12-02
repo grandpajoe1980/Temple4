@@ -48,7 +48,10 @@ export async function GET(
     if (!membership) {
         const { settings, ...publicTenantData } = tenant;
         // Further filter what a non-member can see if necessary
-        return NextResponse.json(publicTenantData);
+        const response = NextResponse.json(publicTenantData);
+        // Add caching headers for public tenant data with stale-while-revalidate
+        response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+        return response;
     }
 
     // Members see everything

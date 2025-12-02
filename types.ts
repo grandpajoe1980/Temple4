@@ -538,6 +538,9 @@ export enum ActionType {
   TENANT_BRANDING_SOCIAL_LINK_CREATED = 'TENANT_BRANDING_SOCIAL_LINK_CREATED',
   TENANT_BRANDING_SOCIAL_LINK_UPDATED = 'TENANT_BRANDING_SOCIAL_LINK_UPDATED',
   TENANT_BRANDING_SOCIAL_LINK_DELETED = 'TENANT_BRANDING_SOCIAL_LINK_DELETED',
+  DONATION_FUND_CREATED = 'DONATION_FUND_CREATED',
+  DONATION_FUND_UPDATED = 'DONATION_FUND_UPDATED',
+  DONATION_FUND_ARCHIVED = 'DONATION_FUND_ARCHIVED',
 }
 
 export interface AuditLog {
@@ -556,7 +559,8 @@ export type NotificationType =
   | 'NEW_DIRECT_MESSAGE'
   | 'NEW_ANNOUNCEMENT'
   | 'MEMBERSHIP_APPROVED'
-  | 'NEW_CONTACT_SUBMISSION';
+  | 'NEW_CONTACT_SUBMISSION'
+  | 'DONATION_FUND_UPDATED';
 
 export interface Notification {
   id: string;
@@ -570,6 +574,10 @@ export interface Notification {
 }
 
 // --- DONATION MODELS ---
+export type FundType = 'TITHE' | 'OFFERING' | 'PROJECT' | 'SPECIAL';
+
+export type FundVisibility = 'PUBLIC' | 'MEMBERS_ONLY' | 'HIDDEN';
+
 export interface DonationSettings {
   mode: 'EXTERNAL' | 'INTEGRATED';
   externalUrl?: string;
@@ -592,20 +600,50 @@ export interface DonationSettings {
   otherGivingLinks?: Array<{ label: string; url: string }>;
 }
 
+export interface Fund {
+  id: string;
+  tenantId: string;
+  name: string;
+  description?: string;
+  type: FundType;
+  visibility: FundVisibility;
+  currency: string;
+  goalAmountCents?: number | null;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  minAmountCents?: number | null;
+  maxAmountCents?: number | null;
+  allowAnonymous: boolean;
+  archivedAt?: Date | null;
+  campaignMetadata?: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface FundWithProgress extends Fund {
+  amountRaisedCents: number;
+}
+
 export interface DonationRecord {
   id: string;
   tenantId: string;
   userId: string | null; // null for anonymous from public page
   displayName: string; // denormalized for anonymous/guest donations
+  fundId: string;
   amount: number;
   currency: string;
   donatedAt: Date;
   isAnonymousOnLeaderboard: boolean;
   message?: string;
+  designationNote?: string;
+  campaignMetadata?: Record<string, any>;
+  paymentBrand?: string;
+  paymentLast4?: string;
 }
 
 export interface EnrichedDonationRecord extends DonationRecord {
     userAvatarUrl?: string;
+    fundName?: string;
 }
 
 // --- VOLUNTEER MODELS ---

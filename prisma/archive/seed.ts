@@ -902,6 +902,19 @@ async function main() {
   }
   console.log('✅ Created volunteer opportunities');
 
+  const archiveFund = await prisma.fund.create({
+    data: {
+      tenantId: springfieldChurch.id,
+      name: 'Community Care Fund',
+      description: 'Legacy fund used for benevolence and events.',
+      type: 'OFFERING',
+      visibility: 'PUBLIC',
+      currency: 'USD',
+      goalAmountCents: 100000,
+      allowAnonymous: true,
+    },
+  });
+
   // Create Donations
   const donations = [
     { donorEmail: 'homer@simpson.com', amount: 20, message: 'For the donuts fund!', isAnonymous: false },
@@ -916,6 +929,7 @@ async function main() {
     await prisma.donationRecord.create({
       data: {
         tenantId: springfieldChurch.id,
+        fundId: archiveFund.id,
         userId: donor.id,
         displayName: donationData.isAnonymous ? 'Anonymous' : donor.profile?.displayName || 'Unknown',
         amount: donationData.amount,

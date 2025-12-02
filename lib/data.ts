@@ -22,7 +22,7 @@ import {
   UserTenantRole,
   ContactSubmission,
 } from '@prisma/client';
-import { DonationRecord, EnrichedDonationRecord, TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost, CommunityPostStatus, ContactSubmissionStatus } from '@/types';
+import { DonationRecord, EnrichedDonationRecord, TenantRole, MembershipStatus, TenantSettings, TenantBranding, CommunityPost, CommunityPostStatus, ContactSubmissionStatus, Fund, FundWithProgress } from '@/types';
 import { EnrichedResourceItem } from '@/types';
 import bcrypt from 'bcryptjs';
 import { listTenantEvents, mapEventDtoToClient } from './services/event-service';
@@ -2067,17 +2067,100 @@ export type DonationRecordInput = Omit<DonationRecord, 'tenantId' | 'donatedAt' 
     userAvatarUrl?: string;
 };
 
+export async function getFundsForTenant(tenantId: string, includeArchived = false): Promise<FundWithProgress[]> {
+    const funds = await prisma.fund.findMany({
+        where: {
+            tenantId,
+            ...(includeArchived ? {} : { archivedAt: null }),
+        },
+        orderBy: { createdAt: 'desc' },
+    });
+
+    if (funds.length === 0) return [];
+
+    const totals = await prisma.donationRecord.groupBy({
+        by: ['fundId'],
+        _sum: { amount: true },
+        where: {
+            tenantId,
+            fundId: { in: funds.map((f) => f.id) },
+        },
+    });
+
+    return funds.map((fund) => {
+        const sum = totals.find((t) => t.fundId === fund.id)?._sum.amount ?? 0;
+        const amountRaisedCents = Math.round(sum * 100);
+        return {
+            ...(fund as unknown as Fund),
+            amountRaisedCents,
+        } as FundWithProgress;
+    });
+}
+
 export async function getDonationsForTenant(tenantId: string): Promise<EnrichedDonationRecord[]> {
-    // TODO: Implement donations fetching
-    return [];
+    const donations = await prisma.donationRecord.findMany({
+        where: { tenantId, fund: { archivedAt: null } },
+        include: {
+            user: { include: { profile: true } },
+            fund: true,
+        },
+        orderBy: { donatedAt: 'desc' },
+        take: 250,
+    });
+
+    return donations.map((donation) => ({
+        ...(donation as unknown as DonationRecord),
+        userAvatarUrl: donation.user?.profile?.avatarUrl || undefined,
+        fundName: donation.fund.name,
+    }));
 }
 
 export async function addDonationRecord(
     tenantId: string,
     donationData: DonationRecordInput,
 ): Promise<EnrichedDonationRecord | null> {
-    // TODO: Implement donation record creation
-    return null;
+    const fund = await prisma.fund.findFirst({
+        where: { id: donationData.fundId, tenantId, archivedAt: null },
+    });
+
+    if (!fund) return null;
+
+    const now = new Date();
+    if (fund.startDate && now < fund.startDate) return null;
+    if (fund.endDate && now > fund.endDate) return null;
+    if (fund.currency !== donationData.currency) return null;
+
+    const amountCents = Math.round(donationData.amount * 100);
+    if (fund.minAmountCents && amountCents < fund.minAmountCents) return null;
+    if (fund.maxAmountCents && amountCents > fund.maxAmountCents) return null;
+    if (!fund.allowAnonymous && donationData.isAnonymousOnLeaderboard) return null;
+
+    const donation = await prisma.donationRecord.create({
+        data: {
+            tenantId,
+            fundId: donationData.fundId,
+            userId: donationData.userId,
+            displayName: donationData.displayName,
+            amount: donationData.amount,
+            currency: donationData.currency,
+            isAnonymousOnLeaderboard: donationData.isAnonymousOnLeaderboard,
+            message: donationData.message,
+            designationNote: donationData.designationNote,
+            campaignMetadata: donationData.campaignMetadata as any,
+            paymentBrand: donationData.paymentBrand,
+            paymentLast4: donationData.paymentLast4,
+        },
+        include: {
+            user: { include: { profile: true } },
+            fund: true,
+        },
+    });
+
+    return {
+        ...(donation as unknown as DonationRecord),
+        userAvatarUrl: donation.user?.profile?.avatarUrl || donationData.userAvatarUrl,
+        fundName: donation.fund.name,
+    };
 }
 
 export async function addContactSubmission(tenantId: string, submissionData: any) {

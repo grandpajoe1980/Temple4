@@ -511,10 +511,22 @@ export async function createFacilitiesForTenant(prisma: PrismaClient, tenantId: 
 export async function createDonationRecordsForTenant(prisma: PrismaClient, tenantId: string | number, donorIds: Array<string | number>, count = 5) {
   const tid = String(tenantId);
   const recs: any[] = [];
+  const fund = await prisma.fund.create({
+    data: {
+      tenantId: tid,
+      name: 'Seeded General Fund',
+      description: 'Automatically generated for tests.',
+      type: 'TITHE',
+      visibility: 'PUBLIC',
+      currency: 'USD',
+      allowAnonymous: true,
+    } as any,
+  });
   for (let i = 0; i < count; i++) {
     const uid = String(donorIds[i % donorIds.length]);
     const rec = await prisma.donationRecord.create({ data: {
       tenantId: tid,
+      fundId: fund.id,
       userId: uid,
       displayName: `Donor ${i + 1}`,
       amount: 25 + i * 10,

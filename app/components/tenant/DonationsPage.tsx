@@ -387,7 +387,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                     <div className="text-right min-w-[120px]">
                       <p className="text-sm font-semibold text-amber-700">{progress}% funded</p>
                       <p className="text-xs text-gray-500">
-                        ${(fund.amountRaisedCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })} / {(fund.goalAmountCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        ${(fund.amountRaisedCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })} / {((fund.goalAmountCents ?? 0) / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                   )}

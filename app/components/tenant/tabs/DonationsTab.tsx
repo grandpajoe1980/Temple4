@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import type { Tenant, DonationSettings, FundWithProgress } from '@/types';
+import type { Tenant, DonationSettings, FundWithProgress, FundType, FundVisibility } from '@/types';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
@@ -10,6 +10,18 @@ interface DonationsTabProps {
   tenant: Tenant;
   onUpdate: (tenant: Tenant) => void;
   onSave: (updates: any) => Promise<any>;
+}
+
+interface FundFormState {
+  name: string;
+  description: string;
+  type: FundType;
+  visibility: FundVisibility;
+  currency: string;
+  goalAmount: string;
+  minAmount: string;
+  maxAmount: string;
+  allowAnonymous: boolean;
 }
 
 const DEFAULT_SUGGESTED_AMOUNTS = [5, 10, 25, 50, 100];
@@ -44,11 +56,11 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
   const [funds, setFunds] = React.useState<FundWithProgress[]>([]);
   const [fundsLoading, setFundsLoading] = React.useState(false);
   const [editingFundId, setEditingFundId] = React.useState<string | null>(null);
-  const [fundForm, setFundForm] = React.useState({
+  const [fundForm, setFundForm] = React.useState<FundFormState>({
     name: '',
     description: '',
-    type: 'TITHE' as const,
-    visibility: 'PUBLIC' as const,
+    type: 'TITHE',
+    visibility: 'PUBLIC',
     currency: settings.currency,
     goalAmount: '',
     minAmount: '',

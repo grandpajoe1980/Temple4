@@ -129,11 +129,12 @@ export default function AdminTicketsPage({ tenantId }: AdminTicketsPageProps) {
       const response = await fetch(`/api/tenants/${tenantId}/members?status=APPROVED&limit=1000`);
       if (response.ok) {
         const data = await response.json();
-        setMembers(data.members?.map((m: { user: { id: string; profile?: { displayName: string; avatarUrl?: string } }; roles?: Array<{ role: string }> }) => ({
-          id: m.user.id,
-          displayName: m.user.profile?.displayName || 'Unknown',
-          avatarUrl: m.user.profile?.avatarUrl,
-          roles: m.roles?.map((r) => r.role) || [],
+        // API returns enriched user objects from `getMembersForTenant` (user fields + `membership`)
+        setMembers(data.members?.map((m: any) => ({
+          id: m.id,
+          displayName: m.profile?.displayName || m.membership?.displayName || m.email || 'Unknown',
+          avatarUrl: m.profile?.avatarUrl,
+          roles: m.membership?.roles?.map((r: any) => r.role) || [],
         })) || []);
       }
     } catch (error) {

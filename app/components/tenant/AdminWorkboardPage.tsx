@@ -115,12 +115,25 @@ export default function AdminWorkboardPage({ tenantId }: AdminWorkboardPageProps
       const response = await fetch(`/api/tenants/${tenantId}/members?status=APPROVED&limit=1000`);
       if (response.ok) {
         const data = await response.json();
-        setMembers(data.members?.map((m: { user: { id: string; profile?: { displayName: string; avatarUrl?: string } }; roles?: Array<{ role: string }> }) => ({
-          id: m.user.id,
-          displayName: m.user.profile?.displayName || 'Unknown',
-          avatarUrl: m.user.profile?.avatarUrl,
-          roles: m.roles?.map((r) => r.role) || [],
-        })) || []);
+        const safeMembers = Array.isArray(data.members)
+          ? data.members.map((m: any, idx: number) => {
+              const id = m?.user?.id ?? m?.id ?? `unknown-${idx}`;
+              const displayName = m?.user?.profile?.displayName ?? m?.user?.displayName ?? m?.displayName ?? 'Unknown';
+              const avatarUrl = m?.user?.profile?.avatarUrl ?? m?.user?.avatarUrl ?? m?.avatarUrl;
+              const roles = Array.isArray(m?.roles) ? m.roles.map((r: any) => r.role).filter(Boolean) : [];
+              if (!m?.user?.id) {
+                console.warn('AdminWorkboardPage: unexpected member shape', m);
+              }
+              return {
+                id,
+                displayName,
+                avatarUrl,
+                roles,
+              };
+            })
+          : [];
+
+        setMembers(safeMembers);
       }
     } catch (error) {
       console.error('Error fetching members:', error);

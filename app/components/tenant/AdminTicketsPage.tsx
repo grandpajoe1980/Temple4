@@ -7,6 +7,7 @@ import Card from '@/app/components/ui/Card';
 import Input from '@/app/components/ui/Input';
 import Modal from '@/app/components/ui/Modal';
 import ToggleSwitch from '@/app/components/ui/ToggleSwitch';
+import MemberSelect, { MemberOption } from '@/app/components/ui/MemberSelect';
 import { TicketWithDetails, TicketStatus, TicketPriority, TicketCategory, TenantSettings } from '@/types';
 
 interface AdminTicketsPageProps {
@@ -73,7 +74,21 @@ export default function AdminTicketsPage({ tenantId }: AdminTicketsPageProps) {
 
   const [newReply, setNewReply] = useState('');
   const [isInternalNote, setIsInternalNote] = useState(false);
-  const [members, setMembers] = useState<Array<{ id: string; displayName: string; avatarUrl?: string }>>([]);
+  const [members, setMembers] = useState<MemberOption[]>([]);
+  
+  // Create ticket modal state
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [newTicket, setNewTicket] = useState({
+    subject: '',
+    description: '',
+    category: 'GENERAL' as TicketCategory,
+    priority: 'NORMAL' as TicketPriority,
+    requesterName: '',
+    requesterEmail: '',
+    requesterPhone: '',
+    assigneeId: '',
+  });
+  const [creating, setCreating] = useState(false);
 
   const fetchTickets = useCallback(async () => {
     try {
@@ -111,15 +126,14 @@ export default function AdminTicketsPage({ tenantId }: AdminTicketsPageProps) {
 
   const fetchMembers = useCallback(async () => {
     try {
-      const response = await fetch(`/api/tenants/${tenantId}/members?status=APPROVED`);
+      const response = await fetch(`/api/tenants/${tenantId}/members?status=APPROVED&limit=1000`);
       if (response.ok) {
         const data = await response.json();
-        setMembers(data.members?.filter((m: { roles?: Array<{ role: string }> }) => 
-          m.roles?.some((r) => ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role))
-        ).map((m: { user: { id: string; profile?: { displayName: string; avatarUrl?: string } } }) => ({
+        setMembers(data.members?.map((m: { user: { id: string; profile?: { displayName: string; avatarUrl?: string } }; roles?: Array<{ role: string }> }) => ({
           id: m.user.id,
           displayName: m.user.profile?.displayName || 'Unknown',
           avatarUrl: m.user.profile?.avatarUrl,
+          roles: m.roles?.map((r) => r.role) || [],
         })) || []);
       }
     } catch (error) {
@@ -239,6 +253,52 @@ export default function AdminTicketsPage({ tenantId }: AdminTicketsPageProps) {
     }
   };
 
+  const handleCreateTicket = async () => {
+    if (!newTicket.subject.trim() || !newTicket.requesterName.trim() || !newTicket.requesterEmail.trim()) {
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const response = await fetch(`/api/tenants/${tenantId}/tickets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newTicket),
+      });
+
+      if (response.ok) {
+        setNewTicket({
+          subject: '',
+          description: '',
+          category: 'GENERAL',
+          priority: 'NORMAL',
+          requesterName: '',
+          requesterEmail: '',
+          requesterPhone: '',
+          assigneeId: '',
+        });
+        setCreateModalOpen(false);
+        fetchTickets();
+      }
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const openCreateModal = () => {
+    // Pre-fill with current user info if available
+    if (session?.user) {
+      setNewTicket((prev) => ({
+        ...prev,
+        requesterName: session.user?.name || '',
+        requesterEmail: session.user?.email || '',
+      }));
+    }
+    setCreateModalOpen(true);
+  };
+
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return null;
     return new Date(date).toLocaleString();
@@ -277,6 +337,9 @@ export default function AdminTicketsPage({ tenantId }: AdminTicketsPageProps) {
           <p className="text-slate-600">Manage support requests and inquiries</p>
         </div>
         <div className="flex gap-2">
+          <Button onClick={openCreateModal}>
+            + New Ticket
+          </Button>
           <Button variant="secondary" onClick={() => setSettingsModalOpen(true)}>
             Settings
           </Button>
@@ -634,6 +697,111 @@ export default function AdminTicketsPage({ tenantId }: AdminTicketsPageProps) {
 
           <div className="flex justify-end">
             <Button onClick={() => setSettingsModalOpen(false)}>Done</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Create Ticket Modal */}
+      <Modal isOpen={createModalOpen} title="Create New Ticket" onClose={() => setCreateModalOpen(false)}>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Subject *</label>
+            <Input
+              value={newTicket.subject}
+              onChange={(e) => setNewTicket((prev) => ({ ...prev, subject: e.target.value }))}
+              placeholder="Brief description of the issue"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+            <textarea
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={4}
+              value={newTicket.description}
+              onChange={(e) => setNewTicket((prev) => ({ ...prev, description: e.target.value }))}
+              placeholder="Detailed description of the issue..."
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+              <select
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={newTicket.category}
+                onChange={(e) => setNewTicket((prev) => ({ ...prev, category: e.target.value as TicketCategory }))}
+              >
+                {(Object.keys(CATEGORY_LABELS) as TicketCategory[]).map((cat) => (
+                  <option key={cat} value={cat}>{CATEGORY_LABELS[cat]}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Priority</label>
+              <select
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={newTicket.priority}
+                onChange={(e) => setNewTicket((prev) => ({ ...prev, priority: e.target.value as TicketPriority }))}
+              >
+                {(Object.keys(PRIORITY_LABELS) as TicketPriority[]).map((pri) => (
+                  <option key={pri} value={pri}>{PRIORITY_LABELS[pri]}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-200 pt-4">
+            <h4 className="font-medium text-slate-900 mb-3">Requester Information</h4>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Name *</label>
+                <Input
+                  value={newTicket.requesterName}
+                  onChange={(e) => setNewTicket((prev) => ({ ...prev, requesterName: e.target.value }))}
+                  placeholder="Requester name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email *</label>
+                <Input
+                  type="email"
+                  value={newTicket.requesterEmail}
+                  onChange={(e) => setNewTicket((prev) => ({ ...prev, requesterEmail: e.target.value }))}
+                  placeholder="requester@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+                <Input
+                  value={newTicket.requesterPhone}
+                  onChange={(e) => setNewTicket((prev) => ({ ...prev, requesterPhone: e.target.value }))}
+                  placeholder="(optional)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Assign To</label>
+            <MemberSelect
+              members={members}
+              value={newTicket.assigneeId}
+              onChange={(value) => setNewTicket((prev) => ({ ...prev, assigneeId: value }))}
+              placeholder="Unassigned"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+            <Button variant="secondary" onClick={() => setCreateModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateTicket} 
+              disabled={creating || !newTicket.subject.trim() || !newTicket.requesterName.trim() || !newTicket.requesterEmail.trim()}
+            >
+              {creating ? 'Creating...' : 'Create Ticket'}
+            </Button>
           </div>
         </div>
       </Modal>

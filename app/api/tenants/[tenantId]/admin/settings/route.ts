@@ -7,6 +7,12 @@ import { hasRole } from '@/lib/permissions';
 import { z } from 'zod';
 import { TenantRole } from '@/types';
 
+// Helper to check if user is platform admin or tenant admin
+async function canManageTenantSettings(userId: string, tenantId: string, isSuperAdmin?: boolean): Promise<boolean> {
+    if (isSuperAdmin) return true;
+    return hasRole(userId, tenantId, [TenantRole.ADMIN]);
+}
+
 // 17.1 Get Tenant Settings
 export async function GET(
   request: Request,
@@ -21,8 +27,8 @@ export async function GET(
     }
 
     try {
-        const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
-        if (!isAdmin) {
+        const canAccess = await canManageTenantSettings(user.id, tenantId, user.isSuperAdmin);
+        if (!canAccess) {
             return forbidden('You do not have permission to view tenant settings.');
         }
 
@@ -38,10 +44,50 @@ export async function GET(
 
 const settingsSchema = z.object({
     isPublic: z.boolean().optional(),
-    // Add other settings fields here
-    // permissions is a map of string -> map of string -> boolean
+    membershipApprovalMode: z.enum(['AUTO', 'MANUAL', 'INVITE_ONLY']).optional(),
+    // Feature toggles
+    enableCalendar: z.boolean().optional(),
+    enableEvents: z.boolean().optional(),
+    enablePosts: z.boolean().optional(),
+    enableSermons: z.boolean().optional(),
+    enablePodcasts: z.boolean().optional(),
+    enablePhotos: z.boolean().optional(),
+    enableBooks: z.boolean().optional(),
+    enableMemberDirectory: z.boolean().optional(),
+    enableGroupChat: z.boolean().optional(),
+    enableComments: z.boolean().optional(),
+    enableReactions: z.boolean().optional(),
+    enableServices: z.boolean().optional(),
+    enableDonations: z.boolean().optional(),
+    enableRecurringPledges: z.boolean().optional(),
+    enableTranslation: z.boolean().optional(),
+    enableMemorials: z.boolean().optional(),
+    enableVanityDomains: z.boolean().optional(),
+    enableAssetManagement: z.boolean().optional(),
+    enableWorkboard: z.boolean().optional(),
+    enableTicketing: z.boolean().optional(),
+    enableMemberNotes: z.boolean().optional(),
+    enableVolunteering: z.boolean().optional(),
+    enableSmallGroups: z.boolean().optional(),
+    enableTrips: z.boolean().optional(),
+    enableLiveStream: z.boolean().optional(),
+    enablePrayerWall: z.boolean().optional(),
+    autoApprovePrayerWall: z.boolean().optional(),
+    enableResourceCenter: z.boolean().optional(),
+    enableTripFundraising: z.boolean().optional(),
+    enableBirthdays: z.boolean().optional(),
+    // Other settings
+    tripCalendarColor: z.string().optional(),
+    welcomePacketUrl: z.string().nullable().optional(),
+    welcomePacketVersion: z.number().nullable().optional(),
+    // Complex objects
     permissions: z.record(z.string(), z.record(z.string(), z.boolean())).optional(),
-});
+    donationSettings: z.any().optional(),
+    liveStreamSettings: z.any().optional(),
+    translationSettings: z.any().optional(),
+    visitorVisibility: z.any().optional(),
+    newMemberAlertChannels: z.any().optional(),
+}).passthrough(); // Allow additional fields
 
 // 17.2 Update Tenant Settings
 export async function PUT(
@@ -56,14 +102,15 @@ export async function PUT(
         return unauthorized();
     }
 
-    const result = settingsSchema.safeParse(await request.json());
+    const body = await request.json();
+    const result = settingsSchema.safeParse(body);
     if (!result.success) {
-        return validationError(result.error.flatten().fieldErrors);
+        return validationError(result.error.flatten().fieldErrors as Record<string, string[]>);
     }
 
     try {
-        const isAdmin = await hasRole(user.id, tenantId, [TenantRole.ADMIN]);
-        if (!isAdmin) {
+        const canAccess = await canManageTenantSettings(user.id, tenantId, user.isSuperAdmin);
+        if (!canAccess) {
             return forbidden('You do not have permission to update tenant settings.');
         }
 
@@ -79,6 +126,7 @@ export async function PUT(
         // Update tenant settings fields (if any)
         const settingsUpdateData: any = { ...result.data };
         delete settingsUpdateData.permissions;
+        
         if (Object.keys(settingsUpdateData).length > 0) {
             updatedSettings = await prisma.tenantSettings.update({
                 where: { tenantId: tenantId },

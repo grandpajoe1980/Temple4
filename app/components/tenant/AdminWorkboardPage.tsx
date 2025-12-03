@@ -7,6 +7,7 @@ import Card from '@/app/components/ui/Card';
 import Input from '@/app/components/ui/Input';
 import Modal from '@/app/components/ui/Modal';
 import ToggleSwitch from '@/app/components/ui/ToggleSwitch';
+import MemberSelect, { MemberOption } from '@/app/components/ui/MemberSelect';
 import { TaskWithDetails, TaskStatus, TaskPriority, TaskRecurrence, TenantSettings } from '@/types';
 
 interface AdminWorkboardPageProps {
@@ -74,7 +75,7 @@ export default function AdminWorkboardPage({ tenantId }: AdminWorkboardPageProps
 
   const [newComment, setNewComment] = useState('');
   const [draggedTask, setDraggedTask] = useState<string | null>(null);
-  const [members, setMembers] = useState<Array<{ id: string; displayName: string; avatarUrl?: string }>>([]);
+  const [members, setMembers] = useState<MemberOption[]>([]);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -111,13 +112,14 @@ export default function AdminWorkboardPage({ tenantId }: AdminWorkboardPageProps
 
   const fetchMembers = useCallback(async () => {
     try {
-      const response = await fetch(`/api/tenants/${tenantId}/members?status=APPROVED`);
+      const response = await fetch(`/api/tenants/${tenantId}/members?status=APPROVED&limit=1000`);
       if (response.ok) {
         const data = await response.json();
-        setMembers(data.members?.map((m: { user: { id: string; profile?: { displayName: string; avatarUrl?: string } } }) => ({
+        setMembers(data.members?.map((m: { user: { id: string; profile?: { displayName: string; avatarUrl?: string } }; roles?: Array<{ role: string }> }) => ({
           id: m.user.id,
           displayName: m.user.profile?.displayName || 'Unknown',
           avatarUrl: m.user.profile?.avatarUrl,
+          roles: m.roles?.map((r) => r.role) || [],
         })) || []);
       }
     } catch (error) {
@@ -605,16 +607,12 @@ export default function AdminWorkboardPage({ tenantId }: AdminWorkboardPageProps
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Assignee</label>
-              <select
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
+              <MemberSelect
+                members={members}
                 value={newTask.assigneeId}
-                onChange={(e) => setNewTask((prev) => ({ ...prev, assigneeId: e.target.value }))}
-              >
-                <option value="">Unassigned</option>
-                {members.map((member) => (
-                  <option key={member.id} value={member.id}>{member.displayName}</option>
-                ))}
-              </select>
+                onChange={(value) => setNewTask((prev) => ({ ...prev, assigneeId: value }))}
+                placeholder="Unassigned"
+              />
             </div>
           </div>
 
@@ -683,16 +681,12 @@ export default function AdminWorkboardPage({ tenantId }: AdminWorkboardPageProps
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Assignee</label>
-                <select
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                <MemberSelect
+                  members={members}
                   value={selectedTask.assigneeId || ''}
-                  onChange={(e) => setSelectedTask((prev) => prev ? { ...prev, assigneeId: e.target.value || null } : null)}
-                >
-                  <option value="">Unassigned</option>
-                  {members.map((member) => (
-                    <option key={member.id} value={member.id}>{member.displayName}</option>
-                  ))}
-                </select>
+                  onChange={(value) => setSelectedTask((prev) => prev ? { ...prev, assigneeId: value || null } : null)}
+                  placeholder="Unassigned"
+                />
               </div>
             </div>
 

@@ -14,6 +14,7 @@ export async function GET(
     const { tenantId } = await params;
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
+  const isSuperAdmin = Boolean((session?.user as any)?.isSuperAdmin);
 
   if (!userId) {
     return unauthorized();
@@ -39,6 +40,25 @@ export async function GET(
 
     if (!tenant) {
       return notFound('Tenant');
+    }
+
+    // Platform admins can always view member directory
+    if (isSuperAdmin) {
+      const all = await getMembersForTenant(tenantId);
+      const totalMembers = all.length;
+      const start = offset;
+      const end = offset + limit;
+      const members = all.slice(start, end);
+
+      return NextResponse.json({
+          members,
+          pagination: {
+              page,
+              limit,
+              totalPages: Math.ceil(totalMembers / limit),
+              totalResults: totalMembers,
+          }
+      });
     }
 
     // Deny access if the directory is disabled and the user is not an admin/staff

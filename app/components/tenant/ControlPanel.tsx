@@ -2,9 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { TenantRole } from '@/types';
-import Tabs from '../ui/Tabs';
 import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Card from '../ui/Card';
 import { CONTROL_PANEL_TABS } from '@/constants';
 import GeneralTab from './tabs/GeneralTab';
@@ -22,7 +21,18 @@ import LiveStreamTab from './tabs/LiveStreamTab';
 import PrayerWallTab from './tabs/PrayerWallTab';
 import ResourceCenterTab from './tabs/ResourceCenterTab';
 import ContactSubmissionsTab from './tabs/ContactSubmissionsTab';
+import TripsTab from './tabs/TripsTab';
 
+// Tabs that link to separate admin pages
+const STANDALONE_TABS: Record<string, string> = {
+  'Assets': '/admin/assets',
+  'Localization': '/admin/localization',
+  'Member Notes': '/admin/member-notes',
+  'Memorials': '/admin/memorials',
+  'Tickets': '/admin/tickets',
+  'Vanity Domains': '/admin/vanity-domains',
+  'Workboard': '/admin/workboard',
+};
 
 interface ControlPanelProps {
   tenant: any; // Has architectural issues, needs refactoring
@@ -36,6 +46,7 @@ interface ControlPanelProps {
 const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, currentUser, onImpersonate, onRefresh }) => {
   const [permissions, setPermissions] = React.useState<Record<string, boolean> | null>(null);
   const [isAdmin, setIsAdmin] = React.useState(false);
+  const pathname = usePathname();
 
   React.useEffect(() => {
     if (!currentUser) return;
@@ -94,6 +105,15 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
     if (match) setActiveTab(match);
   }, [searchParams, availableTabs]);
 
+  const handleTabClick = (tab: string) => {
+    if (STANDALONE_TABS[tab]) {
+      router.push(`/tenants/${tenant.id}${STANDALONE_TABS[tab]}`);
+    } else {
+      setActiveTab(tab);
+      router.push(`/tenants/${tenant.id}/settings?category=${slugFor(tab)}`, { scroll: false });
+    }
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'General':
@@ -146,20 +166,68 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
         return currentUser ? (
           <ContactSubmissionsTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
         ) : null;
+      case 'Trips':
+        return currentUser ? (
+          <TripsTab tenant={tenant} currentUser={currentUser} onRefresh={onRefresh} />
+        ) : null;
       default:
-        return null;
+        return (
+          <div className="text-center py-12 text-gray-500">
+            <p>This section has its own dedicated page.</p>
+            <button 
+              onClick={() => handleTabClick(activeTab)}
+              className="mt-4 text-amber-600 hover:text-amber-700 font-medium"
+            >
+              Go to {activeTab} →
+            </button>
+          </div>
+        );
     }
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="!p-0">
-        <div className="px-6 pt-6">
-          <h2 className="text-2xl font-bold text-gray-900">Control Panel</h2>
-          <p className="mt-1 text-sm text-gray-500">Manage settings for {tenant.name}.</p>
-        </div>
-        <div className="p-6">{renderTabContent()}</div>
-      </Card>
+    <div className="flex gap-6">
+      {/* Sidebar */}
+      <div className="w-56 flex-shrink-0">
+        <nav className="sticky top-24 space-y-1">
+          <div className="mb-4">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3">Settings</h3>
+          </div>
+          {availableTabs.map((tab) => {
+            const isActive = activeTab === tab;
+            const isStandalone = !!STANDALONE_TABS[tab];
+            return (
+              <button
+                key={tab}
+                onClick={() => handleTabClick(tab)}
+                className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-between ${
+                  isActive
+                    ? 'bg-amber-50 text-amber-700 font-medium'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <span>{tab}</span>
+                {isStandalone && (
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 min-w-0">
+        <Card className="!p-0">
+          <div className="px-6 pt-6 border-b border-gray-100 pb-4">
+            <h2 className="text-2xl font-bold text-gray-900">{activeTab}</h2>
+            <p className="mt-1 text-sm text-gray-500">Manage {activeTab.toLowerCase()} settings for {tenant.name}.</p>
+          </div>
+          <div className="p-6">{renderTabContent()}</div>
+        </Card>
+      </div>
     </div>
   );
 };

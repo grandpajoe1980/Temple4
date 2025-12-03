@@ -52,12 +52,13 @@ export default function CommunityChips({ tenantId }: { tenantId: string }) {
     { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
     { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
     { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
-  { key: 'staff', label: 'Staff', path: '/staff', feature: 'enableMemberDirectory' },
+    { key: 'staff', label: 'Staff', path: '/staff', feature: 'enableMemberDirectory' },
     { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
     { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
     { key: 'trips', label: 'Trips', path: '/trips', feature: 'enableTrips' },
     { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
-    { key: 'resourceCenter', label: 'Resource', path: '/resources', feature: 'enableResourceCenter' },
+    { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
+    { key: 'tickets', label: 'Support', path: '/admin/tickets', feature: 'enableTicketing' },
   ];
 
   return (

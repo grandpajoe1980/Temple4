@@ -41,9 +41,37 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave, onR
     });
   };
 
-  const featureKeys = (['enableBooks', 'enableCalendar', 'enableComments', 'enableDonations', 'enableEvents', 'enableGroupChat', 'enableLiveStream', 'enableMemberDirectory', 'enablePodcasts', 'enablePhotos', 'enablePosts', 'enablePrayerWall', 'enableReactions', 'enableResourceCenter', 'enableServices', 'enableSermons', 'enableSmallGroups', 'enableTrips', 'enableTripFundraising', 'enableVolunteering', 'enableBirthdays'] satisfies Array<keyof Omit<
+  const featureKeys = ([
+    'enableAssetManagement',
+    'enableBooks',
+    'enableCalendar',
+    'enableComments',
+    'enableDonations',
+    'enableEvents',
+    'enableGroupChat',
+    'enableLiveStream',
+    'enableMemberDirectory',
+    'enableMemberNotes',
+    'enableMemorials',
+    'enablePodcasts',
+    'enablePhotos',
+    'enablePosts',
+    'enablePrayerWall',
+    'enableReactions',
+    'enableRecurringPledges',
+    'enableResourceCenter',
+    'enableServices',
+    'enableSermons',
+    'enableSmallGroups',
+    'enableTicketing',
+    'enableTrips',
+    'enableTripFundraising',
+    'enableVolunteering',
+    'enableWorkboard',
+    'enableBirthdays',
+  ] satisfies Array<keyof Omit<
     Tenant['settings'],
-    'isPublic' | 'membershipApprovalMode' | 'visitorVisibility' | 'donationSettings' | 'liveStreamSettings'
+    'isPublic' | 'membershipApprovalMode' | 'visitorVisibility' | 'donationSettings' | 'liveStreamSettings' | 'translationSettings' | 'enableTranslation' | 'enableVanityDomains' | 'welcomePacketUrl' | 'welcomePacketVersion' | 'autoApprovePrayerWall' | 'tripCalendarColor' | 'newMemberAlertChannels'
   >>).sort((a, b) => formatLabel(a).localeCompare(formatLabel(b)));
 
   const visibilityKeys = Object.keys(tenant.settings.visitorVisibility) as (keyof Tenant['settings']['visitorVisibility'])[];

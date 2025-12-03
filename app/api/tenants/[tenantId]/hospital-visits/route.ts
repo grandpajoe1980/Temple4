@@ -14,36 +14,44 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
     }
 
     const { tenantId } = await params;
+    const isSuperAdmin = Boolean((session.user as any)?.isSuperAdmin);
 
-    // Verify membership
-    const membership = await prisma.userTenantMembership.findFirst({
-      where: {
-        userId: session.user.id,
-        tenantId,
-        status: 'APPROVED',
-      },
-      include: { roles: true },
-    });
+    // Platform admins have full access
+    let isStaffOrAdmin = isSuperAdmin;
 
-    if (!membership) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!isSuperAdmin) {
+      // Verify membership
+      const membership = await prisma.userTenantMembership.findFirst({
+        where: {
+          userId: session.user.id,
+          tenantId,
+          status: 'APPROVED',
+        },
+        include: { roles: true },
+      });
+
+      if (!membership) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
+      isStaffOrAdmin = membership.roles.some((r) =>
+        ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role)
+      );
+
+      if (!isStaffOrAdmin) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
     }
 
-    const isStaffOrAdmin = membership.roles.some((r) =>
-      ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role)
-    );
+    // Check if feature is enabled (skip for platform admins)
+    if (!isSuperAdmin) {
+      const settings = await prisma.tenantSettings.findUnique({
+        where: { tenantId },
+      });
 
-    if (!isStaffOrAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // Check if feature is enabled
-    const settings = await prisma.tenantSettings.findUnique({
-      where: { tenantId },
-    });
-
-    if (!settings?.enableMemberNotes) {
-      return NextResponse.json({ error: 'Member notes feature is not enabled' }, { status: 403 });
+      if (!settings?.enableMemberNotes) {
+        return NextResponse.json({ error: 'Member notes feature is not enabled' }, { status: 403 });
+      }
     }
 
     const { searchParams } = new URL(request.url);
@@ -84,8 +92,28 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
       prisma.hospitalVisit.count({ where }),
     ]);
 
+    // Transform visits to flatten profile data
+    const transformedVisits = visits.map((visit) => ({
+      ...visit,
+      member: {
+        id: visit.member.id,
+        displayName: visit.member.profile?.displayName || 'Unknown',
+        avatarUrl: visit.member.profile?.avatarUrl,
+      },
+      visitor: {
+        id: visit.visitor.id,
+        displayName: visit.visitor.profile?.displayName || 'Unknown',
+        avatarUrl: visit.visitor.profile?.avatarUrl,
+      },
+      followUpAssignedTo: visit.followUpAssignedTo ? {
+        id: visit.followUpAssignedTo.id,
+        displayName: visit.followUpAssignedTo.profile?.displayName || 'Unknown',
+        avatarUrl: visit.followUpAssignedTo.profile?.avatarUrl,
+      } : null,
+    }));
+
     return NextResponse.json({
-      visits,
+      visits: transformedVisits,
       pagination: {
         page,
         limit,
@@ -108,36 +136,44 @@ export async function POST(request: NextRequest, { params }: { params: Params })
     }
 
     const { tenantId } = await params;
+    const isSuperAdmin = Boolean((session.user as any)?.isSuperAdmin);
 
-    // Verify membership
-    const membership = await prisma.userTenantMembership.findFirst({
-      where: {
-        userId: session.user.id,
-        tenantId,
-        status: 'APPROVED',
-      },
-      include: { roles: true },
-    });
+    // Platform admins have full access
+    let isStaffOrAdmin = isSuperAdmin;
 
-    if (!membership) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!isSuperAdmin) {
+      // Verify membership
+      const membership = await prisma.userTenantMembership.findFirst({
+        where: {
+          userId: session.user.id,
+          tenantId,
+          status: 'APPROVED',
+        },
+        include: { roles: true },
+      });
+
+      if (!membership) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
+      isStaffOrAdmin = membership.roles.some((r) =>
+        ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role)
+      );
+
+      if (!isStaffOrAdmin) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
     }
 
-    const isStaffOrAdmin = membership.roles.some((r) =>
-      ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role)
-    );
+    // Check if feature is enabled (skip for platform admins)
+    if (!isSuperAdmin) {
+      const settings = await prisma.tenantSettings.findUnique({
+        where: { tenantId },
+      });
 
-    if (!isStaffOrAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // Check if feature is enabled
-    const settings = await prisma.tenantSettings.findUnique({
-      where: { tenantId },
-    });
-
-    if (!settings?.enableMemberNotes) {
-      return NextResponse.json({ error: 'Member notes feature is not enabled' }, { status: 403 });
+      if (!settings?.enableMemberNotes) {
+        return NextResponse.json({ error: 'Member notes feature is not enabled' }, { status: 403 });
+      }
     }
 
     const body = await request.json();
@@ -194,7 +230,27 @@ export async function POST(request: NextRequest, { params }: { params: Params })
       },
     });
 
-    return NextResponse.json(visit, { status: 201 });
+    // Transform visit to flatten profile data
+    const transformedVisit = {
+      ...visit,
+      member: {
+        id: visit.member.id,
+        displayName: visit.member.profile?.displayName || 'Unknown',
+        avatarUrl: visit.member.profile?.avatarUrl,
+      },
+      visitor: {
+        id: visit.visitor.id,
+        displayName: visit.visitor.profile?.displayName || 'Unknown',
+        avatarUrl: visit.visitor.profile?.avatarUrl,
+      },
+      followUpAssignedTo: visit.followUpAssignedTo ? {
+        id: visit.followUpAssignedTo.id,
+        displayName: visit.followUpAssignedTo.profile?.displayName || 'Unknown',
+        avatarUrl: visit.followUpAssignedTo.profile?.avatarUrl,
+      } : null,
+    };
+
+    return NextResponse.json(transformedVisit, { status: 201 });
   } catch (error) {
     console.error('Error creating hospital visit:', error);
     return NextResponse.json({ error: 'Failed to create hospital visit' }, { status: 500 });

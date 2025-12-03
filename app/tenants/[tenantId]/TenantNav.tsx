@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type { Tenant, TenantSettings } from '@prisma/client';
-import { CONTROL_PANEL_TABS } from '@/constants';
 
 interface TenantNavProps {
   tenant: Tenant & { settings: TenantSettings | null };
@@ -13,7 +12,8 @@ interface TenantNavProps {
 }
 
 type TenantPage = 'home' | 'content' | 'community' | 'settings' | 'services' | 'donations' | 'contact';
-type SubmenuKey = 'content' | 'community' | 'services' | 'settings' | 'donations';
+// Settings removed from submenu - uses ControlPanel sidebar instead
+type SubmenuKey = 'content' | 'community' | 'services' | 'donations';
 type NavItemFeature = keyof Omit<
   TenantSettings,
   | 'id'
@@ -43,7 +43,7 @@ const contentSubItems: { key: string; label: string; path: string; feature?: Nav
   { key: 'liveStream', label: 'Live Stream', path: '/livestream', feature: 'enableLiveStream' },
 ];
 
-const communitySubItems: { key: string; label: string; path: string; feature?: NavItemFeature }[] = [
+const communitySubItems: { key: string; label: string; path: string; feature?: NavItemFeature; adminOnly?: boolean }[] = [
   { key: 'events', label: 'Events', path: '/events', feature: 'enableEvents' },
   { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
   { key: 'wall', label: 'Wall', path: '/community/wall' },
@@ -57,6 +57,8 @@ const communitySubItems: { key: string; label: string; path: string; feature?: N
   { key: 'trips', label: 'Trips', path: '/trips', feature: 'enableTrips' },
   { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
   { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
+  { key: 'workboard', label: 'Workboard', path: '/admin/workboard', feature: 'enableWorkboard', adminOnly: true },
+  { key: 'tickets', label: 'Support Tickets', path: '/admin/tickets', feature: 'enableTicketing', adminOnly: true },
 ];
 
 const serviceSubItems: { key: string; label: string; path: string }[] = [
@@ -73,6 +75,8 @@ const donationsSubItems: { key: string; label: string; path: string; feature?: N
   { key: 'pledges', label: 'My Pledges', path: '/donations/pledges', feature: 'enableRecurringPledges' },
 ];
 
+// Settings submenu removed - ControlPanel has a comprehensive sidebar for settings navigation
+
 export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -87,6 +91,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
       return 'content';
     }
 
+    // Check community items including admin pages for workboard and tickets
     if (
       pathname.startsWith(`${basePath}/community`) ||
       communitySubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))
@@ -102,9 +107,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
       return 'donations';
     }
 
-    if (pathname.startsWith(`${basePath}/settings`)) {
-      return 'settings';
-    }
+    // Settings pages don't show inline submenu - ControlPanel has sidebar navigation
 
     return null;
   }, [basePath, pathname]);
@@ -119,15 +122,12 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const servicesHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const donationsShowTimer = React.useRef<NodeJS.Timeout | null>(null);
   const donationsHideTimer = React.useRef<NodeJS.Timeout | null>(null);
-  const settingsShowTimer = React.useRef<NodeJS.Timeout | null>(null);
-  const settingsHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const submenuTimers: Record<SubmenuKey, { show: React.MutableRefObject<NodeJS.Timeout | null>; hide: React.MutableRefObject<NodeJS.Timeout | null> }> = React.useMemo(
     () => ({
       content: { show: contentShowTimer, hide: contentHideTimer },
       community: { show: communityShowTimer, hide: communityHideTimer },
       services: { show: servicesShowTimer, hide: servicesHideTimer },
       donations: { show: donationsShowTimer, hide: donationsHideTimer },
-      settings: { show: settingsShowTimer, hide: settingsHideTimer },
     }),
     []
   );
@@ -228,13 +228,14 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
 
   const renderSubmenu = (
     key: SubmenuKey,
-    items: { key: string; label: string; path: string; feature?: NavItemFeature }[]
+    items: { key: string; label: string; path: string; feature?: NavItemFeature; adminOnly?: boolean }[]
   ) => {
     // Determine active category from the URL (if present)
     const activeCategory = searchParams?.get('category') || '';
 
     return items
       .filter((sub) => isFeatureEnabled(sub.feature))
+      .filter((sub) => !sub.adminOnly || canViewSettings)
       .map((sub) => {
         const match = sub.path.match(/\?category=([^&]+)/);
         const subCategory = match ? match[1] : '';
@@ -257,15 +258,11 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const renderActiveSubmenuOverlay = () => {
     if (!activeSubmenu || activeSubmenu === lockedSubmenu) return null;
     if (typeof document === 'undefined') return null; // SSR guard
-    const itemsByKey: Record<SubmenuKey, { key: string; label: string; path: string; feature?: NavItemFeature }[]> = {
+    const itemsByKey: Record<SubmenuKey, { key: string; label: string; path: string; feature?: NavItemFeature; adminOnly?: boolean }[]> = {
       content: contentSubItems,
       community: communitySubItems,
       services: serviceSubItems,
       donations: donationsSubItems,
-      settings: CONTROL_PANEL_TABS.map((tab) => {
-        const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        return { key: tab, label: tab, path: `/settings${slug ? `?category=${slug}` : ''}` };
-      }),
     };
     const items = itemsByKey[activeSubmenu];
     if (!items?.length) return null;
@@ -279,9 +276,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
       >
         <div className="mx-auto max-w-5xl rounded-full border border-amber-100 bg-white px-4 py-3 shadow-lg shadow-amber-100/60 backdrop-blur-sm overflow-x-auto">
           <div className="flex flex-nowrap items-center justify-start gap-2 whitespace-nowrap">
-            {activeSubmenu === 'settings'
-              ? renderSubmenu(activeSubmenu, items.map((item) => ({ ...item, feature: undefined })))
-              : renderSubmenu(activeSubmenu, items)}
+            {renderSubmenu(activeSubmenu, items)}
           </div>
         </div>
       </div>,
@@ -291,15 +286,11 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
 
   const renderInlineLockedSubmenu = () => {
     if (!lockedSubmenu) return null;
-    const itemsByKey: Record<SubmenuKey, { key: string; label: string; path: string; feature?: NavItemFeature }[]> = {
+    const itemsByKey: Record<SubmenuKey, { key: string; label: string; path: string; feature?: NavItemFeature; adminOnly?: boolean }[]> = {
       content: contentSubItems,
       community: communitySubItems,
       services: serviceSubItems,
       donations: donationsSubItems,
-      settings: CONTROL_PANEL_TABS.map((tab) => {
-        const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        return { key: tab, label: tab, path: `/settings${slug ? `?category=${slug}` : ''}` };
-      }),
     };
     const items = itemsByKey[lockedSubmenu];
     if (!items?.length) return null;
@@ -311,9 +302,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
           onMouseEnter={() => clearTimer(submenuTimers[lockedSubmenu].hide)}
           onMouseLeave={() => scheduleHide(lockedSubmenu)}
         >
-          {lockedSubmenu === 'settings'
-            ? renderSubmenu(lockedSubmenu, items.map((item) => ({ ...item, feature: undefined })))
-            : renderSubmenu(lockedSubmenu, items)}
+          {renderSubmenu(lockedSubmenu, items)}
         </div>
       </div>
     );
@@ -400,21 +389,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
             );
           }
 
-          if (item.key === 'settings') {
-            return (
-              <div
-                key={item.key}
-                className="relative"
-                onMouseEnter={() => scheduleShow('settings')}
-                onMouseLeave={() => scheduleHide('settings')}
-              >
-                <Link href={fullPath} className={baseClasses(isActive)}>
-                  {item.label}
-                </Link>
-              </div>
-            );
-          }
-
+          // Settings is a simple link - no hover submenu, uses ControlPanel sidebar instead
           return (
             <Link key={item.key} href={fullPath} className={baseClasses(isActive)}>
               {item.label}

@@ -128,7 +128,20 @@ export async function can(
 }
 
 /**
+ * Checks if a user is a platform/super admin.
+ * Platform admins have all tenant admin rights.
+ */
+export async function isPlatformAdmin(userId: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { isSuperAdmin: true },
+  });
+  return Boolean(user?.isSuperAdmin);
+}
+
+/**
  * Checks if a user has a specific role within a tenant.
+ * Platform admins (isSuperAdmin) automatically have all roles including ADMIN.
  *
  * @param user The user to check.
  * @param tenantId The ID of the tenant context for the role.
@@ -136,6 +149,16 @@ export async function can(
  * @returns {boolean} True if the user has the role, false otherwise.
  */
 export async function hasRole(userId: string, tenantId: string, requiredRoles: TenantRole[]): Promise<boolean> {
+  // Check if user is a platform admin - they have all roles
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { isSuperAdmin: true },
+  });
+  
+  if (user?.isSuperAdmin) {
+    return true; // Platform admins have all tenant roles
+  }
+  
   const membership = await getMembershipForUserInTenant(userId, tenantId);
 
   if (!membership || membership.status !== 'APPROVED') {

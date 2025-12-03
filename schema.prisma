@@ -270,6 +270,28 @@ model User {
   tripPhotos                      TripPhoto[]               @relation("TripPhotoUploader")
   tripDonationsDonated            TripDonation[]            @relation("TripDonationDonor")
   tripDonationsSponsored          TripDonation[]            @relation("TripDonationSponsored")
+  memorialsSubmitted              Memorial[]                @relation("MemorialSubmitter")
+  memorialsApproved               Memorial[]                @relation("MemorialApprover")
+  memorialsRejected               Memorial[]                @relation("MemorialRejecter")
+  memorialTributes                MemorialTribute[]
+  assetsAssigned                  Asset[]                   @relation("AssetAssignedTo")
+  assetEvents                     AssetEvent[]              @relation("AssetEventUser")
+  tasksAssigned                   Task[]                    @relation("TaskAssignee")
+  tasksCreated                    Task[]                    @relation("TaskCreator")
+  taskComments                    TaskComment[]
+  taskActivities                  TaskActivity[]
+  ticketsRequested                Ticket[]                  @relation("TicketRequester")
+  ticketsAssigned                 Ticket[]                  @relation("TicketAssignee")
+  ticketUpdates                   TicketUpdate[]
+  notesAbout                      MemberNote[]              @relation("NotesAboutMember")
+  notesAuthored                   MemberNote[]              @relation("NotesAuthoredBy")
+  notesAssignedTo                 MemberNote[]              @relation("NotesAssignedTo")
+  notesEscalatedTo                MemberNote[]              @relation("NotesEscalatedTo")
+  noteFollowUpsAssigned           NoteFollowUp[]            @relation("NoteFollowUpAssignedTo")
+  noteFollowUpsCompleted          NoteFollowUp[]            @relation("NoteFollowUpCompletedBy")
+  hospitalVisitsFor               HospitalVisit[]           @relation("HospitalVisitsFor")
+  hospitalVisitsMade              HospitalVisit[]           @relation("HospitalVisitsMadeBy")
+  hospitalVisitFollowUps          HospitalVisit[]           @relation("HospitalVisitFollowUp")
 }
 
 model UserProfile {
@@ -343,6 +365,13 @@ model Tenant {
   serviceOfferings        ServiceOffering[]
   facilities              Facility[]
   profilePostHiddens      ProfilePostHidden[]
+  memorials               Memorial[]
+  vanityDomains           VanityDomain[]
+  assets                  Asset[]
+  tasks                   Task[]
+  tickets                 Ticket[]
+  memberNotes             MemberNote[]
+  hospitalVisits          HospitalVisit[]
 }
 
 model TenantBranding {
@@ -455,41 +484,50 @@ model FacilityBlackout {
 }
 
 model TenantSettings {
-  id                     String                 @id @default(cuid())
-  tenantId               String                 @unique
-  tenant                 Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  isPublic               Boolean                @default(false)
-  membershipApprovalMode MembershipApprovalMode @default(APPROVAL_REQUIRED)
-  enableCalendar         Boolean                @default(true)
-  enablePosts            Boolean                @default(true)
-  enableSermons          Boolean                @default(true)
-  enablePodcasts         Boolean                @default(true)
-  enableBooks            Boolean                @default(true)
-  enableMemberDirectory  Boolean                @default(true)
-  enableGroupChat        Boolean                @default(true)
-  enableComments         Boolean                @default(true)
-  enableReactions        Boolean                @default(true)
-  enableServices         Boolean                @default(true)
-  enableDonations        Boolean                @default(false)
-  enableVolunteering     Boolean                @default(false)
-  enableSmallGroups      Boolean                @default(false)
-  enableTrips            Boolean                @default(false)
-  enableLiveStream       Boolean                @default(false)
-  enablePhotos           Boolean                @default(true)
-  enablePrayerWall       Boolean                @default(false)
-  autoApprovePrayerWall  Boolean                @default(false)
-  enableResourceCenter   Boolean                @default(false)
-  enableTripFundraising  Boolean                @default(false)
-  tripCalendarColor      String?                @default("#0EA5E9")
-  enableEvents           Boolean                @default(true)
-  donationSettings       Json // DonationSettings
-  liveStreamSettings     Json // LiveStreamSettings
-  visitorVisibility      Json // visitorVisibility
-  maxStorageMB           Int                    @default(1000) // Phase F2: Storage quota per tenant
-  enableBirthdays        Boolean                @default(false)
-  welcomePacketUrl       String?
-  welcomePacketVersion   Int?                   @default(1)
-  newMemberAlertChannels Json                   @default("[\"email\"]")
+  id                       String                 @id @default(cuid())
+  tenantId                 String                 @unique
+  tenant                   Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  isPublic                 Boolean                @default(false)
+  membershipApprovalMode   MembershipApprovalMode @default(APPROVAL_REQUIRED)
+  enableCalendar           Boolean                @default(true)
+  enablePosts              Boolean                @default(true)
+  enableSermons            Boolean                @default(true)
+  enablePodcasts           Boolean                @default(true)
+  enableBooks              Boolean                @default(true)
+  enableMemberDirectory    Boolean                @default(true)
+  enableGroupChat          Boolean                @default(true)
+  enableComments           Boolean                @default(true)
+  enableReactions          Boolean                @default(true)
+  enableServices           Boolean                @default(true)
+  enableDonations          Boolean                @default(false)
+  enableRecurringPledges   Boolean                @default(false)
+  enableTranslation        Boolean                @default(false)
+  enableMemorials          Boolean                @default(false)
+  enableVolunteering       Boolean                @default(false)
+  enableSmallGroups        Boolean                @default(false)
+  enableTrips              Boolean                @default(false)
+  enableLiveStream         Boolean                @default(false)
+  enablePhotos             Boolean                @default(true)
+  enablePrayerWall         Boolean                @default(false)
+  autoApprovePrayerWall    Boolean                @default(false)
+  enableResourceCenter     Boolean                @default(false)
+  enableTripFundraising    Boolean                @default(false)
+  tripCalendarColor        String?                @default("#0EA5E9")
+  enableEvents             Boolean                @default(true)
+  donationSettings         Json // DonationSettings
+  liveStreamSettings       Json // LiveStreamSettings
+  translationSettings      Json? // TranslationSettings
+  visitorVisibility        Json // visitorVisibility
+  maxStorageMB             Int                    @default(1000) // Phase F2: Storage quota per tenant
+  enableBirthdays          Boolean                @default(false)
+  enableVanityDomains      Boolean                @default(false)
+  enableAssetManagement    Boolean                @default(false)
+  enableWorkboard          Boolean                @default(true)
+  enableTicketing          Boolean                @default(false)
+  enableMemberNotes        Boolean                @default(true)
+  welcomePacketUrl         String?
+  welcomePacketVersion     Int?                   @default(1)
+  newMemberAlertChannels   Json                   @default("[\"email\"]")
 }
 
 model UserTenantMembership {
@@ -793,6 +831,8 @@ model Fund {
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
   donations          DonationRecord[]
+  pledges            Pledge[]
+  memorials          Memorial[]
 
   @@index([tenantId, visibility, archivedAt])
 }
@@ -1132,6 +1172,91 @@ model ImpersonationSession {
 
 // --- EMAIL SERVICE (Phase F3) ---
 
+// --- RECURRING PLEDGES MODELS ---
+
+enum PledgeFrequency {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum PledgeStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  FAILED
+  COMPLETED
+}
+
+model Pledge {
+  id                   String          @id @default(cuid())
+  tenantId             String
+  userId               String
+  fundId               String
+  fund                 Fund            @relation(fields: [fundId], references: [id], onDelete: Cascade)
+  amountCents          Int
+  currency             String          @default("USD")
+  frequency            PledgeFrequency
+  startDate            DateTime
+  endDate              DateTime?
+  nextChargeAt         DateTime
+  paymentMethodToken   String?         // Tokenized payment method (PCI compliant)
+  paymentMethodLast4   String?
+  paymentMethodBrand   String?
+  status               PledgeStatus    @default(ACTIVE)
+  failureCount         Int             @default(0)
+  totalChargesCount    Int             @default(0)
+  totalAmountCents     Int             @default(0)
+  lastChargedAt        DateTime?
+  lastFailedAt         DateTime?
+  lastFailureReason    String?
+  isAnonymous          Boolean         @default(false)
+  dedicationNote       String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  cancelledAt          DateTime?
+  pausedAt             DateTime?
+
+  charges              PledgeCharge[]
+
+  @@index([tenantId, status])
+  @@index([userId])
+  @@index([nextChargeAt, status])
+}
+
+model PledgeCharge {
+  id              String   @id @default(cuid())
+  pledgeId        String
+  pledge          Pledge   @relation(fields: [pledgeId], references: [id], onDelete: Cascade)
+  amountCents     Int
+  currency        String
+  status          String   // PENDING, SUCCESS, FAILED, REFUNDED
+  attemptCount    Int      @default(1)
+  chargedAt       DateTime?
+  failedAt        DateTime?
+  failureReason   String?
+  transactionId   String?  // External payment gateway transaction ID
+  receiptSentAt   DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([pledgeId, createdAt])
+  @@index([status])
+}
+
+model PledgeSettings {
+  id                     String   @id @default(cuid())
+  tenantId               String   @unique
+  maxFailuresBeforePause Int      @default(3)
+  retryIntervalHours     Int      @default(24)
+  dunningEmailDays       Json     @default("[3, 7, 14]") // Days after failure to send dunning emails
+  gracePeriodDays        Int      @default(7)
+  autoResumeOnSuccess    Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
 model EmailLog {
   id         String   @id @default(cuid())
   tenantId   String?
@@ -1282,4 +1407,680 @@ model ProfilePostHidden {
 
   @@unique([postId, tenantId])
   @@index([tenantId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Feature #6: In Memoriam / Memorials
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum MemorialStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MemorialPrivacy {
+  PUBLIC
+  MEMBERS_ONLY
+  PRIVATE
+}
+
+model Memorial {
+  id                String           @id @default(cuid())
+  tenantId          String
+  tenant            Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name              String
+  birthDate         DateTime?
+  deathDate         DateTime?
+  story             String?
+  photos            Json             @default("[]") // Array of photo URLs
+  tags              Json             @default("[]") // Array of tag strings
+  privacy           MemorialPrivacy  @default(PUBLIC)
+  status            MemorialStatus   @default(PENDING)
+  submitterId       String?
+  submitter         User?            @relation("MemorialSubmitter", fields: [submitterId], references: [id])
+  submitterName     String?          // For non-logged-in submitters
+  submitterEmail    String?
+  approvedById      String?
+  approvedBy        User?            @relation("MemorialApprover", fields: [approvedById], references: [id])
+  approvedAt        DateTime?
+  rejectedById      String?
+  rejectedBy        User?            @relation("MemorialRejecter", fields: [rejectedById], references: [id])
+  rejectedAt        DateTime?
+  rejectionReason   String?
+  linkedFundId      String?          // Optional donation fund for "in memory" donations
+  linkedFund        Fund?            @relation(fields: [linkedFundId], references: [id])
+  viewCount         Int              @default(0)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  deletedAt         DateTime?
+  tributes          MemorialTribute[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, privacy])
+  @@index([submitterId])
+}
+
+model MemorialTribute {
+  id           String    @id @default(cuid())
+  memorialId   String
+  memorial     Memorial  @relation(fields: [memorialId], references: [id], onDelete: Cascade)
+  userId       String?
+  user         User?     @relation(fields: [userId], references: [id])
+  authorName   String?   // For non-logged-in authors
+  content      String
+  isApproved   Boolean   @default(true) // If moderation is needed
+  isReported   Boolean   @default(false)
+  reportReason String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  @@index([memorialId, createdAt])
+  @@index([userId])
+}
+
+// --- VANITY DOMAINS ---
+
+enum VanityDomainStatus {
+  PENDING_VERIFICATION // Waiting for DNS verification
+  DNS_VERIFIED         // DNS verified, SSL pending
+  SSL_PROVISIONING     // SSL certificate being provisioned
+  ACTIVE               // Fully active and serving traffic
+  SSL_EXPIRED          // SSL expired, needs renewal
+  DISABLED             // Manually disabled
+  ERROR                // Error state requiring attention
+}
+
+enum VanityDomainType {
+  FULL_DOMAIN  // e.g., mychurch.org
+  SUBDOMAIN    // e.g., mychurch.example.com
+  PATH_PREFIX  // e.g., example.com/mychurch
+}
+
+model VanityDomain {
+  id                    String              @id @default(cuid())
+  tenantId              String
+  tenant                Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  // Domain configuration
+  domain                String              @unique // The full domain or path
+  domainType            VanityDomainType    @default(FULL_DOMAIN)
+  isPrimary             Boolean             @default(false) // Primary domain for this tenant
+  
+  // Verification
+  status                VanityDomainStatus  @default(PENDING_VERIFICATION)
+  verificationToken     String              // Random token for DNS TXT record
+  verificationMethod    String              @default("TXT") // TXT, CNAME
+  verifiedAt            DateTime?
+  lastVerificationCheck DateTime?
+  verificationAttempts  Int                 @default(0)
+  
+  // SSL Certificate
+  sslStatus             String?             // "provisioning", "active", "expired", "error"
+  sslExpiresAt          DateTime?
+  sslProviderRef        String?             // Reference ID from SSL provider
+  sslLastRenewalAt      DateTime?
+  
+  // Redirect settings
+  redirectToSlug        Boolean             @default(false) // If true, redirect to /tenants/[slug]
+  forceHttps            Boolean             @default(true)
+  wwwRedirect           String?             // "add_www", "remove_www", null for no change
+  
+  // Analytics
+  totalRequests         Int                 @default(0)
+  lastRequestAt         DateTime?
+  
+  // Audit
+  createdBy             String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  disabledAt            DateTime?
+  disabledReason        String?
+  deletedAt             DateTime?
+  
+  @@index([tenantId])
+  @@index([domain])
+  @@index([status])
+}
+
+// --- ASSET MANAGEMENT ---
+
+enum AssetStatus {
+  AVAILABLE    // Ready for use
+  IN_USE       // Currently checked out
+  MAINTENANCE  // Under maintenance
+  RESERVED     // Reserved for upcoming use
+  RETIRED      // No longer in service
+  DISPOSED     // Disposed/sold
+}
+
+enum AssetCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+  DAMAGED
+  UNKNOWN
+}
+
+enum AssetCategory {
+  EQUIPMENT      // Audio/Visual, computers, projectors
+  FURNITURE      // Chairs, tables, podiums
+  VEHICLE        // Church vans, buses
+  BUILDING       // Building-related assets
+  SUPPLIES       // Office supplies, consumables
+  INSTRUMENTS    // Musical instruments
+  LITURGICAL     // Religious items, vestments
+  KITCHEN        // Kitchen equipment
+  GROUNDS        // Outdoor equipment, tools
+  OTHER
+}
+
+enum AssetEventType {
+  CREATED
+  UPDATED
+  CHECKED_OUT
+  CHECKED_IN
+  MAINTENANCE_SCHEDULED
+  MAINTENANCE_COMPLETED
+  CONDITION_UPDATED
+  LOCATION_CHANGED
+  RESERVED
+  UNRESERVED
+  RETIRED
+  DISPOSED
+}
+
+model Asset {
+  id                String          @id @default(cuid())
+  tenantId          String
+  tenant            Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  name              String
+  description       String?
+  category          AssetCategory   @default(OTHER)
+  serialNumber      String?
+  barcode           String?         // For barcode/QR scanning
+  model             String?
+  manufacturer      String?
+  
+  // Status & Condition
+  status            AssetStatus     @default(AVAILABLE)
+  condition         AssetCondition  @default(GOOD)
+  conditionNotes    String?
+  
+  // Location
+  location          String?         // Building, room, area
+  storageLocation   String?         // Where it's stored when not in use
+  
+  // Financial
+  purchaseDate      DateTime?
+  purchasePrice     Float?
+  purchasedFrom     String?         // Vendor
+  warrantyExpires   DateTime?
+  currentValue      Float?          // For depreciation tracking
+  depreciationType  String?         // "straight-line", "declining-balance"
+  usefulLifeYears   Int?
+  salvageValue      Float?
+  
+  // Assignment
+  assignedToId      String?         // User currently responsible
+  assignedTo        User?           @relation("AssetAssignedTo", fields: [assignedToId], references: [id])
+  assignedAt        DateTime?
+  dueBackAt         DateTime?       // When checked-out item is due
+  
+  // Maintenance
+  lastMaintenanceAt DateTime?
+  nextMaintenanceAt DateTime?
+  maintenanceNotes  String?
+  
+  // Media
+  photos            Json?           // Array of photo URLs
+  documents         Json?           // Array of document URLs (manuals, receipts)
+  
+  // Tags for filtering
+  tags              Json?           // Array of strings
+  
+  // Audit
+  createdBy         String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  retiredAt         DateTime?
+  disposedAt        DateTime?
+  deletedAt         DateTime?
+  
+  // Relations
+  events            AssetEvent[]
+  
+  @@unique([tenantId, barcode])
+  @@index([tenantId, status])
+  @@index([tenantId, category])
+  @@index([tenantId, assignedToId])
+  @@index([tenantId, nextMaintenanceAt])
+}
+
+model AssetEvent {
+  id              String          @id @default(cuid())
+  assetId         String
+  asset           Asset           @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  
+  eventType       AssetEventType
+  description     String?
+  notes           String?
+  
+  // For check-in/out
+  userId          String?         // User involved (assignee or performer)
+  user            User?           @relation("AssetEventUser", fields: [userId], references: [id])
+  previousStatus  String?
+  newStatus       String?
+  previousCondition String?
+  newCondition    String?
+  
+  // For maintenance
+  maintenanceCost Float?
+  maintenanceVendor String?
+  
+  // Location change
+  previousLocation String?
+  newLocation     String?
+  
+  performedBy     String?         // Admin/staff who performed action
+  performedAt     DateTime        @default(now())
+  dueBackAt       DateTime?       // For checkouts
+  
+  createdAt       DateTime        @default(now())
+  
+  @@index([assetId, createdAt])
+  @@index([userId])
+}
+
+// --- WORKBOARD ENUMS ---
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+  BLOCKED
+  ARCHIVED
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TaskRecurrence {
+  NONE
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+// --- WORKBOARD MODELS ---
+
+model Task {
+  id              String          @id @default(cuid())
+  tenantId        String
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  title           String
+  description     String?
+  
+  status          TaskStatus      @default(TODO)
+  priority        TaskPriority    @default(NORMAL)
+  
+  // Assignment
+  assigneeId      String?
+  assignee        User?           @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  createdById     String
+  createdBy       User            @relation("TaskCreator", fields: [createdById], references: [id])
+  
+  // Dates
+  dueDate         DateTime?
+  startDate       DateTime?
+  completedAt     DateTime?
+  
+  // Recurrence
+  recurrence      TaskRecurrence  @default(NONE)
+  recurrenceEndDate DateTime?
+  parentTaskId    String?         // For recurring task instances
+  parentTask      Task?           @relation("RecurringTasks", fields: [parentTaskId], references: [id])
+  childTasks      Task[]          @relation("RecurringTasks")
+  
+  // Organization
+  labels          String?         // JSON array of labels
+  orderIndex      Int             @default(0)
+  boardColumn     String?         // Custom column name if using custom columns
+  
+  // Attachments
+  attachments     String?         // JSON array of attachment URLs
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
+  
+  // Relations
+  comments        TaskComment[]
+  activities      TaskActivity[]
+  
+  @@index([tenantId, status])
+  @@index([tenantId, assigneeId])
+  @@index([tenantId, dueDate])
+  @@index([tenantId, priority])
+  @@index([tenantId, orderIndex])
+}
+
+model TaskComment {
+  id              String          @id @default(cuid())
+  taskId          String
+  task            Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  authorId        String
+  author          User            @relation(fields: [authorId], references: [id])
+  
+  content         String
+  mentions        String?         // JSON array of mentioned user IDs
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
+  
+  @@index([taskId, createdAt])
+  @@index([authorId])
+}
+
+model TaskActivity {
+  id              String          @id @default(cuid())
+  taskId          String
+  task            Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  
+  action          String          // e.g., "status_changed", "assigned", "due_date_set", "priority_changed"
+  previousValue   String?
+  newValue        String?
+  
+  createdAt       DateTime        @default(now())
+  
+  @@index([taskId, createdAt])
+  @@index([userId])
+}
+
+// --- TICKETING ENUMS ---
+
+enum TicketStatus {
+  NEW
+  TRIAGED
+  IN_PROGRESS
+  WAITING
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TicketCategory {
+  GENERAL
+  TECHNICAL
+  BILLING
+  MEMBERSHIP
+  FACILITIES
+  EVENTS
+  OTHER
+}
+
+enum TicketSource {
+  WEB_FORM
+  EMAIL
+  PHONE
+  IN_PERSON
+}
+
+// --- TICKETING MODELS ---
+
+model Ticket {
+  id              String          @id @default(cuid())
+  tenantId        String
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  ticketNumber    Int             // Sequential per tenant
+  subject         String
+  description     String
+  
+  status          TicketStatus    @default(NEW)
+  priority        TicketPriority  @default(NORMAL)
+  category        TicketCategory  @default(GENERAL)
+  source          TicketSource    @default(WEB_FORM)
+  
+  // Requester info (may or may not be a user)
+  requesterId     String?
+  requester       User?           @relation("TicketRequester", fields: [requesterId], references: [id])
+  requesterName   String          // For non-user submissions
+  requesterEmail  String
+  requesterPhone  String?
+  
+  // Assignment
+  assigneeId      String?
+  assignee        User?           @relation("TicketAssignee", fields: [assigneeId], references: [id])
+  
+  // SLA
+  slaResponseDue  DateTime?
+  slaResolveDue   DateTime?
+  slaBreached     Boolean         @default(false)
+  firstResponseAt DateTime?
+  
+  // Attachments
+  attachments     String?         // JSON array of attachment URLs
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  deletedAt       DateTime?
+  
+  // Relations
+  updates         TicketUpdate[]
+  
+  @@unique([tenantId, ticketNumber])
+  @@index([tenantId, status])
+  @@index([tenantId, priority])
+  @@index([tenantId, assigneeId])
+  @@index([tenantId, createdAt])
+  @@index([requesterEmail])
+}
+
+model TicketUpdate {
+  id              String          @id @default(cuid())
+  ticketId        String
+  ticket          Ticket          @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  authorId        String?
+  author          User?           @relation(fields: [authorId], references: [id])
+  authorName      String          // For display
+  
+  content         String
+  isInternal      Boolean         @default(false) // Internal notes vs public replies
+  isSystemGenerated Boolean       @default(false) // For status change messages
+  
+  // For status changes
+  previousStatus  String?
+  newStatus       String?
+  
+  attachments     String?         // JSON array
+  
+  createdAt       DateTime        @default(now())
+  
+  @@index([ticketId, createdAt])
+  @@index([authorId])
+}
+
+// --- MEMBER NOTES ENUMS ---
+
+enum NoteCategory {
+  GENERAL
+  CARE
+  HOSPITAL
+  DISCIPLESHIP
+  PASTORAL
+  COUNSELING
+  PRAYER
+  FOLLOW_UP
+}
+
+enum NoteVisibility {
+  PRIVATE       // Only author
+  STAFF         // Staff and above
+  LEADERSHIP    // Clergy and admin
+  ADMIN_ONLY    // Admin only
+}
+
+enum FollowUpStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  ESCALATED
+}
+
+// --- MEMBER NOTES MODELS ---
+
+model MemberNote {
+  id              String          @id @default(cuid())
+  tenantId        String
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  // The member this note is about
+  memberId        String
+  member          User            @relation("NotesAboutMember", fields: [memberId], references: [id])
+  
+  // Author of the note
+  authorId        String
+  author          User            @relation("NotesAuthoredBy", fields: [authorId], references: [id])
+  
+  category        NoteCategory    @default(GENERAL)
+  visibility      NoteVisibility  @default(STAFF)
+  
+  title           String?
+  content         String
+  
+  // Follow-up tracking
+  followUpDate    DateTime?
+  followUpStatus  FollowUpStatus?
+  assignedToId    String?
+  assignedTo      User?           @relation("NotesAssignedTo", fields: [assignedToId], references: [id])
+  escalatedToId   String?
+  escalatedTo     User?           @relation("NotesEscalatedTo", fields: [escalatedToId], references: [id])
+  
+  // Recurrence
+  isRecurring     Boolean         @default(false)
+  recurrenceRule  String?         // e.g., "WEEKLY", "MONTHLY"
+  recurrenceEnd   DateTime?
+  
+  // Attachments and metadata
+  attachments     String?         // JSON array of URLs
+  tags            String?         // JSON array of tags
+  
+  // Linked entities
+  linkedTaskId    String?
+  linkedTicketId  String?
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  completedAt     DateTime?
+  deletedAt       DateTime?
+  
+  // Follow-up items
+  followUps       NoteFollowUp[]
+  
+  @@index([tenantId, memberId])
+  @@index([tenantId, category])
+  @@index([tenantId, followUpDate])
+  @@index([tenantId, assignedToId])
+  @@index([authorId])
+}
+
+model NoteFollowUp {
+  id              String          @id @default(cuid())
+  noteId          String
+  note            MemberNote      @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  
+  title           String
+  description     String?
+  dueDate         DateTime
+  priority        String          @default("MEDIUM")  // LOW, MEDIUM, HIGH, URGENT
+  status          String          @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  
+  assignedToId    String?
+  assignedTo      User?           @relation("NoteFollowUpAssignedTo", fields: [assignedToId], references: [id])
+  
+  completedAt     DateTime?
+  completedById   String?
+  completedBy     User?           @relation("NoteFollowUpCompletedBy", fields: [completedById], references: [id])
+  completedNotes  String?
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([noteId])
+  @@index([assignedToId])
+  @@index([dueDate])
+  @@index([status])
+}
+
+model HospitalVisit {
+  id              String          @id @default(cuid())
+  tenantId        String
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  // The member being visited
+  memberId        String
+  member          User            @relation("HospitalVisitsFor", fields: [memberId], references: [id])
+  
+  // Visitor (staff/clergy)
+  visitorId       String
+  visitor         User            @relation("HospitalVisitsMadeBy", fields: [visitorId], references: [id])
+  
+  // Visit details
+  hospitalName    String?
+  roomNumber      String?
+  visitDate       DateTime
+  duration        Int?            // Minutes
+  
+  // Checklist
+  prayerOffered   Boolean         @default(false)
+  communionGiven  Boolean         @default(false)
+  familyContacted Boolean         @default(false)
+  
+  notes           String?
+  outcome         String?         // e.g., "Patient recovering well", "Needs follow-up"
+  nextSteps       String?
+  
+  // Follow-up
+  followUpDate    DateTime?
+  followUpAssignedToId String?
+  followUpAssignedTo   User?      @relation("HospitalVisitFollowUp", fields: [followUpAssignedToId], references: [id])
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([tenantId, memberId])
+  @@index([tenantId, visitDate])
+  @@index([visitorId])
 }

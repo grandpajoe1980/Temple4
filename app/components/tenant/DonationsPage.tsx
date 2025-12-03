@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import type { DonationSettings, EnrichedDonationRecord, FundWithProgress, TenantSettings } from '@/types';
 // Use server API routes instead of importing server-only helpers
 import Button from '../ui/Button';
@@ -542,25 +543,155 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Donations</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Support the mission and work of {tenant.name}.
+      {/* Hero Section */}
+      <div className="relative rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 p-8 md:p-12 overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-100 rounded-full -mr-32 -mt-32 opacity-50" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-100 rounded-full -ml-24 -mb-24 opacity-50" />
+        <div className="relative z-10 max-w-2xl">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+            Support {tenant.name}
+          </h1>
+          <p className="mt-4 text-lg text-gray-600">
+            Your generosity makes a difference. Every gift, no matter the size, helps us continue our mission
+            and serve our community. Thank you for partnering with us.
           </p>
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Button onClick={() => { if (funds[0]) setSelectedFundId(funds[0].id); }}>
+              Give Now
+            </Button>
+            <Link href={`/tenants/${tenant.id}/donations/funds`}>
+              <Button variant="secondary">Browse All Funds</Button>
+            </Link>
+          </div>
         </div>
       </div>
+
+      {/* Quick Stats */}
+      {funds.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <div className="text-center">
+              <p className="text-3xl font-bold text-amber-600">{funds.length}</p>
+              <p className="text-sm text-gray-500">Active Funds</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="text-center">
+              <p className="text-3xl font-bold text-amber-600">
+                ${funds.reduce((sum, f) => sum + f.amountRaisedCents, 0) / 100 >= 1000
+                  ? `${(funds.reduce((sum, f) => sum + f.amountRaisedCents, 0) / 100000).toFixed(1)}k`
+                  : (funds.reduce((sum, f) => sum + f.amountRaisedCents, 0) / 100).toLocaleString()}
+              </p>
+              <p className="text-sm text-gray-500">Total Raised</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="text-center">
+              <p className="text-3xl font-bold text-amber-600">
+                {funds.filter(f => f.goalAmountCents && f.amountRaisedCents >= f.goalAmountCents).length}
+              </p>
+              <p className="text-sm text-gray-500">Goals Met</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="text-center">
+              <p className="text-3xl font-bold text-amber-600">
+                {settings.leaderboardEnabled ? donations.length : '—'}
+              </p>
+              <p className="text-sm text-gray-500">Donors</p>
+            </div>
+          </Card>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-            {renderFundSelector()}
+            {/* Featured Funds */}
+            {funds.length > 0 && (
+              <Card title="Featured Giving Opportunities" description="Choose a fund to support or browse all options.">
+                <div className="space-y-4">
+                  {funds.slice(0, 3).map((fund) => {
+                    const progress = fund.goalAmountCents
+                      ? Math.min(100, Math.round((fund.amountRaisedCents / fund.goalAmountCents) * 100))
+                      : null;
+                    return (
+                      <button
+                        type="button"
+                        key={fund.id}
+                        onClick={() => setSelectedFundId(fund.id)}
+                        className={`w-full text-left rounded-lg border p-4 transition hover:border-amber-500 ${selectedFundId === fund.id ? 'border-amber-500 ring-2 ring-amber-200 bg-amber-50' : 'border-gray-200 bg-white'}`}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="space-y-1 flex-1">
+                            <p className="text-xs uppercase tracking-wide text-amber-700 font-medium">{fund.type}</p>
+                            <p className="text-lg font-semibold text-gray-900">{fund.name}</p>
+                            {fund.description && <p className="text-sm text-gray-600 line-clamp-2">{fund.description}</p>}
+                          </div>
+                          {progress !== null && (
+                            <div className="text-right min-w-[100px]">
+                              <p className="text-sm font-semibold text-amber-700">{progress}%</p>
+                              <p className="text-xs text-gray-500">
+                                ${(fund.amountRaisedCents / 100).toLocaleString()}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                        {progress !== null && (
+                          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+                            <div className="h-full bg-amber-500" style={{ width: `${progress}%` }} />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                  {funds.length > 3 && (
+                    <div className="text-center pt-2">
+                      <Link href={`/tenants/${tenant.id}/donations/funds`} className="text-sm font-medium text-amber-600 hover:text-amber-700">
+                        View all {funds.length} funds →
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
+
             {renderContent()}
             {renderGivingOptions()}
         </div>
-        <div className="lg:col-span-1">
-             {settings.leaderboardEnabled && (
+        <div className="lg:col-span-1 space-y-6">
+            {settings.leaderboardEnabled && (
                 <Leaderboard tenant={tenant} donations={donations} />
             )}
+            
+            {/* Impact Section */}
+            <Card title="Your Impact">
+              <div className="space-y-4 text-sm text-gray-600">
+                <p>When you give to {tenant.name}, you&apos;re supporting:</p>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-500 mt-0.5">✓</span>
+                    <span>Weekly worship services and programs</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-500 mt-0.5">✓</span>
+                    <span>Community outreach and missions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-500 mt-0.5">✓</span>
+                    <span>Youth and children&apos;s ministry</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-500 mt-0.5">✓</span>
+                    <span>Facility maintenance and improvements</span>
+                  </li>
+                </ul>
+                {settings.taxId && (
+                  <p className="pt-2 border-t border-gray-100 text-xs text-gray-500">
+                    Tax-deductible. Tax ID: {settings.taxId}
+                  </p>
+                )}
+              </div>
+            </Card>
         </div>
       </div>
     </div>

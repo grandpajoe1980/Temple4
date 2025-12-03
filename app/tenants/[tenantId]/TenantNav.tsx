@@ -13,7 +13,7 @@ interface TenantNavProps {
 }
 
 type TenantPage = 'home' | 'content' | 'community' | 'settings' | 'services' | 'donations' | 'contact';
-type SubmenuKey = 'content' | 'community' | 'services' | 'settings';
+type SubmenuKey = 'content' | 'community' | 'services' | 'settings' | 'donations';
 type NavItemFeature = keyof Omit<
   TenantSettings,
   | 'id'
@@ -49,6 +49,7 @@ const communitySubItems: { key: string; label: string; path: string; feature?: N
   { key: 'wall', label: 'Wall', path: '/community/wall' },
   { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
   { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
+  { key: 'memorials', label: 'Memorials', path: '/memorials', feature: 'enableMemorials' },
   { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
   { key: 'staff', label: 'Staff', path: '/staff', feature: 'enableMemberDirectory' },
   { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
@@ -64,6 +65,12 @@ const serviceSubItems: { key: string; label: string; path: string }[] = [
   { key: 'counseling', label: 'Counseling', path: '/services?category=COUNSELING' },
   { key: 'facility', label: 'Facilities', path: '/services?category=FACILITY' },
   { key: 'other', label: 'Other', path: '/services?category=OTHER' },
+];
+
+const donationsSubItems: { key: string; label: string; path: string; feature?: NavItemFeature }[] = [
+  { key: 'give', label: 'Give Now', path: '/donations' },
+  { key: 'funds', label: 'Funds', path: '/donations/funds' },
+  { key: 'pledges', label: 'My Pledges', path: '/donations/pledges', feature: 'enableRecurringPledges' },
 ];
 
 export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
@@ -91,6 +98,10 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
       return 'services';
     }
 
+    if (pathname.startsWith(`${basePath}/donations`)) {
+      return 'donations';
+    }
+
     if (pathname.startsWith(`${basePath}/settings`)) {
       return 'settings';
     }
@@ -106,6 +117,8 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const communityHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const servicesShowTimer = React.useRef<NodeJS.Timeout | null>(null);
   const servicesHideTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const donationsShowTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const donationsHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const settingsShowTimer = React.useRef<NodeJS.Timeout | null>(null);
   const settingsHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const submenuTimers: Record<SubmenuKey, { show: React.MutableRefObject<NodeJS.Timeout | null>; hide: React.MutableRefObject<NodeJS.Timeout | null> }> = React.useMemo(
@@ -113,6 +126,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
       content: { show: contentShowTimer, hide: contentHideTimer },
       community: { show: communityShowTimer, hide: communityHideTimer },
       services: { show: servicesShowTimer, hide: servicesHideTimer },
+      donations: { show: donationsShowTimer, hide: donationsHideTimer },
       settings: { show: settingsShowTimer, hide: settingsHideTimer },
     }),
     []
@@ -247,6 +261,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
       content: contentSubItems,
       community: communitySubItems,
       services: serviceSubItems,
+      donations: donationsSubItems,
       settings: CONTROL_PANEL_TABS.map((tab) => {
         const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         return { key: tab, label: tab, path: `/settings${slug ? `?category=${slug}` : ''}` };
@@ -280,6 +295,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
       content: contentSubItems,
       community: communitySubItems,
       services: serviceSubItems,
+      donations: donationsSubItems,
       settings: CONTROL_PANEL_TABS.map((tab) => {
         const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         return { key: tab, label: tab, path: `/settings${slug ? `?category=${slug}` : ''}` };
@@ -321,6 +337,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
             (item.key === 'content' && contentSubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))) ||
             (item.key === 'community' && communitySubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))) ||
             (item.key === 'services' && pathname.startsWith(`${basePath}/services`)) ||
+            (item.key === 'donations' && pathname.startsWith(`${basePath}/donations`)) ||
             (item.key === 'settings' && pathname.startsWith(`${basePath}/settings`));
 
           if (item.key === 'content') {
@@ -360,6 +377,21 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
                 className="relative"
                 onMouseEnter={() => scheduleShow('services')}
                 onMouseLeave={() => scheduleHide('services')}
+              >
+                <Link href={fullPath} className={baseClasses(isActive)}>
+                  {item.label}
+                </Link>
+              </div>
+            );
+          }
+
+          if (item.key === 'donations') {
+            return (
+              <div
+                key={item.key}
+                className="relative"
+                onMouseEnter={() => scheduleShow('donations')}
+                onMouseLeave={() => scheduleHide('donations')}
               >
                 <Link href={fullPath} className={baseClasses(isActive)}>
                   {item.label}

@@ -26,6 +26,13 @@ export const CONTROL_PANEL_TABS = [
   'Resource Center',
   'Contact Submissions',
   'Trips',
+  'Localization',
+  'Memorials',
+  'Vanity Domains',
+  'Assets',
+  'Workboard',
+  'Tickets',
+  'Member Notes',
 ].sort((a, b) => a.localeCompare(b));
 
 const defaultRolePermissions: RolePermissions = {

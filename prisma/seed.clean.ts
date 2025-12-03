@@ -400,6 +400,7 @@ async function main() {
     { creator: 0, title: 'Sermons from Springfield', description: 'Weekly messages from Reverend Lovejoy', url: 'https://example.com/podcast/sermons.mp3', duration: 1800 },
     { creator: 1, title: 'Ned\'s Neighborly Wisdom', description: 'Faith tips for everyday living, diddly-style!', url: 'https://example.com/podcast/ned.mp3', duration: 1200 },
     { creator: 0, title: 'Gal of Constant Sorrow (Test)', description: 'Test podcast episode added from Apple Podcasts link', url: 'https://podcasts.apple.com/us/podcast/594-gal-of-constant-sorrow/id893008561?i=1000733611121', duration: 300 },
+    { creator: 0, title: 'Fland Canyon', description: 'Seeded podcast: Fland Canyon (Apple Podcasts)', url: 'https://podcasts.apple.com/us/podcast/599-fland-canyon/id893008561?i=1000739054618', duration: 1200 },
   ];
 
   for (const podcast of podcasts) {
@@ -417,6 +418,23 @@ async function main() {
   }
 
   console.log(`✅ Created ${podcasts.length} podcasts`);
+
+  // Ensure media item for Fland Canyon exists so the Podcasts page (which reads MediaItem type PODCAST_AUDIO) shows it
+  const flandEmbed = 'https://podcasts.apple.com/us/podcast/599-fland-canyon/id893008561?i=1000739054618';
+  const existingFland = await prisma.mediaItem.findFirst({ where: { tenantId: tenant.id, embedUrl: flandEmbed } });
+  if (!existingFland) {
+    await prisma.mediaItem.create({
+      data: {
+        tenantId: tenant.id,
+        authorUserId: users[0].id,
+        type: 'PODCAST_AUDIO',
+        title: 'Fland Canyon',
+        description: 'Seeded podcast: Fland Canyon (Apple Podcasts)',
+        embedUrl: flandEmbed,
+      }
+    });
+    console.log('✅ Created media item for Fland Canyon (PODCAST_AUDIO)');
+  }
 
   // 10. CREATE BOOKS/RESOURCES
   const books = [

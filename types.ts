@@ -289,6 +289,14 @@ export interface TenantSettings {
   enableReactions: boolean;
   enableServices: boolean;
   enableDonations: boolean;
+  enableRecurringPledges?: boolean;
+  enableTranslation?: boolean;
+  enableMemorials?: boolean;
+  enableVanityDomains?: boolean;
+  enableAssetManagement?: boolean;
+  enableWorkboard?: boolean;
+  enableTicketing?: boolean;
+  enableMemberNotes?: boolean;
   enableVolunteering: boolean;
   enableSmallGroups: boolean;
   enableTrips: boolean;
@@ -301,6 +309,7 @@ export interface TenantSettings {
   enableBirthdays?: boolean;
   donationSettings: DonationSettings;
   liveStreamSettings: LiveStreamSettings;
+  translationSettings?: TranslationSettings;
   // Visibility (simplified for mock)
   visitorVisibility: {
     calendar: boolean;
@@ -577,6 +586,435 @@ export interface Notification {
 export type FundType = 'TITHE' | 'OFFERING' | 'PROJECT' | 'SPECIAL';
 
 export type FundVisibility = 'PUBLIC' | 'MEMBERS_ONLY' | 'HIDDEN';
+
+export interface TranslationSettings {
+  allowedLanguages: string[];
+  defaultLanguage: string;
+  autoTranslateUserContent: boolean;
+  glossary?: Record<string, Record<string, string>>; // { term: { lang: translation } }
+  costLimitPerMonth?: number; // in USD
+  rateLimitPerMinute?: number;
+  excludedFields?: string[]; // fields to not translate
+}
+
+export const SUPPORTED_LANGUAGES = [
+  { code: 'en', name: 'English', nativeName: 'English', rtl: false },
+  { code: 'es', name: 'Spanish', nativeName: 'Español', rtl: false },
+  { code: 'fr', name: 'French', nativeName: 'Français', rtl: false },
+  { code: 'de', name: 'German', nativeName: 'Deutsch', rtl: false },
+  { code: 'pt', name: 'Portuguese', nativeName: 'Português', rtl: false },
+  { code: 'zh', name: 'Chinese', nativeName: '中文', rtl: false },
+  { code: 'ja', name: 'Japanese', nativeName: '日本語', rtl: false },
+  { code: 'ko', name: 'Korean', nativeName: '한국어', rtl: false },
+  { code: 'ar', name: 'Arabic', nativeName: 'العربية', rtl: true },
+  { code: 'he', name: 'Hebrew', nativeName: 'עברית', rtl: true },
+  { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी', rtl: false },
+  { code: 'ru', name: 'Russian', nativeName: 'Русский', rtl: false },
+  { code: 'vi', name: 'Vietnamese', nativeName: 'Tiếng Việt', rtl: false },
+  { code: 'th', name: 'Thai', nativeName: 'ไทย', rtl: false },
+  { code: 'tl', name: 'Tagalog', nativeName: 'Tagalog', rtl: false },
+] as const;
+
+export type SupportedLanguageCode = typeof SUPPORTED_LANGUAGES[number]['code'];
+
+// Memorial types
+export type MemorialStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type MemorialPrivacy = 'PUBLIC' | 'MEMBERS_ONLY' | 'PRIVATE';
+
+export interface Memorial {
+  id: string;
+  tenantId: string;
+  name: string;
+  birthDate?: Date | null;
+  deathDate?: Date | null;
+  story?: string | null;
+  photos: string[];
+  tags: string[];
+  privacy: MemorialPrivacy;
+  status: MemorialStatus;
+  submitterId?: string | null;
+  submitterName?: string | null;
+  submitterEmail?: string | null;
+  approvedById?: string | null;
+  approvedAt?: Date | null;
+  rejectedById?: string | null;
+  rejectedAt?: Date | null;
+  rejectionReason?: string | null;
+  linkedFundId?: string | null;
+  viewCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date | null;
+}
+
+export interface MemorialTribute {
+  id: string;
+  memorialId: string;
+  userId?: string | null;
+  authorName?: string | null;
+  content: string;
+  isApproved: boolean;
+  isReported: boolean;
+  reportReason?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date | null;
+}
+
+export interface EnrichedMemorial extends Memorial {
+  submitter?: { displayName: string; avatarUrl?: string } | null;
+  approvedBy?: { displayName: string } | null;
+  linkedFund?: { name: string; id: string } | null;
+  tributes?: (MemorialTribute & { user?: { displayName: string; avatarUrl?: string } | null })[];
+  tributeCount?: number;
+}
+
+// Vanity Domain types
+export type VanityDomainStatus = 
+  | 'PENDING_VERIFICATION' 
+  | 'DNS_VERIFIED' 
+  | 'SSL_PROVISIONING' 
+  | 'ACTIVE' 
+  | 'SSL_EXPIRED' 
+  | 'DISABLED' 
+  | 'ERROR';
+
+export type VanityDomainType = 'FULL_DOMAIN' | 'SUBDOMAIN' | 'PATH_PREFIX';
+
+export interface VanityDomain {
+  id: string;
+  tenantId: string;
+  domain: string;
+  domainType: VanityDomainType;
+  isPrimary: boolean;
+  status: VanityDomainStatus;
+  verificationToken: string;
+  verificationMethod: string;
+  verifiedAt?: Date | null;
+  lastVerificationCheck?: Date | null;
+  verificationAttempts: number;
+  sslStatus?: string | null;
+  sslExpiresAt?: Date | null;
+  sslProviderRef?: string | null;
+  sslLastRenewalAt?: Date | null;
+  redirectToSlug: boolean;
+  forceHttps: boolean;
+  wwwRedirect?: string | null;
+  totalRequests: number;
+  lastRequestAt?: Date | null;
+  createdBy?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  disabledAt?: Date | null;
+  disabledReason?: string | null;
+  deletedAt?: Date | null;
+}
+
+export interface VanityDomainWithDetails extends VanityDomain {
+  tenant?: { name: string; slug: string };
+}
+
+// Asset Management types
+export type AssetStatus = 
+  | 'AVAILABLE' 
+  | 'IN_USE' 
+  | 'MAINTENANCE' 
+  | 'RESERVED' 
+  | 'RETIRED' 
+  | 'DISPOSED';
+
+export type AssetCondition = 
+  | 'EXCELLENT' 
+  | 'GOOD' 
+  | 'FAIR' 
+  | 'POOR' 
+  | 'DAMAGED' 
+  | 'UNKNOWN';
+
+export type AssetCategory = 
+  | 'EQUIPMENT' 
+  | 'FURNITURE' 
+  | 'VEHICLE' 
+  | 'BUILDING' 
+  | 'SUPPLIES' 
+  | 'INSTRUMENTS' 
+  | 'LITURGICAL' 
+  | 'KITCHEN' 
+  | 'GROUNDS' 
+  | 'OTHER';
+
+export type AssetEventType = 
+  | 'CREATED' 
+  | 'UPDATED' 
+  | 'CHECKED_OUT' 
+  | 'CHECKED_IN' 
+  | 'MAINTENANCE_SCHEDULED' 
+  | 'MAINTENANCE_COMPLETED' 
+  | 'CONDITION_UPDATED' 
+  | 'LOCATION_CHANGED' 
+  | 'RESERVED' 
+  | 'UNRESERVED' 
+  | 'RETIRED' 
+  | 'DISPOSED';
+
+export interface Asset {
+  id: string;
+  tenantId: string;
+  name: string;
+  description?: string | null;
+  category: AssetCategory;
+  serialNumber?: string | null;
+  barcode?: string | null;
+  model?: string | null;
+  manufacturer?: string | null;
+  status: AssetStatus;
+  condition: AssetCondition;
+  conditionNotes?: string | null;
+  location?: string | null;
+  storageLocation?: string | null;
+  purchaseDate?: Date | null;
+  purchasePrice?: number | null;
+  purchasedFrom?: string | null;
+  warrantyExpires?: Date | null;
+  currentValue?: number | null;
+  depreciationType?: string | null;
+  usefulLifeYears?: number | null;
+  salvageValue?: number | null;
+  assignedToId?: string | null;
+  assignedAt?: Date | null;
+  dueBackAt?: Date | null;
+  lastMaintenanceAt?: Date | null;
+  nextMaintenanceAt?: Date | null;
+  maintenanceNotes?: string | null;
+  photos?: string[];
+  documents?: string[];
+  tags?: string[];
+  createdBy?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  retiredAt?: Date | null;
+  disposedAt?: Date | null;
+  deletedAt?: Date | null;
+}
+
+export interface AssetEvent {
+  id: string;
+  assetId: string;
+  eventType: AssetEventType;
+  description?: string | null;
+  notes?: string | null;
+  userId?: string | null;
+  previousStatus?: string | null;
+  newStatus?: string | null;
+  previousCondition?: string | null;
+  newCondition?: string | null;
+  maintenanceCost?: number | null;
+  maintenanceVendor?: string | null;
+  previousLocation?: string | null;
+  newLocation?: string | null;
+  performedBy?: string | null;
+  performedAt: Date;
+  dueBackAt?: Date | null;
+  createdAt: Date;
+}
+
+export interface AssetWithDetails extends Asset {
+  assignedTo?: { displayName: string; avatarUrl?: string } | null;
+  events?: AssetEvent[];
+  eventCount?: number;
+}
+
+// --- Task / Workboard Types ---
+
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED' | 'ARCHIVED';
+export type TaskPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
+export type TaskRecurrence = 'NONE' | 'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+
+export interface Task {
+  id: string;
+  tenantId: string;
+  title: string;
+  description?: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  assigneeId?: string | null;
+  createdById: string;
+  dueDate?: Date | null;
+  startDate?: Date | null;
+  completedAt?: Date | null;
+  recurrence: TaskRecurrence;
+  recurrenceEndDate?: Date | null;
+  parentTaskId?: string | null;
+  labels?: string | null; // JSON array
+  orderIndex: number;
+  boardColumn?: string | null;
+  attachments?: string | null; // JSON array
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date | null;
+}
+
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  authorId: string;
+  content: string;
+  mentions?: string | null; // JSON array
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date | null;
+}
+
+export interface TaskCommentWithAuthor extends TaskComment {
+  author: { id: string; displayName: string; avatarUrl?: string };
+}
+
+export interface TaskActivity {
+  id: string;
+  taskId: string;
+  userId: string;
+  action: string;
+  previousValue?: string | null;
+  newValue?: string | null;
+  createdAt: Date;
+}
+
+export interface TaskActivityWithUser extends TaskActivity {
+  user: { id: string; displayName: string; avatarUrl?: string };
+}
+
+export interface TaskWithDetails extends Task {
+  assignee?: { id: string; displayName: string; avatarUrl?: string } | null;
+  createdBy: { id: string; displayName: string; avatarUrl?: string };
+  comments?: TaskCommentWithAuthor[];
+  commentCount?: number;
+  activities?: TaskActivityWithUser[];
+}
+
+// --- Ticket Types ---
+
+export type TicketStatus = 'NEW' | 'TRIAGED' | 'IN_PROGRESS' | 'WAITING' | 'RESOLVED' | 'CLOSED';
+export type TicketPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
+export type TicketCategory = 'GENERAL' | 'TECHNICAL' | 'BILLING' | 'MEMBERSHIP' | 'FACILITIES' | 'EVENTS' | 'OTHER';
+export type TicketSource = 'WEB_FORM' | 'EMAIL' | 'PHONE' | 'IN_PERSON';
+
+export interface Ticket {
+  id: string;
+  tenantId: string;
+  ticketNumber: number;
+  subject: string;
+  description: string;
+  status: TicketStatus;
+  priority: TicketPriority;
+  category: TicketCategory;
+  source: TicketSource;
+  requesterId?: string | null;
+  requesterName: string;
+  requesterEmail: string;
+  requesterPhone?: string | null;
+  assigneeId?: string | null;
+  slaResponseDue?: Date | null;
+  slaResolveDue?: Date | null;
+  slaBreached: boolean;
+  firstResponseAt?: Date | null;
+  attachments?: string | null; // JSON array
+  createdAt: Date;
+  updatedAt: Date;
+  resolvedAt?: Date | null;
+  closedAt?: Date | null;
+  deletedAt?: Date | null;
+}
+
+export interface TicketUpdate {
+  id: string;
+  ticketId: string;
+  authorId?: string | null;
+  authorName: string;
+  content: string;
+  isInternal: boolean;
+  isSystemGenerated: boolean;
+  previousStatus?: string | null;
+  newStatus?: string | null;
+  attachments?: string | null;
+  createdAt: Date;
+}
+
+export interface TicketUpdateWithAuthor extends TicketUpdate {
+  author?: { id: string; displayName: string; avatarUrl?: string } | null;
+}
+
+export interface TicketWithDetails extends Ticket {
+  requester?: { id: string; displayName: string; avatarUrl?: string } | null;
+  assignee?: { id: string; displayName: string; avatarUrl?: string } | null;
+  updates?: TicketUpdateWithAuthor[];
+  updateCount?: number;
+}
+
+// --- Member Notes Types ---
+
+export type NoteCategory = 'GENERAL' | 'CARE' | 'HOSPITAL' | 'DISCIPLESHIP' | 'PASTORAL' | 'COUNSELING' | 'PRAYER' | 'FOLLOW_UP';
+export type NoteVisibility = 'PRIVATE' | 'STAFF' | 'LEADERSHIP' | 'ADMIN_ONLY';
+export type FollowUpStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'SKIPPED' | 'ESCALATED';
+
+export interface MemberNote {
+  id: string;
+  tenantId: string;
+  memberId: string;
+  authorId: string;
+  category: NoteCategory;
+  visibility: NoteVisibility;
+  title?: string | null;
+  content: string;
+  followUpDate?: Date | null;
+  followUpStatus?: FollowUpStatus | null;
+  assignedToId?: string | null;
+  escalatedToId?: string | null;
+  isRecurring: boolean;
+  recurrenceRule?: string | null;
+  recurrenceEnd?: Date | null;
+  attachments?: string | null;
+  tags?: string | null;
+  linkedTaskId?: string | null;
+  linkedTicketId?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  completedAt?: Date | null;
+  deletedAt?: Date | null;
+}
+
+export interface MemberNoteWithDetails extends MemberNote {
+  member: { id: string; displayName: string; avatarUrl?: string };
+  author: { id: string; displayName: string; avatarUrl?: string };
+  assignedTo?: { id: string; displayName: string; avatarUrl?: string } | null;
+  escalatedTo?: { id: string; displayName: string; avatarUrl?: string } | null;
+}
+
+export interface HospitalVisit {
+  id: string;
+  tenantId: string;
+  memberId: string;
+  visitorId: string;
+  hospitalName?: string | null;
+  roomNumber?: string | null;
+  visitDate: Date;
+  duration?: number | null;
+  prayerOffered: boolean;
+  communionGiven: boolean;
+  familyContacted: boolean;
+  notes?: string | null;
+  outcome?: string | null;
+  nextSteps?: string | null;
+  followUpDate?: Date | null;
+  followUpAssignedToId?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface HospitalVisitWithDetails extends HospitalVisit {
+  member: { id: string; displayName: string; avatarUrl?: string };
+  visitor: { id: string; displayName: string; avatarUrl?: string };
+  followUpAssignedTo?: { id: string; displayName: string; avatarUrl?: string } | null;
+}
 
 export interface DonationSettings {
   mode: 'EXTERNAL' | 'INTEGRATED';
@@ -895,4 +1333,83 @@ export interface ContactSubmission {
     message: string;
     status: ContactSubmissionStatus;
     createdAt: Date;
+}
+
+// --- RECURRING PLEDGES MODELS ---
+export enum PledgeFrequency {
+  WEEKLY = 'WEEKLY',
+  BIWEEKLY = 'BIWEEKLY',
+  MONTHLY = 'MONTHLY',
+  QUARTERLY = 'QUARTERLY',
+  YEARLY = 'YEARLY',
+}
+
+export enum PledgeStatus {
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  CANCELLED = 'CANCELLED',
+  FAILED = 'FAILED',
+  COMPLETED = 'COMPLETED',
+}
+
+export interface Pledge {
+  id: string;
+  tenantId: string;
+  userId: string;
+  fundId: string;
+  amountCents: number;
+  currency: string;
+  frequency: PledgeFrequency;
+  startDate: Date | string;
+  endDate?: Date | string | null;
+  nextChargeAt: Date | string;
+  paymentMethodToken?: string | null;
+  paymentMethodLast4?: string | null;
+  paymentMethodBrand?: string | null;
+  status: PledgeStatus;
+  failureCount: number;
+  totalChargesCount: number;
+  totalAmountCents: number;
+  lastChargedAt?: Date | string | null;
+  lastFailedAt?: Date | string | null;
+  lastFailureReason?: string | null;
+  isAnonymous: boolean;
+  dedicationNote?: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  cancelledAt?: Date | string | null;
+  pausedAt?: Date | string | null;
+}
+
+export interface PledgeCharge {
+  id: string;
+  pledgeId: string;
+  amountCents: number;
+  currency: string;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED';
+  attemptCount: number;
+  chargedAt?: Date | string | null;
+  failedAt?: Date | string | null;
+  failureReason?: string | null;
+  transactionId?: string | null;
+  receiptSentAt?: Date | string | null;
+  createdAt: Date | string;
+}
+
+export interface PledgeSettings {
+  id: string;
+  tenantId: string;
+  maxFailuresBeforePause: number;
+  retryIntervalHours: number;
+  dunningEmailDays: number[];
+  gracePeriodDays: number;
+  autoResumeOnSuccess: boolean;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface EnrichedPledge extends Pledge {
+  fund?: Fund;
+  user?: User;
+  charges?: PledgeCharge[];
 }

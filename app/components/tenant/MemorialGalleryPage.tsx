@@ -31,7 +31,11 @@ interface Pagination {
   totalPages: number;
 }
 
-export default function MemorialGalleryPage() {
+interface Props {
+  isAdmin?: boolean;
+}
+
+export default function MemorialGalleryPage({ isAdmin = false }: Props) {
   const params = useParams();
   const router = useRouter();
   const tenantId = params.tenantId as string;
@@ -160,6 +164,37 @@ export default function MemorialGalleryPage() {
             >
               {/* Photo */}
               <div className="relative h-48 bg-gradient-to-br from-purple-100 to-blue-100">
+                {/* Admin actions overlay */}
+                {isAdmin && (
+                  <div className="absolute z-10 top-2 right-2 flex gap-2">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); router.push(`/tenants/${tenantId}/memorials/${memorial.id}`); }}
+                      className="inline-flex items-center gap-1 bg-white/90 text-slate-700 px-2 py-1 rounded shadow-sm text-xs"
+                      title="Edit memorial"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (!confirm('Delete this memorial? This action cannot be undone.')) return;
+                        try {
+                          const res = await fetch(`/api/tenants/${tenantId}/memorials/${memorial.id}`, { method: 'DELETE' });
+                          if (!res.ok) throw new Error('Failed to delete memorial');
+                          // Refresh list
+                          fetchMemorials();
+                        } catch (err) {
+                          console.error(err);
+                          alert('Failed to delete memorial');
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 bg-red-600 text-white px-2 py-1 rounded shadow-sm text-xs"
+                      title="Delete memorial"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
                 {memorial.photos && memorial.photos.length > 0 ? (
                   <img 
                     src={memorial.photos[0]} 

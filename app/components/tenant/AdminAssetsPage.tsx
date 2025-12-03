@@ -50,6 +50,7 @@ export default function AdminAssetsPage({ tenantId }: AdminAssetsPageProps) {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [featureEnabled, setFeatureEnabled] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     search: '',
     category: '',
@@ -82,11 +83,15 @@ export default function AdminAssetsPage({ tenantId }: AdminAssetsPageProps) {
         const data = await res.json();
         setAssets(data.assets || []);
         setFeatureEnabled(true);
-      } else if (res.status === 403) {
+        setErrorMessage(null);
+      } else {
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
         setFeatureEnabled(false);
+        setErrorMessage(errorData.error || `Error ${res.status}`);
       }
     } catch (error) {
       console.error('Failed to fetch assets:', error);
+      setErrorMessage('Failed to connect to server');
     } finally {
       setLoading(false);
     }
@@ -203,9 +208,14 @@ export default function AdminAssetsPage({ tenantId }: AdminAssetsPageProps) {
       <div className="p-6">
         <Card className="p-8 text-center">
           <h2 className="text-xl font-semibold text-slate-900 mb-2">Asset Management</h2>
-          <p className="text-slate-600 mb-6">
-            Asset management is not enabled for your community.
+          <p className="text-slate-600 mb-4">
+            {errorMessage || 'Asset management is not enabled for your community.'}
           </p>
+          {errorMessage && (
+            <p className="text-sm text-slate-500">
+              If you just enabled this feature, try refreshing the page or logging out and back in.
+            </p>
+          )}
         </Card>
       </div>
     );

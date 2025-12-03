@@ -9,6 +9,7 @@ import {
   ArrowLeft, Calendar, Heart, Share2, Flower2, User, ChevronLeft, ChevronRight,
   Send, Loader2, DollarSign
 } from 'lucide-react';
+import Modal from '@/app/components/ui/Modal';
 
 interface MemorialTribute {
   id: string;
@@ -33,7 +34,11 @@ interface Memorial {
   tributes: MemorialTribute[];
 }
 
-export default function MemorialDetailPage() {
+interface Props {
+  isAdmin?: boolean;
+}
+
+export default function MemorialDetailPage({ isAdmin = false }: Props) {
   const params = useParams();
   const router = useRouter();
   const tenantId = params.tenantId as string;
@@ -46,6 +51,10 @@ export default function MemorialDetailPage() {
   const [tributeRelationship, setTributeRelationship] = useState('');
   const [submittingTribute, setSubmittingTribute] = useState(false);
   const [tributes, setTributes] = useState<MemorialTribute[]>([]);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editStory, setEditStory] = useState('');
+  const [editPrivacy, setEditPrivacy] = useState('PUBLIC');
 
   useEffect(() => {
     fetchMemorial();
@@ -64,7 +73,14 @@ export default function MemorialDetailPage() {
       }
       const data = await res.json();
       setMemorial(data.memorial);
-      setTributes(data.memorial.tributes || []);
+      // Normalize tributes: some API responses use `content` instead of `message`,
+      // and `relationship` may be missing for older records. Ensure UI-friendly keys.
+      const normalized = (data.memorial.tributes || []).map((t: any) => ({
+        ...t,
+        message: t.message ?? t.content ?? '',
+        relationship: t.relationship ?? null,
+      }));
+      setTributes(normalized);
     } catch (error) {
       console.error('Error fetching memorial:', error);
     } finally {
@@ -94,7 +110,12 @@ export default function MemorialDetailPage() {
       }
 
       const data = await res.json();
-      setTributes(prev => [data.tribute, ...prev]);
+      const newTribute = {
+        ...data.tribute,
+        message: data.tribute.message ?? data.tribute.content ?? '',
+        relationship: data.tribute.relationship ?? null,
+      };
+      setTributes(prev => [newTribute, ...prev]);
       setTributeMessage('');
       setTributeRelationship('');
       alert(data.message);
@@ -247,10 +268,37 @@ export default function MemorialDetailPage() {
               )}
             </div>
           </div>
-          <Button variant="secondary" onClick={handleShare}>
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" onClick={handleShare}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
+            </Button>
+            {isAdmin && (
+              <>
+                <Button variant="secondary" onClick={() => {
+                  setEditName(memorial.name || '');
+                  setEditStory(memorial.story || '');
+                  setEditPrivacy(memorial.privacy || 'PUBLIC');
+                  setEditOpen(true);
+                }}>
+                  Edit
+                </Button>
+                <Button variant="danger" onClick={async () => {
+                  if (!confirm('Delete this memorial? This action cannot be undone.')) return;
+                  try {
+                    const res = await fetch(`/api/tenants/${tenantId}/memorials/${memorialId}`, { method: 'DELETE' });
+                    if (!res.ok) throw new Error('Failed to delete memorial');
+                    router.push(`/tenants/${tenantId}/memorials`);
+                  } catch (err) {
+                    console.error(err);
+                    alert('Failed to delete memorial');
+                  }
+                }}>
+                  Delete
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Tags */}
@@ -384,6 +432,58 @@ export default function MemorialDetailPage() {
           </div>
         )}
       </div>
+      {/* Edit Modal */}
+      {editOpen && (
+        <Modal isOpen={true} onClose={() => setEditOpen(false)} title="Edit Memorial">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Name</label>
+              <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Privacy</label>
+              <select value={editPrivacy} onChange={(e) => setEditPrivacy(e.target.value)} className="w-full px-3 py-2 border rounded">
+                <option value="PUBLIC">Public</option>
+                <option value="MEMBERS_ONLY">Members Only</option>
+                <option value="PRIVATE">Private</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Story</label>
+              <textarea value={editStory} onChange={(e) => setEditStory(e.target.value)} rows={6} className="w-full px-3 py-2 border rounded" />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setEditOpen(false)}>Cancel</Button>
+              <Button onClick={async () => {
+                try {
+                  const body: any = {};
+                  if (editName.trim() !== (memorial.name || '')) body.name = editName.trim();
+                  if (editStory !== (memorial.story || '')) body.story = editStory;
+                  if (editPrivacy !== (memorial.privacy || 'PUBLIC')) body.privacy = editPrivacy;
+
+                  const res = await fetch(`/api/tenants/${tenantId}/memorials/${memorialId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                  });
+                  if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.error || 'Failed to update memorial');
+                  }
+                  setEditOpen(false);
+                  await fetchMemorial();
+                } catch (err: any) {
+                  console.error(err);
+                  alert(err?.message || 'Failed to update memorial');
+                }
+              }}>Save</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -35,17 +35,43 @@ export default function MemorialSubmissionForm() {
     const files = e.target.files;
     if (!files) return;
 
-    // For now, we'll use placeholder URLs. In production, integrate with storage service
     const newPhotos: string[] = [];
+    // Upload each file to /api/upload and collect the returned URL
     for (let i = 0; i < files.length && formData.photos.length + newPhotos.length < 10; i++) {
-      const url = URL.createObjectURL(files[i]);
-      newPhotos.push(url);
+      const file = files[i];
+      try {
+        const fd = new FormData();
+        fd.append('file', file);
+        if (tenantId) fd.append('tenantId', tenantId);
+        fd.append('category', 'photos');
+
+        const res = await fetch('/api/upload', { method: 'POST', body: fd });
+        if (!res.ok) {
+          console.error('Upload failed for', file.name);
+          continue;
+        }
+        const data = await res.json().catch(() => ({}));
+        let url = data?.url || (data?.storageKey ? `/storage/${data.storageKey}` : null);
+        // Normalize relative storage paths to absolute URLs so server-side validation (zod url) accepts them
+        if (url && url.startsWith('/')) {
+          try {
+            url = window.location.origin + url;
+          } catch (e) {
+            // window may not be available in some environments; leave as-is
+          }
+        }
+        if (url) newPhotos.push(url);
+      } catch (err) {
+        console.error('Upload error', err);
+      }
     }
-    
-    setFormData(prev => ({
-      ...prev,
-      photos: [...prev.photos, ...newPhotos],
-    }));
+
+    if (newPhotos.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        photos: [...prev.photos, ...newPhotos],
+      }));
+    }
   };
 
   const removePhoto = (index: number) => {
@@ -77,26 +103,77 @@ export default function MemorialSubmissionForm() {
         .filter(t => t.length > 0)
         .slice(0, 10);
 
+      // Convert date-only inputs (YYYY-MM-DD) to full ISO datetimes expected by the API
+      const toIsoDatetime = (d: string) => {
+        if (!d) return null;
+        // If already looks like an ISO datetime, return as-is
+        if (d.includes('T') && d.endsWith('Z')) return d;
+        try {
+          // Treat the input as local date; append T00:00:00Z to represent the date in UTC
+          const iso = new Date(d + 'T00:00:00Z').toISOString();
+          return iso;
+        } catch (e) {
+          return null;
+        }
+      };
+
+      // Ensure photos are absolute URLs (zod expects valid URL format)
+      const normalize = (u: string) => {
+        if (!u) return u;
+        if (u.startsWith('/')) return (typeof window !== 'undefined' ? window.location.origin + u : u);
+        return u;
+      };
+
+      const payload = {
+        name: formData.name.trim(),
+        birthDate: toIsoDatetime(formData.birthDate),
+        deathDate: toIsoDatetime(formData.deathDate),
+        story: formData.story.trim() || null,
+        photos: formData.photos.map(normalize),
+        tags,
+        privacy: formData.privacy,
+        submitterName: formData.submitterName.trim(),
+        submitterEmail: formData.submitterEmail.trim(),
+        submitterRelationship: formData.submitterRelationship.trim() || null,
+      };
+
       const res = await fetch(`/api/tenants/${tenantId}/memorials`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          birthDate: formData.birthDate || null,
-          deathDate: formData.deathDate || null,
-          story: formData.story.trim() || null,
-          photos: formData.photos,
-          tags,
-          privacy: formData.privacy,
-          submitterName: formData.submitterName.trim(),
-          submitterEmail: formData.submitterEmail.trim(),
-          submitterRelationship: formData.submitterRelationship.trim() || null,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to submit memorial');
+        const data = await res.json().catch(() => ({ error: 'Failed to submit memorial' }));
+
+        // Log raw API response to the console to aid debugging
+        console.error('Memorial submission failed - API response:', data);
+
+        // Format Zod validation errors (array of issues) into a readable string
+        let errMsg = 'Failed to submit memorial';
+        if (data && data.error) {
+          if (Array.isArray(data.error)) {
+            errMsg = data.error
+              .map((issue: any) => {
+                if (typeof issue === 'string') return issue;
+                const path = Array.isArray(issue.path) && issue.path.length ? issue.path.join('.') : '';
+                const message = issue.message ?? issue.toString?.() ?? JSON.stringify(issue);
+                return path ? `${path}: ${message}` : message;
+              })
+              .join('; ');
+          } else if (typeof data.error === 'string') {
+            errMsg = data.error;
+          } else {
+            // Fallback: stringify the error object
+            try {
+              errMsg = JSON.stringify(data.error);
+            } catch (e) {
+              errMsg = String(data.error);
+            }
+          }
+        }
+
+        throw new Error(errMsg);
       }
 
       setSuccess(true);

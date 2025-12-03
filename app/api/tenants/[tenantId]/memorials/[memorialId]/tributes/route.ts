@@ -68,7 +68,14 @@ export async function GET(
 
     return NextResponse.json({
       tributes: tributes.map(t => ({
-        ...t,
+        id: t.id,
+        // keep backwards-compatible keys expected by UI
+        message: t.content,
+        content: t.content,
+        relationship: (t as any).relationship ?? null,
+        authorName: t.authorName ?? null,
+        isApproved: t.isApproved,
+        createdAt: t.createdAt,
         user: t.user?.profile || null,
       })),
       pagination: {
@@ -150,9 +157,15 @@ export async function POST(
       },
     });
 
+    // Return tribute with UI-friendly keys. Note: relationship isn't persisted in the schema yet,
+    // but we include it in the response so the client can show it immediately after posting.
     return NextResponse.json({
       tribute: {
-        ...tribute,
+        id: tribute.id,
+        message: tribute.content,
+        content: tribute.content,
+        relationship: data.relationship ?? null,
+        createdAt: tribute.createdAt,
         user: tribute.user?.profile || null,
       },
       message: autoApproveTributes 

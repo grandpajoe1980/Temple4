@@ -82,7 +82,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Params }
     }
 
     const isStaffOrAdmin = membership.roles.some((r) =>
-      ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role)
+      ['ADMIN', 'STAFF', 'LEADER', 'MODERATOR'].includes(r.role)
     );
 
     if (!isStaffOrAdmin) {
@@ -176,7 +176,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Params 
     }
 
     const isStaffOrAdmin = membership.roles.some((r) =>
-      ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role)
+      ['ADMIN', 'STAFF', 'LEADER', 'MODERATOR'].includes(r.role)
     );
 
     if (!isStaffOrAdmin) {

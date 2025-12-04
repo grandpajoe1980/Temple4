@@ -17,7 +17,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     const userRecord = await prisma.user.findUnique({ where: { id: currentUserId } });
     const isSuperAdmin = !!userRecord?.isSuperAdmin;
     const membershipRoles = membership?.roles?.map((r: any) => r.role) || [];
-    const isTenantManager = membershipRoles.some((r: string) => ['ADMIN', 'OWNER', 'STAFF', 'CLERGY'].includes(r));
+    const isTenantManager = membershipRoles.some((r: string) => ['ADMIN', 'OWNER', 'STAFF', 'LEADER'].includes(r));
     const isAdmin = isSuperAdmin || isTenantManager;
 
     const tripMembership = await prisma.tripMember.findUnique({

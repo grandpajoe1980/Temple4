@@ -5,7 +5,7 @@ export default function SupportPage() {
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-10">
       <header className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Support</p>
-        <h1 className="text-3xl font-semibold text-slate-900">Need help with Temple Platform?</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">Need help with Asembli?</h1>
         <p className="text-sm text-slate-600">
           Use the resources below to report issues, request onboarding assistance, or explore the platform documentation.
         </p>
@@ -23,7 +23,7 @@ export default function SupportPage() {
           <h2 className="text-lg font-semibold text-slate-900">Report an issue</h2>
           <p className="mt-2 text-sm text-slate-600">Open a GitHub issue with steps to reproduce and expected behavior.</p>
           <a
-            href="https://github.com/temple/platform/issues"
+            href="https://github.com/asembli/platform/issues"
             className="mt-4 inline-flex text-sm font-semibold text-amber-700 hover:underline"
             target="_blank"
             rel="noreferrer"
@@ -34,7 +34,7 @@ export default function SupportPage() {
         <div className="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">Contact support</h2>
           <p className="mt-2 text-sm text-slate-600">
-            Prefer a direct thread? Email <a className="font-semibold text-amber-700" href="mailto:support@temple.dev">support@temple.dev</a>{' '}
+            Prefer a direct thread? Email <a className="font-semibold text-amber-700" href="mailto:support@asembli.com">support@asembli.com</a>{' '}
             and include your tenant ID or user email.
           </p>
         </div>

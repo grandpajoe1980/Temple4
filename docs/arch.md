@@ -220,7 +220,7 @@ Example: user submits an event RSVP.
   - `userId`, `tenantId`, status (`PENDING`, `APPROVED`, `REJECTED`).
   - `joinedAt`, `leftAt`.
 - `UserTenantRole`:
-  - Roles per membership: MEMBER, STAFF, CLERGY, MODERATOR, ADMIN.
+  - Roles per membership: MEMBER, STAFF, LEADER, MODERATOR, ADMIN.
   - Multiple roles per user/tenant allowed.
 
 **Permissions**
@@ -247,7 +247,7 @@ Example: user submits an event RSVP.
   - Title, body, tags, visibility, `deletedAt` for soft delete.
 - `PostComment` and `PostReaction`.
 - `MediaItem`:
-  - SERMON_VIDEO, PODCAST_AUDIO, etc.
+  - TALK_VIDEO, PODCAST_AUDIO, etc.
   - Title, description, media URL/storageKey, duration, metadata.
 - `Book`:
   - Author, title, summary, cover image, link to PDF or external source.
@@ -316,7 +316,7 @@ Example: user submits an event RSVP.
 **Core entities**
 
 - `Notification`:
-  - Type (e.g., NEW_MESSAGE, NEW_EVENT, PRAYER_REQUEST_REPLY).
+  - Type (e.g., NEW_MESSAGE, NEW_EVENT, SUPPORT_REQUEST_REPLY).
   - Target user/tenant.
   - Read/unread state.
 - `NotificationPreference`:
@@ -388,10 +388,10 @@ Example: user submits an event RSVP.
   - Tags, categories, access level.
   - File upload via storage service.
 
-**Prayer / Community Board**
+**Support / Community Board**
 
 - `CommunityPost`:
-  - Type (PRAYER_REQUEST, PRAISE_REPORT, TANGIBLE_NEED).
+  - Type (SUPPORT_REQUEST, PRAISE_REPORT, TANGIBLE_NEED).
   - Optional anonymity.
   - Moderation queue and statuses.
 

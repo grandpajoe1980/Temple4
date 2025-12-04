@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
         if (!(user as any).isSuperAdmin) {
           const membership = await getMembershipForUserInTenant(userId, tenantId as string);
           const roles = (membership as any)?.roles ?? [];
-          const isAllowedRole = roles.some((r: any) => r?.role === TenantRole.CLERGY || r?.role === TenantRole.ADMIN);
+          const isAllowedRole = roles.some((r: any) => r?.role === TenantRole.LEADER || r?.role === TenantRole.ADMIN);
           if (!isAllowedRole) return forbidden('You do not have permission to upload facility images');
         }
       } else {

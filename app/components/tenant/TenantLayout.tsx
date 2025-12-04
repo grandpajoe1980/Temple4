@@ -179,7 +179,7 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
       case 'members':
         return <MembersPage tenant={tenant} user={user as any} members={[]} onViewProfile={onViewProfile} />;
       case 'sermons':
-        return <SermonsPage tenant={tenant} user={user as any} sermons={[]} canCreate={false} />;
+        return <SermonsPage tenant={tenant} user={user as any} talks={[]} canCreate={false} />;
       case 'podcasts':
         return <PodcastsPage tenant={tenant} user={user as any} podcasts={[]} canCreate={false} />;
       case 'books':

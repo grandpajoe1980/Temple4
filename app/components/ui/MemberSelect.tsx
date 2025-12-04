@@ -18,7 +18,7 @@ interface MemberSelectProps {
   disabled?: boolean;
 }
 
-const STAFF_ROLES = ['ADMIN', 'CLERGY', 'STAFF', 'MODERATOR'];
+const STAFF_ROLES = ['ADMIN', 'LEADER', 'STAFF', 'MODERATOR'];
 
 export default function MemberSelect({
   members,

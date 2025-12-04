@@ -53,7 +53,7 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
         const publishedPosts = allPosts.filter((p: any) => p.status === CommunityPostStatus.PUBLISHED);
         setPosts(publishedPosts);
       } catch (error) {
-        console.error('Failed to load prayer wall posts:', error);
+        console.error('Failed to load support request posts:', error);
       } finally {
         setIsLoading(false);
       }
@@ -69,8 +69,8 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
     onRefresh?.();
     setIsModalOpen(false);
     alert(
-      tenant.settings?.autoApprovePrayerWall
-        ? 'Your request has been posted to the prayer wall.'
+      tenant.settings?.autoApproveSupportRequests
+        ? 'Your request has been posted to the support board.'
         : 'Your request has been submitted for review.'
     );
     // Reload posts
@@ -85,9 +85,9 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
         <CommunityChips tenantId={tenant.id} />
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Community Prayer Wall</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Community Support Board</h2>
             <p className="mt-1 text-sm text-gray-500">
-              Share prayer requests and tangible needs with the {tenant.name} community.
+              Share support requests and tangible needs with the {tenant.name} community.
             </p>
           </div>
         </div>
@@ -102,9 +102,9 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
     <div className="space-y-8">
       <CommunityChips tenantId={tenant.id} />
       <CommunityHeader
-        title={<>Community Prayer Wall</>}
-        subtitle={<>Share prayer requests and tangible needs with the {tenant.name} community.</>}
-        actions={<Button data-test="submit-prayer-trigger" onClick={() => setIsModalOpen(true)}>+ Submit a Request</Button>}
+        title={<>Community Support Board</>}
+        subtitle={<>Share support requests and tangible needs with the {tenant.name} community.</>}
+        actions={<Button data-test="submit-request-trigger" onClick={() => setIsModalOpen(true)}>+ Submit a Request</Button>}
       />
 
       {posts.length > 0 ? (
@@ -115,14 +115,14 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
         </div>
       ) : (
         <div className="text-center bg-white p-12 rounded-lg shadow-sm">
-          <h3 className="text-lg font-medium text-gray-900">The Prayer Wall is Empty</h3>
+          <h3 className="text-lg font-medium text-gray-900">The Support Board is Empty</h3>
           <p className="mt-1 text-sm text-gray-500">
-            Be the first to submit a prayer request or tangible need.
+            Be the first to submit a support request or tangible need.
           </p>
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="submit-prayer-modal" title="Submit a Request">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="submit-request-modal" title="Submit a Request">
         <SubmitPrayerPostForm
           onSubmit={handleCreatePost}
           onCancel={() => setIsModalOpen(false)}

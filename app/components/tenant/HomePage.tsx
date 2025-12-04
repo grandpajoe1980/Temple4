@@ -137,7 +137,7 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
           <h3 className="text-xl font-semibold text-gray-800">Join {tenant.name}</h3>
           <p className="mt-2 text-gray-600">{tenant.description}</p>
           <Button onClick={handleJoin} className="mt-6">
-            {isApprovalRequired ? 'Request Membership' : 'Join Temple'}
+            {isApprovalRequired ? 'Request Membership' : 'Join Community'}
           </Button>
         </div>
       );

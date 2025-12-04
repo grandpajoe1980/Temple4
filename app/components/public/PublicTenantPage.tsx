@@ -108,7 +108,7 @@ const PublicTenantPage: React.FC<PublicTenantPageProps> = ({ tenant, currentUser
         return <PublicEventsView tenant={tenant} />;
       case 'sermons':
         // TODO: Create proper public view components or fetch data here
-        return <SermonsPage tenant={tenant} user={currentUser!} sermons={[]} canCreate={false} />;
+        return <SermonsPage tenant={tenant} user={currentUser!} talks={[]} canCreate={false} />;
        case 'podcasts':
         return <PodcastsPage tenant={tenant} user={currentUser!} podcasts={[]} canCreate={false} />;
        case 'books':

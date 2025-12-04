@@ -36,7 +36,7 @@
 * **Permission Checks:**
   * Use `can(user, tenant, permission)` from `lib/permissions.ts`
   * 19 existing permissions in `RolePermissions` interface
-  * 5 roles: MEMBER, STAFF, CLERGY, MODERATOR, ADMIN
+  * 5 roles: MEMBER, STAFF, LEADER, MODERATOR, ADMIN
   * Tenant.permissions stored as JSON (`TenantFeaturePermissions`)
 
 * **Feature Toggles:**
@@ -371,7 +371,7 @@ model TenantBranding {
 
 #### Current State
 * Nav hardcoded in tenant layout
-* Feature toggles in `TenantSettings` (enablePosts, enableSermons, etc.) partially control visibility
+* Feature toggles in `TenantSettings` (enablePosts, enableTalks, etc.) partially control visibility
 
 #### Data Model Changes
 ```prisma
@@ -384,8 +384,8 @@ model TenantSettings {
 #### navConfig Structure
 ```typescript
 type NavConfigItem = {
-  key: 'home' | 'posts' | 'events' | 'sermons' | 'podcasts' | 'books' | 
-       'gallery' | 'resources' | 'prayer-wall' | 'small-groups' | 
+  key: 'home' | 'posts' | 'events' | 'talks' | 'podcasts' | 'books' | 
+       'gallery' | 'resources' | 'support-requests' | 'small-groups' | 
        'volunteer' | 'giving' | 'contact';
   visible: boolean;
   label?: string;      // Custom label override (default uses key)
@@ -1714,7 +1714,7 @@ enum AnalyticsEventType {
   EVENT_CHECKIN
   DONATION_CREATED
   GROUP_ATTENDANCE
-  PRAYER_REQUEST_CREATED
+  SUPPORT_REQUEST_CREATED
   VOLUNTEER_SIGNUP
   COURSE_ENROLLMENT
   RESOURCE_DOWNLOAD

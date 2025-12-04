@@ -21,7 +21,7 @@ const footerSections = [
     links: [
       { label: 'Contact', href: '/support' },
       { label: 'Docs', href: '/docs' },
-      { label: 'Report an issue', href: 'https://github.com/temple/platform/issues' },
+      { label: 'Report an issue', href: 'https://github.com/asembli/platform/issues' },
     ],
   },
 ];
@@ -70,7 +70,7 @@ const SiteFooter = () => {
                     ? environmentLabel
                     : item.key === 'build'
                       ? buildLabel
-                      : 'Temple Support';
+                      : 'Asembli Support';
                 const badge = (
                   <span className="flex items-center gap-2 rounded-full border border-slate-200/80 px-4 py-1.5">
                     <span className="font-semibold uppercase tracking-[0.2em] text-amber-600">{item.label}</span>
@@ -88,7 +88,7 @@ const SiteFooter = () => {
                 );
               })}
             </div>
-            <p>&copy; {new Date().getFullYear()} Temple Platform</p>
+            <p>&copy; {new Date().getFullYear()} Asembli</p>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import TempleLogo from '../ui/TempleLogo';
+import Logo from '../ui/Logo';
 
 interface LandingPageProps {
   onNavigateToLogin: () => void;
@@ -21,7 +21,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
       <div className="w-full max-w-3xl space-y-8 text-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="flex items-center gap-4 justify-center">
-            <TempleLogo className="h-12 w-12 text-amber-600" />
+            <Logo className="h-12 w-12 text-amber-600" />
             <h1 className="text-4xl font-extrabold tracking-tight text-amber-600">TEMPLE</h1>
           </div>
         </div>

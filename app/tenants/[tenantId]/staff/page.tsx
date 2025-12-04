@@ -21,9 +21,9 @@ export default async function TenantStaffPage({ params }: { params: Promise<{ te
 
   const members = await getMembersForTenant(tenant.id);
 
-  // Filter to staff, clergy, or admin roles
+  // Filter to staff, leader, or admin roles
   const staff = members.filter((m) =>
-    (m.membership.roles || []).some((r: any) => ['STAFF', 'CLERGY', 'ADMIN'].includes(r.role))
+    (m.membership.roles || []).some((r: any) => ['STAFF', 'LEADER', 'ADMIN'].includes(r.role))
   );
 
   return <TenantStaffPageClient tenant={tenant} user={user} members={staff} />;

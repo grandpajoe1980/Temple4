@@ -318,8 +318,8 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
               <li>• A/V and stage configuration support</li>
               <li>• Staffing and hospitality coordination</li>
             </ul>
-            <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-              Prefer to talk? Visit the concierge desk or email facilities@temple.org.
+            <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800\">
+              Prefer to talk? Visit the concierge desk or email facilities@asembli.com.
             </div>
           </Card>
         </div>

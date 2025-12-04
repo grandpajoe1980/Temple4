@@ -29,7 +29,7 @@ export default async function TenantTripsPage({ params }: { params: Promise<{ te
   const isPlatformAdmin = Boolean((session.user as any)?.isSuperAdmin);
   const isAdmin =
     isPlatformAdmin ||
-    membershipRoles.some((role: string) => ['ADMIN', 'OWNER', 'STAFF', 'CLERGY'].includes(role));
+    membershipRoles.some((role: string) => ['ADMIN', 'OWNER', 'STAFF', 'LEADER'].includes(role));
 
   let visibleTrips = trips;
   if (!isAdmin && !isPlatformAdmin) {

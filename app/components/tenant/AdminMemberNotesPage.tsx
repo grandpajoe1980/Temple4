@@ -17,10 +17,10 @@ const CATEGORY_LABELS: Record<NoteCategory, string> = {
   GENERAL: 'General',
   CARE: 'Care',
   HOSPITAL: 'Hospital',
-  DISCIPLESHIP: 'Discipleship',
-  PASTORAL: 'Pastoral',
+  MENTORSHIP: 'Mentorship',
+  PERSONAL_CARE: 'Personal Care',
   COUNSELING: 'Counseling',
-  PRAYER: 'Prayer',
+  SUPPORT: 'Support',
   FOLLOW_UP: 'Follow-Up',
 };
 
@@ -28,10 +28,10 @@ const CATEGORY_COLORS: Record<NoteCategory, string> = {
   GENERAL: 'bg-slate-100 text-slate-700',
   CARE: 'bg-pink-100 text-pink-700',
   HOSPITAL: 'bg-red-100 text-red-700',
-  DISCIPLESHIP: 'bg-green-100 text-green-700',
-  PASTORAL: 'bg-purple-100 text-purple-700',
+  MENTORSHIP: 'bg-green-100 text-green-700',
+  PERSONAL_CARE: 'bg-purple-100 text-purple-700',
   COUNSELING: 'bg-indigo-100 text-indigo-700',
-  PRAYER: 'bg-blue-100 text-blue-700',
+  SUPPORT: 'bg-blue-100 text-blue-700',
   FOLLOW_UP: 'bg-orange-100 text-orange-700',
 };
 
@@ -109,8 +109,8 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
     roomNumber: '',
     visitDate: new Date().toISOString().split('T')[0],
     duration: '',
-    prayerOffered: false,
-    communionGiven: false,
+    supportOffered: false,
+    serviceProvided: false,
     familyContacted: false,
     notes: '',
     outcome: '',
@@ -177,7 +177,7 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
         setMembers(allMembers);
         
         const staff = data.members?.filter((m: { roles?: Array<{ role: string }> }) => 
-          m.roles?.some((r) => ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role))
+          m.roles?.some((r) => ['ADMIN', 'STAFF', 'LEADER', 'MODERATOR'].includes(r.role))
         ).map((m: { user: { id: string; profile?: { displayName: string; avatarUrl?: string } } }) => ({
           id: m.user.id,
           displayName: m.user.profile?.displayName || 'Unknown',
@@ -263,8 +263,8 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
           roomNumber: '',
           visitDate: new Date().toISOString().split('T')[0],
           duration: '',
-          prayerOffered: false,
-          communionGiven: false,
+          supportOffered: false,
+          serviceProvided: false,
           familyContacted: false,
           notes: '',
           outcome: '',
@@ -394,7 +394,7 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Member Notes & Care</h1>
-          <p className="text-slate-600">Track pastoral care, visits, and follow-ups</p>
+          <p className="text-slate-600">Track member care, visits, and follow-ups</p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={() => setSettingsModalOpen(true)}>
@@ -601,14 +601,14 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
                         {visit.roomNumber && ` - Room ${visit.roomNumber}`}
                       </p>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {visit.prayerOffered && (
+                        {visit.supportOffered && (
                           <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
-                            🙏 Prayer Offered
+                            🤝 Support Offered
                           </span>
                         )}
-                        {visit.communionGiven && (
+                        {visit.serviceProvided && (
                           <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
-                            🍷 Communion Given
+                            ✅ Service Provided
                           </span>
                         )}
                         {visit.familyContacted && (
@@ -871,20 +871,20 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={newVisit.prayerOffered}
-                onChange={(e) => setNewVisit({ ...newVisit, prayerOffered: e.target.checked })}
+                checked={newVisit.supportOffered}
+                onChange={(e) => setNewVisit({ ...newVisit, supportOffered: e.target.checked })}
                 className="rounded"
               />
-              <span className="text-sm">🙏 Prayer Offered</span>
+              <span className="text-sm">🤝 Support Offered</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={newVisit.communionGiven}
-                onChange={(e) => setNewVisit({ ...newVisit, communionGiven: e.target.checked })}
+                checked={newVisit.serviceProvided}
+                onChange={(e) => setNewVisit({ ...newVisit, serviceProvided: e.target.checked })}
                 className="rounded"
               />
-              <span className="text-sm">🍷 Communion Given</span>
+              <span className="text-sm">✅ Service Provided</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input

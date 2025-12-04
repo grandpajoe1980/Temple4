@@ -35,7 +35,7 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
       }
 
       isStaffOrAdmin = membership.roles.some((r) =>
-        ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role)
+        ['ADMIN', 'STAFF', 'LEADER', 'MODERATOR'].includes(r.role)
       );
 
       if (!isStaffOrAdmin) {
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest, { params }: { params: Params })
       }
 
       isStaffOrAdmin = membership.roles.some((r) =>
-        ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role)
+        ['ADMIN', 'STAFF', 'LEADER', 'MODERATOR'].includes(r.role)
       );
 
       if (!isStaffOrAdmin) {
@@ -183,8 +183,8 @@ export async function POST(request: NextRequest, { params }: { params: Params })
       roomNumber,
       visitDate,
       duration,
-      prayerOffered,
-      communionGiven,
+      supportOffered,
+      serviceProvided,
       familyContacted,
       notes,
       outcome,
@@ -214,8 +214,8 @@ export async function POST(request: NextRequest, { params }: { params: Params })
         roomNumber,
         visitDate: new Date(visitDate),
         duration,
-        prayerOffered: prayerOffered || false,
-        communionGiven: communionGiven || false,
+        supportOffered: supportOffered || false,
+        serviceProvided: serviceProvided || false,
         familyContacted: familyContacted || false,
         notes,
         outcome,

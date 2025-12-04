@@ -615,7 +615,7 @@ export async function hideProfilePost(postId: string, actorUserId: string, tenan
         where: { userId_tenantId: { userId: actorUserId, tenantId } },
         include: { roles: true }
     });
-    const allowedRoles = ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'];
+    const allowedRoles = ['ADMIN', 'STAFF', 'LEADER', 'MODERATOR'];
     const isTenantAdmin = membership?.roles?.some(r => allowedRoles.includes(r.role));
 
     if (!(post.userId === actorUserId || isTenantAdmin || isPlatformAdmin)) {

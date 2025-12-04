@@ -6,7 +6,7 @@ export default function DocsLandingPage() {
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-10">
       <header className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Documentation</p>
-        <h1 className="text-3xl font-semibold text-slate-900">Temple Platform Knowledge Base</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">Asembli Knowledge Base</h1>
         <p className="max-w-3xl text-sm text-slate-600">
           Centralized references for security guardrails and current delivery status. These pages mirror the markdown files in the
           <code>docs/</code> directory for quick access.

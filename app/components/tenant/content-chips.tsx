@@ -4,16 +4,16 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
-type ContentKey = 'Photos' | 'Podcasts' | 'Sermons' | 'Books' | 'Live Stream' | string;
+type ContentKey = 'Photos' | 'Podcasts' | 'Talks' | 'Books' | 'Live Stream' | string;
 
 export default function ContentChips({ tenantId, active }: { tenantId: string; active?: ContentKey }) {
   const [settings, setSettings] = useState<Record<string, any> | null>(null);
   const pathname = usePathname();
 
   // If TenantNav is already rendering the content submenu for this tenant
-  // (e.g. when viewing `/tenants/:id/photos`, `/podcasts`, `/sermons`, `/books`, `/livestream` or `/content`)
+  // (e.g. when viewing `/tenants/:id/photos`, `/podcasts`, `/talks`, `/books`, `/livestream` or `/content`)
   // don't render the fixed chips to avoid a duplicate menu.
-  const contentPaths = ['/photos', '/podcasts', '/sermons', '/books', '/livestream', '/content'];
+  const contentPaths = ['/photos', '/podcasts', '/talks', '/books', '/livestream', '/content'];
   const base = `/tenants/${tenantId}`;
   const isTenantContentRoute = Boolean(pathname && contentPaths.some((p) => pathname.startsWith(`${base}${p}`)));
 
@@ -61,7 +61,7 @@ export default function ContentChips({ tenantId, active }: { tenantId: string; a
   const chips: Array<{ href: string; label: ContentKey; feature?: string }> = [
     { href: `/tenants/${tenantId}/photos`, label: 'Photos', feature: 'enablePhotos' },
     { href: `/tenants/${tenantId}/podcasts`, label: 'Podcasts', feature: 'enablePodcasts' },
-    { href: `/tenants/${tenantId}/sermons`, label: 'Sermons', feature: 'enableSermons' },
+    { href: `/tenants/${tenantId}/talks`, label: 'Talks', feature: 'enableTalks' },
     { href: `/tenants/${tenantId}/books`, label: 'Books', feature: 'enableBooks' },
     { href: `/tenants/${tenantId}/livestream`, label: 'Live Stream', feature: 'enableLiveStream' },
   ];

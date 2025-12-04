@@ -3,7 +3,7 @@
 export enum TenantRole {
   MEMBER = 'MEMBER',
   STAFF = 'STAFF',
-  CLERGY = 'CLERGY',
+  LEADER = 'LEADER',
   MODERATOR = 'MODERATOR',
   ADMIN = 'ADMIN',
 }
@@ -81,7 +81,7 @@ export enum TripDonationStatus {
 }
 
 export enum CommunityPostType {
-    PRAYER_REQUEST = 'PRAYER_REQUEST',
+    SUPPORT_REQUEST = 'SUPPORT_REQUEST',
     TANGIBLE_NEED = 'TANGIBLE_NEED',
 }
 
@@ -279,7 +279,8 @@ export interface TenantSettings {
   enableCalendar: boolean;
   enableEvents?: boolean;
   enablePosts: boolean;
-  enableSermons: boolean;
+  enableTalks: boolean;
+  enableSermons?: boolean;
   enablePodcasts: boolean;
   enablePhotos: boolean;
   enableBooks: boolean;
@@ -301,9 +302,11 @@ export interface TenantSettings {
   enableSmallGroups: boolean;
   enableTrips: boolean;
   enableLiveStream: boolean;
-  enablePrayerWall: boolean;
-  autoApprovePrayerWall: boolean;
+  enableSupportRequests: boolean;
+  autoApproveSupportRequests: boolean;
   enableResourceCenter: boolean;
+  enablePrayerWall: boolean;
+  autoApprovePrayerWall?: boolean;
   enableTripFundraising?: boolean;
   tripCalendarColor?: string;
   enableBirthdays?: boolean;
@@ -315,10 +318,10 @@ export interface TenantSettings {
     calendar: boolean;
     events?: boolean;
     posts: boolean;
-    sermons: boolean;
+    talks: boolean;
     podcasts: boolean;
     books: boolean;
-    prayerWall: boolean;
+    supportRequests: boolean;
     photos?: boolean;
   };
   welcomePacketUrl?: string | null;
@@ -330,6 +333,7 @@ export interface TenantSettings {
 export interface RolePermissions {
   canCreatePosts: boolean;
   canCreateEvents: boolean;
+  canCreateTalks: boolean;
   canCreateSermons: boolean;
   canCreatePodcasts: boolean;
   canCreateBooks: boolean;
@@ -340,11 +344,12 @@ export interface RolePermissions {
   canModeratePosts: boolean;
   canModerateChats: boolean;
   canPostInAnnouncementChannels?: boolean;
-  canManagePrayerWall: boolean;
+  canManageSupportRequests: boolean;
   canUploadResources: boolean;
   canManageResources: boolean;
   canManageContactSubmissions: boolean;
   canManageFacilities: boolean;
+  canManagePrayerWall: boolean;
 }
 
 // Sticking with a map for easier frontend access
@@ -457,7 +462,7 @@ export interface MediaItem {
   id: string;
   tenantId: string;
   authorUserId: string;
-  type: 'SERMON_VIDEO' | 'PODCAST_AUDIO';
+  type: 'TALK_VIDEO' | 'PODCAST_AUDIO';
   title: string;
   description: string;
   embedUrl: string;
@@ -952,7 +957,7 @@ export interface TicketWithDetails extends Ticket {
 
 // --- Member Notes Types ---
 
-export type NoteCategory = 'GENERAL' | 'CARE' | 'HOSPITAL' | 'DISCIPLESHIP' | 'PASTORAL' | 'COUNSELING' | 'PRAYER' | 'FOLLOW_UP';
+export type NoteCategory = 'GENERAL' | 'CARE' | 'HOSPITAL' | 'MENTORSHIP' | 'PERSONAL_CARE' | 'COUNSELING' | 'SUPPORT' | 'FOLLOW_UP';
 export type NoteVisibility = 'PRIVATE' | 'STAFF' | 'LEADERSHIP' | 'ADMIN_ONLY';
 export type FollowUpStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'SKIPPED' | 'ESCALATED';
 
@@ -998,8 +1003,8 @@ export interface HospitalVisit {
   roomNumber?: string | null;
   visitDate: Date;
   duration?: number | null;
-  prayerOffered: boolean;
-  communionGiven: boolean;
+  supportOffered: boolean;
+  serviceProvided: boolean;
   familyContacted: boolean;
   notes?: string | null;
   outcome?: string | null;

@@ -15,7 +15,7 @@ datasource db {
 enum TenantRole {
   MEMBER
   STAFF
-  CLERGY
+  LEADER
   MODERATOR
   ADMIN
 }
@@ -40,7 +40,7 @@ enum MembershipApprovalMode {
 }
 
 enum CommunityPostType {
-  PRAYER_REQUEST
+  SUPPORT_REQUEST
   TANGIBLE_NEED
 }
 
@@ -491,6 +491,7 @@ model TenantSettings {
   membershipApprovalMode   MembershipApprovalMode @default(APPROVAL_REQUIRED)
   enableCalendar           Boolean                @default(true)
   enablePosts              Boolean                @default(true)
+  enableTalks              Boolean                @default(true)
   enableSermons            Boolean                @default(true)
   enablePodcasts           Boolean                @default(true)
   enableBooks              Boolean                @default(true)
@@ -508,9 +509,11 @@ model TenantSettings {
   enableTrips              Boolean                @default(false)
   enableLiveStream         Boolean                @default(false)
   enablePhotos             Boolean                @default(true)
+  enableSupportRequests    Boolean                @default(false)
+  autoApproveSupportRequests Boolean              @default(false)
+  enableResourceCenter     Boolean                @default(false)
   enablePrayerWall         Boolean                @default(false)
   autoApprovePrayerWall    Boolean                @default(false)
-  enableResourceCenter     Boolean                @default(false)
   enableTripFundraising    Boolean                @default(false)
   tripCalendarColor        String?                @default("#0EA5E9")
   enableEvents             Boolean                @default(true)
@@ -671,7 +674,7 @@ model MediaItem {
   tenant       Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   authorUserId String
   author       User      @relation(fields: [authorUserId], references: [id])
-  type         String // 'SERMON_VIDEO' | 'PODCAST_AUDIO'
+  type         String // 'TALK_VIDEO' | 'PODCAST_AUDIO' | 'IMAGE'
   title        String
   description  String
   embedUrl     String
@@ -1070,7 +1073,7 @@ model TripDonation {
   @@index([tripId, status])
 }
 
-// --- COMMUNITY BOARD / PRAYER WALL MODELS ---
+// --- COMMUNITY BOARD / SUPPORT REQUESTS MODELS ---
 
 model CommunityPost {
   id           String              @id @default(cuid())
@@ -1936,17 +1939,17 @@ enum NoteCategory {
   GENERAL
   CARE
   HOSPITAL
-  DISCIPLESHIP
-  PASTORAL
+  MENTORSHIP
+  PERSONAL_CARE
   COUNSELING
-  PRAYER
+  SUPPORT
   FOLLOW_UP
 }
 
 enum NoteVisibility {
   PRIVATE       // Only author
   STAFF         // Staff and above
-  LEADERSHIP    // Clergy and admin
+  LEADERSHIP    // Leader and admin
   ADMIN_ONLY    // Admin only
 }
 
@@ -2053,7 +2056,7 @@ model HospitalVisit {
   memberId        String
   member          User            @relation("HospitalVisitsFor", fields: [memberId], references: [id])
   
-  // Visitor (staff/clergy)
+  // Visitor (staff/leader)
   visitorId       String
   visitor         User            @relation("HospitalVisitsMadeBy", fields: [visitorId], references: [id])
   
@@ -2064,8 +2067,8 @@ model HospitalVisit {
   duration        Int?            // Minutes
   
   // Checklist
-  prayerOffered   Boolean         @default(false)
-  communionGiven  Boolean         @default(false)
+  supportOffered  Boolean         @default(false)
+  serviceProvided Boolean         @default(false)
   familyContacted Boolean         @default(false)
   
   notes           String?

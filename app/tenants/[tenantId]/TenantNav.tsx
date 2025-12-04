@@ -38,7 +38,7 @@ const navItems: { key: TenantPage; label: string; path: string; feature?: NavIte
 const contentSubItems: { key: string; label: string; path: string; feature?: NavItemFeature }[] = [
   { key: 'photos', label: 'Photos', path: '/photos', feature: 'enablePhotos' },
   { key: 'podcasts', label: 'Podcasts', path: '/podcasts', feature: 'enablePodcasts' },
-  { key: 'sermons', label: 'Sermons', path: '/sermons', feature: 'enableSermons' },
+  { key: 'talks', label: 'Talks', path: '/talks', feature: 'enableTalks' },
   { key: 'books', label: 'Books', path: '/books', feature: 'enableBooks' },
   { key: 'liveStream', label: 'Live Stream', path: '/livestream', feature: 'enableLiveStream' },
 ];
@@ -48,7 +48,7 @@ const communitySubItems: { key: string; label: string; path: string; feature?: N
   { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
   { key: 'wall', label: 'Wall', path: '/community/wall' },
   { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
-  { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
+  { key: 'supportRequests', label: 'Support Requests', path: '/support-requests', feature: 'enableSupportRequests' },
   { key: 'memorials', label: 'Memorials', path: '/memorials', feature: 'enableMemorials' },
   { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
   { key: 'staff', label: 'Staff', path: '/staff', feature: 'enableMemberDirectory' },

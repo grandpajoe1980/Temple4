@@ -2,16 +2,16 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Temple Platform
+# Asembli Platform
 
-A comprehensive multi-tenant platform for religious organizations (churches, temples, mosques) to manage their communities, content, events, and member engagement.
+A comprehensive multi-tenant platform for organizations and communities to manage their members, content, events, and engagement. Available at [assembli.space](https://assembli.space).
 
 ## Features
 
 - 🏛️ **Multi-tenant Architecture** - Each organization gets its own space
 - 👥 **Member Management** - Role-based access, membership approvals
-- 📝 **Content Management** - Posts, sermons, events, books, podcasts
-- 💬 **Communication** - Direct messaging, announcements, prayer walls
+- 📝 **Content Management** - Posts, talks, events, books, podcasts
+- 💬 **Communication** - Direct messaging, announcements, support boards
 - 📅 **Event Management** - Calendar, RSVPs, recurring events
 - 👫 **Small Groups** - Community building and group management
 - 🎨 **Customization** - Branding, themes, permissions

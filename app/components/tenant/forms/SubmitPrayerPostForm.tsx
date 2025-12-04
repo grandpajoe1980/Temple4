@@ -5,13 +5,13 @@ import { CommunityPostType } from '@/types';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
 
-interface SubmitPrayerPostFormProps {
+interface SubmitSupportRequestFormProps {
   onSubmit: (data: { type: CommunityPostType; body: string; isAnonymous: boolean }) => void;
   onCancel: () => void;
 }
 
-const SubmitPrayerPostForm: React.FC<SubmitPrayerPostFormProps> = ({ onSubmit, onCancel }) => {
-  const [type, setType] = useState<CommunityPostType>(CommunityPostType.PRAYER_REQUEST);
+const SubmitSupportRequestForm: React.FC<SubmitSupportRequestFormProps> = ({ onSubmit, onCancel }) => {
+  const [type, setType] = useState<CommunityPostType>(CommunityPostType.SUPPORT_REQUEST);
   const [body, setBody] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
 
@@ -30,9 +30,9 @@ const SubmitPrayerPostForm: React.FC<SubmitPrayerPostFormProps> = ({ onSubmit, o
         <label className="block text-sm font-medium text-gray-700 mb-2">What type of request is this?</label>
         <div className="flex space-x-4">
           <label className="flex-1">
-            <input type="radio" name="post-type" value={CommunityPostType.PRAYER_REQUEST} checked={type === CommunityPostType.PRAYER_REQUEST} onChange={() => setType(CommunityPostType.PRAYER_REQUEST)} className="sr-only" />
-            <div className={`p-4 rounded-lg border-2 cursor-pointer text-center ${type === CommunityPostType.PRAYER_REQUEST ? 'border-amber-500 bg-amber-50' : 'border-gray-300 bg-white'}`}>
-              Prayer Request
+            <input type="radio" name="post-type" value={CommunityPostType.SUPPORT_REQUEST} checked={type === CommunityPostType.SUPPORT_REQUEST} onChange={() => setType(CommunityPostType.SUPPORT_REQUEST)} className="sr-only" />
+            <div className={`p-4 rounded-lg border-2 cursor-pointer text-center ${type === CommunityPostType.SUPPORT_REQUEST ? 'border-amber-500 bg-amber-50' : 'border-gray-300 bg-white'}`}>
+              Support Request
             </div>
           </label>
           <label className="flex-1">
@@ -56,7 +56,7 @@ const SubmitPrayerPostForm: React.FC<SubmitPrayerPostFormProps> = ({ onSubmit, o
           value={body}
           onChange={(e) => setBody(e.target.value)}
           required
-          placeholder="Please share what's on your heart..."
+          placeholder="Please share what you need help with..."
         />
       </div>
 
@@ -79,4 +79,4 @@ const SubmitPrayerPostForm: React.FC<SubmitPrayerPostFormProps> = ({ onSubmit, o
   );
 };
 
-export default SubmitPrayerPostForm;
+export default SubmitSupportRequestForm;

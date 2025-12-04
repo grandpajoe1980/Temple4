@@ -289,10 +289,10 @@ export class FeatureTestSuite {
       }
     }
 
-    // If that still doesn't work, fall back to platform superadmin (bypass tenant permissions)
+    // If that still doesn't work, fall back to platform admin (bypass tenant permissions)
     if (!adminToken) {
       try {
-        const { cookieHeader } = await performCredentialsLogin('superadmin@temple.com', 'SuperAdminPass123!');
+        const { cookieHeader } = await performCredentialsLogin('admin@temple.com', 'password');
         adminToken = cookieHeader;
       } catch (err) {
         // ignore - allow tests to proceed and report authorization failures
@@ -304,13 +304,13 @@ export class FeatureTestSuite {
       adminHeaders['Cookie'] = adminToken;
     }
 
-    // For deterministic content-creation tests, run them as platform superadmin when available
+    // For deterministic content-creation tests, run them as platform admin when available
     try {
-      const { cookieHeader } = await performCredentialsLogin('superadmin@temple.com', 'SuperAdminPass123!');
+      const { cookieHeader } = await performCredentialsLogin('admin@temple.com', 'password');
       if (cookieHeader) {
         adminToken = cookieHeader;
         adminHeaders['Cookie'] = adminToken;
-        console.log('[FeatureTests] Using platform superadmin for content creation');
+        console.log('[FeatureTests] Using platform admin for content creation');
       }
     } catch (e) {
       // ignore
@@ -345,9 +345,9 @@ export class FeatureTestSuite {
             }
           }
 
-          // If the admin user still can't access tenant members, try using platform superadmin
+          // If the admin user still can't access tenant members, try using platform admin
           try {
-            const { cookieHeader } = await performCredentialsLogin('superadmin@temple.com', 'SuperAdminPass123!');
+            const { cookieHeader } = await performCredentialsLogin('admin@temple.com', 'password');
             if (cookieHeader) {
               adminToken = cookieHeader;
               adminHeaders['Cookie'] = adminToken;

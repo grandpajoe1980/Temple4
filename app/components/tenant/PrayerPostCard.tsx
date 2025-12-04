@@ -9,10 +9,10 @@ interface PrayerPostCardProps {
 }
 
 const PrayerPostCard: React.FC<PrayerPostCardProps> = ({ post }) => {
-  const isPrayer = post.type === CommunityPostType.PRAYER_REQUEST;
+  const isSupport = post.type === CommunityPostType.SUPPORT_REQUEST;
 
   const typeStyles = {
-    [CommunityPostType.PRAYER_REQUEST]: 'bg-sky-100 text-sky-800',
+    [CommunityPostType.SUPPORT_REQUEST]: 'bg-sky-100 text-sky-800',
     [CommunityPostType.TANGIBLE_NEED]: 'bg-lime-100 text-lime-800',
   };
 
@@ -34,7 +34,7 @@ const PrayerPostCard: React.FC<PrayerPostCardProps> = ({ post }) => {
                 </div>
             </div>
             <Button variant="secondary" size="sm">
-                {isPrayer ? "I'm Praying" : "I Can Help"}
+                {isSupport ? "I support!" : "I Can Help"}
             </Button>
         </div>
       </div>

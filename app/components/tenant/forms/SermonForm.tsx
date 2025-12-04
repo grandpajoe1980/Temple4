@@ -4,20 +4,20 @@ import React, { useState } from 'react';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 
-export interface SermonFormData {
+export interface TalkFormData {
   title: string;
   description: string;
   embedUrl: string;
 }
 
-interface SermonFormProps {
-  onSubmit: (data: SermonFormData) => void;
+interface TalkFormProps {
+  onSubmit: (data: TalkFormData) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
-  initial?: Partial<SermonFormData>;
+  initial?: Partial<TalkFormData>;
 }
 
-const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, onCancel, isSubmitting = false, initial }) => {
+const TalkForm: React.FC<TalkFormProps> = ({ onSubmit, onCancel, isSubmitting = false, initial }) => {
   const [title, setTitle] = useState(initial?.title ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [embedUrl, setEmbedUrl] = useState(initial?.embedUrl ?? '');
@@ -25,7 +25,7 @@ const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, onCancel, isSubmittin
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !embedUrl) {
-      alert('Please provide a title and embed URL for the sermon.');
+      alert('Please provide a title and embed URL for the talk.');
       return;
     }
 
@@ -35,13 +35,13 @@ const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, onCancel, isSubmittin
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Input
-        label="Sermon Title"
+        label="Talk Title"
         id="title"
         name="title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
-        placeholder="e.g., Sunday Worship Service"
+        placeholder="e.g., Weekly Community Talk"
         disabled={isSubmitting}
       />
 
@@ -56,7 +56,7 @@ const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, onCancel, isSubmittin
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Share a short summary of the sermon."
+          placeholder="Share a short summary of the talk."
           disabled={isSubmitting}
         />
       </div>
@@ -69,7 +69,7 @@ const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, onCancel, isSubmittin
         value={embedUrl}
         onChange={(e) => setEmbedUrl(e.target.value)}
         required
-        placeholder="https://example.com/sermon"
+        placeholder="https://example.com/talk"
         disabled={isSubmitting}
       />
 
@@ -78,11 +78,11 @@ const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, onCancel, isSubmittin
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : 'Save Sermon'}
+          {isSubmitting ? 'Saving...' : 'Save Talk'}
         </Button>
       </div>
     </form>
   );
 };
 
-export default SermonForm;
+export default TalkForm;

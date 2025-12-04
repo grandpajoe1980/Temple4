@@ -52,7 +52,7 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
         const posts = await fetchCommunityPosts(tenant.id, true);
         setAllPosts(posts as any);
       } catch (error) {
-        console.error('Failed to load prayer wall posts:', error);
+        console.error('Failed to load support request posts:', error);
       } finally {
         setIsLoading(false);
       }
@@ -81,7 +81,7 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
       ...tenant,
       settings: {
         ...tenant.settings,
-        autoApprovePrayerWall: enabled,
+        autoApproveSupportRequests: enabled,
       },
     });
   };
@@ -91,7 +91,7 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
     try {
       await onSave({ settings: { ...tenant.settings } });
       onRefresh();
-      alert('Prayer wall settings saved');
+      alert('Support request settings saved');
     } catch (error: any) {
       alert(error.message || 'Failed to save prayer wall settings');
     } finally {
@@ -112,8 +112,8 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
     return (
       <div className="space-y-8">
         <div>
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Prayer Wall Moderation</h3>
-          <p className="mt-1 text-sm text-gray-500">Manage all prayer requests and tangible needs submitted by members.</p>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">Support Board Moderation</h3>
+          <p className="mt-1 text-sm text-gray-500">Manage all support requests and tangible needs submitted by members.</p>
         </div>
         <div className="text-center py-12">
           <p className="text-gray-500">Loading posts...</p>
@@ -125,20 +125,20 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Prayer Wall Moderation</h3>
-        <p className="mt-1 text-sm text-gray-500">Manage all prayer requests and tangible needs submitted by members.</p>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">Support Board Moderation</h3>
+        <p className="mt-1 text-sm text-gray-500">Manage all support requests and tangible needs submitted by members.</p>
       </div>
 
       <div className="space-y-4 rounded-lg bg-white p-4 shadow-sm border border-gray-200">
         <ToggleSwitch
           label="Auto-approve community posts"
-          description="When enabled, new prayer requests are published immediately without moderator approval."
-          enabled={tenant.settings.autoApprovePrayerWall}
+          description="When enabled, new support requests are published immediately without moderator approval."
+          enabled={tenant.settings.autoApproveSupportRequests}
           onChange={handleAutoApproveToggle}
         />
         <div className="text-right">
           <Button onClick={handleSaveSettings} disabled={isSavingSettings}>
-            {isSavingSettings ? 'Saving...' : 'Save Prayer Wall Settings'}
+            {isSavingSettings ? 'Saving...' : 'Save Support Request Settings'}
           </Button>
         </div>
       </div>

@@ -15,7 +15,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
   const roleColors: { [key: string]: string } = {
     ADMIN: 'bg-red-100 text-red-800',
     STAFF: 'bg-sky-100 text-sky-800',
-    CLERGY: 'bg-emerald-100 text-emerald-800',
+    LEADER: 'bg-amber-100 text-amber-800',
     MODERATOR: 'bg-indigo-100 text-indigo-800',
     MEMBER: 'bg-gray-100 text-gray-800',
   };

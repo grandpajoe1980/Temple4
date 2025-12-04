@@ -45,7 +45,7 @@ export default async function TenantCalendarNewPage({ params }: { params: Promis
   const events = eventDtos.map(mapEventDtoToClient);
   const canCreateEvent =
     user.isSuperAdmin ||
-    (await hasRole(user.id, tenant.id, [TenantRole.ADMIN, TenantRole.CLERGY]));
+    (await hasRole(user.id, tenant.id, [TenantRole.ADMIN, TenantRole.LEADER]));
 
   return (
     <CalendarPageClient

@@ -2,10 +2,9 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { getTenantById, getUserById } from '@/lib/data';
-import { can } from '@/lib/permissions';
-import SermonsPage from '@/app/components/tenant/SermonsPage';
+import SupportRequestsPage from '@/app/components/tenant/PrayerWallPage';
 
-export default async function TenantSermonsPage({ params }: { params: Promise<{ tenantId: string }> }) {
+export default async function TenantSupportRequestsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
@@ -20,6 +19,5 @@ export default async function TenantSermonsPage({ params }: { params: Promise<{ 
     redirect('/');
   }
 
-  // sermons and canCreate removed due to missing getSermonsForTenant
-  return <SermonsPage tenant={tenant} user={user} talks={[]} canCreate={false} />;
+  return <SupportRequestsPage tenant={tenant} user={user} />;
 }

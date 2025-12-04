@@ -26,7 +26,7 @@ export default async function TenantWallPage({ params }: { params: Promise<{ ten
 
   const { posts } = await listTenantProfilePosts(tenant.id, user.id, { page: 1, limit: 50 });
 
-  const canModerate = await hasRole(user.id, tenant.id, [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.CLERGY, TenantRole.MODERATOR]);
+  const canModerate = await hasRole(user.id, tenant.id, [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.LEADER, TenantRole.MODERATOR]);
 
   // The client component expects a simple shape; profile-post-service returns DTOs compatible enough
   return (

@@ -91,9 +91,9 @@ export class UploadTestSuite {
               // ignore and continue with existing token
             }
 
-            // If tenant admin still doesn't provide membership/permissions, try platform superadmin
+            // If tenant admin still doesn't provide membership/permissions, try platform admin
             try {
-              const { loginResponse, cookieHeader } = await performCredentialsLogin('superadmin@temple.com', 'SuperAdminPass123!');
+              const { loginResponse, cookieHeader } = await performCredentialsLogin('admin@temple.com', 'password');
               if (loginResponse.ok || loginResponse.status === 302) {
                 this.authToken = cookieHeader;
               }
@@ -145,12 +145,12 @@ export class UploadTestSuite {
             // ignore debug errors
           }
 
-          // For test reliability, run upload tests as the platform superadmin
+          // For test reliability, run upload tests as the platform admin
           try {
-            const { loginResponse, cookieHeader } = await performCredentialsLogin('superadmin@temple.com', 'SuperAdminPass123!');
+            const { loginResponse, cookieHeader } = await performCredentialsLogin('admin@temple.com', 'password');
             if (loginResponse.ok || loginResponse.status === 302) {
               this.authToken = cookieHeader;
-              console.log('[UploadTests] Switched to superadmin session for uploads');
+              console.log('[UploadTests] Switched to admin session for uploads');
             }
           } catch (e) {
             // ignore - continue with whatever token we have

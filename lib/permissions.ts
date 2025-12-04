@@ -9,6 +9,7 @@ import { SmallGroupMemberRole } from '@prisma/client';
 export interface RolePermissions {
   canCreatePosts: boolean;
   canCreateEvents: boolean;
+  canCreateTalks: boolean;
   canCreateSermons: boolean;
   canCreatePodcasts: boolean;
   canCreateBooks: boolean;
@@ -19,11 +20,12 @@ export interface RolePermissions {
   canModeratePosts: boolean;
   canModerateChats: boolean;
   canPostInAnnouncementChannels?: boolean;
-  canManagePrayerWall: boolean;
+  canManageSupportRequests: boolean;
   canUploadResources: boolean;
   canManageResources: boolean;
   canManageContactSubmissions: boolean;
   canManageFacilities: boolean;
+  canManagePrayerWall: boolean;
 }
 
 // This can be a simple enum if you don't need the string values
@@ -61,7 +63,7 @@ function getRoleType(role: TenantRole): TenantRoleType | 'ADMIN' {
         case TenantRole.ADMIN:
             return 'ADMIN';
         case TenantRole.STAFF:
-        case TenantRole.CLERGY:
+        case TenantRole.LEADER:
             return TenantRoleType.STAFF;
         case TenantRole.MODERATOR:
             return TenantRoleType.MODERATOR;
@@ -177,7 +179,7 @@ export async function hasRole(userId: string, tenantId: string, requiredRoles: T
  * @param contentType The key for the content type in tenant settings (e.g., 'posts', 'calendar').
  * @returns {Promise<boolean>} True if the user can view the content.
  */
-export async function canUserViewContent(userId: string | null, tenantId: string, contentType: 'posts' | 'calendar' | 'sermons' | 'podcasts' | 'books' | 'prayerWall'): Promise<boolean> {
+export async function canUserViewContent(userId: string | null, tenantId: string, contentType: 'posts' | 'calendar' | 'talks' | 'podcasts' | 'books' | 'supportRequests' | 'sermons'): Promise<boolean> {
     try {
         const tenant = await prisma.tenant.findUnique({
             where: { id: tenantId },

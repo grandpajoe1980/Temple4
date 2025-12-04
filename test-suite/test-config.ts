@@ -7,29 +7,34 @@ export const TEST_CONFIG = {
   baseUrl: 'http://localhost:3000',
   apiBaseUrl: 'http://localhost:3000/api',
   
-  // Test users - Springfield Church characters
+  // Test users - Springfield Church characters (all use 'password' as password per seed.clean.ts)
   testUsers: {
     admin: {
-      email: 'ned@flanders.com',
-      password: 'okily-dokily',
-      name: 'Ned Flanders',
+      email: 'reverend@springfield.org',
+      password: 'password',
+      name: 'Reverend Timothy Lovejoy',
     },
     regular: {
-      email: 'homer@simpson.com',
-      password: 'doh123',
-      name: 'Homer J. Simpson',
+      email: 'homer@springfield.org',
+      password: 'password',
+      name: 'Homer Simpson',
     },
     moderator: {
-      email: 'marge@simpson.com',
-      password: 'bluebeehive',
-      name: 'Marge Simpson',
+      email: 'skinner@springfield.org',
+      password: 'password',
+      name: 'Principal Skinner',
+    },
+    staff: {
+      email: 'ned@springfield.org',
+      password: 'password',
+      name: 'Ned Flanders',
     },
   },
 
-  // Test tenant - Springfield Community Church
+  // Test tenant - Springfield Community Church (slug matches seed.clean.ts)
   testTenant: {
     name: 'Springfield Community Church',
-    slug: 'springfield-church',
+    slug: 'springfield',
     description: 'Welcome to Springfield Community Church! A place where everyone knows your name and occasionally your secrets.',
   },
 

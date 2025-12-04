@@ -32,7 +32,7 @@ export async function POST(
       include: { roles: true },
     });
 
-    const isStaff = membership?.roles?.some(r => ['ADMIN', 'STAFF', 'CLERGY'].includes(r.role)) ?? false;
+    const isStaff = membership?.roles?.some(r => ['ADMIN', 'STAFF', 'LEADER'].includes(r.role)) ?? false;
     if (!isStaff) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

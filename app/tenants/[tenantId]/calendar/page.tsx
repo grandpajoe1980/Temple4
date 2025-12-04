@@ -135,7 +135,7 @@ export default async function TenantCalendarPage({ params }: { params: Promise<{
 
   const canCreateEvent =
     user.isSuperAdmin ||
-    (await hasRole(user.id, tenant.id, [TenantRole.ADMIN, TenantRole.CLERGY]));
+    (await hasRole(user.id, tenant.id, [TenantRole.ADMIN, TenantRole.LEADER]));
 
   return (
     <CalendarPageClient

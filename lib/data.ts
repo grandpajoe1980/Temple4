@@ -869,7 +869,7 @@ export async function createTenant(tenantDetails: Omit<Tenant, 'id' | 'slug' | '
                     membershipApprovalMode: 'APPROVAL_REQUIRED',
                     enableCalendar: true,
                     enablePosts: true,
-                    enableSermons: true,
+                    enableTalks: true,
                     enablePodcasts: true,
                 enablePhotos: true,
                     enableBooks: true,
@@ -877,8 +877,8 @@ export async function createTenant(tenantDetails: Omit<Tenant, 'id' | 'slug' | '
                     enableVolunteering: true,
                     enableSmallGroups: true,
                     enableLiveStream: true,
-                    enablePrayerWall: true,
-                    autoApprovePrayerWall: false,
+                    enableSupportRequests: true,
+                    autoApproveSupportRequests: false,
                     enableResourceCenter: true,
                     visitorVisibility: {},
                     donationSettings: {},
@@ -1966,11 +1966,11 @@ export async function addEvent(eventData: any) {
     return null;
 }
 
-export async function getSermonsForTenant(tenantId: string) {
-    const sermons = await prisma.mediaItem.findMany({
+export async function getTalksForTenant(tenantId: string) {
+    const talks = await prisma.mediaItem.findMany({
         where: { 
             tenantId, 
-            type: 'SERMON_VIDEO',
+            type: 'TALK_VIDEO',
             deletedAt: null,
         },
         orderBy: { publishedAt: 'desc' },
@@ -1983,10 +1983,10 @@ export async function getSermonsForTenant(tenantId: string) {
         }
     });
     
-    return sermons.map((sermon: any) => ({
-        ...sermon,
-        authorDisplayName: sermon.author.profile?.displayName || 'Unknown',
-        authorAvatarUrl: sermon.author.profile?.avatarUrl || undefined,
+    return talks.map((talk: any) => ({
+        ...talk,
+        authorDisplayName: talk.author.profile?.displayName || 'Unknown',
+        authorAvatarUrl: talk.author.profile?.avatarUrl || undefined,
     }));
 }
 

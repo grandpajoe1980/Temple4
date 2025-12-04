@@ -140,10 +140,10 @@ const SiteHeader = () => {
                 </svg>
               </span>
               <div className="hidden sm:flex flex-col leading-tight">
-                <span className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Temple</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Asembli</span>
                 <span className="text-lg font-semibold">Platform</span>
               </div>
-              <span className="text-base font-semibold text-slate-700 sm:hidden">Temple</span>
+              <span className="text-base font-semibold text-slate-700 sm:hidden">Asembli</span>
             </Link>
           )}
           {!pathname?.startsWith('/tenants/') && (
@@ -388,10 +388,10 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
       </button>
 
       <div className="hidden sm:flex flex-col leading-tight">
-        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Temple</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Asembli</span>
         <span className="text-lg font-semibold">Platform</span>
       </div>
-      <span className="text-base font-semibold text-slate-700 sm:hidden">Temple</span>
+      <span className="text-base font-semibold text-slate-700 sm:hidden">Asembli</span>
 
       {open && (
         <>
@@ -438,7 +438,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                               {[
                                 { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
                                 { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
-                                { key: 'prayerWall', label: 'Prayer Wall', path: '/prayer-wall', feature: 'enablePrayerWall' },
+                                { key: 'supportRequests', label: 'Support Requests', path: '/support-requests', feature: 'enableSupportRequests' },
                                 { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
                                 { key: 'staff', label: 'Staff', path: '/staff', feature: 'enableMemberDirectory' },
                                 { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
@@ -505,7 +505,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
               <div className="border-t border-gray-100 mt-2" />
               <div className="py-2">
                 <Link href="/" className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50" onClick={handleNavClick} role="menuitem">
-                  Temple
+                  Asembli
                 </Link>
                 <Link href="/explore" className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50" onClick={handleNavClick} role="menuitem">
                   Explore
@@ -651,7 +651,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                 })}
                 {/* Divider and site-level links for desktop menu */}
                 <div className="border-t border-gray-100 mt-1" />
-                <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={handleNavClick} role="menuitem">Temple</Link>
+                <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={handleNavClick} role="menuitem">Asembli</Link>
                 <Link href="/explore" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={handleNavClick} role="menuitem">Explore</Link>
               </div>
 
@@ -668,7 +668,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                   <div className="py-1">
                     <Link href={`${basePath}/photos`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/photos`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Photos</Link>
                     <Link href={`${basePath}/podcasts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/podcasts`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Podcasts</Link>
-                    <Link href={`${basePath}/sermons`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/sermons`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Sermons</Link>
+                    <Link href={`${basePath}/talks`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/talks`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Talks</Link>
                     <Link href={`${basePath}/books`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/books`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Books</Link>
                     <Link href={`${basePath}/livestream`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/livestream`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Live Stream</Link>
                   </div>
@@ -687,7 +687,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                     <Link href={`${basePath}/posts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/posts`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Posts</Link>
                     <Link href={`${basePath}/community/wall`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/community/wall`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Wall</Link>
                     <Link href={`${basePath}/calendar`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/calendar`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Calendar</Link>
-                    <Link href={`${basePath}/prayer-wall`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/prayer-wall`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Prayer Wall</Link>
+                    <Link href={`${basePath}/support-requests`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/support-requests`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Support Requests</Link>
                     <Link href={`${basePath}/members`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/members`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Members</Link>
                     <Link href={`${basePath}/staff`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/staff`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Staff</Link>
                     <Link href={`${basePath}/chat`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/chat`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Chat</Link>

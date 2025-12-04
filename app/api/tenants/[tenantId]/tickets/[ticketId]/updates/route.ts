@@ -32,7 +32,7 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
     }
 
     const isStaffOrAdmin = membership.roles.some((r) => 
-      ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role)
+      ['ADMIN', 'STAFF', 'LEADER', 'MODERATOR'].includes(r.role)
     );
 
     // Verify ticket exists
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest, { params }: { params: Params })
     }
 
     const isStaffOrAdmin = membership.roles.some((r) => 
-      ['ADMIN', 'STAFF', 'CLERGY', 'MODERATOR'].includes(r.role)
+      ['ADMIN', 'STAFF', 'LEADER', 'MODERATOR'].includes(r.role)
     );
 
     // Verify ticket exists

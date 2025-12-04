@@ -49,7 +49,7 @@ export default function TenantError({
             onClick={() => router.push('/explore')}
             variant="secondary"
           >
-            Browse Temples
+            Browse Communities
           </Button>
         </div>
       </div>

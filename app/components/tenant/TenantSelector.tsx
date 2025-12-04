@@ -80,7 +80,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
               />
             </div>
             <Button onClick={onCreateNew} className="rounded-xl text-sm">
-              + Create new temple
+              + Create new community
             </Button>
           </div>
         </div>
@@ -89,7 +89,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
       <div className="space-y-4">
         {filteredTenants.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 p-6 text-center text-sm text-slate-500">
-            No temples match that search yet. Try another phrase or create a new tenant.
+            No communities match that search yet. Try another phrase or create a new tenant.
           </div>
         ) : (
           filteredTenants.map((tenant) => {

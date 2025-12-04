@@ -25,7 +25,7 @@ const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ con
         membership: null,
       }))
       .sort((a, b) => {
-        const roleOrder = { [TenantRole.ADMIN]: 0, [TenantRole.STAFF]: 1, [TenantRole.CLERGY]: 1, [TenantRole.MODERATOR]: 2, [TenantRole.MEMBER]: 3 };
+        const roleOrder: { [key in TenantRole]: number } = { [TenantRole.ADMIN]: 0, [TenantRole.STAFF]: 1, [TenantRole.LEADER]: 1, [TenantRole.MODERATOR]: 2, [TenantRole.MEMBER]: 3 };
         const aRole = a.roles[0] || TenantRole.MEMBER;
         const bRole = b.roles[0] || TenantRole.MEMBER;
         if (roleOrder[aRole] < roleOrder[bRole]) return -1;
@@ -37,7 +37,7 @@ const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ con
   const roleColors: { [key: string]: string } = {
     ADMIN: 'bg-red-100 text-red-800',
     STAFF: 'bg-sky-100 text-sky-800',
-    CLERGY: 'bg-emerald-100 text-emerald-800',
+    LEADER: 'bg-amber-100 text-amber-800',
     MODERATOR: 'bg-indigo-100 text-indigo-800',
     MEMBER: 'bg-gray-100 text-gray-800',
   };

@@ -9,7 +9,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
   ADMIN: {
     canCreatePosts: true,
     canCreateEvents: true,
-    canCreateSermons: true,
+    canCreateTalks: true,
     canCreatePodcasts: true,
     canCreateBooks: true,
     canCreateGroupChats: true,
@@ -19,7 +19,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
     canModeratePosts: true,
     canModerateChats: true,
     canPostInAnnouncementChannels: true,
-    canManagePrayerWall: true,
+    canManageSupportRequests: true,
     canUploadResources: true,
     canManageResources: true,
     canManageContactSubmissions: true,
@@ -28,7 +28,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
   MEMBER: {
     canCreatePosts: true,
     canCreateEvents: false,
-    canCreateSermons: false,
+    canCreateTalks: false,
     canCreatePodcasts: false,
     canCreateBooks: false,
     canCreateGroupChats: true,
@@ -37,7 +37,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
     canBanMembers: false,
     canModeratePosts: false,
     canModerateChats: false,
-    canManagePrayerWall: false,
+    canManageSupportRequests: false,
     canUploadResources: false,
     canManageResources: false,
     canManageContactSubmissions: false,
@@ -46,7 +46,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
   STAFF: {
     canCreatePosts: true,
     canCreateEvents: true,
-    canCreateSermons: false,
+    canCreateTalks: false,
     canCreatePodcasts: false,
     canCreateBooks: false,
     canCreateGroupChats: true,
@@ -55,7 +55,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
     canBanMembers: false,
     canModeratePosts: true,
     canModerateChats: true,
-    canManagePrayerWall: true,
+    canManageSupportRequests: true,
     canUploadResources: true,
     canManageResources: true,
     canManageContactSubmissions: true,
@@ -64,7 +64,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
   MODERATOR: {
     canCreatePosts: true,
     canCreateEvents: false,
-    canCreateSermons: false,
+    canCreateTalks: false,
     canCreatePodcasts: false,
     canCreateBooks: false,
     canCreateGroupChats: true,
@@ -73,7 +73,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
     canBanMembers: false,
     canModeratePosts: true,
     canModerateChats: true,
-    canManagePrayerWall: false,
+    canManageSupportRequests: false,
     canUploadResources: false,
     canManageResources: false,
     canManageContactSubmissions: false,
@@ -165,7 +165,7 @@ export async function ensureTenant(prisma: PrismaClient, t: TenantDef) {
         membershipApprovalMode: 'APPROVAL_REQUIRED',
         enableCalendar: true,
         enablePosts: true,
-        enableSermons: true,
+        enableTalks: true,
         enablePodcasts: true,
         enableBooks: true,
         enableMemberDirectory: true,
@@ -175,16 +175,16 @@ export async function ensureTenant(prisma: PrismaClient, t: TenantDef) {
         enablePhotos: true,
         donationSettings: {},
         liveStreamSettings: {},
-        visitorVisibility: { posts: true, calendar: true, sermons: true, podcasts: true, books: true, prayerWall: true },
+        visitorVisibility: { posts: true, calendar: true, talks: true, podcasts: true, books: true, supportRequests: true },
       } as any,
       update: {
         visitorVisibility: {
           posts: true,
           calendar: true,
-          sermons: true,
+          talks: true,
           podcasts: true,
           books: true,
-          prayerWall: true,
+          supportRequests: true,
         } as any,
       },
     });
@@ -223,7 +223,7 @@ export async function createOrGetUser(prisma: PrismaClient, user: UserArchetype,
 }
 
 // Ensure membership for a user in a tenant (idempotent)
-export async function ensureMembership(prisma: PrismaClient, userId: string | number, tenantId: string | number, role: 'MEMBER' | 'STAFF' | 'CLERGY' | 'MODERATOR' | 'ADMIN' = 'MEMBER') {
+export async function ensureMembership(prisma: PrismaClient, userId: string | number, tenantId: string | number, role: 'MEMBER' | 'STAFF' | 'LEADER' | 'MODERATOR' | 'ADMIN' = 'MEMBER') {
   const uid = String(userId);
   const tid = String(tenantId);
   let membership = await prisma.userTenantMembership.findFirst({ where: { userId: uid, tenantId: tid } });
@@ -392,7 +392,7 @@ export async function createMediaItemsForTenant(prisma: PrismaClient, tenantId: 
     const mi = await prisma.mediaItem.create({ data: {
       tenantId: tid,
       authorUserId: author,
-      type: 'SERMON_VIDEO',
+      type: 'TALK_VIDEO',
       title: `Seeded Sermon ${i + 1}`,
       description: `Sermon video ${i + 1}`,
       embedUrl: embed,
@@ -584,7 +584,7 @@ export async function createCommunityPostsForTenant(prisma: PrismaClient, tenant
     const p = await prisma.communityPost.create({ data: {
       tenantId: tid,
       authorUserId: uid,
-      type: 'PRAYER_REQUEST' as any,
+      type: 'SUPPORT_REQUEST' as any,
       body: `Prayer request ${i + 1}`,
       isAnonymous: false,
       status: 'PUBLISHED' as any,

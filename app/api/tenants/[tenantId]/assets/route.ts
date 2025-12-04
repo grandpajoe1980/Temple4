@@ -53,7 +53,7 @@ export async function GET(
     }
 
     const isAdmin = membership.roles?.some(r => r.role === 'ADMIN') ?? false;
-    const isStaff = membership.roles?.some(r => ['ADMIN', 'STAFF', 'CLERGY'].includes(r.role)) ?? false;
+    const isStaff = membership.roles?.some(r => ['ADMIN', 'STAFF', 'LEADER'].includes(r.role)) ?? false;
 
     // Only staff and admins can view assets
     if (!isStaff) {

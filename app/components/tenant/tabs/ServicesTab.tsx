@@ -21,8 +21,8 @@ const defaultServiceTemplates: Array<{
   requiresBooking?: boolean;
 }> = [
   {
-    name: 'Sunday Service',
-    description: 'Weekly worship service with teaching, music, and fellowship.',
+    name: 'Community Meeting',
+    description: 'Regular community gathering with presentations and discussions.',
     category: 'CEREMONY',
   },
   {
@@ -33,19 +33,14 @@ const defaultServiceTemplates: Array<{
     pricing: 'Suggested honorarium',
   },
   {
-    name: 'Funerals & Memorials',
+    name: 'Memorials',
     description: 'Supportive services to honor loved ones with care and dignity.',
     category: 'CEREMONY',
     requiresBooking: true,
   },
   {
-    name: 'Baptisms',
-    description: 'Preparation and scheduling for baptisms across all age groups.',
-    category: 'CEREMONY',
-  },
-  {
-    name: 'Pastoral Counseling',
-    description: 'Confidential pastoral care sessions for individuals and families.',
+    name: 'Counseling',
+    description: 'Confidential care sessions for individuals and families.',
     category: 'COUNSELING',
     requiresBooking: true,
   },
@@ -174,7 +169,7 @@ export default function ServicesTab({ tenant, onRefresh }: ServicesTabProps) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium leading-6 text-gray-900">Service Catalog</h3>
-          <p className="mt-1 text-sm text-gray-500">Define the ceremonies, sacraments, and care services offered by your community.</p>
+          <p className="mt-1 text-sm text-gray-500">Define the events, ceremonies, and care services offered by your community.</p>
         </div>
         <Button onClick={() => openCreateModal()}>+ Add Service</Button>
       </div>

@@ -132,7 +132,7 @@ export async function POST(
     }
 
     // Check if user is staff or admin
-    const isStaff = await hasRole(userId, tenantId, [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.CLERGY]);
+    const isStaff = await hasRole(userId, tenantId, [TenantRole.ADMIN, TenantRole.STAFF, TenantRole.LEADER]);
     if (!isStaff) {
       return forbidden('You must be staff or admin to create volunteer needs');
     }

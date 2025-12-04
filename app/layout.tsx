@@ -5,7 +5,7 @@ import SiteHeader from './components/ui/SiteHeader'
 import SiteFooter from './components/ui/SiteFooter'
 
 export const metadata: Metadata = {
-  title: 'Temple Platform',
+  title: 'Asembli',
   description: 'Multi-tenant platform for religious organizations',
 }
 

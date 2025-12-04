@@ -33,7 +33,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ tenant, currentUser, member
       }
     }
     const buttonText = tenant.settings.membershipApprovalMode === MembershipApprovalMode.OPEN
-      ? 'Join Temple'
+      ? 'Join Community'
       : 'Request to Join';
     return <Button onClick={() => onJoin(tenant.id)}>{buttonText}</Button>;
   };

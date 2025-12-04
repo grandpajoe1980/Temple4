@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import TempleLogo from './ui/TempleLogo';
+import Logo from './ui/Logo';
 import LandingPage from './landing/LandingPage';
 import TenantSelector from './tenant/TenantSelector';
 import { Session } from 'next-auth';
@@ -48,7 +48,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
           <div>
             <div className="flex flex-col items-center gap-6">
               <div className="flex items-center gap-4">
-                <TempleLogo className="text-4xl md:text-6xl h-[1em] w-[1em] text-amber-600" />
+                <Logo className="text-4xl md:text-6xl h-[1em] w-[1em] text-amber-600" />
                 <h1 className="text-4xl md:text-6xl font-sans font-thin uppercase tracking-tight text-amber-600">TEMPLE</h1>
               </div>
 

@@ -75,7 +75,7 @@ async function main() {
     phoneNumber: '(555) PRAY-NOW',
     permissions: {
       ADMIN: { canCreatePosts: true, canCreateEvents: true, canManageFacilities: true, canManageResources: true },
-      CLERGY: { canCreatePosts: true, canCreateEvents: true, canCreateSermons: true, canCreatePodcasts: true },
+      LEADER: { canCreatePosts: true, canCreateEvents: true, canCreateTalks: true, canCreatePodcasts: true },
       STAFF: { canCreatePosts: true, canCreateEvents: true, canUploadResources: true, canManageFacilities: true },
       MEMBER: { canCreatePosts: true, canCreateGroupChats: true }
     },
@@ -113,7 +113,7 @@ async function main() {
       membershipApprovalMode: 'APPROVAL_REQUIRED',
       enableCalendar: true,
       enablePosts: true,
-      enableSermons: true,
+      enableTalks: true,
       enablePodcasts: true,
       enableBooks: true,
       enableMemberDirectory: true,
@@ -126,7 +126,7 @@ async function main() {
       enableEvents: true,
       donationSettings: {},
       liveStreamSettings: {},
-      visitorVisibility: { posts: true, calendar: true, sermons: true }
+      visitorVisibility: { posts: true, calendar: true, talks: true }
     },
     create: {
       tenantId: tenant.id,
@@ -134,7 +134,7 @@ async function main() {
       membershipApprovalMode: 'APPROVAL_REQUIRED',
       enableCalendar: true,
       enablePosts: true,
-      enableSermons: true,
+      enableTalks: true,
       enablePodcasts: true,
       enableBooks: true,
       enableMemberDirectory: true,
@@ -147,7 +147,7 @@ async function main() {
       enableEvents: true,
       donationSettings: {},
       liveStreamSettings: {},
-      visitorVisibility: { posts: true, calendar: true, sermons: true }
+      visitorVisibility: { posts: true, calendar: true, talks: true }
     }
   });
 
@@ -155,7 +155,7 @@ async function main() {
 
   // 3. CREATE 20 SIMPSONS CHARACTERS
   const characters = [
-    { email: 'reverend@springfield.org', name: 'Reverend Timothy Lovejoy', avatar: 'https://api.dicebear.com/6.x/avataaars/svg?seed=lovejoy&backgroundColor=b6e3f4', bio: 'Shepherd of Springfield Community Church. "Have you tried simply turning off the TV, sitting down with your children, and hitting them?"', roles: ['CLERGY', 'ADMIN'] },
+    { email: 'reverend@springfield.org', name: 'Reverend Timothy Lovejoy', avatar: 'https://api.dicebear.com/6.x/avataaars/svg?seed=lovejoy&backgroundColor=b6e3f4', bio: 'Shepherd of Springfield Community Church. "Have you tried simply turning off the TV, sitting down with your children, and hitting them?"', roles: ['LEADER', 'ADMIN'] },
     { email: 'ned@springfield.org', name: 'Ned Flanders', avatar: 'https://api.dicebear.com/6.x/avataaars/svg?seed=ned&backgroundColor=c0aede', bio: 'Okily-dokily! Staff coordinator and everyone\'s favorite neighbor. "I\'ve done everything the Bible says - even the stuff that contradicts the other stuff!"', roles: ['STAFF'] },
     { email: 'homer@springfield.org', name: 'Homer Simpson', avatar: 'https://api.dicebear.com/6.x/avataaars/svg?seed=homer&backgroundColor=ffd5dc', bio: 'Safety inspector at the nuclear plant. Donut enthusiast. "I\'m normally not a praying man, but if you\'re up there, please save me Superman!"', roles: ['MEMBER'] },
     { email: 'marge@springfield.org', name: 'Marge Simpson', avatar: 'https://api.dicebear.com/6.x/avataaars/svg?seed=marge&backgroundColor=ffdfbf', bio: 'Devoted mother and wife. Blue hair, big heart. Organizer extraordinaire.', roles: ['MEMBER'] },
@@ -355,18 +355,18 @@ async function main() {
 
   console.log('✅ Created livestream suggestion event');
 
-  // 8. CREATE SERMONS (YouTube links) + PHOTOS (images)
-  const sermons = [
+  // 8. CREATE TALKS (YouTube links) + PHOTOS (images)
+  const talks = [
     { uploader: 0, title: 'Message: Redemption & Grace', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', description: 'A short message on grace and redemption.' },
     { uploader: 1, title: 'Message: Community & Service', url: 'https://www.youtube.com/watch?v=M7lc1UVf-VE', description: 'Encouraging service and community.' },
   ];
 
-  for (const s of sermons) {
+  for (const s of talks) {
     await prisma.mediaItem.create({
       data: {
         tenantId: tenant.id,
         authorUserId: users[s.uploader].id,
-        type: 'SERMON_VIDEO',
+        type: 'TALK_VIDEO',
         title: s.title,
         description: s.description,
         embedUrl: s.url,
@@ -393,11 +393,11 @@ async function main() {
     });
   }
 
-  console.log(`✅ Created ${sermons.length} sermons and ${photos.length} photos`);
+  console.log(`✅ Created ${talks.length} talks and ${photos.length} photos`);
 
   // 9. CREATE PODCASTS
   const podcasts = [
-    { creator: 0, title: 'Sermons from Springfield', description: 'Weekly messages from Reverend Lovejoy', url: 'https://example.com/podcast/sermons.mp3', duration: 1800 },
+    { creator: 0, title: 'Talks from Springfield', description: 'Weekly messages from Reverend Lovejoy', url: 'https://example.com/podcast/talks.mp3', duration: 1800 },
     { creator: 1, title: 'Ned\'s Neighborly Wisdom', description: 'Faith tips for everyday living, diddly-style!', url: 'https://example.com/podcast/ned.mp3', duration: 1200 },
     { creator: 0, title: 'Gal of Constant Sorrow (Test)', description: 'Test podcast episode added from Apple Podcasts link', url: 'https://podcasts.apple.com/us/podcast/594-gal-of-constant-sorrow/id893008561?i=1000733611121', duration: 300 },
     { creator: 0, title: 'Fland Canyon', description: 'Seeded podcast: Fland Canyon (Apple Podcasts)', url: 'https://podcasts.apple.com/us/podcast/599-fland-canyon/id893008561?i=1000739054618', duration: 1200 },
@@ -544,7 +544,7 @@ async function main() {
 
   // 14. CREATE COMMUNITY POSTS (Prayer/Needs)
   const communityPosts = [
-    { author: 14, type: 'PRAYER_REQUEST' as const, title: 'Prayer for Sobriety', content: 'Please pray for my continued journey in recovery. One day at a time.', status: 'PUBLISHED' as const },
+    { author: 14, type: 'SUPPORT_REQUEST' as const, title: 'Request for Support - Sobriety Journey', content: 'Please support my continued journey in recovery. One day at a time.', status: 'PUBLISHED' as const },
     { author: 8, type: 'TANGIBLE_NEED' as const, title: 'Need: Food Donations', content: 'The church food pantry is running low. Any donations appreciated!', status: 'PUBLISHED' as const },
   ];
 

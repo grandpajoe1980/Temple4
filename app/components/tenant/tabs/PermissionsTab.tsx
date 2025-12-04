@@ -67,7 +67,7 @@ const PermissionsTab: React.FC<PermissionsTabProps> = ({ tenant, onUpdate, curre
     <div className="space-y-8">
         <div>
             <h3 className="text-lg font-medium leading-6 text-gray-900">Role Permissions</h3>
-            <p className="mt-1 text-sm text-gray-500">Define what different roles can do within your community. Note: The ‘Clergy’ role uses ‘Staff’ permissions.</p>
+            <p className="mt-1 text-sm text-gray-500">Define what different roles can do within your community.</p>
         </div>
         <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">

@@ -60,17 +60,17 @@ export class PermissionTestSuite {
     }
 
     // Test STAFF role
-    this.logger.startTest(category, 'Staff Can Create Sermons');
+    this.logger.startTest(category, 'Staff Can Create Talks');
     try {
       const staffUser = await this.createTestUser('staff-test@test.com');
       await this.createMembership(staffUser.id, tenant.id, [TenantRole.STAFF], MembershipStatus.APPROVED);
       
-      const canCreate = await can(staffUser, tenant, 'canCreateSermons');
+      const canCreate = await can(staffUser, tenant, 'canCreateTalks');
       
       if (canCreate) {
-        this.logger.logPass(category, 'Staff Can Create Sermons', { canCreate });
+        this.logger.logPass(category, 'Staff Can Create Talks', { canCreate });
       } else {
-        this.logger.logFail(category, 'Staff Can Create Sermons', 'Staff should be able to create sermons');
+        this.logger.logFail(category, 'Staff Can Create Talks', 'Staff should be able to create talks');
       }
 
       await this.cleanupTestUser(staffUser.id);
@@ -164,13 +164,13 @@ export class PermissionTestSuite {
       const user = await this.createTestUser('feature-test@test.com');
       await this.createMembership(user.id, testTenant.id, [TenantRole.MEMBER], MembershipStatus.APPROVED);
 
-      // Disable prayer wall feature
+      // Disable support requests feature
       await prisma.tenantSettings.update({
         where: { tenantId: testTenant.id },
-        data: { enablePrayerWall: false },
+        data: { enableSupportRequests: false },
       });
 
-      const canView = await canUserViewContent(user.id, testTenant.id, 'prayerWall');
+      const canView = await canUserViewContent(user.id, testTenant.id, 'supportRequests');
       
       if (!canView) {
         this.logger.logPass(category, 'Disabled Feature Returns False', { canView });
@@ -322,7 +322,7 @@ export class PermissionTestSuite {
             isPublic: true,
             enablePosts: true,
             enableCalendar: true,
-            enablePrayerWall: true,
+            enableSupportRequests: true,
             donationSettings: {},
             liveStreamSettings: {},
             visitorVisibility: {},

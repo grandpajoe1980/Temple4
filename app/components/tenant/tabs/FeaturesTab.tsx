@@ -56,12 +56,12 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave, onR
     'enablePodcasts',
     'enablePhotos',
     'enablePosts',
-    'enablePrayerWall',
+    'enableSupportRequests',
     'enableReactions',
     'enableRecurringPledges',
     'enableResourceCenter',
     'enableServices',
-    'enableSermons',
+    'enableTalks',
     'enableSmallGroups',
     'enableTicketing',
     'enableTrips',
@@ -71,7 +71,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave, onR
     'enableBirthdays',
   ] satisfies Array<keyof Omit<
     Tenant['settings'],
-    'isPublic' | 'membershipApprovalMode' | 'visitorVisibility' | 'donationSettings' | 'liveStreamSettings' | 'translationSettings' | 'enableTranslation' | 'enableVanityDomains' | 'welcomePacketUrl' | 'welcomePacketVersion' | 'autoApprovePrayerWall' | 'tripCalendarColor' | 'newMemberAlertChannels'
+    'isPublic' | 'membershipApprovalMode' | 'visitorVisibility' | 'donationSettings' | 'liveStreamSettings' | 'translationSettings' | 'enableTranslation' | 'enableVanityDomains' | 'welcomePacketUrl' | 'welcomePacketVersion' | 'autoApproveSupportRequests' | 'tripCalendarColor' | 'newMemberAlertChannels'
   >>).sort((a, b) => formatLabel(a).localeCompare(formatLabel(b)));
 
   const visibilityKeys = Object.keys(tenant.settings.visitorVisibility) as (keyof Tenant['settings']['visitorVisibility'])[];

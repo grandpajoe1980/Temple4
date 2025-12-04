@@ -85,7 +85,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   const membership = await getMembershipForUserInTenant(userId, tenantId);
   const isPlatformAdmin = Boolean((session?.user as any)?.isSuperAdmin);
   const membershipRoles = membership?.roles?.map((r: any) => r.role) || [];
-  const isTenantManager = membershipRoles.some((role: string) => ['ADMIN', 'OWNER', 'STAFF', 'CLERGY'].includes(role));
+  const isTenantManager = membershipRoles.some((role: string) => ['ADMIN', 'OWNER', 'STAFF', 'LEADER'].includes(role));
 
   if (!membership && !isPlatformAdmin) {
     return forbidden('You must be a member of this tenant to create a trip.');

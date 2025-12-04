@@ -85,7 +85,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
           <h3 className="text-xl font-semibold text-gray-800">Join {tenant.name}</h3>
           <p className="mt-2 text-gray-600">{tenant.description}</p>
           <Button onClick={handleJoin} className="mt-6">
-            {user ? (isApprovalRequired ? 'Request Membership' : 'Join Temple') : 'Login to Join'}
+            {user ? (isApprovalRequired ? 'Request Membership' : 'Join Community') : 'Login to Join'}
           </Button>
         </div>
       );

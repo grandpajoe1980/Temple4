@@ -139,7 +139,13 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {photos.map((photo) => (
+          {photos.map((photo) => {
+            // Determine the image URL - Imgbb URLs are stored directly, local files need /storage/ prefix
+            const imageUrl = photo.storageKey?.startsWith('http') 
+              ? photo.storageKey 
+              : `/storage/${photo.storageKey}`;
+            
+            return (
             <div key={photo.id} className="relative rounded bg-white shadow-sm">
               {isAdmin && (
                 <button
@@ -151,8 +157,8 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
                 </button>
               )}
               {photo.storageKey ? (
-                <a href={`/storage/${photo.storageKey}`} target="_blank" rel="noopener noreferrer" className="block">
-                  <img src={`/storage/${photo.storageKey}`} alt={photo.title || 'Photo'} className="w-full h-auto max-h-64 object-contain" />
+                <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="block">
+                  <img src={imageUrl} alt={photo.title || 'Photo'} className="w-full h-auto max-h-64 object-contain" />
                 </a>
               ) : (
                 <div className="w-full max-h-64 flex items-center justify-center bg-gray-50 text-gray-500 text-sm">
@@ -161,7 +167,7 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
               )}
               <div className="p-2 text-xs text-gray-600">{photo.authorDisplayName}</div>
             </div>
-          ))}
+          );})}
         </div>
       )}
     </div>

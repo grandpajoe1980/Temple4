@@ -112,10 +112,15 @@ export async function POST(request: NextRequest) {
     // Ensure the response includes a full public URL when only a storageKey is returned.
     // Use the request origin so clients receive an absolute URL they can post back
     // to the profile-posts endpoint without needing extra normalization.
+    // Note: For Imgbb uploads, result.url is already the full external URL.
     try {
       if ((!result.url || result.url === '') && result.storageKey) {
         const origin = new URL(request.url).origin;
         result.url = `${origin}/storage/${result.storageKey}`;
+      } else if (result.url && !result.url.startsWith('http') && result.storageKey) {
+        // If url is a relative path, make it absolute
+        const origin = new URL(request.url).origin;
+        result.url = `${origin}${result.url}`;
       }
     } catch (e) {
       // ignore origin construction failures and leave result as-is

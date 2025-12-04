@@ -145,10 +145,12 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
 
   // Add recent photos
   (recentPhotos || []).forEach((ph) => {
+    // Handle both Imgbb URLs (starting with http) and local storage paths
+    const photoUrl = ph.storageKey?.startsWith('http') ? ph.storageKey : (ph.storageKey ? `/storage/${ph.storageKey}` : undefined);
     slides.push({
       title: ph.title || 'Photo',
       subtitle: `Photo • ${ph.uploadedAt ? new Date(ph.uploadedAt).toLocaleDateString() : ''}`,
-      imageUrl: ph.storageKey ? `/storage/${ph.storageKey}` : undefined,
+      imageUrl: photoUrl,
       logoUrl: undefined,
       link: `/tenants/${tenant.id}/photos`,
     });

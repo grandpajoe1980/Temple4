@@ -4,15 +4,44 @@
  * Provides abstraction layer for file storage that can switch between:
  * - Local storage (development/small deployments)
  * - Cloud storage (production - AWS S3, Cloudflare R2, Vercel Blob)
+ * - Imgbb (for images - free hosted solution)
  * 
- * This implementation uses local storage with the structure:
- * public/uploads/[tenantId]/[category]/[filename]
+ * This implementation uses:
+ * - Imgbb for images (photos, avatars) - hosted externally
+ * - Local storage for documents/media with the structure:
+ *   public/uploads/[tenantId]/[category]/[filename]
  */
 
 import { prisma } from './db';
 import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+
+/**
+ * Imgbb API configuration
+ */
+const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
+const IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
+
+/**
+ * Imgbb API response interface
+ */
+interface ImgbbResponse {
+  data: {
+    id: string;
+    url: string;
+    display_url: string;
+    delete_url: string;
+    thumb: {
+      url: string;
+    };
+    medium?: {
+      url: string;
+    };
+  };
+  success: boolean;
+  status: number;
+}
 
 /**
  * File upload category determines subdirectory and permissions
@@ -73,6 +102,7 @@ export interface UploadResult {
   mimeType: string;
   fileSize: number;
   uploadedAt: Date;
+  thumbUrl?: string;  // For Imgbb - thumbnail version
 }
 
 /**
@@ -178,6 +208,60 @@ async function calculateTenantStorageUsage(tenantId: string): Promise<number> {
 }
 
 /**
+ * Upload image to Imgbb
+ */
+async function uploadToImgbb(
+  buffer: Buffer,
+  originalName: string
+): Promise<{ url: string; thumbUrl: string; id: string }> {
+  if (!IMGBB_API_KEY) {
+    throw new Error('IMGBB_API_KEY not configured. Please set IMGBB_API_KEY environment variable.');
+  }
+
+  // Convert buffer to base64
+  const base64Image = buffer.toString('base64');
+
+  // Create form data for Imgbb API
+  const formData = new URLSearchParams();
+  formData.append('key', IMGBB_API_KEY);
+  formData.append('image', base64Image);
+  formData.append('name', originalName.replace(/\.[^/.]+$/, '')); // Remove extension for name
+
+  const response = await fetch(IMGBB_UPLOAD_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: formData.toString(),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Imgbb upload failed:', errorText);
+    throw new Error(`Failed to upload image to Imgbb: ${response.status}`);
+  }
+
+  const result: ImgbbResponse = await response.json();
+
+  if (!result.success) {
+    throw new Error('Imgbb upload failed: API returned success=false');
+  }
+
+  return {
+    url: result.data.display_url, // Use display_url for direct image display
+    thumbUrl: result.data.thumb.url,
+    id: result.data.id,
+  };
+}
+
+/**
+ * Check if a category should use Imgbb (image categories)
+ */
+function shouldUseImgbb(category: FileCategory): boolean {
+  return (category === 'photos' || category === 'avatars') && !!IMGBB_API_KEY;
+}
+
+/**
  * Upload a file to storage
  * 
  * @param tenantId - The tenant ID that owns this file
@@ -199,9 +283,24 @@ export async function uploadFile(
   // Validate file
   validateFile(mimeType, fileSize, category);
 
-  // Check storage quota for tenant-scoped files only
-  if (tenantId) {
+  // Check storage quota for tenant-scoped files only (skip for Imgbb - hosted externally)
+  if (tenantId && !shouldUseImgbb(category)) {
     await checkStorageQuota(tenantId, fileSize);
+  }
+
+  // Use Imgbb for image uploads if configured
+  if (shouldUseImgbb(category)) {
+    const imgbbResult = await uploadToImgbb(file, originalName);
+    
+    // For Imgbb, we store the full URL directly - no local storage needed
+    return {
+      url: imgbbResult.url,
+      storageKey: imgbbResult.url, // Store the full URL as the storage key
+      mimeType,
+      fileSize,
+      uploadedAt: new Date(),
+      thumbUrl: imgbbResult.thumbUrl,
+    };
   }
 
   // Generate unique filename
@@ -243,6 +342,14 @@ export async function uploadFile(
  * @returns true if deleted successfully, false if file not found
  */
 export async function deleteFile(storageKey: string): Promise<boolean> {
+  // Check if this is an Imgbb URL (hosted externally)
+  if (storageKey.startsWith('https://i.ibb.co/') || storageKey.includes('imgbb.com')) {
+    // Imgbb images are hosted externally - we just remove the reference
+    // The image will remain on Imgbb (free tier doesn't support API deletion)
+    console.log('Note: Imgbb-hosted image reference removed. Image remains on Imgbb servers.');
+    return true;
+  }
+
   if (config.type === 'local') {
     const fullPath = path.join(config.localBasePath, storageKey);
 
@@ -265,6 +372,7 @@ export async function deleteFile(storageKey: string): Promise<boolean> {
 /**
  * Get a signed URL for a private file (useful for cloud storage)
  * For local storage, just returns the public URL
+ * For Imgbb, the storageKey IS the URL
  * 
  * @param storageKey - The storage key
  * @param expiresIn - Expiration time in seconds (for cloud storage)
@@ -274,6 +382,11 @@ export async function getSignedUrl(
   storageKey: string,
   expiresIn: number = 3600
 ): Promise<string> {
+  // Imgbb URLs are already public and permanent
+  if (storageKey.startsWith('https://i.ibb.co/') || storageKey.includes('imgbb.com')) {
+    return storageKey;
+  }
+
   if (config.type === 'local') {
     // Local files are publicly accessible
     return `${config.publicUrlBase}/${storageKey}`;
@@ -290,6 +403,11 @@ export async function getSignedUrl(
  * @returns true if file exists
  */
 export async function fileExists(storageKey: string): Promise<boolean> {
+  // Imgbb URLs - assume they exist (hosted externally)
+  if (storageKey.startsWith('https://i.ibb.co/') || storageKey.includes('imgbb.com')) {
+    return true;
+  }
+
   if (config.type === 'local') {
     const fullPath = path.join(config.localBasePath, storageKey);
     try {

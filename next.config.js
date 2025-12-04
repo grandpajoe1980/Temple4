@@ -7,6 +7,21 @@ const nextConfig = {
     maxInactiveAge: 25 * 1000,
     pagesBufferLength: 2,
   },
+  // Allow images from external domains (Imgbb hosting)
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.ibb.co',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.imgbb.com',
+        pathname: '/**',
+      },
+    ],
+  },
 }
 
 module.exports = nextConfig

@@ -49,7 +49,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
             <div className="flex flex-col items-center gap-6">
               <div className="flex items-center gap-4">
                 <Logo className="text-4xl md:text-6xl h-[1em] w-[1em] text-amber-600" />
-                <h1 className="text-4xl md:text-6xl font-sans font-thin uppercase tracking-tight text-amber-600">TEMPLE</h1>
+                <h1 className="text-4xl md:text-6xl font-sans font-thin uppercase tracking-tight text-amber-600">ASEMBLI</h1>
               </div>
 
               <form onSubmit={handleSubmit} className="w-full max-w-2xl">
@@ -64,11 +64,11 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                   </span>
                   <input
                     id="home-search"
-                    aria-label="Search for a temple"
+                    aria-label="Search for a community"
                     type="search"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search for a temple by name, creed, or location..."
+                    placeholder="Search for a community by name, creed, or location..."
                     className="w-full h-14 rounded-full border border-slate-200 bg-white pl-12 pr-16 text-base text-slate-900 placeholder:text-slate-400 shadow-inner focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
                   />
 
@@ -89,7 +89,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
               {memberTenants.length > 0 && (
                 <div className="mt-6 w-full">
                   <div className="mb-3 flex items-center justify-between gap-4">
-                    <h2 className="text-lg font-semibold text-slate-900">Your temples</h2>
+                    <h2 className="text-lg font-semibold text-slate-900">Your communities</h2>
                     <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
                       {memberTenants.length} {memberTenants.length === 1 ? 'membership' : 'memberships'}
                     </span>

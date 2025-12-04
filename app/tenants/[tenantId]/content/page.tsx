@@ -74,15 +74,17 @@ export default async function TenantContentPage({ params }: { params: Promise<{ 
                   return <PodcastCard key={`podcast-${u.item.id}`} podcast={u.item} />;
                 case 'book':
                   return <BookCard key={`book-${u.item.id}`} post={u.item} />;
-                case 'photo':
+                case 'photo': {
+                  const photoUrl = u.item.storageKey?.startsWith('http') ? u.item.storageKey : `/storage/${u.item.storageKey}`;
                   return (
                     <div key={`photo-${u.item.id}`} className="relative rounded bg-white shadow-sm">
-                      <a href={`/storage/${u.item.storageKey}`} target="_blank" rel="noopener noreferrer" className="block">
-                        <img src={`/storage/${u.item.storageKey}`} alt={u.item.title || 'Photo'} className="w-full h-auto max-h-64 object-contain" />
+                      <a href={photoUrl} target="_blank" rel="noopener noreferrer" className="block">
+                        <img src={photoUrl} alt={u.item.title || 'Photo'} className="w-full h-auto max-h-64 object-contain" />
                       </a>
                       <div className="p-2 text-xs text-gray-600">{u.item.authorDisplayName}</div>
                     </div>
                   );
+                }
                 default:
                   return null;
               }

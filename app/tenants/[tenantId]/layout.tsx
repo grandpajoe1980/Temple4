@@ -48,8 +48,9 @@ export default async function TenantLayout({
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
+      {/* Header hidden on mobile - navigation handled by MobileNav in SiteHeader */}
       <header
-        className="sticky z-30 bg-white shadow-sm"
+        className="sticky z-30 bg-white shadow-sm hidden md:block"
         style={{
           top: 'calc(var(--site-header-height, 4.5rem) + var(--impersonation-banner-offset, 0px))',
         }}
@@ -61,7 +62,7 @@ export default async function TenantLayout({
         </div>
       </header>
       <main className="flex-grow pb-10" style={{ paddingTop: 'clamp(2px, 0.35vw, 6px)' }}>
-        <div suppressHydrationWarning className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div suppressHydrationWarning className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {children}
         </div>
       </main>

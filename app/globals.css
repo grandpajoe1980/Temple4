@@ -220,6 +220,59 @@
   }
 }
 
+/* Mobile-friendly improvements */
+@media (max-width: 767px) {
+  /* Better touch targets */
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improved content padding on mobile */
+  .mobile-content-spacing {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Better font scaling on mobile */
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+  
+  h2 {
+    font-size: 1.375rem;
+    line-height: 1.25;
+  }
+  
+  h3 {
+    font-size: 1.125rem;
+    line-height: 1.3;
+  }
+  
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Better table handling */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Card improvements for mobile */
+  .card,
+  [class*="rounded-lg"],
+  [class*="rounded-xl"] {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
 /* FullCalendar theming */
 .fc .fc-toolbar.fc-header-toolbar {
   padding: 1rem 1.25rem;

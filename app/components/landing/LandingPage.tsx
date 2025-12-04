@@ -22,7 +22,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToLogin, onSearch }
         <div className="flex flex-col items-center space-y-4">
           <div className="flex items-center gap-4 justify-center">
             <Logo className="h-12 w-12 text-amber-600" />
-            <h1 className="text-4xl font-extrabold tracking-tight text-amber-600">TEMPLE</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight text-amber-600">ASEMBLI</h1>
           </div>
         </div>
 

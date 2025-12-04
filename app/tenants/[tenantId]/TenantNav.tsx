@@ -309,7 +309,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   };
 
   return (
-    <nav ref={navRef} className="relative z-[10] border-t border-gray-200" style={{ ['--tenant-nav-height' as any]: '6rem' }}>
+    <nav ref={navRef} className="relative z-[10] border-t border-gray-200 hidden md:block" style={{ ['--tenant-nav-height' as any]: '6rem' }}>
       {renderActiveSubmenuOverlay()}
       <div ref={navTabsRef} className="-mb-px flex flex-wrap items-stretch gap-4 border-b border-gray-200 pb-1">
         {navItems.map((item) => {

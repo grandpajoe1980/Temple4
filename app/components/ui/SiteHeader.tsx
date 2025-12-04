@@ -9,6 +9,7 @@ import NotificationBell from '../notifications/NotificationBell';
 import NotificationPanel from '../notifications/NotificationPanel';
 import Button from './Button';
 import UserMenu from './UserMenu';
+import MobileNav from './MobileNav';
 
 const navItems: { label: string; href: string; authOnly?: boolean }[] = [];
 
@@ -126,26 +127,31 @@ const SiteHeader = () => {
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4">
-          {/* On tenant pages replace site logo with tenant hamburger menu */}
-          {pathname?.startsWith('/tenants/') ? (
-            <TenantMenuPlaceholder pathname={pathname} session={session} />
-          ) : (
-            <Link
-              href="/"
-              className="flex items-center gap-3 rounded-full px-2 py-1 text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-            >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
-                <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true">
-                  <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
-                </svg>
-              </span>
-              <div className="hidden sm:flex flex-col leading-tight">
-                <span className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Asembli</span>
-                <span className="text-lg font-semibold">Platform</span>
-              </div>
-              <span className="text-base font-semibold text-slate-700 sm:hidden">Asembli</span>
-            </Link>
-          )}
+          {/* Mobile hamburger menu - shown on all pages on mobile */}
+          <div className="flex items-center gap-3">
+            <MobileNav />
+            
+            {/* On tenant pages replace site logo with tenant hamburger menu (desktop only) */}
+            {pathname?.startsWith('/tenants/') ? (
+              <TenantMenuPlaceholder pathname={pathname} session={session} />
+            ) : (
+              <Link
+                href="/"
+                className="flex items-center gap-3 rounded-full px-2 py-1 text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+              >
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true">
+                    <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
+                  </svg>
+                </span>
+                <div className="hidden sm:flex flex-col leading-tight">
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Asembli</span>
+                  <span className="text-lg font-semibold">Platform</span>
+                </div>
+                <span className="text-base font-semibold text-slate-700 sm:hidden">Asembli</span>
+              </Link>
+            )}
+          </div>
           {!pathname?.startsWith('/tenants/') && (
             <nav className="hidden flex-1 items-center gap-2 text-sm font-medium text-slate-500 md:flex" aria-label="Primary">
               {navItems
@@ -194,24 +200,7 @@ const SiteHeader = () => {
             )}
           </div>
         </div>
-        {!pathname?.startsWith('/tenants/') && (
-          <nav className="flex items-center gap-2 overflow-x-auto text-xs font-semibold text-slate-500 md:hidden" aria-label="Mobile">
-            {navItems
-              .filter((item) => (isAuthenticated ? true : !item.authOnly))
-              .filter((item) => (pathname?.startsWith('/tenants') ? item.label !== 'Tenants' : true))
-              .map((item) => (
-                <Link
-                  key={`${item.href}-mobile`}
-                  href={item.href}
-                  className={`whitespace-nowrap rounded-full px-3 py-1 transition-colors ${
-                    pathname?.startsWith(item.href) ? 'bg-amber-50 text-amber-700' : 'hover:text-slate-900'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-          </nav>
-        )}
+        {/* Mobile nav row removed - now using MobileNav sheet drawer instead */}
       </div>
     </header>
   );
@@ -363,7 +352,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
 
   return (
     <div
-      className="relative flex items-center gap-3"
+      className="relative hidden md:flex items-center gap-3"
       ref={ref}
       onMouseEnter={() => {
         clearTimer(menuCloseTimer);

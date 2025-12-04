@@ -322,6 +322,19 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                     {method.value}
                   </p>
                 )}
+                {/* QR Code for Venmo - helps mobile users scan to open Venmo app */}
+                {method.key === 'venmo' && method.href && (
+                  <div className="mt-3 flex flex-col items-center">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(method.href)}`}
+                      alt="Venmo QR Code"
+                      className="rounded border border-gray-100"
+                      width={120}
+                      height={120}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Scan to open Venmo</p>
+                  </div>
+                )}
               </div>
             ))}
           </div>

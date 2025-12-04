@@ -124,8 +124,20 @@ async function main() {
       enableLiveStream: true,
       enableServices: true,
       enableEvents: true,
+      enableDonations: true,
+      enableTrips: true,
+      enableVolunteering: true,
+      enableSmallGroups: true,
+      enableResourceCenter: true,
+      enableSupportRequests: true,
+      enableMemorials: true,
+      enableAssetManagement: true,
+      enableWorkboard: true,
+      enableTicketing: true,
+      enablePrayerWall: true,
+      enableBirthdays: true,
       donationSettings: {},
-      liveStreamSettings: {},
+      liveStreamSettings: { isLive: true, embedUrl: 'https://www.youtube.com/embed/QYO-tNjkQO8', title: 'LabPadre 24/7 Starbase Livestream' },
       visitorVisibility: { posts: true, calendar: true, talks: true }
     },
     create: {
@@ -145,13 +157,28 @@ async function main() {
       enableLiveStream: true,
       enableServices: true,
       enableEvents: true,
+      enableDonations: true,
+      enableTrips: true,
+      enableVolunteering: true,
+      enableSmallGroups: true,
+      enableResourceCenter: true,
+      enableSupportRequests: true,
+      enableMemorials: true,
+      enableAssetManagement: true,
+      enableWorkboard: true,
+      enableTicketing: true,
+      enablePrayerWall: true,
+      enableBirthdays: true,
       donationSettings: {},
-      liveStreamSettings: {},
+      liveStreamSettings: { isLive: true, embedUrl: 'https://www.youtube.com/embed/QYO-tNjkQO8', title: 'LabPadre 24/7 Starbase Livestream' },
       visitorVisibility: { posts: true, calendar: true, talks: true }
     }
   });
 
   console.log('✅ Springfield Community Church tenant created');
+
+  // Add Platform Admin as a member of Springfield tenant with ADMIN role
+  await ensureMembership(admin.id, tenant.id, ['ADMIN']);
 
   // 3. CREATE 20 SIMPSONS CHARACTERS
   const characters = [
@@ -188,17 +215,64 @@ async function main() {
 
   // 4. CREATE GLOBAL DM CONVERSATIONS (sampling interesting pairs)
   const dmPairs = [
-    [0, 1], // Lovejoy & Ned
-    [2, 3], // Homer & Marge
-    [4, 18], // Bart & Milhouse
-    [5, 6], // Lisa & Maude
-    [8, 14], // Moe & Barney
-    [15, 16], // Lenny & Carl
-    [11, 4], // Skinner & Bart
-    [1, 7], // Ned & Helen
+    { pair: [0, 1], messages: [ // Lovejoy & Ned
+      { from: 0, text: 'Ned, I need to talk to you about the upcoming sermon...' },
+      { from: 1, text: 'Of course, Reverend! I\'m all ears-diddly-ears!' },
+      { from: 0, text: 'Can you... tone down the "diddlys" during the announcements?' },
+      { from: 1, text: 'Oh my, have I been overdoing it? Gosh-darn-diddly-doodly!' },
+      { from: 0, text: '*sigh* Never mind, Ned. You\'re fine.' },
+    ]},
+    { pair: [2, 3], messages: [ // Homer & Marge
+      { from: 2, text: 'Marge! Did you pack my snacks for church?' },
+      { from: 3, text: 'Homer, it\'s only a one hour service!' },
+      { from: 2, text: 'But what if they do communion and I\'m still hungry?' },
+      { from: 3, text: 'That\'s not how communion works, Homie.' },
+      { from: 2, text: 'Mmm... communion bread... *drool*' },
+    ]},
+    { pair: [4, 18], messages: [ // Bart & Milhouse
+      { from: 4, text: 'Dude, did you see Skinner at church? He was watching me like a hawk!' },
+      { from: 18, text: 'Maybe because of the whoopee cushion incident?' },
+      { from: 4, text: 'That was a classic, man. Lovejoy jumped three feet!' },
+      { from: 18, text: 'My mom grounded me for laughing. But it was worth it!' },
+      { from: 4, text: 'Everything\'s coming up Milhouse! Well, except the grounding part.' },
+    ]},
+    { pair: [5, 6], messages: [ // Lisa & Maude (spiritual)
+      { from: 5, text: 'Mrs. Flanders, do you think jazz can be spiritual?' },
+      { from: 6, text: 'Oh Lisa, all beautiful music is a gift from above!' },
+      { from: 5, text: 'I want to play saxophone at the next service. Do you think they\'d let me?' },
+      { from: 6, text: 'I think it would be lovely! I\'ll talk to the Reverend.' },
+    ]},
+    { pair: [8, 14], messages: [ // Moe & Barney (recovery)
+      { from: 8, text: 'Hey Barn, how\'s the recovery going?' },
+      { from: 14, text: '*burp* Three weeks sober! The church group really helps.' },
+      { from: 8, text: 'Proud of ya, buddy. I know it ain\'t easy.' },
+      { from: 14, text: 'Thanks Moe. Means a lot coming from... well, a bartender.' },
+      { from: 8, text: 'Hey, I support your journey. Even if it\'s bad for business.' },
+    ]},
+    { pair: [15, 16], messages: [ // Lenny & Carl
+      { from: 15, text: 'Carl, you bringing the coffee again this Sunday?' },
+      { from: 16, text: 'You know it! Got that new Ethiopian blend.' },
+      { from: 15, text: 'Nice! Church coffee is the best part. Don\'t tell Homer I said that.' },
+      { from: 16, text: 'Our secret. Though he probably just comes for the donuts anyway.' },
+    ]},
+    { pair: [11, 4], messages: [ // Skinner & Bart
+      { from: 11, text: 'Simpson! I know you\'re planning something for Sunday.' },
+      { from: 4, text: 'I don\'t know what you\'re talking about, Principal Skinner.' },
+      { from: 11, text: 'I have my eyes on you. Even in the house of the Lord.' },
+      { from: 4, text: 'That sounds kind of creepy, man.' },
+      { from: 11, text: 'That\'s... fair. But behave yourself!' },
+    ]},
+    { pair: [1, 7], messages: [ // Ned & Helen
+      { from: 1, text: 'Helen, thank you for organizing the bake sale!' },
+      { from: 7, text: 'Oh Ned, it\'s my pleasure! Anything for the church.' },
+      { from: 1, text: 'Your lemon bars were a hit!' },
+      { from: 7, text: 'Well, someone has to set a good example. Unlike SOME people...' },
+      { from: 1, text: 'Now Helen, let\'s not gossip. That\'s not very Christian-diddly-istian.' },
+    ]},
   ];
 
-  for (const [i, j] of dmPairs) {
+  for (const { pair, messages } of dmPairs) {
+    const [i, j] = pair;
     const convo = await prisma.conversation.create({
       data: {
         scope: 'GLOBAL',
@@ -211,13 +285,6 @@ async function main() {
         }
       }
     });
-
-    // Add some messages
-    const messages = [
-      { from: i, text: `Hey ${characters[j].name.split(' ')[0]}! How are you?` },
-      { from: j, text: `Good to hear from you! Just finished reading the church bulletin.` },
-      { from: i, text: `Great! Looking forward to Sunday service.` },
-    ];
 
     for (const msg of messages) {
       await prisma.chatMessage.create({
@@ -260,6 +327,48 @@ async function main() {
       { from: 15, text: 'Carl and I are in!' },
       { from: 16, text: 'Yep, Lenny and I make a good team.' },
     ]},
+    { name: 'Choir & Music', messages: [
+      { from: 13, text: 'I\'ve been practicing my solo for Sunday. Mr. Burns said I have excellent pitch.' },
+      { from: 5, text: 'Can we add some jazz elements to the hymns? I could bring my saxophone!' },
+      { from: 0, text: 'Lisa, that\'s... actually not a bad idea. Let\'s discuss after rehearsal.' },
+      { from: 3, text: 'Homer, please stop singing in the shower voice during practice.' },
+      { from: 2, text: 'But Marge, that\'s my best voice! Woo-hoo!' },
+      { from: 7, text: 'Won\'t somebody think of the congregation\'s ears?!' },
+    ]},
+    { name: 'Donut Fellowship', messages: [
+      { from: 2, text: 'Mmm... donuts. Who\'s bringing them this Sunday?' },
+      { from: 10, text: 'I can pick some up from the Kwik-E-Mart. Uh, for professional reasons.' },
+      { from: 9, text: 'Thank you, come again! I will provide the finest donuts in Springfield!' },
+      { from: 2, text: 'Apu, you\'re my hero. D\'oh-nuts forever!' },
+      { from: 1, text: 'Now Homer, remember - share with everyone, neighborino!' },
+      { from: 2, text: 'Okily-dokily, Ned. ...Maybe.' },
+      { from: 12, text: 'I shall donate the funds for premium donuts. Excellent.' },
+    ]},
+    { name: 'Parents & Families', messages: [
+      { from: 3, text: 'Any tips for getting kids ready for church on time?' },
+      { from: 7, text: 'Won\'t somebody think of the children and their tardiness?!' },
+      { from: 1, text: 'We wake up at 5 AM for family devotions! Works like a charm!' },
+      { from: 2, text: 'Five AM?! That\'s still night time!' },
+      { from: 11, text: 'As a principal, I recommend a strict schedule. Perhaps detention for lateness?' },
+      { from: 4, text: 'Detention at church? Ay caramba!' },
+      { from: 3, text: 'Bart, you\'re supposed to be in the Youth Group chat...' },
+    ]},
+    { name: 'Book & Bible Study', messages: [
+      { from: 5, text: 'This week we\'re studying Ecclesiastes. "There is nothing new under the sun."' },
+      { from: 0, text: 'Excellent choice, Lisa. Very... ecclesiastical.' },
+      { from: 1, text: 'I\'ve prepared a 47-page study guide! Hi-diddly-ho!' },
+      { from: 2, text: 'Forty-seven pages?! Is there a movie version?' },
+      { from: 8, text: 'I actually read some of the Bible last week. Pretty good stuff once you get into it.' },
+      { from: 14, text: '*burp* ...Sorry. The wisdom literature really speaks to me.' },
+    ]},
+    { name: 'Outreach & Missions', messages: [
+      { from: 0, text: 'We\'re planning our annual mission trip to Shelbyville. Who\'s interested?' },
+      { from: 1, text: 'Despite our rivalry, we must love our neighbors. Even Shelbyville-ians!' },
+      { from: 17, text: 'Hey hey! I can do a show for the kids there!' },
+      { from: 5, text: 'I\'d love to help with the literacy program.' },
+      { from: 19, text: 'I\'ll fix whatever needs fixin\'! These hands were made for workin\'!' },
+      { from: 3, text: 'I can organize the food distribution. My casseroles are famous!' },
+    ]},
   ];
 
   for (const room of chatRooms) {
@@ -270,7 +379,12 @@ async function main() {
         kind: 'CHANNEL',
         name: room.name,
         participants: {
-          create: users.map(u => ({ userId: u.id }))
+          create: [
+            // Add all Simpsons characters
+            ...users.map(u => ({ userId: u.id })),
+            // Also add the Platform Admin so they can see channels
+            { userId: admin.id }
+          ]
         }
       }
     });
@@ -375,9 +489,11 @@ async function main() {
   }
 
   const photos = [
-    { uploader: 1, title: 'Church Picnic 2024', url: 'https://picsum.photos/seed/picnic/1200/800', caption: 'What a blessed day with wonderful people!' },
-    { uploader: 3, title: 'Youth Group Fun', url: 'https://picsum.photos/seed/youth/1200/800', caption: 'Our amazing youth having a great time!' },
-    { uploader: 5, title: 'Choir Night', url: 'https://picsum.photos/seed/choir/1200/800', caption: 'Lifting our voices together.' },
+    { uploader: 1, title: 'Church Picnic 2024', url: 'https://images.unsplash.com/photo-1529543544277-750e7dce8c71?w=1200', caption: 'What a blessed day with wonderful people! Ned brought his famous seven-layer dip.' },
+    { uploader: 3, title: 'Youth Group Fun', url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200', caption: 'Our amazing youth having a great time! Bart only broke one window this time.' },
+    { uploader: 5, title: 'Choir Night', url: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1200', caption: 'Lifting our voices together. Lisa nailed that saxophone solo!' },
+    { uploader: 0, title: 'Sunday Service', url: 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=1200', caption: 'Another beautiful Sunday morning. Homer managed to stay awake for 45 minutes!' },
+    { uploader: 3, title: 'Bake Sale Success', url: 'https://images.unsplash.com/photo-1486427944544-d2c6e56c5e12?w=1200', caption: 'Marge\'s famous desserts sold out in an hour! D\'oh, Homer ate half of them.' },
   ];
 
   for (const photo of photos) {
@@ -478,23 +594,30 @@ async function main() {
 
   console.log(`✅ Created ${books.length} books`);
 
-  // 11. CREATE FACILITIES
+  // 11. CREATE FACILITIES (with duplicate check)
   const facilities = [
-    { name: 'Main Sanctuary', description: 'Our beautiful main worship space with seating for 200', type: 'HALL' as const, capacity: 200 },
-    { name: 'Fellowship Hall', description: 'Perfect for events, meals, and gatherings', type: 'HALL' as const, capacity: 100 },
+    { name: 'Main Sanctuary', description: 'Our beautiful main worship space with seating for 200. Homer once fell asleep here for 3 hours.', type: 'HALL' as const, capacity: 200 },
+    { name: 'Fellowship Hall', description: 'Perfect for events, meals, and gatherings. The coffee is always fresh (thanks Marge!)', type: 'HALL' as const, capacity: 100 },
+    { name: 'Youth Room', description: 'Where the magic happens! Bart has drawn on every chair at least once.', type: 'ROOM' as const, capacity: 30 },
+    { name: 'Prayer Chapel', description: 'A quiet space for reflection. No cell phones, no Krusty the Clown impressions.', type: 'ROOM' as const, capacity: 10 },
   ];
 
   for (const facility of facilities) {
-    await prisma.facility.create({
-      data: {
-        tenantId: tenant.id,
-        name: facility.name,
-        description: facility.description,
-        type: facility.type,
-        capacity: facility.capacity,
-        isActive: true,
-      }
+    const existing = await prisma.facility.findFirst({
+      where: { tenantId: tenant.id, name: facility.name }
     });
+    if (!existing) {
+      await prisma.facility.create({
+        data: {
+          tenantId: tenant.id,
+          name: facility.name,
+          description: facility.description,
+          type: facility.type,
+          capacity: facility.capacity,
+          isActive: true,
+        }
+      });
+    }
   }
 
   console.log(`✅ Created ${facilities.length} facilities`);
@@ -709,24 +832,298 @@ async function main() {
 
   // 20. CREATE SERVICE OFFERINGS
   const serviceOfferings = [
-    { name: 'Wedding Ceremonies', description: 'Beautiful wedding services performed by Reverend Lovejoy', category: 'CEREMONY' as const, pricing: '$500-1000', isPublic: true },
-    { name: 'Pastoral Counseling', description: 'One-on-one guidance and support', category: 'COUNSELING' as const, pricing: 'Free for members', isPublic: true },
+    { name: 'Wedding Ceremonies', description: 'Beautiful wedding services performed by Reverend Lovejoy. "Do you take this... oh, just say I do already!"', category: 'CEREMONY' as const, pricing: '$500-1000', isPublic: true },
+    { name: 'Pastoral Counseling', description: 'One-on-one guidance and support. Reverend Lovejoy will try to stay awake.', category: 'COUNSELING' as const, pricing: 'Free for members', isPublic: true },
+    { name: 'Sunday School', description: 'Teaching the little ones about faith, one flannel board at a time. "Now, who can tell me what happened to the Egyptians?"', category: 'EDUCATION' as const, pricing: 'Free', isPublic: true },
+    { name: 'Adult Bible Study', description: 'Deep dives into scripture for grown-ups. Ned brings the study guides, Helen brings the gossip.', category: 'EDUCATION' as const, pricing: 'Free', isPublic: true },
   ];
 
   for (const service of serviceOfferings) {
-    await prisma.serviceOffering.create({
-      data: {
-        tenantId: tenant.id,
-        name: service.name,
-        description: service.description,
-        category: service.category,
-        pricing: service.pricing,
-        isPublic: service.isPublic,
-      }
+    const existing = await prisma.serviceOffering.findFirst({
+      where: { tenantId: tenant.id, name: service.name }
     });
+    if (!existing) {
+      await prisma.serviceOffering.create({
+        data: {
+          tenantId: tenant.id,
+          name: service.name,
+          description: service.description,
+          category: service.category,
+          pricing: service.pricing,
+          isPublic: service.isPublic,
+        }
+      });
+    }
   }
 
   console.log(`✅ Created ${serviceOfferings.length} service offerings`);
+
+  // 21. CREATE MEMORIALS
+  const memorials = [
+    { 
+      name: 'Maude Flanders', 
+      birthDate: new Date('1960-03-15'), 
+      deathDate: new Date('2000-02-13'),
+      obituary: 'Beloved wife, mother, and the sweetest soul in Springfield. Gone too soon due to a tragic t-shirt cannon incident. She made the best apple pie and always had a kind word for everyone.',
+      createdBy: 1
+    },
+    { 
+      name: 'Frank Grimes', 
+      birthDate: new Date('1965-08-22'), 
+      deathDate: new Date('1997-05-04'),
+      obituary: 'Hard worker who lived above a bowling alley and below another bowling alley. He earned everything the hard way. His work ethic was an inspiration to... well, someone, probably.',
+      createdBy: 2
+    },
+    {
+      name: 'Bleeding Gums Murphy',
+      birthDate: new Date('1944-07-08'),
+      deathDate: new Date('1995-10-01'),
+      obituary: 'The greatest jazz musician Springfield ever knew. He taught Lisa everything about the blues. His saxophone still echoes through the streets of Springfield on quiet nights.',
+      createdBy: 5
+    },
+  ];
+
+  for (const memorial of memorials) {
+    const existing = await prisma.memorial.findFirst({
+      where: { tenantId: tenant.id, name: memorial.name }
+    });
+    if (!existing) {
+      await prisma.memorial.create({
+        data: {
+          tenantId: tenant.id,
+          name: memorial.name,
+          birthDate: memorial.birthDate,
+          deathDate: memorial.deathDate,
+          story: memorial.obituary,
+          submitterId: users[memorial.createdBy].id,
+          status: 'APPROVED',
+        }
+      });
+    }
+  }
+
+  console.log(`✅ Created ${memorials.length} memorials`);
+
+  // 22. CREATE MORE CONTACT SUBMISSIONS (acting as tickets)
+  const moreContactSubmissions = [
+    { 
+      name: 'Homer Simpson',
+      email: 'homer@springfield.org',
+      message: 'Pew cushion is too comfortable - I keep falling asleep during the sermon. Can we get less comfortable pews? Or maybe just poke me when I snore.',
+      status: 'UNREAD' as const
+    },
+    { 
+      name: 'Bart Simpson',
+      email: 'bart@springfield.org',
+      message: 'Someone keeps stealing my skateboard from the rack every Sunday. I suspect Nelson. Can we install cameras? Eat my shorts!',
+      status: 'READ' as const
+    },
+    { 
+      name: 'Helen Lovejoy',
+      email: 'helen@springfield.org',
+      message: 'URGENT: The Sunday school needs more craft supplies. The children are suffering! SUFFERING! Won\'t somebody PLEASE think of the children?!',
+      status: 'UNREAD' as const
+    },
+    { 
+      name: 'Mr. Burns',
+      email: 'burns@springfield.org',
+      message: 'I require seventeen copies of my donation receipt for my accountants. Excellent.',
+      status: 'ARCHIVED' as const
+    },
+  ];
+
+  for (const contact of moreContactSubmissions) {
+    const existing = await prisma.contactSubmission.findFirst({
+      where: { tenantId: tenant.id, email: contact.email, message: { contains: contact.message.substring(0, 30) } }
+    });
+    if (!existing) {
+      await prisma.contactSubmission.create({
+        data: {
+          tenantId: tenant.id,
+          name: contact.name,
+          email: contact.email,
+          message: contact.message,
+          status: contact.status,
+        }
+      });
+    }
+  }
+
+  console.log(`✅ Created ${moreContactSubmissions.length} additional contact submissions`);
+
+  // 23. CREATE TASKS (Workboard)
+  const tasks = [
+    { assignee: 1, title: 'Order new hymnals', description: 'The old ones are getting a bit worn. Ned noticed page 42 is missing from three of them.', dueDate: new Date('2025-12-20'), status: 'TODO' as const, priority: 'NORMAL' as const },
+    { assignee: 19, title: 'Fix leak in fellowship hall', description: 'There\'s a wee leak near the coffee station. Groundskeeper Willie will handle it, aye!', dueDate: new Date('2025-12-15'), status: 'IN_PROGRESS' as const, priority: 'HIGH' as const },
+    { assignee: 3, title: 'Organize potluck signup', description: 'Need to create the signup sheet for the Christmas potluck. No more than 5 jello molds this year!', dueDate: new Date('2025-12-10'), status: 'DONE' as const, priority: 'NORMAL' as const },
+    { assignee: 0, title: 'Prepare Christmas sermon', description: 'Reverend Lovejoy needs to write the Christmas Eve message. Something inspiring this time!', dueDate: new Date('2025-12-24'), status: 'TODO' as const, priority: 'URGENT' as const },
+    { assignee: 11, title: 'Update church bulletin board', description: 'Principal Skinner volunteered to organize the announcements. He promises no detention slips.', dueDate: new Date('2025-12-08'), status: 'TODO' as const, priority: 'LOW' as const },
+  ];
+
+  for (const task of tasks) {
+    const existing = await prisma.task.findFirst({
+      where: { tenantId: tenant.id, title: task.title }
+    });
+    if (!existing) {
+      await prisma.task.create({
+        data: {
+          tenantId: tenant.id,
+          assigneeId: users[task.assignee].id,
+          createdById: users[0].id,
+          title: task.title,
+          description: task.description,
+          dueDate: task.dueDate,
+          status: task.status,
+          priority: task.priority,
+        }
+      });
+    }
+  }
+
+  console.log(`✅ Created ${tasks.length} tasks`);
+
+  // 24. CREATE ASSETS
+  const assets = [
+    { name: 'Church Van', description: 'The trusty Springfield Community Church van. Seats 12, barely runs, but gets us there!', category: 'VEHICLE' as const, serialNumber: 'VAN-001', purchaseDate: new Date('2015-06-01'), value: 15000 },
+    { name: 'Sound System', description: 'Professional audio system for the sanctuary. Moe accidentally spilled beer on it once.', category: 'EQUIPMENT' as const, serialNumber: 'AUDIO-001', purchaseDate: new Date('2020-03-15'), value: 8000 },
+    { name: 'Projector', description: 'High-def projector for worship slides and the occasional movie night. Still has Burns\' face stuck on it from his "donation appreciation" presentation.', category: 'EQUIPMENT' as const, serialNumber: 'PROJ-001', purchaseDate: new Date('2022-01-10'), value: 2500 },
+    { name: 'Organ', description: 'Beautiful pipe organ from 1952. Needs tuning every month. Smithers plays it excellently.', category: 'INSTRUMENTS' as const, serialNumber: 'ORG-001', purchaseDate: new Date('1952-12-01'), value: 50000 },
+  ];
+
+  for (const asset of assets) {
+    const existing = await prisma.asset.findFirst({
+      where: { tenantId: tenant.id, name: asset.name }
+    });
+    if (!existing) {
+      await prisma.asset.create({
+        data: {
+          tenantId: tenant.id,
+          name: asset.name,
+          description: asset.description,
+          category: asset.category,
+          serialNumber: asset.serialNumber,
+          purchaseDate: asset.purchaseDate,
+          purchasePrice: asset.value,
+          currentValue: asset.value,
+          status: 'AVAILABLE',
+        }
+      });
+    }
+  }
+
+  console.log(`✅ Created ${assets.length} assets`);
+
+  // 25. CREATE MORE COMMUNITY POSTS (Support Requests, Tangible Needs)
+  const moreCommunityPosts = [
+    { author: 2, type: 'SUPPORT_REQUEST' as const, title: 'Support for my bowling struggles', content: 'My bowling average has dropped to 120. I need community support! Also, Marge says support my diet journey. - Homer', status: 'PUBLISHED' as const },
+    { author: 1, type: 'SUPPORT_REQUEST' as const, title: 'The Leftorium is saved!', content: 'Hi-diddly-ho! After months of struggle, the Leftorium is back in business! Thanks for all your support, neighborinos!', status: 'PUBLISHED' as const },
+    { author: 17, type: 'TANGIBLE_NEED' as const, title: 'Need: Stage makeup for clown ministry', content: 'Hey hey, kids! Krusty needs some new stage makeup for the children\'s program. The red nose is fading!', status: 'PUBLISHED' as const },
+    { author: 5, type: 'SUPPORT_REQUEST' as const, title: 'Support for my jazz audition', content: 'I have a big saxophone audition next week. Sending good vibes for steady fingers and soulful notes! - Lisa', status: 'PUBLISHED' as const },
+  ];
+
+  for (const cpost of moreCommunityPosts) {
+    const existing = await prisma.communityPost.findFirst({
+      where: { tenantId: tenant.id, body: { contains: cpost.content.substring(0, 50) } }
+    });
+    if (!existing) {
+      await prisma.communityPost.create({
+        data: {
+          tenantId: tenant.id,
+          authorUserId: users[cpost.author].id,
+          type: cpost.type,
+          body: cpost.content,
+          isAnonymous: false,
+          status: cpost.status,
+        }
+      });
+    }
+  }
+
+  console.log(`✅ Created ${moreCommunityPosts.length} additional community posts`);
+
+  // 26. CREATE MORE SMALL GROUPS
+  const moreSmallGroups = [
+    { leader: 5, name: 'Youth Jazz & Scripture', description: 'Where Lisa teaches kids about music and faith. Saxophone optional but encouraged!', status: 'OPEN' as const },
+    { leader: 0, name: 'Marriage Enrichment', description: 'For couples who want to strengthen their bonds. Reverend Lovejoy reluctantly leads this one.', status: 'OPEN' as const },
+    { leader: 17, name: 'Recovery Support Group', description: 'A safe space for those on their recovery journey. Krusty and Barney co-lead with empathy and humor.', status: 'OPEN' as const },
+  ];
+
+  for (const group of moreSmallGroups) {
+    const existing = await prisma.smallGroup.findFirst({
+      where: { tenantId: tenant.id, name: group.name }
+    });
+    if (!existing) {
+      await prisma.smallGroup.create({
+        data: {
+          tenantId: tenant.id,
+          name: group.name,
+          description: group.description,
+          leaderUserId: users[group.leader].id,
+          status: group.status,
+          joinPolicy: 'OPEN',
+        }
+      });
+    }
+  }
+
+  console.log(`✅ Created ${moreSmallGroups.length} additional small groups`);
+
+  // 27. CREATE MORE EVENTS
+  const moreEvents = [
+    { creator: 17, title: 'Krusty\'s Kids Comedy Hour', description: 'Hey hey! Bring the kids for some clean, family-friendly comedy. No pie-throwing, I promise! - Krusty', date: new Date('2025-12-20T14:00:00'), location: 'Fellowship Hall' },
+    { creator: 19, title: 'Scottish Heritage Night', description: 'Groundskeeper Willie presents: bagpipes, haggis, and tales from the homeland. Kilts optional!', date: new Date('2025-12-18T18:00:00'), location: 'Fellowship Hall' },
+    { creator: 5, title: 'Youth Jazz Concert', description: 'Lisa Simpson and friends perform jazz favorites. Featuring special guest: Bleeding Gums Murphy tribute!', date: new Date('2025-12-21T19:00:00'), location: 'Main Sanctuary' },
+  ];
+
+  for (const evt of moreEvents) {
+    const existing = await prisma.event.findFirst({
+      where: { tenantId: tenant.id, title: evt.title }
+    });
+    if (!existing) {
+      await prisma.event.create({
+        data: {
+          tenantId: tenant.id,
+          createdByUserId: users[evt.creator].id,
+          title: evt.title,
+          description: evt.description,
+          startDateTime: evt.date,
+          endDateTime: new Date(evt.date.getTime() + 2 * 60 * 60 * 1000),
+          locationText: evt.location,
+          visibility: 'PUBLIC',
+          status: 'PUBLISHED',
+        }
+      });
+    }
+  }
+
+  console.log(`✅ Created ${moreEvents.length} additional events`);
+
+  // 28. CREATE MORE POSTS
+  const morePosts = [
+    { author: 12, title: 'A Generous Donation Announcement', content: 'I, Montgomery Burns, have graciously donated $10,000 to the church. Please rename the fellowship hall after me. Excellent.' },
+    { author: 8, title: 'Moe\'s Testimony', content: 'Hey, it\'s Moe. Never thought I\'d be writing in a church newsletter, but here I am. This community has been real good to me. Thanks for not judging a guy by his bar.' },
+    { author: 10, title: 'Chief Wiggum\'s Safety Tips', content: 'Remember folks: lock your cars in the parking lot. We\'ve had reports of someone leaving donut crumbs everywhere. Uh, that might be me. Carry on.' },
+  ];
+
+  for (const post of morePosts) {
+    const existing = await prisma.post.findFirst({
+      where: { tenantId: tenant.id, title: post.title }
+    });
+    if (!existing) {
+      await prisma.post.create({
+        data: {
+          tenantId: tenant.id,
+          authorUserId: users[post.author].id,
+          type: 'ANNOUNCEMENT',
+          title: post.title,
+          body: post.content,
+          isPublished: true,
+        }
+      });
+    }
+  }
+
+  console.log(`✅ Created ${morePosts.length} additional posts`);
 
   console.log('\n🍩 Springfield Community Church is ready!');
   console.log('📧 Login as admin@temple.com or any character email (password: password)');

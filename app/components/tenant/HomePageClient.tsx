@@ -106,14 +106,16 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
 
 
   // Build carousel slides: content sections (posts), community posts, services
-  const slides: Array<{ title: string; subtitle?: string; imageUrl?: string | null; logoUrl?: string | null; link?: string }> = [];
+  const slides: Array<{ title: string; subtitle?: string; description?: string; imageUrl?: string | null; logoUrl?: string | null; link?: string; category?: 'photo' | 'podcast' | 'sermon' | 'book' | 'service' | 'event' | 'post' | 'community' }> = [];
 
   recentPosts.forEach((p) => {
     slides.push({
       title: p.title,
       subtitle: `Post • ${new Date(p.publishedAt).toLocaleDateString()}`,
+      description: p.author?.profile?.displayName ? `By ${p.author.profile.displayName}` : undefined,
       imageUrl: undefined,
       logoUrl: undefined,
+      category: 'post',
       // Link to the posts listing page instead of the individual post
       link: `/tenants/${tenant.id}/posts`,
     });
@@ -124,8 +126,10 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
       slides.push({
         title: c.title || 'Community',
         subtitle: `Community • ${new Date(c.createdAt).toLocaleDateString()}`,
+        description: c.body ? c.body.substring(0, 100) + (c.body.length > 100 ? '...' : '') : (c.author?.profile?.displayName ? `By ${c.author.profile.displayName}` : undefined),
         imageUrl: undefined,
         logoUrl: undefined,
+        category: 'community',
         link: `/tenants/${tenant.id}/community`,
       });
     });
@@ -135,9 +139,11 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
     services.forEach((s) => {
       slides.push({
         title: s.name,
-        subtitle: s.description || 'Service',
+        subtitle: 'Service',
+        description: s.description || undefined,
         imageUrl: s.imageUrl || undefined,
         logoUrl: undefined,
+        category: 'service',
         link: `/tenants/${tenant.id}/services`,
       });
     });
@@ -150,8 +156,10 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
     slides.push({
       title: ph.title || 'Photo',
       subtitle: `Photo • ${ph.uploadedAt ? new Date(ph.uploadedAt).toLocaleDateString() : ''}`,
+      description: ph.authorDisplayName ? `By ${ph.authorDisplayName}` : undefined,
       imageUrl: photoUrl,
       logoUrl: undefined,
+      category: 'photo',
       link: `/tenants/${tenant.id}/photos`,
     });
   });
@@ -161,8 +169,10 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
     slides.push({
       title: pc.title,
       subtitle: `Podcast • ${pc.publishedAt ? new Date(pc.publishedAt).toLocaleDateString() : ''}`,
+      description: 'Listen to this episode',
       imageUrl: pc.artworkUrl || undefined,
       logoUrl: undefined,
+      category: 'podcast',
       link: `/tenants/${tenant.id}/podcasts`,
     });
   });
@@ -172,8 +182,10 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
     slides.push({
       title: sr.title,
       subtitle: `Sermon • ${sr.publishedAt ? new Date(sr.publishedAt).toLocaleDateString() : ''}`,
+      description: 'Watch or listen to this sermon',
       imageUrl: sr.artworkUrl || undefined,
       logoUrl: undefined,
+      category: 'sermon',
       link: `/tenants/${tenant.id}/sermons`,
     });
   });
@@ -182,9 +194,11 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
   (recentBooks || []).forEach((b) => {
     slides.push({
       title: b.title,
-      subtitle: `Book${b.author ? ` • ${b.author}` : ''}`,
+      subtitle: 'Book',
+      description: b.author ? `By ${b.author}` : 'Recommended reading',
       imageUrl: undefined,
       logoUrl: undefined,
+      category: 'book',
       link: `/tenants/${tenant.id}/books`,
     });
   });
@@ -300,7 +314,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
 
       {/* Tenant-level carousel (inserted under existing content) */}
       <div>
-        <TenantCarousel slides={slides.length > 0 ? slides : [{ title: tenant.name, subtitle: tenant.creed, imageUrl: tenant.branding?.bannerImageUrl || undefined, logoUrl: tenant.branding?.logoUrl || undefined, link: `/tenants/${tenant.id}` }]} />
+        <TenantCarousel slides={slides.length > 0 ? slides : [{ title: tenant.name, subtitle: tenant.creed || 'Welcome to our community', description: tenant.description || undefined, imageUrl: tenant.branding?.bannerImageUrl || undefined, logoUrl: tenant.branding?.logoUrl || undefined, link: `/tenants/${tenant.id}` }]} />
       </div>
 
     </div>

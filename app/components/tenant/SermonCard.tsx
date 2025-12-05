@@ -43,7 +43,7 @@ const TalkCard: React.FC<TalkCardProps> = ({ talk, canEdit = false, onEdit, onDe
         </div>
       ) : null}
 
-      <div className="aspect-w-16 aspect-h-9">
+      <div className="aspect-video w-full">
         <iframe
           src={normalizeYoutubeEmbed(talk.embedUrl)}
           title={talk.title}

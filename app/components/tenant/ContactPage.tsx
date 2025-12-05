@@ -186,7 +186,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
           </div>
         </Card>
         <Card className="!p-0 overflow-hidden">
-           <div className="aspect-w-16 aspect-h-9">
+           <div className="aspect-video w-full">
              <iframe
                 src={mapSrc}
                 width="600"

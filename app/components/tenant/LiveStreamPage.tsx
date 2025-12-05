@@ -51,7 +51,7 @@ const LiveStreamPage: React.FC<LiveStreamPageProps> = ({ tenant }) => {
         subtitle={<>Join the live service from {tenant.name}.</>}
       />
         <Card className="!p-0 overflow-hidden">
-            <div className="aspect-w-16 aspect-h-9">
+            <div className="aspect-video w-full">
           <iframe
           src={normalizeYoutubeEmbed(liveStreamSettings.embedUrl)}
                 title={`${tenant.name} Live Stream`}

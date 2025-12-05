@@ -97,7 +97,7 @@ We use **Amber** as the primary brand color to evoke warmth/light, paired with *
 ### 4.2 Explore / Search Results (`ExplorePage.tsx`)
 *   **Grid:** Responsive grid (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`).
 *   **Tenant Cards:**
-    *   Banner image aspect ratio: `aspect-w-16 aspect-h-9` (or `h-48`).
+    *   Banner image aspect ratio: `aspect-video` (or `h-48`).
     *   Logo should overlap the banner: absolute position, `-bottom-6 left-4`, with a white ring (`ring-4 ring-white`).
     *   Typography: Title in bold slate-900, creed in amber-600, location in slate-500.
 

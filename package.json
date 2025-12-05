@@ -3,9 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
+    "build": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next build",
+    "start": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next start",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "predev": "npm run prisma:generate",
     "prebuild": "npm run prisma:generate",
@@ -67,6 +67,7 @@
     "@typescript-eslint/eslint-plugin": "^8.48.0",
     "@typescript-eslint/parser": "^8.48.0",
     "autoprefixer": "^10.4.22",
+    "baseline-browser-mapping": "^2.9.3",
     "eslint": "^9.39.1",
     "eslint-config-next": "^16.0.5",
     "eslint-plugin-import": "^2.32.0",
@@ -77,6 +78,7 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
     "ts-node": "^10.9.2",
-    "typescript": "~5.8.2"
+    "typescript": "~5.8.2",
+    "cross-env": "^7.0.3"
   }
 }

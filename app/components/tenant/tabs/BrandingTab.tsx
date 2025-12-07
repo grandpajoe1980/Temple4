@@ -264,15 +264,15 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="primaryColor" className="block text-sm font-medium text-gray-700">Primary Color</label>
-          <div className="mt-1 flex items-center space-x-3">
-            <input type="color" id="primaryColor" name="primaryColor" value={tenant.branding.primaryColor ?? '#000000'} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
+            <div className="mt-1 flex items-center space-x-3">
+            <input type="color" id="primaryColor" name="primaryColor" value={tenant.branding.primaryColor ?? '#111827'} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
             <Input id="primaryColorText" name="primaryColor" type="text" label="" value={tenant.branding.primaryColor ?? ''} onChange={handleColorChange} />
           </div>
         </div>
         <div>
           <label htmlFor="accentColor" className="block text-sm font-medium text-gray-700">Accent Color</label>
-          <div className="mt-1 flex items-center space-x-3">
-            <input type="color" id="accentColor" name="accentColor" value={tenant.branding.accentColor ?? '#000000'} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
+            <div className="mt-1 flex items-center space-x-3">
+            <input type="color" id="accentColor" name="accentColor" value={tenant.branding.accentColor ?? '#FFFFFF'} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
             <Input id="accentColorText" name="accentColor" type="text" label="" value={tenant.branding.accentColor ?? ''} onChange={handleColorChange} />
           </div>
         </div>

@@ -223,8 +223,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
     } inline-flex h-11 items-center whitespace-nowrap px-3 border-b-2 font-medium text-sm`;
 
-  const submenuChipClasses =
-    'inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:border-amber-300 hover:text-amber-700';
+  const submenuChipClasses = 'menu-chip';
 
   const renderSubmenu = (
     key: SubmenuKey,
@@ -245,8 +244,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
         } else {
           isActive = pathname.startsWith(`${basePath}${sub.path}`);
         }
-        const activeClasses =
-          'inline-flex items-center rounded-full border border-amber-500 bg-amber-100 px-4 py-2 text-sm font-medium text-amber-800 transition-colors';
+        const activeClasses = 'menu-chip menu-chip--active';
         return (
           <Link key={sub.key} href={`${basePath}${sub.path}`} className={isActive ? activeClasses : submenuChipClasses}>
             {sub.label}

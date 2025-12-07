@@ -71,11 +71,7 @@ export default function CommunityChips({ tenantId }: { tenantId: string }) {
               const enabled = !it.feature || Boolean(settings?.[it.feature]);
               if (!enabled) return null;
               return (
-                <Link
-                  key={it.key}
-                  href={`${base}${it.path}`}
-                  className="rounded-full border px-4 py-2 text-sm transition-colors border-gray-200 text-gray-600 hover:border-amber-300 hover:text-amber-700"
-                >
+                <Link key={it.key} href={`${base}${it.path}`} className="menu-chip">
                   {it.label}
                 </Link>
               );

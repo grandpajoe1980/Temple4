@@ -79,9 +79,7 @@ export default function ContentChips({ tenantId, active }: { tenantId: string; a
                   <Link
                     key={c.href}
                     href={c.href}
-                    className={`rounded-full border px-4 py-2 text-sm transition-colors ${{
-                      true: 'border-amber-500 bg-amber-100 text-amber-800',
-                    }[String(active === c.label)] ?? 'border-gray-200 text-gray-600 hover:border-amber-300 hover:text-amber-700'}`}
+                    className={`menu-chip ${active === c.label ? 'menu-chip--active' : ''}`}
                     aria-current={active === c.label ? 'page' : undefined}
                   >
                     {c.label}

@@ -84,19 +84,19 @@
 
 .dark {
   --background: #0b1224;
-  --foreground: #e2e8f0;
-  --card: #111827;
-  --card-foreground: #e5e7eb;
+  --foreground: #f4f8fc; /* brighter foreground for improved contrast in dark mode */
+  --card: #0f1724;
+  --card-foreground: #f7fbfe; /* brighter card text for readability */
   --popover: #0f172a;
-  --popover-foreground: #e5e7eb;
+  --popover-foreground: #f6fafc;
   --primary: #fb923c;
-  --primary-foreground: #0b1224;
+  --primary-foreground: var(--card-foreground); /* ensure not pure-black on primary */
   --secondary: #1f2937;
-  --secondary-foreground: #e2e8f0;
-  --muted: #1c2537;
-  --muted-foreground: #cbd5f5;
+  --secondary-foreground: #f3f8fb;
+  --muted: #17212f;
+  --muted-foreground: #e3edf8;
   --accent: #38bdf8;
-  --accent-foreground: #0b1224;
+  --accent-foreground: var(--card-foreground);
   --destructive: #fca5a5;
   --border: #1f2a3a;
   --input: #1f2a3a;
@@ -107,9 +107,9 @@
   --chart-4: #fbbf24;
   --chart-5: #fb7185;
   --sidebar: #0f172a;
-  --sidebar-foreground: #e2e8f0;
+  --sidebar-foreground: #eef2f7;
   --sidebar-primary: #fb923c;
-  --sidebar-primary-foreground: #0b1224;
+  --sidebar-primary-foreground: var(--card-foreground);
   --sidebar-accent: #1f2937;
   --sidebar-accent-foreground: #e2e8f0;
   --sidebar-border: #1f2a3a;
@@ -142,11 +142,11 @@
   }
   ::selection {
     background: rgba(251, 191, 36, 0.35);
-    color: #0f172a;
+    color: var(--foreground);
   }
   .dark ::selection {
     background: rgba(251, 146, 60, 0.4);
-    color: #f8fafc;
+    color: var(--card-foreground);
   }
   h1,
   h2,
@@ -163,7 +163,7 @@
     text-transform: uppercase;
   }
   p {
-    color: #475569;
+    color: var(--muted-foreground);
     line-height: 1.7;
   }
   img {
@@ -178,8 +178,8 @@
     top: 1rem;
     z-index: 50;
     padding: 0.5rem 1rem;
-    background: #0f172a;
-    color: #f8fafc;
+    background: var(--card-foreground);
+    color: var(--card);
     border-radius: 9999px;
     transform: translateY(-200%);
   }
@@ -198,9 +198,9 @@
   input,
   textarea,
   select {
-    background-color: #ffffff;
-    color: #0f172a;
-    border: 1px solid #e2e8f0;
+    background-color: var(--input);
+    color: var(--foreground);
+    border: 1px solid var(--border);
     border-radius: 0.75rem;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
     transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
@@ -208,14 +208,14 @@
   input::placeholder,
   textarea::placeholder,
   select::placeholder {
-    color: #94a3b8;
+    color: var(--muted-foreground);
   }
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible {
-    border-color: #f59e0b;
+    border-color: var(--ring);
     box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
-    background-color: #fff;
+    background-color: var(--card);
     outline: none; /* Remove default outline since we use box-shadow */
   }
   
@@ -300,14 +300,14 @@
 
 /* FullCalendar theming */
 .fc {
-  /* FullCalendar CSS variables */
-  --fc-border-color: #e2e8f0;
-  --fc-page-bg-color: #ffffff;
-  --fc-neutral-bg-color: #f8fafc;
+  /* FullCalendar CSS variables mapped to theme vars */
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--card);
+  --fc-neutral-bg-color: var(--background);
   --fc-today-bg-color: rgba(245, 158, 11, 0.08);
-  --fc-event-bg-color: #d97706;
-  --fc-event-border-color: #d97706;
-  --fc-event-text-color: #ffffff;
+  --fc-event-bg-color: var(--primary);
+  --fc-event-border-color: var(--primary);
+  --fc-event-text-color: var(--primary-foreground);
 }
 
 .fc .fc-toolbar.fc-header-toolbar {
@@ -317,13 +317,13 @@
 .fc .fc-toolbar-title {
   font-size: 1.15rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--foreground);
 }
 
 .fc .fc-button-primary {
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  color: #0f172a;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  color: var(--foreground);
   border-radius: 9999px;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
 }
@@ -331,14 +331,14 @@
 .fc .fc-button-primary:not(:disabled).fc-button-active,
 .fc .fc-button-primary:not(:disabled):active,
 .fc .fc-button-primary:not(:disabled):focus {
-  background-color: #d97706;
-  border-color: #d97706;
-  color: #fff;
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .fc .fc-daygrid-day-number {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--foreground);
 }
 
 .fc .fc-daygrid-day.fc-day-today {
@@ -348,11 +348,11 @@
 /* Ensure scrollgrid table sections are visible */
 .fc .fc-scrollgrid-section,
 .fc .fc-scrollgrid-section > td {
-  background: #ffffff;
+  background: var(--card);
 }
 
 .fc .fc-scrollgrid-section-body {
-  background: #ffffff;
+  background: var(--card);
 }
 
 /* Fix for fc-scrollgrid-liquid mode - ensure tbody sections have height */
@@ -407,7 +407,7 @@
 }
 
 .fc .fc-event-main {
-  color: #0f172a;
+  color: var(--foreground);
   font-weight: 600;
 }
 
@@ -650,7 +650,7 @@
 
 /* DayPicker modern look */
 .rdp-modern {
-  --rdp-accent-color: #d97706;
+  --rdp-accent-color: var(--primary);
   --rdp-accent-background-color: rgba(245, 158, 11, 0.15);
   --rdp-day-button-border-radius: 9999px;
   --rdp-outline: 2px solid rgba(245, 158, 11, 0.3);
@@ -659,7 +659,7 @@
 
 .rdp-modern .rdp-day {
   font-weight: 500;
-  color: #0f172a;
+  color: var(--foreground);
   position: relative;
 }
 
@@ -668,13 +668,13 @@
 }
 
 .rdp-modern .rdp-day_selected {
-  background-color: #d97706;
-  color: #fff;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
   box-shadow: 0 8px 20px rgba(217, 119, 6, 0.25);
 }
 
 .rdp-modern .rdp-day_today {
-  color: #d97706;
+  color: var(--primary);
   font-weight: 700;
 }
 
@@ -687,6 +687,281 @@
   width: 0.35rem;
   height: 0.35rem;
   border-radius: 999px;
-  background-color: #d97706;
+  background-color: var(--primary);
   opacity: 0.65;
+}
+
+/* Menu chip utility classes that respect color variables (works in dark mode) */
+.menu-chip {
+  background: var(--card);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  padding: 0.5rem 1rem; /* roughly px-4 py-2 */
+  font-size: 0.875rem; /* text-sm */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 150ms ease, border-color 150ms ease, background-color 150ms ease;
+}
+
+.menu-chip:hover {
+  border-color: var(--ring);
+  color: var(--foreground);
+}
+
+.menu-chip--active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+
+/* Ensure active chips are readable in dark mode (avoid turning fully black) */
+.dark .menu-chip--active {
+  color: var(--card-foreground);
+}
+
+/* =========================================================================
+   Dark-mode text color overrides for Tailwind gray utilities
+   Ensures all gray text is light enough for readability in dark mode
+   ========================================================================= */
+
+/* Very dark grays (text-gray-900, text-gray-800, text-gray-700) → bright in dark mode */
+.dark .text-gray-900 {
+  color: #f7fbfe !important;
+}
+.dark .text-gray-800 {
+  color: #f1f6fb !important;
+}
+.dark .text-gray-700 {
+  color: #e8eff7 !important;
+}
+
+/* Medium grays (text-gray-600, text-gray-500) → lighter in dark mode */
+.dark .text-gray-600 {
+  color: #d8e4f0 !important;
+}
+.dark .text-gray-500 {
+  color: #c8d8eb !important;
+}
+
+/* Light grays (text-gray-400, text-gray-300) → still visible in dark mode */
+.dark .text-gray-400 {
+  color: #b0c4de !important;
+}
+.dark .text-gray-300 {
+  color: #a0b8d4 !important;
+}
+
+/* Slate variants (common in Tailwind apps) */
+.dark .text-slate-900 {
+  color: #f7fbfe !important;
+}
+.dark .text-slate-800 {
+  color: #f1f6fb !important;
+}
+.dark .text-slate-700 {
+  color: #e8eff7 !important;
+}
+.dark .text-slate-600 {
+  color: #d8e4f0 !important;
+}
+.dark .text-slate-500 {
+  color: #c8d8eb !important;
+}
+.dark .text-slate-400 {
+  color: #b0c4de !important;
+}
+
+/* Zinc variants */
+.dark .text-zinc-900 {
+  color: #f7fbfe !important;
+}
+.dark .text-zinc-800 {
+  color: #f1f6fb !important;
+}
+.dark .text-zinc-700 {
+  color: #e8eff7 !important;
+}
+.dark .text-zinc-600 {
+  color: #d8e4f0 !important;
+}
+.dark .text-zinc-500 {
+  color: #c8d8eb !important;
+}
+.dark .text-zinc-400 {
+  color: #b0c4de !important;
+}
+
+/* Neutral variants */
+.dark .text-neutral-900 {
+  color: #f7fbfe !important;
+}
+.dark .text-neutral-800 {
+  color: #f1f6fb !important;
+}
+.dark .text-neutral-700 {
+  color: #e8eff7 !important;
+}
+.dark .text-neutral-600 {
+  color: #d8e4f0 !important;
+}
+.dark .text-neutral-500 {
+  color: #c8d8eb !important;
+}
+.dark .text-neutral-400 {
+  color: #b0c4de !important;
+}
+
+/* Stone variants */
+.dark .text-stone-900 {
+  color: #f7fbfe !important;
+}
+.dark .text-stone-800 {
+  color: #f1f6fb !important;
+}
+.dark .text-stone-700 {
+  color: #e8eff7 !important;
+}
+.dark .text-stone-600 {
+  color: #d8e4f0 !important;
+}
+.dark .text-stone-500 {
+  color: #c8d8eb !important;
+}
+.dark .text-stone-400 {
+  color: #b0c4de !important;
+}
+
+/* Background color overrides for gray backgrounds that may have poor contrast */
+.dark .bg-gray-50 {
+  background-color: #1a2332 !important;
+}
+.dark .bg-gray-100 {
+  background-color: #1f2937 !important;
+}
+.dark .bg-gray-200 {
+  background-color: #283548 !important;
+}
+
+/* Amber/orange/yellow backgrounds need dark equivalents */
+.dark .bg-amber-50 {
+  background-color: #2d2318 !important;
+}
+.dark .bg-amber-100 {
+  background-color: #3d2f1a !important;
+}
+.dark .bg-orange-50 {
+  background-color: #2d2015 !important;
+}
+.dark .bg-orange-100 {
+  background-color: #3d2a18 !important;
+}
+.dark .bg-yellow-50 {
+  background-color: #2d2812 !important;
+}
+.dark .bg-yellow-100 {
+  background-color: #3d3515 !important;
+}
+
+/* White backgrounds need to become dark card color */
+.dark .bg-white {
+  background-color: var(--card) !important;
+}
+
+/* Gradient backgrounds for hero sections */
+.dark .from-amber-50 {
+  --tw-gradient-from: #2d2318 !important;
+}
+.dark .to-orange-50 {
+  --tw-gradient-to: #2d2015 !important;
+}
+.dark .to-amber-50 {
+  --tw-gradient-to: #2d2318 !important;
+}
+.dark .from-orange-50 {
+  --tw-gradient-from: #2d2015 !important;
+}
+
+/* Dropdown and popover menus */
+.dark .hover\:bg-gray-50:hover {
+  background-color: #283548 !important;
+}
+.dark .hover\:bg-gray-100:hover {
+  background-color: #2d3a4d !important;
+}
+
+/* Border colors for cards in dark mode */
+.dark .border-gray-200 {
+  border-color: var(--border) !important;
+}
+.dark .border-gray-100 {
+  border-color: var(--border) !important;
+}
+.dark .border-amber-200 {
+  border-color: #6b4f2a !important;
+}
+.dark .border-amber-500 {
+  border-color: #fb923c !important;
+}
+
+/* Ring colors */
+.dark .ring-amber-200 {
+  --tw-ring-color: rgba(251, 146, 60, 0.3) !important;
+}
+
+/* Text colors for amber sections in dark mode */
+.dark .text-amber-700 {
+  color: #fbbf24 !important;
+}
+.dark .text-amber-800 {
+  color: #fcd34d !important;
+}
+.dark .text-amber-900 {
+  color: #fef3c7 !important;
+}
+.dark .text-orange-700 {
+  color: #fb923c !important;
+}
+.dark .text-orange-800 {
+  color: #fdba74 !important;
+}
+.dark .text-yellow-700 {
+  color: #facc15 !important;
+}
+.dark .text-yellow-800 {
+  color: #fde047 !important;
+}
+
+/* Semi-transparent white backgrounds */
+.dark .bg-white\/95 {
+  background-color: rgba(15, 23, 36, 0.95) !important;
+}
+.dark .bg-white\/90 {
+  background-color: rgba(15, 23, 36, 0.9) !important;
+}
+.dark .bg-white\/80 {
+  background-color: rgba(15, 23, 36, 0.8) !important;
+}
+
+/* Slate backgrounds (common in shadcn components) */
+.dark .bg-slate-50 {
+  background-color: #1a2332 !important;
+}
+.dark .bg-slate-100 {
+  background-color: #1f2937 !important;
+}
+.dark .bg-slate-200 {
+  background-color: #283548 !important;
+}
+
+/* Border slate colors */
+.dark .border-slate-100 {
+  border-color: var(--border) !important;
+}
+.dark .border-slate-200 {
+  border-color: var(--border) !important;
+}
+.dark .border-slate-300 {
+  border-color: #3d4a5c !important;
 }

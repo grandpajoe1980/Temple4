@@ -886,13 +886,13 @@ export async function createTenant(tenantDetails: Omit<Tenant, 'id' | 'slug' | '
                 } 
             },
             branding: { 
-                create: {
-                    logoUrl: '',
-                    bannerImageUrl: '',
-                    primaryColor: '#000000',
-                    accentColor: '#FFFFFF',
-                    customLinks: [],
-                } 
+              create: {
+                logoUrl: '',
+                bannerImageUrl: '',
+                primaryColor: '#111827',
+                accentColor: '#FFFFFF',
+                customLinks: [],
+              } 
             },
         }
     });

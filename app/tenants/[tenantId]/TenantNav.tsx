@@ -28,7 +28,7 @@ type NavItemFeature = keyof Omit<
 const navItems: { key: TenantPage; label: string; path: string; feature?: NavItemFeature; adminOnly?: boolean }[] = [
   { key: 'home', label: 'Home', path: '' },
   { key: 'content', label: 'Content', path: '/content' },
-  { key: 'community', label: 'Community', path: '/community' },
+  { key: 'community', label: 'Community', path: '/posts' },
   { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
   { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
   { key: 'contact', label: 'Contact Us', path: '/contact' },
@@ -44,8 +44,8 @@ const contentSubItems: { key: string; label: string; path: string; feature?: Nav
 ];
 
 const communitySubItems: { key: string; label: string; path: string; feature?: NavItemFeature; adminOnly?: boolean }[] = [
-  { key: 'events', label: 'Events', path: '/events', feature: 'enableEvents' },
   { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
+  { key: 'events', label: 'Events', path: '/events', feature: 'enableEvents' },
   { key: 'wall', label: 'Wall', path: '/community/wall' },
   { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
   { key: 'supportRequests', label: 'Support Requests', path: '/support-requests', feature: 'enableSupportRequests' },

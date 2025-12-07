@@ -31,11 +31,14 @@ export default function TenantBrandingProvider({ primaryColor, accentColor, chil
     ...(primaryColor ? ({ ['--primary-hex' as any]: primaryColor } as React.CSSProperties) : {}),
     ...(primaryColor ? ({ ['--primary' as any]: primaryColor } as React.CSSProperties) : {}),
     ...(primaryRgb ? ({ ['--primary-rgb' as any]: primaryRgb } as React.CSSProperties) : {}),
-    ...(primaryForegroundRgb ? ({ ['--primary-foreground' as any]: primaryForegroundRgb } as React.CSSProperties) : {}),
+    // expose a direct color string for usages that expect a color (hex)
+    ...(primaryForeground ? ({ ['--primary-foreground' as any]: primaryForeground } as React.CSSProperties) : {}),
+    ...(primaryForegroundRgb ? ({ ['--primary-foreground-rgb' as any]: primaryForegroundRgb } as React.CSSProperties) : {}),
     ...(accentColor ? ({ ['--accent-hex' as any]: accentColor } as React.CSSProperties) : {}),
     ...(accentColor ? ({ ['--accent' as any]: accentColor } as React.CSSProperties) : {}),
     ...(accentRgb ? ({ ['--accent-rgb' as any]: accentRgb } as React.CSSProperties) : {}),
-    ...(accentForegroundRgb ? ({ ['--accent-foreground' as any]: accentForegroundRgb } as React.CSSProperties) : {}),
+    ...(accentForeground ? ({ ['--accent-foreground' as any]: accentForeground } as React.CSSProperties) : {}),
+    ...(accentForegroundRgb ? ({ ['--accent-foreground-rgb' as any]: accentForegroundRgb } as React.CSSProperties) : {}),
   }
 
   // Also apply the tenant CSS variables to the document root so global
@@ -47,11 +50,15 @@ export default function TenantBrandingProvider({ primaryColor, accentColor, chil
     const root = document.documentElement;
     const prev = {
       primaryHex: root.style.getPropertyValue('--primary-hex'),
-      primaryRgb: root.style.getPropertyValue('--primary'),
-      primaryForegroundRgb: root.style.getPropertyValue('--primary-foreground'),
+      primary: root.style.getPropertyValue('--primary'),
+      primaryRgb: root.style.getPropertyValue('--primary-rgb'),
+      primaryForeground: root.style.getPropertyValue('--primary-foreground'),
+      primaryForegroundRgb: root.style.getPropertyValue('--primary-foreground-rgb'),
       accentHex: root.style.getPropertyValue('--accent-hex'),
-      accentRgb: root.style.getPropertyValue('--accent'),
-      accentForegroundRgb: root.style.getPropertyValue('--accent-foreground'),
+      accent: root.style.getPropertyValue('--accent'),
+      accentRgb: root.style.getPropertyValue('--accent-rgb'),
+      accentForeground: root.style.getPropertyValue('--accent-foreground'),
+      accentForegroundRgb: root.style.getPropertyValue('--accent-foreground-rgb'),
     };
 
     try {
@@ -61,11 +68,13 @@ export default function TenantBrandingProvider({ primaryColor, accentColor, chil
       if (primaryColor) root.style.setProperty('--primary-hex', primaryColor);
       if (primaryColor) root.style.setProperty('--primary', primaryColor);
       if (primaryRgb) root.style.setProperty('--primary-rgb', primaryRgb);
-      if (primaryForegroundRgb) root.style.setProperty('--primary-foreground', primaryForegroundRgb);
+      if (primaryForeground) root.style.setProperty('--primary-foreground', primaryForeground);
+      if (primaryForegroundRgb) root.style.setProperty('--primary-foreground-rgb', primaryForegroundRgb);
       if (accentColor) root.style.setProperty('--accent-hex', accentColor);
       if (accentColor) root.style.setProperty('--accent', accentColor);
       if (accentRgb) root.style.setProperty('--accent-rgb', accentRgb);
-      if (accentForegroundRgb) root.style.setProperty('--accent-foreground', accentForegroundRgb);
+      if (accentForeground) root.style.setProperty('--accent-foreground', accentForeground);
+      if (accentForegroundRgb) root.style.setProperty('--accent-foreground-rgb', accentForegroundRgb);
     } catch (e) {
       // ignore write errors
     }
@@ -75,26 +84,32 @@ export default function TenantBrandingProvider({ primaryColor, accentColor, chil
         if (prev.primaryHex) root.style.setProperty('--primary-hex', prev.primaryHex);
         else root.style.removeProperty('--primary-hex');
 
-        if (prev.primaryHex) root.style.setProperty('--primary', prev.primaryHex);
+        if (prev.primary) root.style.setProperty('--primary', prev.primary);
         else root.style.removeProperty('--primary');
 
         if (prev.primaryRgb) root.style.setProperty('--primary-rgb', prev.primaryRgb);
         else root.style.removeProperty('--primary-rgb');
 
-        if (prev.primaryForegroundRgb) root.style.setProperty('--primary-foreground', prev.primaryForegroundRgb);
+        if (prev.primaryForeground) root.style.setProperty('--primary-foreground', prev.primaryForeground);
         else root.style.removeProperty('--primary-foreground');
+
+        if (prev.primaryForegroundRgb) root.style.setProperty('--primary-foreground-rgb', prev.primaryForegroundRgb);
+        else root.style.removeProperty('--primary-foreground-rgb');
 
         if (prev.accentHex) root.style.setProperty('--accent-hex', prev.accentHex);
         else root.style.removeProperty('--accent-hex');
 
-        if (prev.accentHex) root.style.setProperty('--accent', prev.accentHex);
+        if (prev.accent) root.style.setProperty('--accent', prev.accent);
         else root.style.removeProperty('--accent');
 
         if (prev.accentRgb) root.style.setProperty('--accent-rgb', prev.accentRgb);
         else root.style.removeProperty('--accent-rgb');
 
-        if (prev.accentForegroundRgb) root.style.setProperty('--accent-foreground', prev.accentForegroundRgb);
+        if (prev.accentForeground) root.style.setProperty('--accent-foreground', prev.accentForeground);
         else root.style.removeProperty('--accent-foreground');
+
+        if (prev.accentForegroundRgb) root.style.setProperty('--accent-foreground-rgb', prev.accentForegroundRgb);
+        else root.style.removeProperty('--accent-foreground-rgb');
       } catch (e) {
         // ignore
       }

@@ -14,6 +14,7 @@ export default function EmailConfigPage() {
   const [authMode, setAuthMode] = useState('oauth2');
   const [form, setForm] = useState<any>({});
   const [message, setMessage] = useState<string | null>(null);
+  const [storeInVault, setStoreInVault] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('/api/admin/email-config', { credentials: 'same-origin' })
@@ -31,6 +32,13 @@ export default function EmailConfigPage() {
           setForm(payload.settings);
           if (payload.settings.authMode) setAuthMode(payload.settings.authMode);
         }
+        // If secretsPresent indicates SMTP values set in the vault, show the option as enabled
+        if ((data as any)?.secretsPresent) {
+          const sp = (data as any).secretsPresent;
+          if (sp && (sp.SMTP_HOST || sp.SMTP_USER || sp.SMTP_PASS)) {
+            setStoreInVault(true);
+          }
+        }
       })
       .catch(() => {});
   }, []);
@@ -42,11 +50,52 @@ export default function EmailConfigPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null);
-    const body = { provider, settings: { ...form, authMode } };
+    // If user requested storing SMTP credentials in the encrypted vault, strip secrets from DB payload
+    const settingsToSave = { ...form, authMode };
+    const secretsToStore: Record<string, string> = {};
+
+    if (storeInVault && provider === 'gmail' && authMode === 'smtp') {
+      // extract known SMTP keys and avoid storing them in DB
+      if (settingsToSave.user) {
+        secretsToStore['SMTP_USER'] = settingsToSave.user;
+        delete settingsToSave.user;
+      }
+      if (settingsToSave.pass) {
+        secretsToStore['SMTP_PASS'] = settingsToSave.pass;
+        delete settingsToSave.pass;
+      }
+      // allow explicit host/port/from to be stored if provided
+      if (settingsToSave.host) {
+        secretsToStore['SMTP_HOST'] = settingsToSave.host;
+        delete settingsToSave.host;
+      }
+      if (settingsToSave.port) {
+        secretsToStore['SMTP_PORT'] = String(settingsToSave.port);
+        delete settingsToSave.port;
+      }
+      if (settingsToSave.fromEmail) {
+        secretsToStore['SMTP_FROM'] = settingsToSave.fromEmail;
+        delete settingsToSave.fromEmail;
+      }
+    }
+
+    const body = { provider, settings: settingsToSave };
     const res = await fetch('/api/admin/email-config', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' });
     const data = await res.json();
     const ok = data?.ok !== undefined ? data.ok : res.ok;
     if (ok) {
+      // If configured to store secrets in vault, call the vault endpoint
+      if (Object.keys(secretsToStore).length > 0) {
+        try {
+          const storeRes = await fetch('/api/admin/email-config/store-secrets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ secrets: secretsToStore }), credentials: 'same-origin' });
+          if (!storeRes.ok) {
+            const sd = await storeRes.json();
+            setMessage(`Saved config but failed to store secrets: ${sd?.error || storeRes.statusText}`);
+          }
+        } catch (err) {
+          setMessage('Saved config but failed to store secrets');
+        }
+      }
       // refresh the latest saved config so the UI reflects persisted values
       try {
         const r = await fetch('/api/admin/email-config', { credentials: 'same-origin' });
@@ -189,6 +238,12 @@ export default function EmailConfigPage() {
             <div>
               <label>From Name</label>
               <input value={form.fromName || ''} onChange={(e) => updateField('fromName', e.target.value)} />
+            </div>
+            <div style={{ marginTop: 8 }}>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <input type="checkbox" checked={storeInVault} onChange={(e) => setStoreInVault(e.target.checked)} />
+                <span>Store SMTP credentials in encrypted vault (recommended)</span>
+              </label>
             </div>
           </>
         )}

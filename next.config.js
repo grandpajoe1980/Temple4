@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Instrumentation hook is now enabled by default in Next.js 16+
   // Disable source maps to avoid parsing errors
   productionBrowserSourceMaps: false,
   // Suppress source map warnings in development

@@ -2,6 +2,7 @@ import { withErrorHandling } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { requireSuperAdminForApi } from '@/lib/middleware/requireRole';
+import { hasSecret } from '@/lib/secrets';
 
 export const GET = withErrorHandling(async (req) => {
   const authCheck = await requireSuperAdminForApi(req as any);
@@ -12,7 +13,15 @@ export const GET = withErrorHandling(async (req) => {
   // Indicate if environment SMTP override is present (quick local/testing path)
   const envOverride = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 
-  return NextResponse.json({ data: config || null, envOverride });
+  // Indicate if encrypted SMTP secrets are present in the vault (without revealing values)
+  const secretsPresent = {
+    SMTP_HOST: hasSecret('SMTP_HOST'),
+    SMTP_USER: hasSecret('SMTP_USER'),
+    SMTP_PASS: hasSecret('SMTP_PASS'),
+    SMTP_FROM: hasSecret('SMTP_FROM'),
+  };
+
+  return NextResponse.json({ data: config || null, envOverride, secretsPresent });
 });
 
 export const POST = withErrorHandling(async (req) => {

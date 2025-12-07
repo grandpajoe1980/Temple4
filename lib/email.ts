@@ -14,15 +14,6 @@ import nodemailer from 'nodemailer';
 
 // ===== Types =====
 
-export interface EmailConfig {
-  provider: 'resend' | 'sendgrid' | 'mock' | 'gmail';
-  apiKey?: string;
-  fromEmail: string;
-  fromName?: string;
-  // provider specific settings may be in DB as JSON
-  settings?: any;
-}
-
 export interface SendEmailParams {
   to: string;
   subject: string;
@@ -37,212 +28,7 @@ export interface EmailSendResult {
   error?: string;
 }
 
-// ===== Configuration =====
-
-async function getEmailConfig(): Promise<EmailConfig> {
-  // prefer DB-config if present
-  try {
-    const db = await prisma.emailProviderConfig.findFirst({ orderBy: { updatedAt: 'desc' } });
-    if (db) {
-      const settings = db.settings as any;
-      return {
-        provider: db.provider as any,
-        settings,
-        fromEmail: settings?.fromEmail || process.env.EMAIL_FROM || 'noreply@temple.example.com',
-        fromName: settings?.fromName || process.env.EMAIL_FROM_NAME || 'Temple Platform',
-        apiKey: settings?.apiKey || process.env.EMAIL_API_KEY,
-      } as EmailConfig;
-    }
-  } catch (err) {
-    logger.warn('Failed to read email provider config from DB', { error: err });
-  }
-
-  const provider = (process.env.EMAIL_PROVIDER || 'mock') as 'resend' | 'sendgrid' | 'mock' | 'gmail';
-  const apiKey = process.env.EMAIL_API_KEY;
-  const fromEmail = process.env.EMAIL_FROM || 'noreply@temple.example.com';
-  const fromName = process.env.EMAIL_FROM_NAME || 'Temple Platform';
-
-  return {
-    provider,
-    apiKey,
-    fromEmail,
-    fromName,
-  };
-}
-
-// ===== Gmail via SMTP (nodemailer) =====
-async function sendViaGmailSMTP(params: SendEmailParams, config: EmailConfig): Promise<EmailSendResult> {
-  const settings = config.settings || {};
-
-  // support two modes: smtp (user/pass) or oauth2 (clientId/secret + refreshToken)
-  const authMode = settings.authMode || 'smtp';
-
-  try {
-    let transporter: nodemailer.Transporter;
-
-    if (authMode === 'oauth2') {
-      let { user, clientId, clientSecret, refreshToken } = settings;
-      // allow clientId/secret to come from ENV for security
-      clientId = clientId || process.env.GMAIL_OAUTH_CLIENT_ID;
-      clientSecret = clientSecret || process.env.GMAIL_OAUTH_CLIENT_SECRET;
-
-      if (!user || !clientId || !clientSecret || !refreshToken) {
-        return { success: false, error: 'Gmail OAuth2 settings incomplete (need user, clientId, clientSecret, refreshToken)' };
-      }
-
-      transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          type: 'OAuth2',
-          user,
-          clientId,
-          clientSecret,
-          refreshToken,
-        },
-      });
-    } else {
-      // smtp
-      const { user, pass } = settings;
-      if (!user || !pass) {
-        return { success: false, error: 'Gmail SMTP credentials not configured' };
-      }
-
-      transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user,
-          pass,
-        },
-      });
-    }
-
-    const info = await transporter.sendMail({
-      from: `${config.fromName} <${config.fromEmail}>`,
-      to: params.to,
-      subject: params.subject,
-      html: params.html,
-      text: params.text,
-    });
-
-    return { success: true, providerId: (info as any).messageId };
-  } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : String(error) };
-  }
-}
-
-// ===== Email Providers =====
-
-async function sendViaResend(params: SendEmailParams, config: EmailConfig): Promise<EmailSendResult> {
-  if (!config.apiKey) {
-    return { success: false, error: 'Resend API key not configured' };
-  }
-
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${config.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: `${config.fromName} <${config.fromEmail}>`,
-        to: params.to,
-        subject: params.subject,
-        html: params.html,
-        text: params.text,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.message || `Resend API error: ${response.status}`,
-      };
-    }
-
-    return {
-      success: true,
-      providerId: data.id,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
-  }
-}
-
-async function sendViaSendGrid(params: SendEmailParams, config: EmailConfig): Promise<EmailSendResult> {
-  if (!config.apiKey) {
-    return { success: false, error: 'SendGrid API key not configured' };
-  }
-
-  try {
-    const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${config.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        personalizations: [{
-          to: [{ email: params.to }],
-        }],
-        from: {
-          email: config.fromEmail,
-          name: config.fromName,
-        },
-        subject: params.subject,
-        content: [
-          { type: 'text/html', value: params.html },
-          ...(params.text ? [{ type: 'text/plain', value: params.text }] : []),
-        ],
-      }),
-    });
-
-    if (!response.ok) {
-      const data = await response.json();
-      return {
-        success: false,
-        error: data.errors?.[0]?.message || `SendGrid API error: ${response.status}`,
-      };
-    }
-
-    // SendGrid returns 202 with X-Message-Id header
-    const messageId = response.headers.get('X-Message-Id');
-    return {
-      success: true,
-      providerId: messageId || undefined,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
-  }
-}
-
-async function sendViaMock(params: SendEmailParams): Promise<EmailSendResult> {
-  // Mock mode: log the email instead of sending
-  logger.info('📧 [MOCK EMAIL]', {
-    to: params.to,
-    subject: params.subject,
-    html: params.html.substring(0, 100) + '...',
-    text: params.text?.substring(0, 100) + '...',
-  });
-
-  // Simulate a successful send
-  return {
-    success: true,
-    providerId: `mock-${Date.now()}`,
-  };
-}
-
-// ===== ENV-based SMTP (quick local testing) =====
+// ===== ENV-based SMTP (only supported provider) =====
 async function sendViaEnvSmtp(params: SendEmailParams): Promise<EmailSendResult> {
   const host = process.env.SMTP_HOST;
   const user = process.env.SMTP_USER;
@@ -282,45 +68,16 @@ async function sendViaEnvSmtp(params: SendEmailParams): Promise<EmailSendResult>
   }
 }
 
-// ===== Core Email Service =====
-
-/**
- * Send an email using the configured provider.
- * Logs all email attempts to the EmailLog table.
- */
+// ===== Core Email Service (SMTP only) =====
 export async function sendEmail(params: SendEmailParams): Promise<EmailSendResult> {
-  const config = await getEmailConfig();
-
   logger.info('Sending email', {
     to: params.to,
     subject: params.subject,
-    provider: config.provider,
+    provider: 'SMTP',
   });
-  let result: EmailSendResult;
 
   try {
-    // Quick local/testing override: if SMTP env vars are set, prefer them.
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      logger.info('Using ENV SMTP configuration (SMTP_HOST present)');
-      result = await sendViaEnvSmtp(params);
-    } else {
-      // Route to the appropriate provider
-      switch (config.provider) {
-        case 'resend':
-          result = await sendViaResend(params, config);
-          break;
-        case 'sendgrid':
-          result = await sendViaSendGrid(params, config);
-          break;
-        case 'gmail':
-          result = await sendViaGmailSMTP(params, config);
-          break;
-        case 'mock':
-        default:
-          result = await sendViaMock(params);
-          break;
-      }
-    }
+    const result = await sendViaEnvSmtp(params);
 
     // Log the email attempt
     await prisma.emailLog.create({
@@ -329,29 +86,20 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailSendResul
         recipient: params.to,
         subject: params.subject,
         status: result?.success ? 'SENT' : 'FAILED',
-        provider: (config.provider || 'ENV').toString().toUpperCase(),
+        provider: 'SMTP',
         providerId: result?.providerId,
         error: result?.error,
       },
     });
 
     if (!result?.success) {
-      logger.error('Email send failed', {
-        to: params.to,
-        error: result?.error,
-      });
+      logger.error('Email send failed', { to: params.to, error: result?.error });
     }
 
     return result || { success: false, error: 'No provider result' };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-    logger.error('Email send error', {
-      to: params.to,
-      error: errorMessage,
-    });
-
-    // Still log the failed attempt
+    logger.error('Email send error', { to: params.to, error: errorMessage });
     try {
       await prisma.emailLog.create({
         data: {
@@ -359,7 +107,7 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailSendResul
           recipient: params.to,
           subject: params.subject,
           status: 'FAILED',
-          provider: (config.provider || 'ENV').toString().toUpperCase(),
+          provider: 'SMTP',
           error: errorMessage,
         },
       });
@@ -367,10 +115,7 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailSendResul
       logger.error('Failed to log email error', { error: logError });
     }
 
-    return {
-      success: false,
-      error: errorMessage,
-    };
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -385,14 +130,18 @@ export async function sendPasswordResetEmail(params: {
   displayName?: string;
 }): Promise<EmailSendResult> {
   const { email, token, displayName } = params;
-  const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}`;
+  const baseForReset = (process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL.includes('localhost'))
+    ? 'http://asembli.org'
+    : (process.env.NEXTAUTH_URL || 'http://asembli.org');
+
+  const resetUrl = `${baseForReset}/auth/reset-password?token=${token}`;
 
   const html = `
     <!DOCTYPE html>
     <html>
       <head>
         <meta charset="utf-8">
-        <title>Reset Your Password</title>
+        <title>Password Reset</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background-color: #f59e0b; padding: 20px; text-align: center;">

@@ -105,8 +105,13 @@ export const SECRET_DEFINITIONS: Record<string, Omit<SecretMetadata, 'key' | 'ha
   },
   
   // Database (for production)
+  DATABASE_URL: {
+    description: 'Database connection URL (PostgreSQL/Supabase)',
+    category: 'database',
+    required: true,
+  },
   DATABASE_URL_PROD: {
-    description: 'Production database connection URL',
+    description: 'Production database connection URL (if different)',
     category: 'database',
     required: false,
   },

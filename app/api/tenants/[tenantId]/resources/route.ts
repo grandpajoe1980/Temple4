@@ -18,14 +18,27 @@ export async function GET(
     const userId = (session?.user as any)?.id;
 
     try {
+        // Check if user is a super admin - they can see all resources
+        let isSuperAdmin = false;
+        if (userId) {
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { isSuperAdmin: true }
+            });
+            isSuperAdmin = Boolean(user?.isSuperAdmin);
+        }
+
         const membership = userId ? await getMembershipForUserInTenant(userId, tenantId) : null;
         const isMember = !!membership;
+        
+        // Super admins and members can see all resources (including MEMBERS_ONLY)
+        const canSeeAll = isSuperAdmin || isMember;
 
         const resources = await prisma.resourceItem.findMany({
             where: {
                 tenantId: tenantId,
-                // Public resources are visible to all, members-only to members
-                visibility: isMember ? undefined : 'PUBLIC',
+                // Public resources are visible to all, members-only to members and super admins
+                visibility: canSeeAll ? undefined : 'PUBLIC',
             },
             orderBy: {
                 createdAt: 'desc',
@@ -71,7 +84,13 @@ export async function POST(
             return notFound('Tenant');
         }
 
-        const canUpload = await can(userId, tenant, 'canUploadResources');
+        // Load full user object to check isSuperAdmin and permissions
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return unauthorized();
+        }
+
+        const canUpload = await can(user, tenant, 'canUploadResources');
         if (!canUpload) {
             return forbidden('You do not have permission to upload resources.');
         }

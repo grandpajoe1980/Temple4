@@ -32,6 +32,7 @@ export async function GET(
       canBanMembers: false,
       canManagePrayerWall: false,
       canManageResources: false,
+      canUploadResources: false,
       canManageContactSubmissions: false,
       canCreatePosts: false,
       canCreateEvents: false,
@@ -43,6 +44,7 @@ export async function GET(
       permissions.canBanMembers = await can(user as any, tenant as any, 'canBanMembers');
       permissions.canManagePrayerWall = await can(user as any, tenant as any, 'canManagePrayerWall');
       permissions.canManageResources = await can(user as any, tenant as any, 'canManageResources');
+      permissions.canUploadResources = await can(user as any, tenant as any, 'canUploadResources');
       permissions.canManageContactSubmissions = await can(user as any, tenant as any, 'canManageContactSubmissions');
       permissions.canCreatePosts = await can(user as any, tenant as any, 'canCreatePosts');
       permissions.canCreateEvents = await can(user as any, tenant as any, 'canCreateEvents');

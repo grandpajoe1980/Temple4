@@ -27,6 +27,17 @@ export async function GET(
         }
 
         if (resource.visibility === 'MEMBERS_ONLY') {
+            // Check if user is a super admin - they can view all resources
+            if (userId) {
+                const user = await prisma.user.findUnique({ 
+                    where: { id: userId },
+                    select: { isSuperAdmin: true }
+                });
+                if (user?.isSuperAdmin) {
+                    return NextResponse.json(resource);
+                }
+            }
+            
             const membership = await getMembershipForUserInTenant(userId, tenantId);
             if (!membership) {
                 return forbidden('This resource is for members only.');
@@ -70,7 +81,13 @@ export async function PUT(
             return notFound('Tenant');
         }
 
-        const canManage = await can(userId, tenant, 'canManageResources');
+        // Load full user object to check isSuperAdmin and permissions
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return unauthorized();
+        }
+
+        const canManage = await can(user, tenant, 'canManageResources');
         if (!canManage) {
             return forbidden('You do not have permission to manage resources.');
         }
@@ -106,7 +123,13 @@ export async function DELETE(
             return notFound('Tenant');
         }
 
-        const canManage = await can(userId, tenant, 'canManageResources');
+        // Load full user object to check isSuperAdmin and permissions
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return unauthorized();
+        }
+
+        const canManage = await can(user, tenant, 'canManageResources');
         if (!canManage) {
             return forbidden('You do not have permission to manage resources.');
         }

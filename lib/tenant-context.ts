@@ -15,6 +15,7 @@ export interface TenantContext {
   }) | null;
   isPublic: boolean;
   hasAccess: boolean;
+  isSuperAdmin?: boolean;
 }
 
 /**
@@ -68,6 +69,14 @@ export async function getTenantContext(
       } : null;
     }
 
+    // Check if user is a super admin (platform admin)
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { isSuperAdmin: true },
+    });
+    
+    const isSuperAdmin = Boolean(user?.isSuperAdmin);
+
     // Load user membership
     const membership = await prisma.userTenantMembership.findUnique({
       where: {
@@ -84,6 +93,17 @@ export async function getTenantContext(
         },
       },
     });
+
+    // Super admins always have access to all tenants
+    if (isSuperAdmin) {
+      return {
+        tenant,
+        membership, // May be null if super admin is not a member
+        isPublic,
+        hasAccess: true,
+        isSuperAdmin: true,
+      };
+    }
 
     // Check membership status
     if (membership) {

@@ -425,35 +425,35 @@
     font-size: 0.875rem;
   }
 
-  /* CRITICAL: Ensure view harness has height */
+  /* CRITICAL: Ensure view harness has modest height on mobile */
   .mobile-calendar .fc .fc-view-harness {
-    min-height: 350px !important;
+    min-height: 120px !important;
   }
 
-  /* CRITICAL: Ensure scrollgrid table body is visible */
+  /* CRITICAL: Ensure scrollgrid table body is visible with reduced spacing */
   .mobile-calendar .fc .fc-scrollgrid,
   .mobile-calendar .fc .fc-scrollgrid-section,
   .mobile-calendar .fc .fc-scrollgrid-section > td,
   .mobile-calendar .fc .fc-scrollgrid tbody,
   .mobile-calendar .fc .fc-daygrid-body {
     height: auto !important;
-    min-height: 300px;
+    min-height: 120px;
   }
 
   .mobile-calendar .fc .fc-scrollgrid-section-body > td {
-    height: 300px !important;
+    height: 120px !important;
   }
 
   .mobile-calendar .fc .fc-daygrid-body-balanced {
-    min-height: 280px;
+    min-height: 120px;
   }
 
   /* Compact toolbar */
   .mobile-calendar .fc .fc-toolbar.fc-header-toolbar {
     flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.25rem;
   }
 
   .mobile-calendar .fc .fc-toolbar-title {

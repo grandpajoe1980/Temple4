@@ -5,9 +5,11 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import listPlugin from '@fullcalendar/list';
 import type { EventWithCreator } from '@/types';
 import DayEventsModal from './DayEventsModal';
+import { CustomToolbar } from './calendar/CustomToolbar';
+import { ListView } from './calendar/ListView';
+import { MobileWeekView } from './calendar/MobileWeekView';
 
 interface EventsCalendarProps {
   events: EventWithCreator[];
@@ -23,6 +25,10 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
   const [mounted, setMounted] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
+  
+  // State for custom view management
+  const [currentView, setCurrentView] = useState<'month' | 'week' | 'list'>('month');
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
   useEffect(() => {
     setMounted(true);
@@ -31,6 +37,16 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Sync focusDate prop with internal state
+  useEffect(() => {
+    if (focusDate) {
+      setCurrentDate(focusDate);
+      if (calendarRef.current) {
+        calendarRef.current.getApi().gotoDate(focusDate);
+      }
+    }
+  }, [focusDate]);
 
   const calendarEvents = useMemo(
     () =>
@@ -45,7 +61,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
     [events]
   );
 
-  // Get events for a specific date
+  // Get events for a specific date (for DayEventsModal)
   const getEventsForDate = (date: Date): EventWithCreator[] => {
     const dateStart = new Date(date);
     dateStart.setHours(0, 0, 0, 0);
@@ -61,7 +77,6 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
 
   const handleDateClick = (date: Date) => {
     if (isMobile) {
-      // On mobile month view, show day events modal
       setSelectedDate(date);
       setIsDayModalOpen(true);
     } else {
@@ -74,13 +89,37 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
     setSelectedDate(null);
   };
 
-  useEffect(() => {
-    if (focusDate && calendarRef.current) {
-      calendarRef.current.getApi().gotoDate(focusDate);
+  const handleViewChange = (view: 'month' | 'week' | 'list') => {
+    setCurrentView(view);
+    // Sync FullCalendar view if needed
+    if (calendarRef.current) {
+      const fcView = view === 'month' ? 'dayGridMonth' : 'timeGridWeek';
+      calendarRef.current.getApi().changeView(fcView);
     }
-  }, [focusDate]);
+  };
 
-  // Don't render until we know if we're on mobile (prevents hydration mismatch)
+  const handleDateNavigate = (direction: 'prev' | 'next' | 'today') => {
+    const newDate = new Date(currentDate);
+    
+    if (direction === 'today') {
+      const today = new Date();
+      setCurrentDate(today);
+      if (calendarRef.current) calendarRef.current.getApi().today();
+      return;
+    }
+
+    if (currentView === 'month') {
+      newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
+    } else if (currentView === 'week') {
+      newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
+    }
+    
+    setCurrentDate(newDate);
+    if (calendarRef.current) {
+      calendarRef.current.getApi().gotoDate(newDate);
+    }
+  };
+
   if (!mounted || isMobile === null) {
     return (
       <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden calendar-container min-h-[400px] flex items-center justify-center">
@@ -89,69 +128,95 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
     );
   }
 
-  // Mobile-friendly header toolbar configuration
-  const headerToolbar = isMobile
-    ? {
-        start: 'prev,next',
-        center: 'title',
-        end: 'dayGridMonth,timeGridWeek,listWeek',
-      }
-    : {
-        start: 'prev,next today',
-        center: 'title',
-        end: 'dayGridMonth,timeGridWeek,listWeek',
-      };
-
   return (
     <>
+      <CustomToolbar
+        date={currentDate}
+        view={currentView}
+        onViewChange={handleViewChange}
+        onDateChange={handleDateNavigate}
+        isMobile={Boolean(isMobile)}
+      />
+
       <div className={`bg-card rounded-2xl border border-border shadow-sm overflow-visible calendar-container ${isMobile ? 'mobile-calendar' : ''}`}>
-        <FullCalendar
-          key={isMobile ? 'mobile' : 'desktop'}
-          ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={headerToolbar}
-          contentHeight="auto"
-          nowIndicator
-          navLinks={!isMobile}
-          events={calendarEvents}
-          // On mobile, show dots instead of full event text
-          eventDisplay={isMobile ? 'list-item' : 'auto'}
-          // Limit events shown per day on mobile to just show dots
-          dayMaxEvents={isMobile ? 3 : true}
-          dayMaxEventRows={isMobile ? false : 3}
-          eventTimeFormat={{ hour: 'numeric', minute: '2-digit', meridiem: 'short' }}
-          dateClick={(arg) => handleDateClick(arg.date)}
-          eventClick={(arg) => {
-            arg.jsEvent.preventDefault();
-            if (isMobile) {
-              // On mobile, clicking an event dot opens the day modal
-              if (arg.event.start) {
-                setSelectedDate(arg.event.start);
-                setIsDayModalOpen(true);
+        {/* Month View (Desktop & Mobile) */}
+        {currentView === 'month' && (
+          <FullCalendar
+            key={isMobile ? 'mobile-month' : 'desktop-month'}
+            ref={calendarRef}
+            plugins={[dayGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            initialDate={currentDate}
+            headerToolbar={false} // Hide default toolbar
+            contentHeight="auto"
+            nowIndicator
+            navLinks={!isMobile}
+            events={calendarEvents}
+            eventDisplay={isMobile ? 'list-item' : 'auto'}
+            dayMaxEvents={isMobile ? 3 : true}
+            dayMaxEventRows={isMobile ? false : 3}
+            eventTimeFormat={{ hour: 'numeric', minute: '2-digit', meridiem: 'short' }}
+            dateClick={(arg) => handleDateClick(arg.date)}
+            eventClick={(arg) => {
+              arg.jsEvent.preventDefault();
+              if (isMobile) {
+                if (arg.event.start) {
+                  setSelectedDate(arg.event.start);
+                  setIsDayModalOpen(true);
+                }
+              } else {
+                const eventData = arg.event.extendedProps?.event as EventWithCreator | undefined;
+                if (eventData && onEventClick) onEventClick(eventData);
               }
-            } else {
-              const eventData = arg.event.extendedProps?.event as EventWithCreator | undefined;
-              if (eventData && onEventClick) {
-                onEventClick(eventData);
-              } else if (arg.event.start) {
-                onDateClick(arg.event.start);
-              }
-            }
-          }}
-          selectable={!isMobile}
-          selectMirror={!isMobile}
-          expandRows={true}
-          firstDay={0}
-          stickyHeaderDates={true}
-          handleWindowResize={true}
-          fixedWeekCount={false}
-          // Mobile-specific: smaller day header format
-          dayHeaderFormat={isMobile ? { weekday: 'narrow' } : { weekday: 'short' }}
-        />
+            }}
+            selectable={!isMobile}
+            selectMirror={!isMobile}
+            firstDay={0}
+            fixedWeekCount={false}
+            dayHeaderFormat={isMobile ? { weekday: 'narrow' } : { weekday: 'short' }}
+          />
+        )}
+
+        {/* Week View */}
+        {currentView === 'week' && (
+          isMobile ? (
+            <MobileWeekView
+              date={currentDate}
+              events={events}
+              onEventClick={onEventClick}
+            />
+          ) : (
+            <FullCalendar
+              key="desktop-week"
+              ref={calendarRef}
+              plugins={[timeGridPlugin, interactionPlugin]}
+              initialView="timeGridWeek"
+              initialDate={currentDate}
+              headerToolbar={false}
+              contentHeight="auto"
+              nowIndicator
+              events={calendarEvents}
+              eventClick={(arg) => {
+                arg.jsEvent.preventDefault();
+                const eventData = arg.event.extendedProps?.event as EventWithCreator | undefined;
+                if (eventData && onEventClick) onEventClick(eventData);
+              }}
+              firstDay={0}
+              allDaySlot={true}
+            />
+          )
+        )}
+
+        {/* List View */}
+        {currentView === 'list' && (
+          <ListView
+            events={events}
+            onEventClick={onEventClick}
+          />
+        )}
       </div>
 
-      {/* Day Events Modal for mobile */}
+      {/* Day Events Modal for mobile month view */}
       {selectedDate && (
         <DayEventsModal
           isOpen={isDayModalOpen}

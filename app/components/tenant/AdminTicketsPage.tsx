@@ -568,7 +568,7 @@ export default function AdminTicketsPage({ tenantId }: AdminTicketsPageProps) {
             {/* SLA Info */}
             {(selectedTicket.slaResponseDue || selectedTicket.slaResolveDue) && (
               <div className="tenant-bg-50 border tenant-border-200 rounded-lg p-3 text-sm">
-                <div className="font-medium text-[color:var(--primary)]">SLA Targets</div>
+                <div className="font-medium tenant-text-primary">SLA Targets</div>
                 {selectedTicket.slaResponseDue && !selectedTicket.firstResponseAt && (
                   <div className={new Date(selectedTicket.slaResponseDue) < new Date() ? 'text-red-600' : 'tenant-text-primary'}>
                     First Response: {formatDate(selectedTicket.slaResponseDue)}

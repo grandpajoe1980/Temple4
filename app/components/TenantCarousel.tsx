@@ -194,7 +194,7 @@ export default function TenantCarousel({ slides }: TenantCarouselProps) {
             key={`${s.title}-${i}`}
             aria-label={`Go to ${s.title}`}
             onClick={() => setIndex(i)}
-            className={`h-2 w-8 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50 ${i === index ? 'bg-[color:var(--primary)]' : 'bg-white/60 hover:bg-white/80'}`}
+            className={`h-2 w-8 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50 ${i === index ? 'tenant-active' : 'bg-white/60 hover:bg-white/80'}`}
           />
         ))}
       </div>

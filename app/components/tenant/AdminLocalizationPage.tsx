@@ -181,12 +181,12 @@ const AdminLocalizationPage: React.FC<AdminLocalizationPageProps> = ({ tenant })
                     onClick={() => toggleLanguage(language.code)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left transition ${
                       isSelected
-                        ? 'border-[color:var(--primary)] tenant-bg-50 text-[color:var(--primary)]'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                        ? 'tenant-border-200 tenant-bg-50 tenant-text-primary'
+                        : 'border-gray-200 bg-white text-gray-600 hover:tenant-border-200'
                     }`}
                   >
                     <span className={`w-4 h-4 rounded border flex items-center justify-center ${
-                      isSelected ? 'bg-[color:var(--primary)] border-[color:var(--primary)]' : 'border-gray-300'
+                      isSelected ? 'tenant-active tenant-border-200' : 'border-gray-300'
                     }`}>
                       {isSelected && (
                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -223,7 +223,7 @@ const AdminLocalizationPage: React.FC<AdminLocalizationPageProps> = ({ tenant })
                   allowedLanguages: allowed.includes(newDefault) ? allowed : [...allowed, newDefault],
                 });
               }}
-              className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)]"
+              className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200"
             >
               {SUPPORTED_LANGUAGES.map((language) => (
                 <option key={language.code} value={language.code}>

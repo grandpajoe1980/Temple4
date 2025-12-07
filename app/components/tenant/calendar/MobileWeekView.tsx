@@ -41,8 +41,8 @@ export const MobileWeekView: React.FC<MobileWeekViewProps> = ({ date, events, on
         const dayEvents = getEventsForDay(day);
         const isToday = new Date().toDateString() === day.toDateString();
 
-        return (
-          <div key={day.toISOString()} className={`flex min-h-[80px] ${isToday ? 'bg-primary/5' : ''}`}>
+          return (
+            <div key={day.toISOString()} className={`flex min-h-[80px] ${isToday ? 'tenant-bg-100' : ''}`}>
             {/* Left: Date Column */}
             <div className="w-16 flex flex-col items-center justify-start pt-3 border-r border-border shrink-0">
               <span className="text-xs font-medium text-muted-foreground uppercase">
@@ -50,7 +50,7 @@ export const MobileWeekView: React.FC<MobileWeekViewProps> = ({ date, events, on
               </span>
               <div className={`
                 mt-1 w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold
-                ${isToday ? 'bg-primary text-primary-foreground' : 'text-foreground'}
+                ${isToday ? 'tenant-active-strong' : 'text-foreground'}
               `}>
                 {day.getDate()}
               </div>

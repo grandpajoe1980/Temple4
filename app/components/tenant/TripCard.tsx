@@ -31,7 +31,7 @@ export default function TripCard({ trip, onOpen }: TripCardProps) {
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-gray-900">{trip.name}</h3>
-            {trip.destination ? <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 8%, transparent)', color: 'color-mix(in srgb, var(--primary) 90%, black)'}}>{trip.destination}</span> : null}
+            {trip.destination ? <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ backgroundColor: 'rgba(var(--primary-rgb), 0.08)', color: 'rgba(var(--primary-rgb), 0.90)'}}>{trip.destination}</span> : null}
           </div>
           <p className="text-sm text-gray-600">{trip.summary || trip.description || 'Gather your group for the next adventure.'}</p>
           <div className="mt-2 text-xs text-gray-500">{formatDateRange(trip.startDate, trip.endDate)}</div>

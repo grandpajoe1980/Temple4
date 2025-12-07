@@ -304,8 +304,8 @@ const FundsPage: React.FC<FundsPageProps> = ({ tenant, user }) => {
                             onClick={() => setSelectedAmount(amount)}
                             className={`p-3 text-center rounded-md border-2 font-semibold transition-colors ${
                               selectedAmount === amount
-                                ? 'tenant-bg-100 border-[color:var(--primary)] tenant-text-primary'
-                                : 'bg-white border-gray-300 hover:border-[color:var(--primary)]'
+                                ? 'tenant-bg-100 tenant-border-200 tenant-text-primary'
+                                : 'bg-white border-gray-300 hover:tenant-border-200'
                             }`}
                           >
                             ${amount}
@@ -316,8 +316,8 @@ const FundsPage: React.FC<FundsPageProps> = ({ tenant, user }) => {
                           onClick={() => setSelectedAmount('custom')}
                           className={`p-3 text-center rounded-md border-2 font-semibold transition-colors ${
                             selectedAmount === 'custom'
-                              ? 'tenant-bg-100 border-[color:var(--primary)] tenant-text-primary'
-                              : 'bg-white border-gray-300 hover:border-[color:var(--primary)]'
+                              ? 'tenant-bg-100 tenant-border-200 tenant-text-primary'
+                              : 'bg-white border-gray-300 hover:tenant-border-200'
                           }`}
                         >
                           Other
@@ -346,7 +346,7 @@ const FundsPage: React.FC<FundsPageProps> = ({ tenant, user }) => {
                       <textarea
                         id="message"
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200 sm:text-sm"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Leave a note with your gift..."

@@ -116,7 +116,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, onCancel, isSubmitting 
           id="description"
           name="description"
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200 sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           disabled={isSubmitting}
@@ -127,7 +127,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, onCancel, isSubmitting 
         <div
           onClick={() => !isSubmitting && setActiveDateSelection('start')}
           className={`p-3 rounded-lg cursor-pointer border-2 transition-colors ${
-            activeDateSelection === 'start' ? 'border-[color:var(--primary)] tenant-bg-50' : 'border-gray-200 bg-white hover:bg-gray-50'
+            activeDateSelection === 'start' ? 'tenant-border-200 tenant-bg-50' : 'border-gray-200 bg-white hover:bg-gray-50'
           } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <p className="text-xs font-bold text-gray-500 uppercase">Start Date</p>
@@ -136,7 +136,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, onCancel, isSubmitting 
         <div
           onClick={() => !isSubmitting && setActiveDateSelection('end')}
           className={`p-3 rounded-lg cursor-pointer border-2 transition-colors ${
-            activeDateSelection === 'end' ? 'border-[color:var(--primary)] tenant-bg-50' : 'border-gray-200 bg-white hover:bg-gray-50'
+            activeDateSelection === 'end' ? 'tenant-border-200 tenant-bg-50' : 'border-gray-200 bg-white hover:bg-gray-50'
           } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <p className="text-xs font-bold text-gray-500 uppercase">End Date</p>
@@ -156,7 +156,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, onCancel, isSubmitting 
             value={startTime} 
             onChange={e => setStartTime(e.target.value)} 
             required 
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200 sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isSubmitting}
           />
         </div>

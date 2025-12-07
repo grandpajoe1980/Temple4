@@ -209,7 +209,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
           <div className="flex justify-center">
             <button
               type="button"
-              className="px-3 py-1 mb-2 text-xs font-medium text-white tenant-bg-600 rounded-full shadow hover:bg-[color:var(--primary)]"
+              className="px-3 py-1 mb-2 text-xs font-medium text-white tenant-bg-600 rounded-full shadow hover:tenant-active"
               onClick={() => {
                 scrollToBottom();
                 setShowScrollToLatest(false);
@@ -242,7 +242,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
               <div className="flex flex-col">
                 <div
                   className={`max-w-md p-3 rounded-lg ${
-                    isOwnMessage ? 'bg-[color:var(--primary)] text-[color:var(--primary-foreground)]' : 'bg-gray-100 text-gray-800'
+                    isOwnMessage ? 'tenant-active text-[color:var(--primary-foreground)]' : 'bg-gray-100 text-gray-800'
                   }`}
                 >
                   {!isOwnMessage && (
@@ -290,7 +290,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
               aria-label="Chat message input"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              className="flex-1 w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900 placeholder:text-gray-400"
+              className="flex-1 w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200 sm:text-sm bg-white text-gray-900 placeholder:text-gray-400"
             />
             <Button type="submit">Send</Button>
           </form>

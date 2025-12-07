@@ -64,13 +64,13 @@ const ServiceDetailPage = ({ tenant, service }: ServiceDetailPageProps) => {
                 <div className="flex flex-wrap gap-3">
                   <Link
                     href={infoLink}
-                    className="rounded-md px-6 py-2 text-sm font-semibold text-white transition-colors bg-[color:var(--primary)] hover:opacity-90"
+                    className="rounded-md px-6 py-2 text-sm font-semibold text-[color:var(--primary-foreground)] tenant-active-strong transition-colors hover:opacity-90"
                   >
                     Request info about {service.name}
                   </Link>
                   <a
                     href={contactEmail ? `mailto:${contactEmail}` : infoLink}
-                    className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-[color:var(--primary)]"
+                    className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:tenant-border-200"
                   >
                     {contactEmail ? 'Email the team' : 'Open contact form'}
                   </a>

@@ -174,7 +174,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-[color:var(--primary)] transition-colors"
+                      className="text-gray-600 hover:tenant-text-primary transition-colors"
                       aria-label={link.ariaLabel}
                     >
                       {link.icon}
@@ -222,7 +222,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               {initialServiceName && (
-                <div className="rounded-md border tenant-border-200 tenant-bg-50 p-4 text-sm text-[color:var(--primary)]">
+                <div className="rounded-md border tenant-border-200 tenant-bg-50 p-4 text-sm tenant-text-primary">
                   You’re asking about <span className="font-semibold">{initialServiceName}</span>. We’ll include that in your
                   message so our team knows how to help.
                 </div>
@@ -255,7 +255,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
                   id="message"
                   name="message"
                   rows={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200 sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                   value={formState.message}
                   onChange={handleInputChange}
                   required

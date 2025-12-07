@@ -100,7 +100,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Share your thoughts..."
-            className="flex-1 rounded-md border border-gray-300 shadow-sm focus:border-[color:var(--primary)] focus:ring-[color:var(--primary)] text-sm p-2"
+            className="flex-1 rounded-md border border-gray-300 shadow-sm focus:tenant-border-200 focus:ring-[rgb(var(--primary-rgb))] text-sm p-2"
             rows={2}
           />
         </div>
@@ -128,7 +128,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
               </Link>
               <div className="flex-1">
                 <div className="flex items-center space-x-2">
-                  <Link href={`/profile/${comment.authorUserId}`} className="text-sm font-semibold text-gray-900 hover:text-[color:var(--primary)]">
+                  <Link href={`/profile/${comment.authorUserId}`} className="text-sm font-semibold text-gray-900 hover:tenant-text-primary">
                     {comment.authorDisplayName}
                   </Link>
                   <span className="text-xs text-gray-500">

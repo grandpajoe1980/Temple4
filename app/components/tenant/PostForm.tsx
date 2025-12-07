@@ -49,7 +49,7 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel, isSubmitting = 
           id="body"
           name="body"
           rows={8}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200 sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
           value={body}
           onChange={(e) => setBody(e.target.value)}
           required
@@ -65,7 +65,7 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel, isSubmitting = 
         <select
           id="type"
           name="type"
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm rounded-md bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200 sm:text-sm rounded-md bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
           value={type}
           onChange={(e) => setType(e.target.value as 'BLOG' | 'ANNOUNCEMENT' | 'BOOK')}
           disabled={isSubmitting}

@@ -25,7 +25,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
 
   return (
     <div onClick={onViewProfile} className="cursor-pointer group h-full">
-      <Card className="!p-4 text-center h-full group-hover:shadow-lg group-hover:border-[color:var(--primary)] border border-transparent transition-all">
+      <Card className="!p-4 text-center h-full group-hover:shadow-lg group-hover:tenant-border-200 border border-transparent transition-all">
         <Link href={`/profile/${member.id}#posts`} onClick={(e) => e.stopPropagation()}>
           <img
             className="w-20 h-20 mx-auto rounded-full"

@@ -83,7 +83,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, avatarUrl, displayName }) => 
         className="flex items-center space-x-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full p-1 hover:bg-gray-100 transition-colors"
         aria-label="User menu"
       >
-        <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm border-2 border-gray-200">
+        <div className="h-8 w-8 rounded-full tenant-active-strong flex items-center justify-center text-primary-foreground font-semibold text-sm border-2 border-gray-200">
           {name.charAt(0).toUpperCase()}
         </div>
       </button>

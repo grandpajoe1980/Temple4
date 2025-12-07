@@ -206,7 +206,11 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
   return (
     <div className="space-y-8">
       {isLive && (
-        <div className="rounded-md p-4 flex items-center space-x-4 cursor-pointer" onClick={() => router.push(`/tenants/${tenant.id}/live`)} style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 8%, transparent)', border: '1px solid', borderColor: 'color-mix(in srgb, var(--primary) 20%, transparent)'}}>
+        <div
+          className="rounded-md p-4 flex items-center space-x-4 cursor-pointer"
+          onClick={() => router.push(`/tenants/${tenant.id}/live`)}
+          style={{ backgroundColor: 'rgba(var(--primary-rgb), 0.08)', border: '1px solid', borderColor: 'rgba(var(--primary-rgb), 0.20)'}}
+        >
           <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 animate-pulse" aria-hidden="true"></span>
           <span className="font-bold text-lg">We’re Live! Click here to join.</span>
         </div>

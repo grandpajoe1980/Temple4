@@ -131,7 +131,7 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ tenant, currentUs
                 </div>
                 <input
                   type="checkbox"
-                  className="h-4 w-4 text-[color:var(--primary)] border-gray-300 rounded focus:ring-[color:var(--primary)]"
+                  className="h-4 w-4 tenant-text-primary border-gray-300 rounded focus:ring-[rgb(var(--primary-rgb))]"
                   checked={selectedParticipants.has(member.id)}
                   onChange={() => handleParticipantToggle(member.id)}
                   disabled={member.id === currentUser.id}

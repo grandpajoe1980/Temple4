@@ -45,7 +45,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ onSubmit, onCancel }) => {
           id="description"
           name="description"
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200 sm:text-sm bg-white text-gray-900"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
@@ -67,7 +67,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ onSubmit, onCancel }) => {
         <select
           id="fileType"
           name="fileType"
-          className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
+          className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200 sm:text-sm bg-white text-gray-900"
           value={fileType}
           onChange={(e) => setFileType(e.target.value as FileType)}
         >
@@ -80,11 +80,11 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ onSubmit, onCancel }) => {
         <label className="block text-sm font-medium text-gray-700 mb-2">Visibility</label>
         <div className="flex space-x-4">
             <label className="flex items-center space-x-2">
-                <input type="radio" name="visibility" value={ResourceVisibility.MEMBERS_ONLY} checked={visibility === ResourceVisibility.MEMBERS_ONLY} onChange={() => setVisibility(ResourceVisibility.MEMBERS_ONLY)} className="h-4 w-4 text-[color:var(--primary)] border-gray-300 focus:ring-[color:var(--primary)]" />
+              <input type="radio" name="visibility" value={ResourceVisibility.MEMBERS_ONLY} checked={visibility === ResourceVisibility.MEMBERS_ONLY} onChange={() => setVisibility(ResourceVisibility.MEMBERS_ONLY)} className="h-4 w-4 tenant-text-primary border-gray-300 focus:ring-[rgb(var(--primary-rgb))]" />
                 <span>Members Only</span>
             </label>
              <label className="flex items-center space-x-2">
-                <input type="radio" name="visibility" value={ResourceVisibility.PUBLIC} checked={visibility === ResourceVisibility.PUBLIC} onChange={() => setVisibility(ResourceVisibility.PUBLIC)} className="h-4 w-4 text-[color:var(--primary)] border-gray-300 focus:ring-[color:var(--primary)]" />
+              <input type="radio" name="visibility" value={ResourceVisibility.PUBLIC} checked={visibility === ResourceVisibility.PUBLIC} onChange={() => setVisibility(ResourceVisibility.PUBLIC)} className="h-4 w-4 tenant-text-primary border-gray-300 focus:ring-[rgb(var(--primary-rgb))]" />
                 <span>Public</span>
             </label>
         </div>

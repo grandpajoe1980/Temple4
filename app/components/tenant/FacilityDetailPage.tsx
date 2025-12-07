@@ -298,7 +298,7 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
                   value={formState.notes}
                   onChange={handleInputChange}
                   rows={3}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-[color:var(--primary)] focus:outline-none focus:ring-1 focus:ring-[color:var(--primary)]"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:tenant-border-200 focus:outline-none focus:ring-1 focus:ring-[rgb(var(--primary-rgb))]"
                 />
               </div>
               <Button type="submit" disabled={isSubmitting} className="w-full">
@@ -318,7 +318,7 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
               <li>• A/V and stage configuration support</li>
               <li>• Staffing and hospitality coordination</li>
             </ul>
-            <div className="mt-4 rounded-lg tenant-bg-50 p-3 text-sm text-[color:var(--primary)]">
+            <div className="mt-4 rounded-lg tenant-bg-50 p-3 text-sm tenant-text-primary">
               Prefer to talk? Visit the concierge desk or email facilities@asembli.com.
             </div>
           </Card>

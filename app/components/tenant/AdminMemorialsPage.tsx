@@ -218,7 +218,7 @@ export default function AdminMemorialsPage() {
               onClick={() => { setActiveTab(tab.key); setPagination(p => ({ ...p, page: 1 })); }}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab.key
-                  ? 'border-[color:var(--primary)] tenant-text-primary'
+                  ? 'tenant-border-200 tenant-text-primary'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
@@ -496,7 +496,7 @@ export default function AdminMemorialsPage() {
             value={rejectionReason}
             onChange={(e) => setRejectionReason(e.target.value)}
             rows={4}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[color:var(--primary)] focus:border-transparent mb-4"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[rgb(var(--primary-rgb))] focus:border-transparent mb-4"
           />
 
           <div className="flex gap-2 justify-end">

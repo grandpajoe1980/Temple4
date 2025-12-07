@@ -39,7 +39,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       <select
         value={lang}
         onChange={(e) => setLang(e.target.value)}
-        className={`px-2 py-1 text-sm border border-gray-300 rounded-md bg-white focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] ${className}`}
+        className={`px-2 py-1 text-sm border border-gray-300 rounded-md bg-white focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200 ${className}`}
         aria-label={t('accessibility.languageSelector')}
         disabled={isLoading}
       >
@@ -80,7 +80,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         disabled={isLoading}
-        className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)]"
+        className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary-rgb))] focus:tenant-border-200"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label={t('accessibility.languageSelector')}
@@ -96,7 +96,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
         {isLoading && (
-          <span className="w-4 h-4 border-2 border-[color:var(--primary)] border-t-transparent rounded-full animate-spin" />
+          <span className="w-4 h-4 border-2 tenant-border-200 border-t-transparent rounded-full animate-spin" />
         )}
       </button>
 

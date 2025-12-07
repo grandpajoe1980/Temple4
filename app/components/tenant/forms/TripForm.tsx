@@ -238,7 +238,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-[color:var(--primary)] px-4 py-2 text-sm font-semibold text-[color:var(--primary-foreground)] shadow-sm hover:bg-[color:var(--primary)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md tenant-active-strong px-4 py-2 text-sm font-semibold text-[color:var(--primary-foreground)] shadow-sm hover:tenant-active-strong disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? 'Saving…' : isEdit ? 'Save changes' : 'Create trip'}
         </button>

@@ -65,7 +65,7 @@ const PublicPostsView: React.FC<PublicPostsViewProps> = ({ tenant }) => {
           <div key={post.id} className="bg-white rounded-lg shadow-sm p-6 space-y-2">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium tenant-bg-100 text-[color:var(--primary)]">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium tenant-bg-100 tenant-text-primary">
                   {post.type}
                 </span>
                 <h3 className="text-xl font-semibold text-gray-900">{post.title}</h3>

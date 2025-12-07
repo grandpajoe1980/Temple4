@@ -10,7 +10,7 @@ export default function NotFound() {
       <div className="text-center max-w-md mx-auto">
         {/* 404 Icon/Number */}
         <div className="mb-6">
-          <span className="text-8xl font-bold text-primary/20">404</span>
+          <span className="text-8xl font-bold tenant-text-primary opacity-20">404</span>
         </div>
         
         {/* Main Message */}

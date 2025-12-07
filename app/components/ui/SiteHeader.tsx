@@ -147,8 +147,8 @@ const SiteHeader = () => {
                     <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
                   </svg>
                 </span>
-                <div className="hidden sm:flex flex-col leading-tight">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Asembli</span>
+                  <div className="hidden sm:flex flex-col leading-tight">
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] tenant-text-primary">Asembli</span>
                   <span className="text-lg font-semibold text-foreground">Platform</span>
                 </div>
                 <span className="text-base font-semibold text-muted-foreground sm:hidden">Asembli</span>

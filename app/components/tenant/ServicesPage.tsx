@@ -38,7 +38,7 @@ const ServicesPage = ({ tenant, services, facilities, selectedCategory, isMember
       ) : (
         <>
           {!isMember && (
-            <div className="rounded-md border p-4 text-sm" style={{ borderColor: 'color-mix(in srgb, var(--primary) 20%, transparent)', backgroundColor: 'color-mix(in srgb, var(--primary) 8%, transparent)', color: 'color-mix(in srgb, var(--primary) 90%, black)'}}>
+            <div className="rounded-md border p-4 text-sm" style={{ borderColor: 'rgba(var(--primary-rgb), 0.20)', backgroundColor: 'rgba(var(--primary-rgb), 0.08)', color: 'rgba(var(--primary-rgb), 0.90)'}}>
               <p>
                 Some services may be reserved for members.{' '}
                 <Link href={`/tenants/${tenant.id}/contact`} className="font-semibold text-[color:var(--primary)] hover:underline">
@@ -76,18 +76,18 @@ const ServicesPage = ({ tenant, services, facilities, selectedCategory, isMember
                       )}
                     </div>
                     <div className="mt-4 flex flex-wrap gap-3">
-                      <Link
-                        href={`/tenants/${tenant.id}/services/${service.id}`}
-                        className="text-sm font-semibold text-[color:var(--primary)] hover:opacity-90"
-                      >
-                        View details →
-                      </Link>
-                      <Link
-                        href={`/tenants/${tenant.id}/contact?service=${encodeURIComponent(service.name)}`}
-                        className="rounded-md px-4 py-2 text-sm font-semibold text-white transition-colors bg-[color:var(--primary)] hover:opacity-90"
-                      >
-                        Request info
-                      </Link>
+                            <Link
+                              href={`/tenants/${tenant.id}/services/${service.id}`}
+                              className="text-sm font-semibold tenant-text-primary hover:opacity-90"
+                            >
+                              View details →
+                            </Link>
+                            <Link
+                              href={`/tenants/${tenant.id}/contact?service=${encodeURIComponent(service.name)}`}
+                              className="rounded-md px-4 py-2 text-sm font-semibold text-[color:var(--primary-foreground)] transition-colors tenant-active-strong hover:opacity-90"
+                            >
+                              Request info
+                            </Link>
                     </div>
                   </div>
                 </Card>
@@ -111,7 +111,7 @@ const CategoryChip = ({ href, label, description, active }: CategoryChipProps) =
   <Link
     href={href}
     className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-      active ? 'border-[color:var(--primary)] tenant-bg-100 tenant-text-primary' : 'border-gray-200 text-gray-600 hover:border-[color:var(--primary)]'
+      active ? 'tenant-border-200 tenant-bg-100 tenant-text-primary' : 'border-gray-200 text-gray-600 hover:tenant-border-200'
     }`}
     title={description}
   >

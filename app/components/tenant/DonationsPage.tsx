@@ -406,9 +406,9 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                     </div>
                   )}
                 </div>
-                {progress !== null && (
+                  {progress !== null && (
                   <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                    <div className="h-full bg-[color:var(--primary)]" style={{ width: `${progress}%` }} />
+                    <div className="h-full tenant-active" style={{ width: `${progress}%` }} />
                   </div>
                 )}
               </button>
@@ -424,7 +424,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
       <Card title={`Make a Donation${selectedFund ? ` to ${selectedFund.name}` : ''}`} description={subtitle || `Your support for ${tenant.name} is greatly appreciated.`}>
         <div className="space-y-6">
           {selectedFund && (
-            <div className="rounded-lg tenant-bg-50 p-3 text-sm text-[color:var(--primary)]">
+            <div className="rounded-lg tenant-bg-50 p-3 text-sm tenant-text-primary">
               <p className="font-semibold">{selectedFund.name}</p>
               {selectedFund.goalAmountCents && (
                 <p className="mt-1">Goal: {(selectedFund.goalAmountCents / 100).toLocaleString(undefined, { style: 'currency', currency: selectedFund.currency })}</p>
@@ -557,8 +557,8 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
   return (
     <div className="space-y-8">
       {/* Hero Section */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-[color:var(--primary)]/10 to-orange-50 p-8 md:p-12 overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[color:var(--primary)]/10 rounded-full -mr-32 -mt-32 opacity-50" />
+        <div className="relative rounded-2xl bg-gradient-to-br from-[color:var(--primary)]/10 to-orange-50 p-8 md:p-12 overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 tenant-bg-50 rounded-full -mr-32 -mt-32 opacity-50" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-100 rounded-full -ml-24 -mb-24 opacity-50" />
         <div className="relative z-10 max-w-2xl">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">

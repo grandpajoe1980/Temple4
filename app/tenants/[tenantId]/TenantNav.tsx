@@ -218,7 +218,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
 
   const baseClasses = (active: boolean) =>
     `${active
-      ? 'border-[color:var(--primary)] text-[color:var(--primary)]'
+      ? 'tenant-active'
       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
     } inline-flex h-11 items-center whitespace-nowrap px-3 border-b-2 font-medium text-sm`;
 
@@ -271,7 +271,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
         onMouseEnter={() => clearTimer(submenuTimers[activeSubmenu].hide)}
         onMouseLeave={() => scheduleHide(activeSubmenu)}
       >
-        <div className="mx-auto max-w-5xl rounded-full border border-[color:var(--primary)] bg-card px-4 py-3 shadow-lg backdrop-blur-sm overflow-x-auto">
+        <div className="mx-auto max-w-5xl rounded-full border tenant-border-200 bg-card px-4 py-3 shadow-lg backdrop-blur-sm overflow-x-auto">
           <div className="flex flex-nowrap items-center justify-start gap-2 whitespace-nowrap">
             {renderSubmenu(activeSubmenu, items)}
           </div>

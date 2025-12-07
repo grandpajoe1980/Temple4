@@ -14,7 +14,7 @@ export default function TenantNotFound() {
       <div className="text-center max-w-md mx-auto bg-white rounded-xl shadow-sm p-8">
         {/* 404 Icon/Number */}
         <div className="mb-6">
-          <span className="text-7xl font-bold text-primary/20">404</span>
+          <span className="text-7xl font-bold tenant-text-primary opacity-20">404</span>
         </div>
         
         {/* Main Message */}

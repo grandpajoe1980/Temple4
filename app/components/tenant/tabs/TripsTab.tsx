@@ -21,7 +21,7 @@ const TripsTab: React.FC<TripsTabProps> = ({ tenant, currentUser, onRefresh }) =
         <p className="text-gray-600 mb-4">Visit the trips page to manage your organization&apos;s trips.</p>
         <Link 
           href={`/tenants/${tenant.id}/trips`}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-[color:var(--primary-foreground)] bg-[color:var(--primary)] hover:opacity-90"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-[color:var(--primary-foreground)] tenant-active-strong hover:opacity-90"
         >
           Go to Trips →
         </Link>

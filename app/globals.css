@@ -730,8 +730,10 @@
 
 .menu-chip:hover {
   border-color: var(--primary);
-  color: rgb(var(--primary));
-  background: color-mix(in srgb, rgb(var(--primary)) 8%, var(--card));
+  color: rgb(var(--primary-rgb));
+  /* Fallback for browsers that do not support color-mix() */
+  background-color: rgba(var(--primary-rgb), 0.08);
+  background: color-mix(in srgb, rgb(var(--primary-rgb)) 8%, var(--card));
 }
 
 .menu-chip--active {
@@ -1003,8 +1005,11 @@
 
 /* Tenant-scoped active/highlight utilities that map to tenant branding variables */
 .tenant-active {
+  /* Use an rgba fallback for broader browser support, then prefer color-mix when available */
+  background-color: rgba(var(--primary-rgb), 0.08);
   background-color: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
   color: var(--primary);
+  border-color: rgba(var(--primary-rgb), 0.20);
   border-color: color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
@@ -1020,32 +1025,37 @@
    only when a tenant subtree overrides `--primary`. 
    Using color-mix with var() allows these to work with any color format. */
 .tenant-bg-50 {
-  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 8%, white);
+  background-color: rgba(var(--primary-rgb), 0.08);
+  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary-rgb))) 8%, white);
 }
 
 .tenant-bg-100 {
-  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 12%, white);
+  background-color: rgba(var(--primary-rgb), 0.12);
+  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary-rgb))) 12%, white);
 }
 
 .tenant-bg-200 {
-  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 20%, white);
+  background-color: rgba(var(--primary-rgb), 0.20);
+  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary-rgb))) 20%, white);
 }
 
 .tenant-bg-600 {
-  background-color: var(--primary-hex, rgb(var(--primary)));
+  background-color: var(--primary-hex, rgb(var(--primary-rgb)));
 }
 
 .tenant-text-primary {
-  color: var(--primary-hex, rgb(var(--primary)));
+  color: var(--primary-hex, rgb(var(--primary-rgb)));
 }
 
 .tenant-border-200 {
-  border-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 20%, white);
+  border-color: rgba(var(--primary-rgb), 0.20);
+  border-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary-rgb))) 20%, white);
 }
 
 /* Tint helper for very light primary color (used in focus rings) */
 .tenant-tint-50 {
-  color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 8%, white);
+  color: rgba(var(--primary-rgb), 0.08);
+  color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary-rgb))) 8%, white);
 }
 
 /* Tenant accent color utility classes - uses accent color from branding */
@@ -1058,10 +1068,12 @@
 }
 
 .tenant-accent-bg-50 {
+  background-color: rgba(var(--accent-rgb), 0.08);
   background-color: color-mix(in srgb, var(--accent-hex, rgb(var(--accent))) 8%, white);
 }
 
 .tenant-accent-bg-100 {
+  background-color: rgba(var(--accent-rgb), 0.12);
   background-color: color-mix(in srgb, var(--accent-hex, rgb(var(--accent))) 12%, white);
 }
 

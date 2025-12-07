@@ -115,7 +115,7 @@ export default function SitemapPage() {
                     href={`${basePath}${item.path}`}
                     className="group block"
                   >
-                    <span className="text-[color:var(--primary)] group-hover:text-[color:var(--primary)] font-medium">
+                    <span className="tenant-text-primary group-hover:tenant-text-primary font-medium">
                       {item.label}
                     </span>
                     {item.description && (
@@ -139,7 +139,7 @@ export default function SitemapPage() {
               <Link
                 key={`${section.title}-${item.path}`}
                 href={`${basePath}${item.path}`}
-                className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:border-[color:var(--primary)] hover:text-[color:var(--primary)]"
+                className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:tenant-border-200 hover:tenant-text-primary"
               >
                 {item.label}
               </Link>

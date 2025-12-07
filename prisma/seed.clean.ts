@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 const hashPassword = async (password: string) => bcrypt.hash(password, 10);
 
 const createUser = async (email: string, displayName: string, avatarUrl: string, bio?: string) => {
-  const passwordHash = await hashPassword('password');
+  const passwordHash = await hashPassword('T3mple.com');
   return prisma.user.upsert({
     where: { email },
     update: {},
@@ -1126,7 +1126,7 @@ async function main() {
   console.log(`✅ Created ${morePosts.length} additional posts`);
 
   console.log('\n🍩 Springfield Community Church is ready!');
-  console.log('📧 Login as admin@temple.com or any character email (password: password)');
+  console.log('📧 Login as admin@temple.com or any character email (password: T3mple.com)');
   console.log('🏛️  Tenant: /springfield');
   console.log(`👥 ${users.length} members ready to fellowship!`);
 }

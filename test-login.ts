@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function testLogin() {
   const email = 'admin@temple.com';
-  const password = 'password';
+  const password = 'T3mple.com';
 
   console.log('Testing login for:', email);
   

@@ -1,10 +1,11 @@
 "use client"
 
-
-import React, { useState } from 'react';
+import React from 'react';
 import Card from '../ui/Card';
-import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { FormField } from '../ui/FormField';
+import { useFormValidation } from '@/app/hooks/useFormValidation';
+import { loginSchema, type LoginFormData } from '@/lib/validation';
 
 interface LoginFormProps {
   onLogin: (email: string, pass: string) => Promise<boolean>;
@@ -13,62 +14,76 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onNavigateToRegister, onNavigateToForgotPassword }) => {
-  const [email, setEmail] = useState('admin@temple.com');
-  const [password, setPassword] = useState('admin');
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    const success = await onLogin(email, password);
-    if (!success) {
-      setError('Invalid email or password.');
-    }
-  };
+  const {
+    values,
+    getFieldProps,
+    getFieldError,
+    handleSubmit,
+    isSubmitting,
+    submitError,
+    setSubmitError,
+  } = useFormValidation<LoginFormData>({
+    schema: loginSchema,
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    onSubmit: async (data) => {
+      const success = await onLogin(data.email, data.password);
+      if (!success) {
+        setSubmitError('Invalid email or password.');
+      }
+    },
+  });
 
   return (
     <div className="max-w-md mx-auto">
       <Card title="Platform Login" description="Enter your credentials to continue.">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="p-3 bg-red-100 border border-red-200 text-red-800 rounded-md text-sm">
-                {error}
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          {submitError && (
+            <div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-md text-sm" role="alert">
+                {submitError}
             </div>
           )}
-          <Input 
-            id="email" 
-            name="email" 
+          <FormField 
+            {...getFieldProps('email')}
             label="Email Address"
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
+            type="email"
+            placeholder="you@example.com"
+            autoComplete="email"
+            error={getFieldError('email')}
+            required
           />
-          <Input 
-            id="password" 
-            name="password" 
+          <FormField 
+            {...getFieldProps('password')}
             label="Password"
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
+            type="password"
+            placeholder="Enter your password"
+            autoComplete="current-password"
+            error={getFieldError('password')}
+            required
           />
            <div className="text-right">
-             <button type="button" onClick={onNavigateToForgotPassword} className="text-sm text-amber-600 hover:text-amber-800 hover:underline">
+             <button 
+               type="button" 
+               onClick={onNavigateToForgotPassword} 
+               className="text-sm text-amber-600 hover:text-amber-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+             >
                Forgot your password?
              </button>
            </div>
            <div className="flex justify-between items-center">
-             <button type="button" onClick={onNavigateToRegister} className="text-sm text-amber-600 hover:text-amber-800 hover:underline">
+             <button 
+               type="button" 
+               onClick={onNavigateToRegister} 
+               className="text-sm text-amber-600 hover:text-amber-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+             >
                Create an account
              </button>
-            <Button type="submit">Login</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Signing in...' : 'Login'}
+            </Button>
           </div>
-           <div className="text-center text-xs text-gray-400 pt-4">
-             <p>For this prototype, use:</p>
-             <p>Email: <strong>admin@temple.com</strong> / Password: <strong>admin</strong></p>
-             <p>Or any other user from the mock data.</p>
-           </div>
         </form>
       </Card>
     </div>

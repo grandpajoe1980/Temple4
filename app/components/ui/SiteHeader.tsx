@@ -10,6 +10,7 @@ import NotificationPanel from '../notifications/NotificationPanel';
 import Button from './Button';
 import UserMenu from './UserMenu';
 import MobileNav from './MobileNav';
+import { ThemeToggle } from '../ThemeToggle';
 
 const navItems: { label: string; href: string; authOnly?: boolean }[] = [];
 
@@ -122,7 +123,7 @@ const SiteHeader = () => {
 
   return (
     <header
-      className="sticky z-40 border-b border-white/30 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+      className="sticky z-40 border-b border-border/30 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:border-border/50"
       style={headerStyle}
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-3 sm:px-6 lg:px-8">
@@ -171,6 +172,7 @@ const SiteHeader = () => {
             </nav>
           )}
           <div className="flex items-center gap-2" ref={notificationPanelRef}>
+            <ThemeToggle size="sm" />
             {isAuthenticated ? (
               <>
                 {/* Switch tenant removed from header per design */}

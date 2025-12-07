@@ -9,8 +9,8 @@ import Button from '@/app/components/ui/Button';
 import { useToast } from '@/app/components/ui/Toast';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('admin@temple.com');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [loading, setLoading] = useState(false);
@@ -55,17 +55,17 @@ export default function LoginPage() {
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-5xl">
-        <div className="mb-8 flex items-center gap-3 text-slate-900">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 text-amber-600">
+        <div className="mb-8 flex items-center gap-3 text-foreground">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-card shadow-sm ring-1 ring-border text-primary">
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6">
               <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
             </svg>
           </span>
           <div className="leading-tight">
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-600">Temple</p>
-            <p className="text-xl font-semibold text-slate-900">Platform Login</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">Temple</p>
+            <p className="text-xl font-semibold text-foreground">Platform Login</p>
           </div>
         </div>
 
@@ -76,8 +76,9 @@ export default function LoginPage() {
                 <div
                   ref={errorRef}
                   tabIndex={-1}
+                  id="login-error"
                   role="alert"
-                  className="p-3 bg-amber-50 border border-amber-100 text-amber-800 rounded-md text-sm"
+                  className="p-3 bg-destructive/10 border border-destructive/30 text-destructive rounded-md text-sm"
                 >
                   {error}
                 </div>
@@ -91,6 +92,8 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
+                error={!!error}
+                aria-describedby={error ? 'login-error' : undefined}
               />
               <Input
                 id="password"
@@ -101,12 +104,14 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
+                error={!!error}
+                aria-describedby={error ? 'login-error' : undefined}
               />
               <div className="flex justify-between items-center text-sm">
                 <button
                   type="button"
                   onClick={() => router.push('/auth/forgot-password')}
-                  className="text-amber-600 hover:text-amber-700 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-primary hover:text-primary/80 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={loading}
                 >
                   Forgot your password?
@@ -116,7 +121,7 @@ export default function LoginPage() {
                 </Button>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600">Need an account?</span>
+                <span className="text-muted-foreground">Need an account?</span>
                 <Button
                   type="button"
                   variant="secondary"
@@ -127,25 +132,19 @@ export default function LoginPage() {
                   Create an account
                 </Button>
               </div>
-              <div className="text-sm text-slate-500 pt-2 space-y-1">
-                <p className="font-semibold text-slate-700">For this prototype, use:</p>
-                <p>
-                  Email: <strong>admin@temple.com</strong> / Password: <strong>password</strong>
-                </p>
-                <p>Or any other user from the mock data.</p>
-              </div>
+
             </form>
           </Card>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4 text-slate-700">
+          <div className="bg-card rounded-xl border border-border shadow-sm p-6 space-y-4 text-foreground">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900">Need platform access?</h3>
-              <span className="text-xs font-semibold uppercase tracking-wide text-amber-600">Admin access</span>
+              <h3 className="text-lg font-semibold text-foreground">Need platform access?</h3>
+              <span className="text-xs font-semibold uppercase tracking-wide text-primary">Admin access</span>
             </div>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-muted-foreground">
               Platform admin accounts oversee tenants, feature toggles, and billing. Ask your Temple implementation partner if you need an invite.
             </p>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-muted-foreground">
               You can still explore tenants as a member or guest after logging in with any seeded account.
             </p>
           </div>

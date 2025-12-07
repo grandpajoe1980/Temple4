@@ -292,7 +292,7 @@ export class FeatureTestSuite {
     // If that still doesn't work, fall back to platform admin (bypass tenant permissions)
     if (!adminToken) {
       try {
-        const { cookieHeader } = await performCredentialsLogin('admin@temple.com', 'password');
+        const { cookieHeader } = await performCredentialsLogin('admin@temple.com', 'T3mple.com');
         adminToken = cookieHeader;
       } catch (err) {
         // ignore - allow tests to proceed and report authorization failures
@@ -306,7 +306,7 @@ export class FeatureTestSuite {
 
     // For deterministic content-creation tests, run them as platform admin when available
     try {
-      const { cookieHeader } = await performCredentialsLogin('admin@temple.com', 'password');
+      const { cookieHeader } = await performCredentialsLogin('admin@temple.com', 'T3mple.com');
       if (cookieHeader) {
         adminToken = cookieHeader;
         adminHeaders['Cookie'] = adminToken;
@@ -347,7 +347,7 @@ export class FeatureTestSuite {
 
           // If the admin user still can't access tenant members, try using platform admin
           try {
-            const { cookieHeader } = await performCredentialsLogin('admin@temple.com', 'password');
+            const { cookieHeader } = await performCredentialsLogin('admin@temple.com', 'T3mple.com');
             if (cookieHeader) {
               adminToken = cookieHeader;
               adminHeaders['Cookie'] = adminToken;

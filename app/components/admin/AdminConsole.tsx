@@ -10,6 +10,7 @@ import Tabs from '../ui/Tabs';
 import ToggleSwitch from '../ui/ToggleSwitch';
 import Link from 'next/link';
 import EmailConfigPage from '../../admin/email-config/page';
+import SecretsPage from '../../admin/secrets/page';
 
 interface AdminConsoleProps {
   onBack: () => void;
@@ -68,7 +69,7 @@ interface AdminTenantSummary {
   };
 }
 
-const tabs = ['Audit Logs', 'User Directory', 'Tenant Management', 'Email Configuration'] as const;
+const tabs = ['Audit Logs', 'User Directory', 'Tenant Management', 'Email Configuration', 'Secrets'] as const;
 type Tab = (typeof tabs)[number];
 
 const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
@@ -522,6 +523,7 @@ const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
       {activeTab === 'User Directory' && renderUserDirectory()}
       {activeTab === 'Tenant Management' && renderTenantManagement()}
       {activeTab === 'Email Configuration' && <EmailConfigPage />}
+      {activeTab === 'Secrets' && <SecretsPage />}
     </div>
   );
 };

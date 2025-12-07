@@ -47,10 +47,10 @@ export default async function TenantLayout({
   ) : false;
 
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col">
+    <div className="bg-muted min-h-screen flex flex-col">
       {/* Header hidden on mobile - navigation handled by MobileNav in SiteHeader */}
       <header
-        className="sticky z-30 bg-white shadow-sm hidden md:block"
+        className="sticky z-30 bg-card shadow-sm hidden md:block"
         style={{
           top: 'calc(var(--site-header-height, 4.5rem) + var(--impersonation-banner-offset, 0px))',
         }}

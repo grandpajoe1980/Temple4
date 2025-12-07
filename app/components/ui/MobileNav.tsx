@@ -12,6 +12,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { CONTROL_PANEL_TABS } from '@/constants';
+import { ThemeToggle } from '../ThemeToggle';
 
 interface MobileNavProps {
   className?: string;
@@ -297,6 +298,13 @@ export default function MobileNav({ className }: MobileNavProps) {
       {/* Global Links */}
       {renderNavLink('/', 'Asembli Home')}
       {renderNavLink('/explore', 'Explore')}
+
+      {/* Theme Toggle */}
+      <div className="border-t border-gray-200 my-2" />
+      <div className="px-4 py-3 flex items-center justify-between">
+        <span className="text-base text-gray-700">Theme</span>
+        <ThemeToggle variant="dropdown" size="sm" />
+      </div>
     </div>
   );
 
@@ -321,6 +329,13 @@ export default function MobileNav({ className }: MobileNavProps) {
           {renderNavLink('/auth/register', 'Create Account')}
         </>
       )}
+
+      {/* Theme Toggle */}
+      <div className="border-t border-gray-200 my-2" />
+      <div className="px-4 py-3 flex items-center justify-between">
+        <span className="text-base text-gray-700">Theme</span>
+        <ThemeToggle variant="dropdown" size="sm" />
+      </div>
     </div>
   );
 

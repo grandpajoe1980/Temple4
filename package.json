@@ -44,6 +44,7 @@
     "lucide-react": "^0.553.0",
     "next": "^16.0.3",
     "next-auth": "^4.24.13",
+    "next-themes": "^0.4.6",
     "nodemailer": "^7.0.10",
     "prisma": "^6.19.0",
     "react": "^19.2.0",
@@ -68,6 +69,7 @@
     "@typescript-eslint/parser": "^8.48.0",
     "autoprefixer": "^10.4.22",
     "baseline-browser-mapping": "^2.9.3",
+    "cross-env": "^7.0.3",
     "eslint": "^9.39.1",
     "eslint-config-next": "^16.0.5",
     "eslint-plugin-import": "^2.32.0",
@@ -78,7 +80,6 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
     "ts-node": "^10.9.2",
-    "typescript": "~5.8.2",
-    "cross-env": "^7.0.3"
+    "typescript": "~5.8.2"
   }
 }

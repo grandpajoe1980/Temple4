@@ -83,9 +83,9 @@ const TenantFooter: React.FC<TenantFooterProps> = ({ tenant }) => {
 
   if (!hasSocialLinks) {
     return (
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      <footer className="bg-card border-t border-border mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} {tenant.name}. All rights reserved.
           </p>
         </div>
@@ -94,12 +94,12 @@ const TenantFooter: React.FC<TenantFooterProps> = ({ tenant }) => {
   }
 
   return (
-    <footer className="bg-white border-t border-gray-200 mt-auto">
+    <footer className="bg-card border-t border-border mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col items-center space-y-4">
           {/* Social Links */}
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">Follow us:</span>
+            <span className="text-sm text-muted-foreground">Follow us:</span>
             <div className="flex gap-3">
               {footerLinks.map((link) => (
                 <a
@@ -107,7 +107,7 @@ const TenantFooter: React.FC<TenantFooterProps> = ({ tenant }) => {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-amber-600 transition-colors"
+                  className="text-muted-foreground hover:text-primary transition-colors"
                   aria-label={link.ariaLabel}
                 >
                   {link.icon}
@@ -117,7 +117,7 @@ const TenantFooter: React.FC<TenantFooterProps> = ({ tenant }) => {
           </div>
           
           {/* Copyright */}
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} {tenant.name}. All rights reserved.
           </p>
         </div>

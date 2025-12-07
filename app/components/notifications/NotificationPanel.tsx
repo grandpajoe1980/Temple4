@@ -43,21 +43,23 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
     return Math.floor(seconds) + "s ago";
   }
 
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
   return (
     <div
-      className="absolute right-0 mt-2 w-80 origin-top-right rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 focus:outline-none z-30"
-      role="menu"
-      aria-orientation="vertical"
-      aria-labelledby="user-menu-button"
+      className="absolute right-0 mt-2 w-80 origin-top-right rounded-2xl bg-card shadow-2xl ring-1 ring-border focus:outline-none z-30"
+      role="region"
+      aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
+      aria-live="polite"
     >
-      <div className="flex items-center justify-between gap-2 border-b border-gray-200 px-4 py-3">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
         <div>
-          <h3 className="text-md font-semibold text-gray-900">Notifications</h3>
-          <p className="text-xs text-gray-500">Stay on top of approvals and updates</p>
+          <h3 className="text-md font-semibold text-foreground">Notifications</h3>
+          <p className="text-xs text-muted-foreground">Stay on top of approvals and updates</p>
           <button
             type="button"
             onClick={() => onNavigate?.('/notifications/mindfulness')}
-            className="mt-2 inline-flex items-center gap-2 rounded-md bg-amber-50 px-2 py-1 text-xs text-amber-700 hover:bg-amber-100"
+            className="mt-2 inline-flex items-center gap-2 rounded-md bg-amber-50 dark:bg-amber-900/30 px-2 py-1 text-xs text-amber-700 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50"
           >
             Mindfulness bell
           </button>
@@ -69,7 +71,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            className="rounded-full p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Close notifications"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
@@ -81,31 +83,46 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
           </button>
         </div>
       </div>
-      <div className="py-1 max-h-96 overflow-y-auto" role="none">
+      <ul className="py-1 max-h-96 overflow-y-auto" aria-label="Notification list">
         {notifications.length > 0 ? (
           notifications.map((notification) => (
-            <div
-              key={notification.id}
-              onClick={() => handleNotificationClick(notification)}
-              className={`flex items-start gap-3 px-4 py-3 text-sm text-gray-700 cursor-pointer transition-colors ${
-                notification.isRead ? 'hover:bg-gray-50' : 'bg-amber-50 hover:bg-amber-100'
-              }`}
-            >
-              {!notification.isRead && (
-                 <div className="mt-1 h-2 w-2 rounded-full bg-amber-500 flex-shrink-0"></div>
-              )}
-              <div className={notification.isRead ? 'pl-4' : ''}>
-                  <p className="text-gray-800">{notification.message}</p>
-                  <p className="text-xs text-gray-400 mt-1">{timeSince(notification.createdAt)}</p>
-              </div>
-            </div>
+            <li key={notification.id}>
+              <article
+                onClick={() => handleNotificationClick(notification)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleNotificationClick(notification);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-label={`${notification.isRead ? '' : 'Unread: '}${notification.message}, ${timeSince(notification.createdAt)}`}
+                className={`flex items-start gap-3 px-4 py-3 text-sm text-foreground cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
+                  notification.isRead ? 'hover:bg-muted' : 'bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 font-medium'
+                }`}
+              >
+                {!notification.isRead && (
+                  <div className="mt-1.5 flex-shrink-0" aria-hidden="true">
+                    <span className="flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    </span>
+                  </div>
+                )}
+                <div className={notification.isRead ? 'pl-4' : ''}>
+                  <p className="text-foreground">{notification.message}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{timeSince(notification.createdAt)}</p>
+                </div>
+              </article>
+            </li>
           ))
         ) : (
-          <div className="px-4 py-8 text-center text-sm text-gray-500">
+          <li className="px-4 py-8 text-center text-sm text-muted-foreground">
             You have no notifications.
-          </div>
+          </li>
         )}
-      </div>
+      </ul>
     </div>
   );
 };

@@ -62,7 +62,7 @@ export default function RegisterPage() {
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="max-w-md w-full">
             <Card title="Create an Account" description="Join the platform to connect with communities.">
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -70,8 +70,9 @@ export default function RegisterPage() {
                   <div
                     ref={errorRef}
                     tabIndex={-1}
+                    id="register-error"
                     role="alert"
-                    className="p-3 bg-red-100 border border-red-200 text-red-800 rounded-md text-sm"
+                    className="p-3 bg-destructive/10 border border-destructive/30 text-destructive rounded-md text-sm"
                   >
                     {error}
                   </div>

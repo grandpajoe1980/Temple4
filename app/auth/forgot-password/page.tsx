@@ -31,23 +31,23 @@ export default function ForgotPasswordPage() {
     }, [submitted]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="max-w-md w-full">
             <Card title="Forgot Password" description="Enter your email address and we'll send you a link to reset your password.">
                 {submitted ? (
                 <div className="text-center">
-                    <div ref={submittedRef} tabIndex={-1} role="status" className="p-4 bg-green-100 border border-green-200 text-green-800 rounded-md text-sm">
+                    <div ref={submittedRef} tabIndex={-1} role="status" className="p-4 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 rounded-md text-sm">
                         <h3 className="font-semibold">Check your email</h3>
                         <p className="mt-1">If an account with that email exists, a password reset link has been sent.</p>
                     </div>
-                    <div className="mt-4 text-xs text-gray-400">
+                    <div className="mt-4 text-xs text-muted-foreground">
                         <p>(For this prototype, you would check your email for a link.)</p>
                         <p>Since email sending is not implemented, you can proceed to reset password page directly for a known email.</p>
                          <Button variant="secondary" className="mt-2" onClick={() => router.push(`/auth/reset-password?email=${encodeURIComponent(email)}`)}>
                             Reset Password for {email}
                         </Button>
                     </div>
-                    <button type="button" onClick={() => router.push('/auth/login')} className="mt-6 text-sm text-amber-600 hover:text-amber-800 hover:underline">
+                    <button type="button" onClick={() => router.push('/auth/login')} className="mt-6 text-sm text-primary hover:text-primary/80 hover:underline">
                     &larr; Back to Login
                     </button>
                 </div>
@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
                     autoFocus
                     />
                     <div className="flex justify-between items-center">
-                    <button type="button" onClick={() => router.push('/auth/login')} className="text-sm text-amber-600 hover:text-amber-800 hover:underline">
+                    <button type="button" onClick={() => router.push('/auth/login')} className="text-sm text-primary hover:text-primary/80 hover:underline">
                         Back to Login
                     </button>
                     <Button type="submit">Send Reset Link</Button>

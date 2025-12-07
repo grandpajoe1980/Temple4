@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import useFocusTrap from '@/app/hooks/useFocusTrap';
+import { X } from 'lucide-react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -9,9 +10,26 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   dataTest?: string;
+  /** Size of the modal */
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, dataTest }) => {
+const sizeClasses = {
+  sm: 'max-w-sm',
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+  full: 'max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-4rem)]',
+};
+
+const Modal: React.FC<ModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  title, 
+  children, 
+  dataTest,
+  size = 'md'
+}) => {
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -24,6 +42,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, dataTes
     };
   }, [onClose]);
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // refs and hooks must be called unconditionally to satisfy React Hooks rules
   const modalRef = useRef<HTMLDivElement | null>(null);
   useFocusTrap(modalRef, isOpen);
@@ -32,7 +60,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, dataTes
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start overflow-y-auto p-4 sm:p-10"
+      className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 flex justify-center items-start overflow-y-auto p-2 sm:p-4 md:p-8"
       aria-labelledby="modal-title"
       role="dialog"
       aria-modal="true"
@@ -40,26 +68,24 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, dataTes
       data-test={dataTest ? `${dataTest}-overlay` : undefined}
     >
       <div
-        className="bg-white rounded-lg shadow-xl max-w-lg w-full overflow-hidden"
+        className={`bg-card text-card-foreground rounded-xl shadow-xl w-full ${sizeClasses[size]} overflow-hidden my-2 sm:my-4 md:my-8 animate-in fade-in-0 zoom-in-95 duration-200`}
         onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
         ref={modalRef}
         data-test={dataTest}
       >
-        <div className="flex justify-between items-center p-4 border-b border-gray-200">
-          <h2 id="modal-title" className="text-lg font-semibold text-gray-900">
+        <div className="flex justify-between items-center p-3 sm:p-4 border-b border-border sticky top-0 bg-card z-10">
+          <h2 id="modal-title" className="text-base sm:text-lg font-semibold text-foreground line-clamp-1 pr-4">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Close modal"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
-        <div className="p-6">
+        <div className="p-3 sm:p-4 md:p-6 max-h-[calc(100vh-10rem)] overflow-y-auto">
           {children}
         </div>
       </div>

@@ -93,7 +93,7 @@ export class UploadTestSuite {
 
             // If tenant admin still doesn't provide membership/permissions, try platform admin
             try {
-              const { loginResponse, cookieHeader } = await performCredentialsLogin('admin@temple.com', 'password');
+              const { loginResponse, cookieHeader } = await performCredentialsLogin('admin@temple.com', 'T3mple.com');
               if (loginResponse.ok || loginResponse.status === 302) {
                 this.authToken = cookieHeader;
               }
@@ -147,7 +147,7 @@ export class UploadTestSuite {
 
           // For test reliability, run upload tests as the platform admin
           try {
-            const { loginResponse, cookieHeader } = await performCredentialsLogin('admin@temple.com', 'password');
+            const { loginResponse, cookieHeader } = await performCredentialsLogin('admin@temple.com', 'T3mple.com');
             if (loginResponse.ok || loginResponse.status === 302) {
               this.authToken = cookieHeader;
               console.log('[UploadTests] Switched to admin session for uploads');

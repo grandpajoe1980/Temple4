@@ -108,7 +108,7 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
         subtitle={<>Stay up to date with everything happening in your community.</>}
         actions={canCreateEvent ? (<Link href={`/tenants/${tenantId}/calendar/new`}><Button>+ New Event</Button></Link>) : null}
       />
-      <EventsCalendar events={calendarEvents} onDateClick={handleDateClick} />
+      <EventsCalendar events={calendarEvents} onDateClick={handleDateClick} currentUserId={currentUserId} />
       {selectedDate && (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg">
           <p className="text-sm text-gray-700">

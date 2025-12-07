@@ -299,6 +299,17 @@
 }
 
 /* FullCalendar theming */
+.fc {
+  /* FullCalendar CSS variables */
+  --fc-border-color: #e2e8f0;
+  --fc-page-bg-color: #ffffff;
+  --fc-neutral-bg-color: #f8fafc;
+  --fc-today-bg-color: rgba(245, 158, 11, 0.08);
+  --fc-event-bg-color: #d97706;
+  --fc-event-border-color: #d97706;
+  --fc-event-text-color: #ffffff;
+}
+
 .fc .fc-toolbar.fc-header-toolbar {
   padding: 1rem 1.25rem;
 }
@@ -334,6 +345,60 @@
   background-color: rgba(245, 158, 11, 0.08);
 }
 
+/* Ensure scrollgrid table sections are visible */
+.fc .fc-scrollgrid-section,
+.fc .fc-scrollgrid-section > td {
+  background: #ffffff;
+}
+
+.fc .fc-scrollgrid-section-body {
+  background: #ffffff;
+}
+
+/* Fix for fc-scrollgrid-liquid mode - ensure tbody sections have height */
+.fc .fc-scrollgrid-liquid {
+  height: auto !important;
+}
+
+.fc .fc-scrollgrid-section-body > td {
+  height: auto !important;
+}
+
+/* CRITICAL: Fix the scroller/harness chain that's hiding the calendar */
+.fc .fc-scroller-harness {
+  overflow: visible !important;
+  min-height: 300px;
+}
+
+.fc .fc-scroller {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 300px;
+}
+
+.fc .fc-scroller-liquid-absolute {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* CRITICAL: Force the daygrid-body table to be visible */
+.fc .fc-daygrid-body {
+  width: 100% !important;
+  position: relative !important;
+}
+
+.fc .fc-scrollgrid-sync-table {
+  width: 100% !important;
+  height: auto !important;
+}
+
+.fc .fc-daygrid-body-balanced .fc-daygrid-day-events {
+  position: relative;
+}
+
 .fc .fc-event {
   border-radius: 0.75rem;
   border: none;
@@ -344,6 +409,243 @@
 .fc .fc-event-main {
   color: #0f172a;
   font-weight: 600;
+}
+
+/* FullCalendar mobile responsive styles */
+@media (max-width: 767px) {
+  .calendar-container {
+    margin: 0 -1rem;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  /* Mobile calendar compact styling */
+  .mobile-calendar .fc {
+    font-size: 0.875rem;
+  }
+
+  /* CRITICAL: Ensure view harness has height */
+  .mobile-calendar .fc .fc-view-harness {
+    min-height: 350px !important;
+  }
+
+  /* CRITICAL: Ensure scrollgrid table body is visible */
+  .mobile-calendar .fc .fc-scrollgrid,
+  .mobile-calendar .fc .fc-scrollgrid-section,
+  .mobile-calendar .fc .fc-scrollgrid-section > td,
+  .mobile-calendar .fc .fc-scrollgrid tbody,
+  .mobile-calendar .fc .fc-daygrid-body {
+    height: auto !important;
+    min-height: 300px;
+  }
+
+  .mobile-calendar .fc .fc-scrollgrid-section-body > td {
+    height: 300px !important;
+  }
+
+  .mobile-calendar .fc .fc-daygrid-body-balanced {
+    min-height: 280px;
+  }
+
+  /* Compact toolbar */
+  .mobile-calendar .fc .fc-toolbar.fc-header-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .mobile-calendar .fc .fc-toolbar-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .mobile-calendar .fc .fc-button {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .mobile-calendar .fc .fc-button-group {
+    flex-wrap: nowrap;
+  }
+
+  /* Day header (S M T W T F S) */
+  .mobile-calendar .fc .fc-col-header-cell {
+    padding: 0.4rem 0;
+  }
+
+  .mobile-calendar .fc .fc-col-header-cell-cushion {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+  }
+
+  /* Day cells - compact and square-ish */
+  .mobile-calendar .fc .fc-daygrid-day {
+    min-height: 48px;
+  }
+
+  .mobile-calendar .fc .fc-daygrid-day-frame {
+    min-height: 48px;
+    padding: 2px;
+  }
+
+  /* Day number styling */
+  .mobile-calendar .fc .fc-daygrid-day-top {
+    display: flex;
+    justify-content: center;
+  }
+
+  .mobile-calendar .fc .fc-daygrid-day-number {
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  /* Today highlight */
+  .mobile-calendar .fc .fc-day-today .fc-daygrid-day-number {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* Event dots container */
+  .mobile-calendar .fc .fc-daygrid-day-events {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 2px 4px;
+    margin-top: 0;
+    min-height: 0;
+  }
+
+  /* Event dots styling */
+  .mobile-calendar .fc .fc-daygrid-event-harness {
+    margin: 0 !important;
+  }
+
+  .mobile-calendar .fc .fc-daygrid-event {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hide event text, show only dot */
+  .mobile-calendar .fc .fc-daygrid-event .fc-event-title {
+    display: none;
+  }
+
+  .mobile-calendar .fc .fc-daygrid-event .fc-event-time {
+    display: none;
+  }
+
+  /* Style the dot */
+  .mobile-calendar .fc .fc-daygrid-dot-event {
+    padding: 0;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .mobile-calendar .fc .fc-daygrid-dot-event .fc-event-title {
+    display: none !important;
+  }
+
+  .mobile-calendar .fc .fc-daygrid-event-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin: 0;
+    border: none;
+    background-color: var(--primary);
+  }
+
+  /* More link styling */
+  .mobile-calendar .fc .fc-daygrid-more-link {
+    font-size: 0.65rem;
+    color: var(--muted-foreground);
+    margin-top: 2px;
+  }
+
+  /* Hide bottom slot for cleaner look */
+  .mobile-calendar .fc .fc-daygrid-day-bottom {
+    margin-top: 0;
+    padding: 0;
+  }
+
+  /* Clickable day cells */
+  .mobile-calendar .fc .fc-daygrid-day:not(.fc-day-disabled) {
+    cursor: pointer;
+  }
+
+  .mobile-calendar .fc .fc-daygrid-day:not(.fc-day-disabled):hover {
+    background-color: var(--accent);
+  }
+
+  /* Week and List view adjustments */
+  .mobile-calendar .fc .fc-timegrid-slot {
+    height: 2.5rem;
+  }
+
+  .mobile-calendar .fc .fc-list-event-time,
+  .mobile-calendar .fc .fc-list-event-title {
+    font-size: 0.85rem;
+  }
+
+  .fc-theme-standard td,
+  .fc-theme-standard th {
+    border-color: var(--border);
+  }
+}
+
+/* Dark mode support for FullCalendar */
+.dark .fc .fc-toolbar-title {
+  color: var(--foreground);
+}
+
+.dark .fc .fc-button-primary {
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.dark .fc .fc-button-primary:not(:disabled).fc-button-active,
+.dark .fc .fc-button-primary:not(:disabled):active,
+.dark .fc .fc-button-primary:not(:disabled):focus {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.dark .fc .fc-daygrid-day-number {
+  color: var(--foreground);
+}
+
+.dark .fc .fc-daygrid-day.fc-day-today {
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.dark .fc .fc-event-main {
+  color: var(--foreground);
+}
+
+.dark .fc-theme-standard td,
+.dark .fc-theme-standard th {
+  border-color: var(--border);
+}
+
+.dark .fc .fc-list-day-cushion {
+  background-color: var(--muted);
+}
+
+.dark .fc .fc-list-event:hover td {
+  background-color: var(--muted);
 }
 
 /* DayPicker modern look */

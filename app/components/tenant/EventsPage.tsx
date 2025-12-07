@@ -225,6 +225,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
               onDateClick={handleDateClick}
               onEventClick={handleEventClick}
               focusDate={calendarFocusDate}
+              currentUserId={user.id}
             />
           </div>
         </div>

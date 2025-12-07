@@ -163,13 +163,11 @@ export default function MobileNav({ className }: MobileNavProps) {
       <button
         key={href}
         onClick={() => handleNavClick(href)}
-        className={`w-full text-left block px-4 py-3 text-base transition-colors ${
-          indent ? 'pl-8' : ''
-        } ${
-          isActive
+        className={`w-full text-left block px-4 py-3 text-base transition-colors ${indent ? 'pl-8' : ''
+          } ${isActive
             ? 'tenant-bg-50 tenant-text-primary font-medium'
-            : 'text-gray-700 hover:bg-gray-50'
-        }`}
+            : 'text-foreground hover:bg-muted'
+          }`}
       >
         {label}
       </button>
@@ -184,20 +182,19 @@ export default function MobileNav({ className }: MobileNavProps) {
   ) => {
     const isExpanded = expandedSections[key];
     const enabledItems = items.filter((item) => isFeatureEnabled(item.feature));
-    
+
     if (enabledItems.length === 0) return null;
 
     return (
       <div key={key}>
         <button
           onClick={() => toggleSection(key)}
-          className="w-full flex items-center justify-between px-4 py-3 text-base text-gray-700 hover:bg-gray-50"
+          className="w-full flex items-center justify-between px-4 py-3 text-base text-foreground hover:bg-muted"
         >
           <span>{label}</span>
           <svg
-            className={`h-5 w-5 text-gray-400 transition-transform ${
-              isExpanded ? 'rotate-180' : ''
-            }`}
+            className={`h-5 w-5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''
+              }`}
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -207,7 +204,7 @@ export default function MobileNav({ className }: MobileNavProps) {
           </svg>
         </button>
         {isExpanded && (
-          <div className="bg-gray-50/50">
+          <div className="bg-muted/50">
             {enabledItems.map((item) =>
               renderNavLink(`${basePath}${item.path}`, item.label, true)
             )}
@@ -244,12 +241,12 @@ export default function MobileNav({ className }: MobileNavProps) {
         <div>
           <button
             onClick={() => toggleSection('settings')}
-            className="w-full flex items-center justify-between px-4 py-3 text-base text-gray-700 hover:bg-gray-50"
+            className="w-full flex items-center justify-between px-4 py-3 text-base text-foreground hover:bg-muted"
           >
             <span className="flex items-center gap-2">
               <span>Settings</span>
               <svg
-                className="h-4 w-4 text-gray-500"
+                className="h-4 w-4 text-muted-foreground"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -270,9 +267,8 @@ export default function MobileNav({ className }: MobileNavProps) {
               </svg>
             </span>
             <svg
-              className={`h-5 w-5 text-gray-400 transition-transform ${
-                expandedSections['settings'] ? 'rotate-180' : ''
-              }`}
+              className={`h-5 w-5 text-muted-foreground transition-transform ${expandedSections['settings'] ? 'rotate-180' : ''
+                }`}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -282,7 +278,7 @@ export default function MobileNav({ className }: MobileNavProps) {
             </svg>
           </button>
           {expandedSections['settings'] && (
-            <div className="bg-gray-50/50">
+            <div className="bg-muted/50">
               {CONTROL_PANEL_TABS.map((tab) => {
                 const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
                 return renderNavLink(`${basePath}/settings?category=${slug}`, tab, true);
@@ -293,16 +289,16 @@ export default function MobileNav({ className }: MobileNavProps) {
       )}
 
       {/* Divider */}
-      <div className="border-t border-gray-200 my-2" />
+      <div className="border-t border-border my-2" />
 
       {/* Global Links */}
       {renderNavLink('/', 'Asembli Home')}
       {renderNavLink('/explore', 'Explore')}
 
       {/* Theme Toggle */}
-      <div className="border-t border-gray-200 my-2" />
+      <div className="border-t border-border my-2" />
       <div className="px-4 py-3 flex items-center justify-between">
-        <span className="text-base text-gray-700">Theme</span>
+        <span className="text-base text-foreground">Theme</span>
         <ThemeToggle variant="dropdown" size="sm" />
       </div>
     </div>
@@ -312,10 +308,10 @@ export default function MobileNav({ className }: MobileNavProps) {
     <div className="flex flex-col">
       {renderNavLink('/', 'Home')}
       {renderNavLink('/explore', 'Explore')}
-      
+
       {isAuthenticated && (
         <>
-          <div className="border-t border-gray-200 my-2" />
+          <div className="border-t border-border my-2" />
           {renderNavLink('/account', 'My Account')}
           {renderNavLink('/notifications', 'Notifications')}
           {renderNavLink('/messages', 'Messages')}
@@ -324,16 +320,16 @@ export default function MobileNav({ className }: MobileNavProps) {
 
       {!isAuthenticated && (
         <>
-          <div className="border-t border-gray-200 my-2" />
+          <div className="border-t border-border my-2" />
           {renderNavLink('/auth/login', 'Log in')}
           {renderNavLink('/auth/register', 'Create Account')}
         </>
       )}
 
       {/* Theme Toggle */}
-      <div className="border-t border-gray-200 my-2" />
+      <div className="border-t border-border my-2" />
       <div className="px-4 py-3 flex items-center justify-between">
-        <span className="text-base text-gray-700">Theme</span>
+        <span className="text-base text-foreground">Theme</span>
         <ThemeToggle variant="dropdown" size="sm" />
       </div>
     </div>
@@ -344,7 +340,7 @@ export default function MobileNav({ className }: MobileNavProps) {
       <SheetTrigger asChild>
         <button
           aria-label="Open navigation menu"
-          className={`p-2 rounded-md text-gray-700 hover:bg-gray-100 md:hidden ${className || ''}`}
+          className={`p-2 rounded-md text-muted-foreground hover:bg-muted md:hidden ${className || ''}`}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -358,7 +354,7 @@ export default function MobileNav({ className }: MobileNavProps) {
         </button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0 overflow-y-auto">
-        <SheetHeader className="p-4 border-b border-gray-200">
+        <SheetHeader className="p-4 border-b border-border">
           <SheetTitle className="flex items-center gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl tenant-bg-100 tenant-text-primary">
               <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true">
@@ -369,7 +365,7 @@ export default function MobileNav({ className }: MobileNavProps) {
               <span className="text-xs font-semibold uppercase tracking-[0.2em] tenant-text-primary">
                 Asembli
               </span>
-              <span className="text-base font-semibold text-gray-900">Platform</span>
+              <span className="text-base font-semibold text-foreground">Platform</span>
             </div>
           </SheetTitle>
         </SheetHeader>

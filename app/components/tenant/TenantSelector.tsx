@@ -60,12 +60,12 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
       {showHeader && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-slate-900">Select a tenant</h2>
-            <p className="text-sm text-slate-500">Search the full network or spin up a new spiritual home.</p>
+            <h2 className="text-2xl font-semibold text-foreground">Select a tenant</h2>
+            <p className="text-sm text-muted-foreground">Search the full network or spin up a new spiritual home.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative">
-              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground">
                 <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
                   <path fill="currentColor" d="M11 3a8 8 0 0 1 6.2 13.2l4.3 4.3-1.4 1.4-4.3-4.3A8 8 0 1 1 11 3m0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z" />
                 </svg>
@@ -75,7 +75,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
                 aria-label="Filter tenants"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white/80 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]"
+                className="w-full rounded-xl border border-border bg-card/80 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring"
                 placeholder="Search name, creed, or city"
               />
             </div>
@@ -88,7 +88,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
 
       <div className="space-y-4">
         {filteredTenants.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 p-6 text-center text-sm text-slate-500">
+          <div className="rounded-2xl border border-dashed border-border bg-card/70 p-6 text-center text-sm text-muted-foreground">
             No communities match that search yet. Try another phrase or create a new tenant.
           </div>
         ) : (
@@ -111,17 +111,17 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
               <button
                 key={tenant.id}
                 onClick={() => onSelect(tenant.id)}
-                className="group w-full rounded-2xl border border-white/70 bg-white/90 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[color:var(--primary)] hover:shadow-xl"
+                className="group w-full rounded-2xl border border-border/70 bg-card/90 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary hover:shadow-xl"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold text-slate-900">{tenant.name}</h3>
-                      <span className="rounded-full bg-emerald-50 px-3 py-0.5 text-xs font-semibold text-emerald-700">
+                      <h3 className="text-lg font-semibold text-foreground">{tenant.name}</h3>
+                      <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                         {isPublic ? 'Public' : 'Private'}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-muted-foreground">
                       {tenant.creed}
                       {safeAddress?.city || safeAddress?.state ? (
                         <>
@@ -131,10 +131,10 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
                       ) : null}
                     </p>
                   </div>
-                  <span className="text-xs font-medium uppercase tracking-wide text-slate-400">Tap to open</span>
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Tap to open</span>
                 </div>
                 {tenant.description ? (
-                  <p className="mt-2 text-sm text-slate-600" style={{ WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', display: '-webkit-box', overflow: 'hidden' }}>
+                  <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
                     {tenant.description}
                   </p>
                 ) : null}
@@ -149,7 +149,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
                       </span>
                     ))
                   ) : (
-                    <span className="text-xs text-slate-400">Feature toggles coming soon</span>
+                    <span className="text-xs text-muted-foreground">Feature toggles coming soon</span>
                   )}
                 </div>
               </button>

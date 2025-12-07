@@ -19,18 +19,16 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ label, enabled, onChange, d
       </span>
       <button
         type="button"
-        className={`${
-          enabled ? 'bg-amber-500 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.4)]' : 'bg-slate-300 shadow-inner'
-        } relative inline-flex flex-shrink-0 h-6 w-11 border border-slate-200 rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500`}
+        className={`${enabled ? 'bg-primary shadow-[inset_0_0_0_1px_rgba(255,255,255,0.4)]' : 'bg-slate-300 shadow-inner'
+          } relative inline-flex flex-shrink-0 h-6 w-11 border border-slate-200 rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring`}
         role="switch"
         aria-checked={enabled}
         onClick={() => onChange(!enabled)}
       >
         <span
           aria-hidden="true"
-          className={`${
-            enabled ? 'translate-x-5' : 'translate-x-0'
-          } pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md transform ring-1 ring-black/5 transition ease-in-out duration-200`}
+          className={`${enabled ? 'translate-x-5' : 'translate-x-0'
+            } pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md transform ring-1 ring-black/5 transition ease-in-out duration-200`}
         />
       </button>
     </div>

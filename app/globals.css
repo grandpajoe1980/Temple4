@@ -84,13 +84,16 @@
 
 .dark {
   --background: #0b1224;
-  --foreground: #f4f8fc; /* brighter foreground for improved contrast in dark mode */
+  --foreground: #f4f8fc;
+  /* brighter foreground for improved contrast in dark mode */
   --card: #0f1724;
-  --card-foreground: #f7fbfe; /* brighter card text for readability */
+  --card-foreground: #f7fbfe;
+  /* brighter card text for readability */
   --popover: #0f172a;
   --popover-foreground: #f6fafc;
   --primary: #fb923c;
-  --primary-foreground: var(--card-foreground); /* ensure not pure-black on primary */
+  --primary-foreground: var(--card-foreground);
+  /* ensure not pure-black on primary */
   --secondary: #1f2937;
   --secondary-foreground: #f3f8fb;
   --muted: #17212f;
@@ -120,12 +123,14 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     @apply min-h-screen bg-background text-foreground antialiased;
     padding-top: var(--impersonation-banner-offset, 0px);
     transition: padding-top 150ms ease;
   }
+
   /* Light mode background gradient */
   :root body {
     background-image: radial-gradient(circle at 20% 20%, rgba(251, 191, 36, 0.08), transparent 38%),
@@ -133,6 +138,7 @@
       linear-gradient(180deg, #fffbf3, #f8fafc 50%);
     background-attachment: fixed;
   }
+
   /* Dark mode background gradient */
   .dark body {
     background-image: radial-gradient(circle at 20% 20%, rgba(251, 146, 60, 0.06), transparent 38%),
@@ -140,14 +146,17 @@
       linear-gradient(180deg, #0b1224, #111827 50%);
     background-attachment: fixed;
   }
+
   ::selection {
     background: rgba(251, 191, 36, 0.35);
     color: var(--foreground);
   }
+
   .dark ::selection {
     background: rgba(251, 146, 60, 0.4);
     color: var(--card-foreground);
   }
+
   h1,
   h2,
   h3,
@@ -156,22 +165,26 @@
     letter-spacing: -0.02em;
     @apply text-foreground;
   }
+
   .font-temple {
     font-family: 'Cinzel', serif;
     font-weight: 900;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+
   p {
     color: var(--muted-foreground);
     line-height: 1.7;
   }
+
   img {
     max-width: 100%;
     height: auto;
     display: block;
     object-fit: cover;
   }
+
   .skip-link {
     position: absolute;
     left: 1rem;
@@ -183,11 +196,13 @@
     border-radius: 9999px;
     transform: translateY(-200%);
   }
+
   .skip-link:focus {
     transform: translateY(0);
     outline: 3px solid var(--ring);
     outline-offset: 3px;
   }
+
   button,
   input,
   textarea,
@@ -195,6 +210,7 @@
   a {
     @apply transition-colors duration-200 ease-out;
   }
+
   input,
   textarea,
   select {
@@ -205,26 +221,29 @@
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
     transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
   }
+
   input::placeholder,
   textarea::placeholder,
   select::placeholder {
     color: var(--muted-foreground);
   }
+
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible {
     border-color: var(--ring);
     box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
     background-color: var(--card);
-    outline: none; /* Remove default outline since we use box-shadow */
+    outline: none;
+    /* Remove default outline since we use box-shadow */
   }
-  
+
   /* Global focus-visible styles for all interactive elements */
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
-  
+
   /* Ensure buttons without custom focus styles get visible focus */
   button:focus-visible,
   [role="button"]:focus-visible,
@@ -235,6 +254,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -247,6 +267,7 @@
 
 /* Mobile-friendly improvements */
 @media (max-width: 767px) {
+
   /* Better touch targets */
   button,
   a,
@@ -254,41 +275,41 @@
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Improved content padding on mobile */
   .mobile-content-spacing {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   /* Better font scaling on mobile */
   h1 {
     font-size: 1.75rem;
     line-height: 1.2;
   }
-  
+
   h2 {
     font-size: 1.375rem;
     line-height: 1.25;
   }
-  
+
   h3 {
     font-size: 1.125rem;
     line-height: 1.3;
   }
-  
+
   /* Prevent horizontal scroll */
   body {
     overflow-x: hidden;
   }
-  
+
   /* Better table handling */
   table {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Card improvements for mobile */
   .card,
   [class*="rounded-lg"],
@@ -347,7 +368,7 @@
 
 /* Ensure scrollgrid table sections are visible */
 .fc .fc-scrollgrid-section,
-.fc .fc-scrollgrid-section > td {
+.fc .fc-scrollgrid-section>td {
   background: var(--card);
 }
 
@@ -360,7 +381,7 @@
   height: auto !important;
 }
 
-.fc .fc-scrollgrid-section-body > td {
+.fc .fc-scrollgrid-section-body>td {
   height: auto !important;
 }
 
@@ -433,14 +454,14 @@
   /* CRITICAL: Ensure scrollgrid table body is visible with reduced spacing */
   .mobile-calendar .fc .fc-scrollgrid,
   .mobile-calendar .fc .fc-scrollgrid-section,
-  .mobile-calendar .fc .fc-scrollgrid-section > td,
+  .mobile-calendar .fc .fc-scrollgrid-section>td,
   .mobile-calendar .fc .fc-scrollgrid tbody,
   .mobile-calendar .fc .fc-daygrid-body {
     height: auto !important;
     min-height: 120px;
   }
 
-  .mobile-calendar .fc .fc-scrollgrid-section-body > td {
+  .mobile-calendar .fc .fc-scrollgrid-section-body>td {
     height: 120px !important;
   }
 
@@ -697,8 +718,10 @@
   color: var(--foreground);
   border: 1px solid var(--border);
   border-radius: 9999px;
-  padding: 0.5rem 1rem; /* roughly px-4 py-2 */
-  font-size: 0.875rem; /* text-sm */
+  padding: 0.5rem 1rem;
+  /* roughly px-4 py-2 */
+  font-size: 0.875rem;
+  /* text-sm */
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -706,8 +729,9 @@
 }
 
 .menu-chip:hover {
-  border-color: var(--ring);
-  color: var(--foreground);
+  border-color: var(--primary);
+  color: rgb(var(--primary));
+  background: color-mix(in srgb, rgb(var(--primary)) 8%, var(--card));
 }
 
 .menu-chip--active {
@@ -730,9 +754,11 @@
 .dark .text-gray-900 {
   color: #f7fbfe !important;
 }
+
 .dark .text-gray-800 {
   color: #f1f6fb !important;
 }
+
 .dark .text-gray-700 {
   color: #e8eff7 !important;
 }
@@ -741,6 +767,7 @@
 .dark .text-gray-600 {
   color: #d8e4f0 !important;
 }
+
 .dark .text-gray-500 {
   color: #c8d8eb !important;
 }
@@ -749,6 +776,7 @@
 .dark .text-gray-400 {
   color: #b0c4de !important;
 }
+
 .dark .text-gray-300 {
   color: #a0b8d4 !important;
 }
@@ -757,18 +785,23 @@
 .dark .text-slate-900 {
   color: #f7fbfe !important;
 }
+
 .dark .text-slate-800 {
   color: #f1f6fb !important;
 }
+
 .dark .text-slate-700 {
   color: #e8eff7 !important;
 }
+
 .dark .text-slate-600 {
   color: #d8e4f0 !important;
 }
+
 .dark .text-slate-500 {
   color: #c8d8eb !important;
 }
+
 .dark .text-slate-400 {
   color: #b0c4de !important;
 }
@@ -777,18 +810,23 @@
 .dark .text-zinc-900 {
   color: #f7fbfe !important;
 }
+
 .dark .text-zinc-800 {
   color: #f1f6fb !important;
 }
+
 .dark .text-zinc-700 {
   color: #e8eff7 !important;
 }
+
 .dark .text-zinc-600 {
   color: #d8e4f0 !important;
 }
+
 .dark .text-zinc-500 {
   color: #c8d8eb !important;
 }
+
 .dark .text-zinc-400 {
   color: #b0c4de !important;
 }
@@ -797,18 +835,23 @@
 .dark .text-neutral-900 {
   color: #f7fbfe !important;
 }
+
 .dark .text-neutral-800 {
   color: #f1f6fb !important;
 }
+
 .dark .text-neutral-700 {
   color: #e8eff7 !important;
 }
+
 .dark .text-neutral-600 {
   color: #d8e4f0 !important;
 }
+
 .dark .text-neutral-500 {
   color: #c8d8eb !important;
 }
+
 .dark .text-neutral-400 {
   color: #b0c4de !important;
 }
@@ -817,18 +860,23 @@
 .dark .text-stone-900 {
   color: #f7fbfe !important;
 }
+
 .dark .text-stone-800 {
   color: #f1f6fb !important;
 }
+
 .dark .text-stone-700 {
   color: #e8eff7 !important;
 }
+
 .dark .text-stone-600 {
   color: #d8e4f0 !important;
 }
+
 .dark .text-stone-500 {
   color: #c8d8eb !important;
 }
+
 .dark .text-stone-400 {
   color: #b0c4de !important;
 }
@@ -837,9 +885,11 @@
 .dark .bg-gray-50 {
   background-color: #1a2332 !important;
 }
+
 .dark .bg-gray-100 {
   background-color: #1f2937 !important;
 }
+
 .dark .bg-gray-200 {
   background-color: #283548 !important;
 }
@@ -848,18 +898,23 @@
 .dark .bg-amber-50 {
   background-color: #2d2318 !important;
 }
+
 .dark .bg-amber-100 {
   background-color: #3d2f1a !important;
 }
+
 .dark .bg-orange-50 {
   background-color: #2d2015 !important;
 }
+
 .dark .bg-orange-100 {
   background-color: #3d2a18 !important;
 }
+
 .dark .bg-yellow-50 {
   background-color: #2d2812 !important;
 }
+
 .dark .bg-yellow-100 {
   background-color: #3d3515 !important;
 }
@@ -873,12 +928,15 @@
 .dark .from-amber-50 {
   --tw-gradient-from: #2d2318 !important;
 }
+
 .dark .to-orange-50 {
   --tw-gradient-to: #2d2015 !important;
 }
+
 .dark .to-amber-50 {
   --tw-gradient-to: #2d2318 !important;
 }
+
 .dark .from-orange-50 {
   --tw-gradient-from: #2d2015 !important;
 }
@@ -887,6 +945,7 @@
 .dark .hover\:bg-gray-50:hover {
   background-color: #283548 !important;
 }
+
 .dark .hover\:bg-gray-100:hover {
   background-color: #2d3a4d !important;
 }
@@ -895,12 +954,15 @@
 .dark .border-gray-200 {
   border-color: var(--border) !important;
 }
+
 .dark .border-gray-100 {
   border-color: var(--border) !important;
 }
+
 .dark .border-amber-200 {
   border-color: #6b4f2a !important;
 }
+
 .dark .border-amber-500 {
   border-color: #fb923c !important;
 }
@@ -914,21 +976,27 @@
 .dark .text-amber-700 {
   color: #fbbf24 !important;
 }
+
 .dark .text-amber-800 {
   color: #fcd34d !important;
 }
+
 .dark .text-amber-900 {
   color: #fef3c7 !important;
 }
+
 .dark .text-orange-700 {
   color: #fb923c !important;
 }
+
 .dark .text-orange-800 {
   color: #fdba74 !important;
 }
+
 .dark .text-yellow-700 {
   color: #facc15 !important;
 }
+
 .dark .text-yellow-800 {
   color: #fde047 !important;
 }
@@ -939,6 +1007,7 @@
   color: var(--primary);
   border-color: color-mix(in srgb, var(--primary) 20%, transparent);
 }
+
 .tenant-active-strong {
   background-color: var(--primary);
   color: var(--primary-foreground);
@@ -950,24 +1019,66 @@
    to arbitrary Tailwind color syntax. They are global but visually change
    only when a tenant subtree overrides `--primary`. 
    Using color-mix with var() allows these to work with any color format. */
-.tenant-bg-50 { background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 8%, white); }
-.tenant-bg-100 { background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 12%, white); }
-.tenant-bg-200 { background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 20%, white); }
-.tenant-bg-600 { background-color: var(--primary-hex, rgb(var(--primary))); }
-.tenant-text-primary { color: var(--primary-hex, rgb(var(--primary))); }
-.tenant-border-200 { border-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 20%, white); }
+.tenant-bg-50 {
+  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 8%, white);
+}
+
+.tenant-bg-100 {
+  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 12%, white);
+}
+
+.tenant-bg-200 {
+  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 20%, white);
+}
+
+.tenant-bg-600 {
+  background-color: var(--primary-hex, rgb(var(--primary)));
+}
+
+.tenant-text-primary {
+  color: var(--primary-hex, rgb(var(--primary)));
+}
+
+.tenant-border-200 {
+  border-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 20%, white);
+}
 
 /* Tint helper for very light primary color (used in focus rings) */
-.tenant-tint-50 { color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 8%, white); }
+.tenant-tint-50 {
+  color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 8%, white);
+}
+
+/* Tenant accent color utility classes - uses accent color from branding */
+.tenant-accent-text {
+  color: var(--accent-hex, rgb(var(--accent)));
+}
+
+.tenant-accent-bg {
+  background-color: var(--accent-hex, rgb(var(--accent)));
+}
+
+.tenant-accent-bg-50 {
+  background-color: color-mix(in srgb, var(--accent-hex, rgb(var(--accent))) 8%, white);
+}
+
+.tenant-accent-bg-100 {
+  background-color: color-mix(in srgb, var(--accent-hex, rgb(var(--accent))) 12%, white);
+}
+
+.tenant-accent-border {
+  border-color: var(--accent-hex, rgb(var(--accent)));
+}
 
 
 /* Semi-transparent white backgrounds */
 .dark .bg-white\/95 {
   background-color: rgba(15, 23, 36, 0.95) !important;
 }
+
 .dark .bg-white\/90 {
   background-color: rgba(15, 23, 36, 0.9) !important;
 }
+
 .dark .bg-white\/80 {
   background-color: rgba(15, 23, 36, 0.8) !important;
 }
@@ -976,9 +1087,11 @@
 .dark .bg-slate-50 {
   background-color: #1a2332 !important;
 }
+
 .dark .bg-slate-100 {
   background-color: #1f2937 !important;
 }
+
 .dark .bg-slate-200 {
   background-color: #283548 !important;
 }
@@ -987,9 +1100,11 @@
 .dark .border-slate-100 {
   border-color: var(--border) !important;
 }
+
 .dark .border-slate-200 {
   border-color: var(--border) !important;
 }
+
 .dark .border-slate-300 {
   border-color: #3d4a5c !important;
 }

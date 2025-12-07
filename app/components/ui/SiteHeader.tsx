@@ -142,13 +142,13 @@ const SiteHeader = () => {
                 href="/"
                 className="flex items-center gap-3 rounded-full px-2 py-1 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl tenant-bg-100 tenant-text-primary">
                   <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true">
                     <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
                   </svg>
                 </span>
                 <div className="hidden sm:flex flex-col leading-tight">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-600 dark:text-amber-400">Asembli</span>
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Asembli</span>
                   <span className="text-lg font-semibold text-foreground">Platform</span>
                 </div>
                 <span className="text-base font-semibold text-muted-foreground sm:hidden">Asembli</span>

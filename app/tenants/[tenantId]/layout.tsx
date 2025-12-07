@@ -20,7 +20,7 @@ export default async function TenantLayout({
 }) {
   const { tenantId } = await params;
   const tenant = await getTenantById(tenantId);
-  
+
   if (!tenant) {
     redirect('/');
   }
@@ -38,7 +38,7 @@ export default async function TenantLayout({
   }
 
   const canViewSettings = user ? (
-    user.isSuperAdmin || 
+    user.isSuperAdmin ||
     await hasRole(user.id, tenant.id, [TenantRole.ADMIN]) ||
     await can(user, tenant, 'canApproveMembership') ||
     await can(user, tenant, 'canBanMembers') ||
@@ -52,7 +52,7 @@ export default async function TenantLayout({
       <div className="bg-muted min-h-screen flex flex-col">
         {/* Header hidden on mobile - navigation handled by MobileNav in SiteHeader */}
         <header
-          className="sticky z-30 bg-card shadow-sm hidden md:block"
+          className="sticky z-30 bg-card shadow-sm hidden md:block border-t-[3px] border-t-[color:var(--primary)]"
           style={{
             top: 'calc(var(--site-header-height, 4.5rem) + var(--impersonation-banner-offset, 0px))',
           }}

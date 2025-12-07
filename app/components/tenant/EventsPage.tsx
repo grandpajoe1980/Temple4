@@ -11,6 +11,7 @@ import EventsCalendar from './EventsCalendar';
 import DayEventsModal from './DayEventsModal';
 import { useToast } from '../ui/Toast';
 import { DayPicker } from 'react-day-picker';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 interface EventsPageProps {
   tenant: Tenant;
@@ -70,6 +71,17 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
   }, [tenant.id]);
 
   const canCreate = Boolean(permissions?.canCreateEvents);
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({
+      title: 'Events',
+      actions: canCreate ? (
+        <Button size="sm" data-test="create-event-trigger" onClick={() => setIsModalOpen(true)}>+ New</Button>
+      ) : undefined,
+    });
+    return () => setPageHeader(null);
+  }, [canCreate, setPageHeader]);
 
   const handleCreateEvent = async (eventData: Omit<Event, 'id' | 'tenantId' | 'createdByUserId'>) => {
     setIsSubmitting(true);
@@ -142,14 +154,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
   if (isLoading) {
     return (
       <div className="space-y-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Calendar & Events</h2>
-            <p className="mt-1 text-sm text-gray-500">
-              See what’s happening at {tenant.name}.
-            </p>
-          </div>
-        </div>
+
         <div className="text-center bg-white p-12 rounded-lg shadow-sm">
           <p className="text-gray-500">Loading events...</p>
         </div>
@@ -159,14 +164,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Calendar & Events</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            See what’s happening at {tenant.name}.
-          </p>
-        </div>
-        <div className="flex items-center space-x-4">
+<div className="flex justify-end items-center">
           <div className="bg-gray-200 p-1 rounded-lg flex space-x-1">
              <button
               onClick={() => setViewMode('calendar')}
@@ -185,12 +183,6 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
               List
             </button>
           </div>
-           {canCreate && (
-            <Button data-test="create-event-trigger" onClick={() => setIsModalOpen(true)}>
-            + Add Event
-            </Button>
-           )}
-        </div>
       </div>
 
       {viewMode === 'calendar' ? (

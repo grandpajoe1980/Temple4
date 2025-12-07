@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Tenant, User } from '@prisma/client';
 import type { EnrichedMediaItem } from '@/types';
 import Button from '../ui/Button';
@@ -8,7 +8,7 @@ import TalkCard from './SermonCard';
 import Modal from '../ui/Modal';
 import TalkForm, { type TalkFormData } from './forms/SermonForm';
 import ContentChips from './content-chips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 interface TalksPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
@@ -22,6 +22,17 @@ const TalksPage: React.FC<TalksPageProps> = ({ tenant, user, talks: initialTalks
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingTalk, setEditingTalk] = useState<EnrichedMediaItem | null>(null);
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({
+      title: 'Talks',
+      actions: canCreate ? (
+        <Button size="sm" data-test="create-talk-trigger" onClick={() => setIsModalOpen(true)}>+ New</Button>
+      ) : undefined,
+    });
+    return () => setPageHeader(null);
+  }, [canCreate, setPageHeader]);
 
   const handleCreateTalk = async (data: TalkFormData) => {
     setIsSubmitting(true);
@@ -102,15 +113,6 @@ const TalksPage: React.FC<TalksPageProps> = ({ tenant, user, talks: initialTalks
   return (
     <div className="space-y-8">
       <ContentChips tenantId={tenant.id} active="Talks" />
-      <CommunityHeader
-        title={<>Talks</>}
-        subtitle={<>Watch recent talks from {tenant.name}.</>}
-        actions={
-          canCreate ? (
-            <Button data-test="create-talk-trigger" onClick={() => setIsModalOpen(true)}>+ New Talk</Button>
-          ) : undefined
-        }
-      />
 
       {talks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

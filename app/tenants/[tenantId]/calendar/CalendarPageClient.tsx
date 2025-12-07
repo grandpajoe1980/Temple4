@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { EventWithCreator, Event } from '@/types';
@@ -10,7 +10,7 @@ import Modal from '@/app/components/ui/Modal';
 import EventForm from '@/app/components/tenant/EventForm';
 import DayEventsModal from '@/app/components/tenant/DayEventsModal';
 import CommunityChips from '@/app/components/tenant/CommunityChips';
-import CommunityHeader from '@/app/components/tenant/CommunityHeader';
+import { useSetPageHeader } from '@/app/components/ui/PageHeaderContext';
 
 interface CalendarPageClientProps {
   events: EventWithCreator[];
@@ -26,6 +26,19 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(openCreateModal);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({
+      title: 'Calendar',
+      actions: canCreateEvent ? (
+        <Link href={`/tenants/${tenantId}/calendar/new`}>
+          <Button size="sm">+ New</Button>
+        </Link>
+      ) : undefined,
+    });
+    return () => setPageHeader(null);
+  }, [canCreateEvent, tenantId, setPageHeader]);
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
@@ -103,11 +116,6 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
   return (
     <div className="space-y-4">
       <CommunityChips tenantId={tenantId} />
-      <CommunityHeader
-        title={<>Calendar</>}
-        subtitle={<>Stay up to date with everything happening in your community.</>}
-        actions={canCreateEvent ? (<Link href={`/tenants/${tenantId}/calendar/new`}><Button>+ New Event</Button></Link>) : null}
-      />
       <EventsCalendar events={calendarEvents} onDateClick={handleDateClick} currentUserId={currentUserId} />
       {selectedDate && (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg">

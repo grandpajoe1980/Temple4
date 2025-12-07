@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { PostInput, PostWithAuthor } from '@/types';
 import type { Tenant, User } from '@prisma/client';
 import Button from '../ui/Button';
@@ -8,7 +8,7 @@ import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 import BookCard from './BookCard';
 import ContentChips from './content-chips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 interface BooksPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
@@ -21,6 +21,17 @@ const BooksPage: React.FC<BooksPageProps> = ({ tenant, user, books: initialBooks
   const [books, setBooks] = useState<PostWithAuthor[]>(initialBooks);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<PostWithAuthor | null>(null);
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({
+      title: 'Books',
+      actions: canCreate ? (
+        <Button size="sm" data-test="create-book-trigger" onClick={() => setIsModalOpen(true)}>+ New</Button>
+      ) : undefined,
+    });
+    return () => setPageHeader(null);
+  }, [canCreate, setPageHeader]);
 
   const handleCreatePost = async (postData: PostInput) => {
     const response = await fetch(`/api/tenants/${tenant.id}/books`, {
@@ -73,15 +84,6 @@ const BooksPage: React.FC<BooksPageProps> = ({ tenant, user, books: initialBooks
   return (
     <div className="space-y-8">
       <ContentChips tenantId={tenant.id} active="Books" />
-      <CommunityHeader
-        title={<>Books & Studies</>}
-        subtitle={<>Read long-form content and teachings from {tenant.name}.</>}
-        actions={
-          canCreate ? (
-            <Button data-test="create-book-trigger" onClick={() => setIsModalOpen(true)}>+ New Book/Chapter</Button>
-          ) : undefined
-        }
-      />
 
       {books.length > 0 ? (
         <div className="space-y-6">

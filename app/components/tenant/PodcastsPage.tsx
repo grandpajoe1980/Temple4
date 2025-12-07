@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import type { EnrichedMediaItem, Tenant, User } from '@/types';
 import Button from '../ui/Button';
 import PodcastCard from './PodcastCard';
@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import Modal from '../ui/Modal';
 import PodcastForm, { type PodcastFormData } from './forms/PodcastForm';
 import ContentChips from './content-chips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 type SerializedEnrichedPodcast = Omit<EnrichedMediaItem, 'publishedAt'> & {
   publishedAt: string | Date;
@@ -39,6 +39,17 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
   const [editingPodcast, setEditingPodcast] = useState<EnrichedMediaItem | null>(null);
   const [expandedPodcastId, setExpandedPodcastId] = useState<string | null>(null);
   const router = useRouter();
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({
+      title: 'Podcasts',
+      actions: canCreate ? (
+        <Button size="sm" data-test="create-podcast-trigger" onClick={() => setIsModalOpen(true)}>+ New</Button>
+      ) : undefined,
+    });
+    return () => setPageHeader(null);
+  }, [canCreate, setPageHeader]);
 
   const handleCreatePodcast = async (data: PodcastFormData) => {
     setIsSubmitting(true);
@@ -135,15 +146,6 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
   return (
     <div className="space-y-8">
       <ContentChips tenantId={tenant.id} active="Podcasts" />
-      <CommunityHeader
-        title={<>Podcasts</>}
-        subtitle={<>Listen to the latest episodes from {tenant.name}.</>}
-        actions={
-          canCreate ? (
-            <Button data-test="create-podcast-trigger" onClick={() => setIsModalOpen(true)}>+ New Podcast</Button>
-          ) : undefined
-        }
-      />
 
       {podcasts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

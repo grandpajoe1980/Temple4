@@ -6,7 +6,7 @@ type SubheaderProps = {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   actions?: React.ReactNode;
-  /** CSS height for the header spacer (e.g. '3.5rem') */
+  /** CSS height for the header spacer - only used for fixed mode (e.g. '3.5rem') */
   height?: string;
   /** Optional CSS top offset. If omitted, it uses the site + tenant nav CSS variables. */
   topOffset?: string;
@@ -25,34 +25,36 @@ export default function Subheader({
   className = '',
   ariaLabel,
 }: SubheaderProps) {
-  const top = topOffset ?? 'calc(var(--site-header-height, 4.5rem) + var(--tenant-nav-height, 6rem))';
+  // Use sticky positioning for a simpler, gap-free layout.
+  // The element will flow naturally in the document and stick when scrolling.
+  // On mobile (below md breakpoint), the tenant nav is hidden, so we use 0 for tenant nav height.
+  // On desktop, we use the CSS variable set by TenantNav with a fallback.
+  const stickyTop = topOffset ?? 'calc(var(--site-header-height, 4.5rem) + var(--tenant-nav-height, 0px))';
 
-  // Expose both the legacy `--community-header-height` and a generic `--subheader-height`
-  // so existing code reading either variable keeps working after this refactor.
+  // Expose the subheader height variables for any components that need them
   const style = {
-    top,
+    top: stickyTop,
     ['--subheader-height' as any]: height,
     ['--community-header-height' as any]: height,
   } as React.CSSProperties;
 
   return (
-    <div className="subheader-wrapper">
-      <div className="fixed left-0 right-0 z-30" style={style}>
-        <div className={`bg-white border-b border-gray-200 ${className}`} aria-label={ariaLabel}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="leading-tight">
-                  <div className="text-2xl font-bold text-gray-900">{title}</div>
-                  {subtitle && <div className="mt-1 text-sm text-gray-500">{subtitle}</div>}
-                </div>
-              </div>
-              {actions && <div className="flex-shrink-0">{actions}</div>}
+    <div
+      className={`sticky left-0 right-0 z-20 -mx-4 sm:-mx-6 lg:-mx-8 bg-white dark:bg-card border-b border-gray-200 dark:border-border ${className}`}
+      style={style}
+      aria-label={ariaLabel}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="leading-tight">
+              <div className="text-2xl font-bold text-gray-900 dark:text-foreground">{title}</div>
+              {subtitle && <div className="mt-1 text-sm text-gray-500 dark:text-muted-foreground">{subtitle}</div>}
             </div>
           </div>
+          {actions && <div className="flex-shrink-0">{actions}</div>}
         </div>
       </div>
-      <div aria-hidden className="w-full" style={{ height }} />
     </div>
   );
 }

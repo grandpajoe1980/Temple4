@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { PostInput, PostWithAuthor } from '@/types';
 import type { Tenant } from '@prisma/client';
 import type { CurrentUser } from './CommentsSection';
@@ -10,7 +10,7 @@ import Modal from '../ui/Modal';
 import PostForm from './PostForm';
 import { useToast } from '../ui/Toast';
 import CommunityChips from '../tenant/CommunityChips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 interface PostsPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
@@ -24,6 +24,17 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({
+      title: 'Posts',
+      actions: canCreate ? (
+        <Button size="sm" data-test="create-post-trigger" onClick={() => setIsModalOpen(true)}>+ New</Button>
+      ) : undefined,
+    });
+    return () => setPageHeader(null);
+  }, [canCreate, setPageHeader]);
 
   const handleCreatePost = async (postData: PostInput) => {
     setIsSubmitting(true);
@@ -54,11 +65,6 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={tenant.id} />
-      <CommunityHeader
-        title={<>Posts &amp; Announcements</>}
-        subtitle={<>Read the latest updates from {tenant.name}.</>}
-        actions={canCreate ? <Button data-test="create-post-trigger" onClick={() => setIsModalOpen(true)}>+ New Post</Button> : null}
-      />
 
       {posts.length > 0 ? (
         <div className="space-y-6">

@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { CONTROL_PANEL_TABS } from '@/constants';
 import { useSession } from 'next-auth/react';
 import type { Notification } from '@/types';
@@ -11,6 +11,7 @@ import Button from './Button';
 import UserMenu from './UserMenu';
 import MobileNav from './MobileNav';
 import { ThemeToggle } from '../ThemeToggle';
+import { usePageHeader } from './PageHeaderContext';
 
 const navItems: { label: string; href: string; authOnly?: boolean }[] = [];
 
@@ -25,6 +26,9 @@ const SiteHeader = () => {
   const [panelOpen, setPanelOpen] = useState(false);
   const notificationPanelRef = useRef<HTMLDivElement | null>(null);
   const isAuthenticated = Boolean(session?.user);
+  
+  // Page-specific header content from context
+  const { config: pageHeaderConfig } = usePageHeader();
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -129,7 +133,7 @@ const SiteHeader = () => {
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4">
           {/* Mobile hamburger menu - shown on all pages on mobile */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             <MobileNav />
             
             {/* On tenant pages replace site logo with tenant hamburger menu (desktop only) */}
@@ -151,6 +155,16 @@ const SiteHeader = () => {
                 </div>
                 <span className="text-base font-semibold text-slate-700 sm:hidden">Asembli</span>
               </Link>
+            )}
+            
+            {/* Page-specific title and actions injected from pages via context */}
+            {pageHeaderConfig && (
+              <div className="flex items-center gap-2 md:gap-4 ml-2 md:ml-4 pl-2 md:pl-4 border-l border-gray-200 dark:border-gray-700 min-w-0 flex-1">
+                <h1 className="font-semibold text-gray-900 dark:text-gray-100 truncate" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)' }}>{pageHeaderConfig.title}</h1>
+                {pageHeaderConfig.actions && (
+                  <div className="flex-shrink-0">{pageHeaderConfig.actions}</div>
+                )}
+              </div>
             )}
           </div>
           {!pathname?.startsWith('/tenants/') && (

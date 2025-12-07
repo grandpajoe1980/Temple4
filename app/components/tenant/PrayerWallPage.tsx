@@ -7,7 +7,7 @@ import PrayerPostCard from './PrayerPostCard';
 import SubmitPrayerPostForm from './forms/SubmitPrayerPostForm';
 import { CommunityPostStatus, CommunityPostType } from '@/types';
 import CommunityChips from './CommunityChips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 async function fetchCommunityPosts(tenantId: string) {
   const response = await fetch(`/api/tenants/${tenantId}/community-posts`, { cache: 'no-store' });
@@ -44,6 +44,17 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({
+      title: 'Support',
+      actions: (
+        <Button size="sm" data-test="submit-request-trigger" onClick={() => setIsModalOpen(true)}>+ Request</Button>
+      ),
+    });
+    return () => setPageHeader(null);
+  }, [setPageHeader]);
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -83,14 +94,6 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
     return (
       <div className="space-y-8">
         <CommunityChips tenantId={tenant.id} />
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Community Support Board</h2>
-            <p className="mt-1 text-sm text-gray-500">
-              Share support requests and tangible needs with the {tenant.name} community.
-            </p>
-          </div>
-        </div>
         <div className="text-center bg-white p-12 rounded-lg shadow-sm">
           <p className="text-gray-500">Loading...</p>
         </div>
@@ -101,11 +104,6 @@ const PrayerWallPage: React.FC<PrayerWallPageProps> = ({ tenant, user, onRefresh
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={tenant.id} />
-      <CommunityHeader
-        title={<>Community Support Board</>}
-        subtitle={<>Share support requests and tangible needs with the {tenant.name} community.</>}
-        actions={<Button data-test="submit-request-trigger" onClick={() => setIsModalOpen(true)}>+ Submit a Request</Button>}
-      />
 
       {posts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

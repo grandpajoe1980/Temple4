@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import type { Tenant, User } from '@prisma/client';
 import type { EnrichedTrip } from '@/types';
 import Button from '../ui/Button';
 import CommunityChips from './CommunityChips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 import Modal from '../ui/Modal';
 import TripForm, { TripFormValues } from './forms/TripForm';
 import TripCard from './TripCard';
@@ -35,6 +35,19 @@ const TripsPage: React.FC<TripsPageProps> = ({ tenant, user, trips, onRefresh, i
   const [selectedTripId, setSelectedTripId] = useState<string | null>(sortedTrips.length > 0 ? sortedTrips[0].id : null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({
+      title: 'Trips',
+      actions: isAdmin ? (
+        <Button size="sm" data-test="create-trip-trigger" variant="primary" onClick={() => setIsModalOpen(true)}>
+          Create
+        </Button>
+      ) : undefined,
+    });
+    return () => setPageHeader(null);
+  }, [isAdmin, setPageHeader]);
 
   const handleCreate = async (values: TripFormValues) => {
     setIsSubmitting(true);
@@ -70,17 +83,6 @@ const TripsPage: React.FC<TripsPageProps> = ({ tenant, user, trips, onRefresh, i
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={(tenant as any).id} />
-      <CommunityHeader
-        title={<>Trips</>}
-        subtitle={<>Plan, coordinate, and fund trips for your community. Track signups, logistics, and fundraising in one place.</>}
-        actions={
-          isAdmin ? (
-            <Button data-test="create-trip-trigger" variant="primary" onClick={() => setIsModalOpen(true)}>
-              Create Trip
-            </Button>
-          ) : null
-        }
-      />
 
       {visibleTrips.length > 0 ? (
         <div className="flex flex-col gap-6 lg:flex-row">

@@ -1,11 +1,11 @@
 "use client"
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Input from '../ui/Input';
 import MemberCard from './MemberCard';
 import type { MemberWithMembership, TenantWithRelations, UserWithProfileSettings } from '@/lib/data';
 import CommunityChips from './CommunityChips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 interface StaffPageProps {
   tenant: Pick<TenantWithRelations, 'name'>;
@@ -16,6 +16,12 @@ interface StaffPageProps {
 
 const StaffPage: React.FC<StaffPageProps> = ({ tenant, user: _user, members, onViewProfile }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({ title: 'Staff' });
+    return () => setPageHeader(null);
+  }, [setPageHeader]);
 
   const filteredMembers = useMemo(() => {
     if (!searchTerm) return members;
@@ -29,10 +35,6 @@ const StaffPage: React.FC<StaffPageProps> = ({ tenant, user: _user, members, onV
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={(tenant as any).id} />
-      <CommunityHeader
-        title={<>Staff Directory</>}
-        subtitle={<>Meet the staff of {tenant.name}.</>}
-      />
 
       <div className="max-w-md">
         <Input

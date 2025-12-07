@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import EventCard from './EventCard';
 import RSVPModal from './RSVPModal';
-import CommunityHeader from '../tenant/CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 import { useRouter } from 'next/navigation';
+import Button from '../ui/Button';
 
 export default function CalendarClient({ tenantId }: { tenantId: string }) {
   const [events, setEvents] = useState<any[]>([]);
@@ -11,6 +12,7 @@ export default function CalendarClient({ tenantId }: { tenantId: string }) {
   const [loading, setLoading] = useState(true);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const router = useRouter();
+  const setPageHeader = useSetPageHeader();
 
   useEffect(() => {
     let mounted = true;
@@ -39,20 +41,18 @@ export default function CalendarClient({ tenantId }: { tenantId: string }) {
     return () => { mounted = false; };
   }, [tenantId]);
 
+  useEffect(() => {
+    setPageHeader({
+      title: 'Events',
+      actions: isAdmin ? (
+        <Button size="sm" onClick={() => router.push(`/tenants/${tenantId}/events/new`)}>+ New</Button>
+      ) : undefined,
+    });
+    return () => setPageHeader(null);
+  }, [isAdmin, setPageHeader, router, tenantId]);
+
   return (
     <div className="space-y-8">
-      <CommunityHeader
-        title="Events"
-        subtitle="Upcoming gatherings and activities."
-        actions={isAdmin && (
-          <button
-            className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors shadow-sm"
-            onClick={() => router.push(`/tenants/${tenantId}/events/new`)}
-          >
-            + New Event
-          </button>
-        )}
-      />
 
       {loading && (
         <div className="flex justify-center py-12">

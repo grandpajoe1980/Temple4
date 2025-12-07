@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Tenant, User } from '@prisma/client';
 import SmallGroupCard from './SmallGroupCard';
 import SmallGroupDetail from './SmallGroupDetail';
 import Button from '../ui/Button';
 import CommunityChips from './CommunityChips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 // Match the enriched type returned by getSmallGroupsForTenant
 type EnrichedSmallGroup = {
@@ -68,6 +68,19 @@ const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, groups,
   const activeGroups = visibleGroups.filter(g => g.isActive);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(activeGroups.length > 0 ? activeGroups[0].id : null);
   const [creating, setCreating] = useState(false);
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({
+      title: 'Groups',
+      actions: isAdmin ? (
+        <Button size="sm" variant="primary" onClick={handleCreate} disabled={creating}>
+          {creating ? 'Creating…' : 'Create'}
+        </Button>
+      ) : undefined,
+    });
+    return () => setPageHeader(null);
+  }, [isAdmin, creating, setPageHeader]);
 
   const handleCreate = async () => {
     const name = prompt('Enter a name for the new small group');
@@ -96,11 +109,6 @@ const SmallGroupsPage: React.FC<SmallGroupsPageProps> = ({ tenant, user, groups,
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={(tenant as any).id} />
-      <CommunityHeader
-        title={<>Small Groups</>}
-        subtitle={<>Find a group to connect with at {tenant.name}. Join to access the dedicated group chat and shared resources.</>}
-        actions={isAdmin ? <Button variant="primary" onClick={handleCreate} disabled={creating}>{creating ? 'Creating…' : 'Create Group'}</Button> : null}
-      />
 
       {activeGroups.length > 0 ? (
         <div className="flex flex-col lg:flex-row gap-6">

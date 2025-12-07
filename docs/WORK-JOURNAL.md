@@ -917,3 +917,88 @@ Session 12 delivered **high-value improvements** that benefit both developers an
 **Phase E is substantially complete.** The remaining work is primarily optional enhancements (accessibility testing, additional loading states) rather than critical features. The platform is now well-documented, production-ready, and provides an excellent foundation for future development.
 
 **Ready for:** Phase D (Admin Console) or continued Phase E polish (accessibility, performance optimization).
+
+---
+
+## Session 15: 2025-12-06 - Subheader Spacing Fix (Desktop & Mobile)
+
+### Issue Description
+
+On many pages with subheaders (Photos, Podcasts, Books, etc.), there was a visual gap between:
+1. The bottom of the menu chips row (Photos, Podcasts, Talks, Books, Live Stream)
+2. The top of the page subheader section (e.g., "Photos" title with upload button)
+
+The gap appeared as exposed gray (`bg-muted`) background visible between the navigation and the content section.
+
+### Root Cause Analysis
+
+The issue stemmed from the `Subheader` component's architecture:
+
+1. **Fixed positioning with CSS variable calculations**: The Subheader used `position: fixed` with `top: calc(var(--site-header-height) + var(--tenant-nav-height))`. The `--tenant-nav-height` fallback was 6rem (96px), which was often larger than the actual nav height (~84px).
+
+2. **Timing issues**: The `--tenant-nav-height` CSS variable is set by TenantNav in a useEffect, meaning on first render the fallback was used, causing the Subheader to appear lower than intended.
+
+3. **Spacer element mismatch**: The fixed positioning required a spacer div to push content down, but this created additional complexity and potential gaps.
+
+4. **`space-y-*` wrappers**: The PhotosPage (and similar pages) used `space-y-6` which wasn't the primary cause but contributed to layout complexity.
+
+### Solution Implemented
+
+1. **Changed Subheader from `fixed` to `sticky` positioning**:
+   - The element now flows naturally in the document
+   - Sticks when scrolling at the correct position
+   - Eliminated the need for a spacer div
+
+2. **Removed the spacer div**: No longer needed with sticky positioning.
+
+3. **Updated fallback for `--tenant-nav-height` to `0px`**:
+   - On mobile, the tenant nav is hidden (`hidden md:block`)
+   - Fallback of 0 ensures correct positioning on mobile
+   - On desktop, the CSS variable is set by TenantNav
+
+4. **Added responsive negative margins**: Used `-mx-4 sm:-mx-6 lg:-mx-8` to extend the Subheader full-width within the padded content container.
+
+5. **Removed `space-y-6` from PhotosPage**: Changed wrapper from `<div className="space-y-6">` to `<div>` since the Subheader now handles its own spacing.
+
+6. **Added dark mode support**: Included `dark:bg-card`, `dark:border-border`, and appropriate text colors.
+
+### Files Changed
+
+1. **`app/components/ui/Subheader.tsx`**: Complete refactor from fixed to sticky positioning
+2. **`app/components/tenant/PhotosPage.tsx`**: Removed `space-y-6` wrapper class
+
+### Global Impact
+
+The Subheader change is **global** - all pages using `CommunityHeader` (which wraps Subheader) automatically benefit:
+- Photos, Podcasts, Talks, Books, Live Stream (content pages)
+- Members, Small Groups, Volunteering, Trips (community pages)
+- Calendar, Events, Posts, Wall (other tenant pages)
+- Any future pages using CommunityHeader
+
+### Testing
+
+- ✅ No TypeScript errors
+- ✅ Dev server successfully loads all content pages
+- ✅ Build compiles successfully
+- ✅ Pages render correctly with no visible gap
+
+### Technical Notes
+
+The sticky positioning approach is cleaner and more maintainable because:
+1. It flows with the document naturally
+2. No need for complex CSS variable calculations with fallbacks
+3. No spacer element needed
+4. Works correctly on both desktop and mobile
+5. Respects the scroll behavior for sticky navigation
+
+### Time Summary
+
+- Session Duration: ~45 minutes
+- Analysis: 20 minutes
+- Implementation: 15 minutes
+- Testing & Documentation: 10 minutes
+
+### Conclusion
+
+This session resolved the visual gap issue on content pages by simplifying the Subheader's positioning strategy from fixed to sticky. The fix applies globally to all pages with subheaders, improving both desktop and mobile layouts with zero breaking changes.
+

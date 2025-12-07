@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { TenantWithRelations, UserWithProfileSettings, VolunteerNeedWithSignups } from '@/lib/data';
 import VolunteerNeedCard from './VolunteerNeedCard';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import VolunteerNeedForm from './forms/VolunteerNeedForm';
 import CommunityChips from './CommunityChips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 interface VolunteeringPageProps {
   tenant: Pick<TenantWithRelations, 'id' | 'name'>;
@@ -18,6 +18,17 @@ interface VolunteeringPageProps {
 
 const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs, onRefresh }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({
+      title: 'Volunteer',
+      actions: (
+        <Button size="sm" data-test="create-volunteer-trigger" onClick={() => setIsModalOpen(true)}>+ New</Button>
+      ),
+    });
+    return () => setPageHeader(null);
+  }, [setPageHeader]);
 
   const handleCreateNeed = async (data: { title: string; description: string; date: Date; slotsNeeded: number; location?: string }) => {
     try {
@@ -41,11 +52,6 @@ const VolunteeringPage: React.FC<VolunteeringPageProps> = ({ tenant, user, needs
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={(tenant as any).id} />
-      <CommunityHeader
-        title={<>Volunteer Opportunities</>}
-        subtitle={<>Find ways to get involved and serve at {tenant.name}.</>}
-        actions={<Button data-test="create-volunteer-trigger" onClick={() => setIsModalOpen(true)}>+ New</Button>}
-      />
 
       {needs.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

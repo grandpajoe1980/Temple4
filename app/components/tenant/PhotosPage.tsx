@@ -6,7 +6,7 @@ import type { CurrentUser } from './CommentsSection';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import ContentChips from './content-chips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 interface PhotoItem {
   id: string;
@@ -29,10 +29,7 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
   const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const toast = useToast();
-
-  useEffect(() => {
-    setPhotos(initialPhotos || []);
-  }, [initialPhotos]);
+  const setPageHeader = useSetPageHeader();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -79,6 +76,26 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
     }
   };
 
+  // Set page header content in the site header
+  useEffect(() => {
+    setPageHeader({
+      title: 'Photos',
+      subtitle: `A gallery of recent photos for ${tenant.name}`,
+      actions: canCreate ? (
+        <Button size="sm" onClick={() => inputRef.current?.click()} disabled={isUploading}>
+          {isUploading ? 'Uploading...' : 'Upload'}
+        </Button>
+      ) : undefined,
+    });
+    
+    // Clear header when component unmounts
+    return () => setPageHeader(null);
+  }, [canCreate, isUploading, tenant.name, setPageHeader]);
+
+  useEffect(() => {
+    setPhotos(initialPhotos || []);
+  }, [initialPhotos]);
+
   const handleDelete = async (storageKey: string | null | undefined, id: string) => {
     if (!isAdmin) return;
     if (!confirm('Delete this photo? This action cannot be undone.')) return;
@@ -119,18 +136,13 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
   };
 
   return (
-    <div className="space-y-6">
+    <div>
       <ContentChips tenantId={tenant.id} active="Photos" />
-      <CommunityHeader
-        title={<>Photos</>}
-        subtitle={<>A gallery of recent photos for {tenant.name}.</>}
-        actions={canCreate ? (
-          <div className="flex items-center gap-2">
-            <input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
-            <Button onClick={() => inputRef.current?.click()} disabled={isUploading}>{isUploading ? 'Uploading...' : 'Upload Photo'}</Button>
-          </div>
-        ) : null}
-      />
+      
+      {/* Hidden file input - triggered by button in site header */}
+      {canCreate && (
+        <input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} className="hidden" />
+      )}
 
       {photos.length === 0 ? (
         <div className="text-center bg-white p-12 rounded-lg shadow-sm">

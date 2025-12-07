@@ -1,9 +1,9 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import ContentChips from './content-chips';
 import Card from '../ui/Card';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 interface LiveStreamPageProps {
   tenant: {
@@ -31,6 +31,12 @@ function normalizeYoutubeEmbed(url?: string) {
 
 const LiveStreamPage: React.FC<LiveStreamPageProps> = ({ tenant }) => {
   const liveStreamSettings = (tenant.settings as any)?.liveStreamSettings;
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({ title: 'Live Stream' });
+    return () => setPageHeader(null);
+  }, [setPageHeader]);
 
   if (!liveStreamSettings?.embedUrl) {
     return (
@@ -46,10 +52,6 @@ const LiveStreamPage: React.FC<LiveStreamPageProps> = ({ tenant }) => {
   return (
     <div className="space-y-8">
       <ContentChips tenantId={tenant.id} active="Live Stream" />
-      <CommunityHeader
-        title={<>Live Stream</>}
-        subtitle={<>Join the live service from {tenant.name}.</>}
-      />
         <Card className="!p-0 overflow-hidden">
             <div className="aspect-video w-full">
           <iframe

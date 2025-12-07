@@ -1,11 +1,11 @@
 "use client"
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Input from '../ui/Input';
 import MemberCard from './MemberCard';
 import type { MemberWithMembership, TenantWithRelations, UserWithProfileSettings } from '@/lib/data';
 import CommunityChips from './CommunityChips';
-import CommunityHeader from './CommunityHeader';
+import { useSetPageHeader } from '../ui/PageHeaderContext';
 
 interface MembersPageProps {
   tenant: Pick<TenantWithRelations, 'name'>;
@@ -16,6 +16,12 @@ interface MembersPageProps {
 
 const MembersPage: React.FC<MembersPageProps> = ({ tenant, user: _user, members, onViewProfile }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const setPageHeader = useSetPageHeader();
+
+  useEffect(() => {
+    setPageHeader({ title: 'Members' });
+    return () => setPageHeader(null);
+  }, [setPageHeader]);
 
   const filteredMembers = useMemo(() => {
     if (!searchTerm) {
@@ -31,10 +37,6 @@ const MembersPage: React.FC<MembersPageProps> = ({ tenant, user: _user, members,
   return (
     <div className="space-y-8">
       <CommunityChips tenantId={(tenant as any).id} />
-      <CommunityHeader
-        title={<>Member Directory</>}
-        subtitle={<>Find and connect with members of {tenant.name}.</>}
-      />
 
       <div className="max-w-md">
         <Input

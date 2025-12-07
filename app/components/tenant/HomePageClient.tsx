@@ -206,7 +206,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
   return (
     <div className="space-y-8">
       {isLive && (
-        <div className="bg-amber-50 border border-amber-200 rounded-md p-4 flex items-center space-x-4 cursor-pointer" onClick={() => router.push(`/tenants/${tenant.id}/live`)}>
+        <div className="rounded-md p-4 flex items-center space-x-4 cursor-pointer" onClick={() => router.push(`/tenants/${tenant.id}/live`)} style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 8%, transparent)', border: '1px solid', borderColor: 'color-mix(in srgb, var(--primary) 20%, transparent)'}}>
           <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 animate-pulse" aria-hidden="true"></span>
           <span className="font-bold text-lg">We’re Live! Click here to join.</span>
         </div>
@@ -214,7 +214,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
 
       {/* Header Section */}
       <div className="relative bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="h-48 bg-gradient-to-r from-amber-100 to-amber-200">
+        <div className="h-48 tenant-bg-100">
             {tenant.branding?.bannerImageUrl && (
               <img 
                   src={tenant.branding.bannerImageUrl} 
@@ -300,7 +300,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
                    {upcomingEvents.length > 0 ? upcomingEvents.map((event: any) => (
                         <li key={event.id} className="p-4 hover:bg-gray-50 cursor-pointer" onClick={() => onNavigate(`calendar/${event.id}`)}>
                             <div className="font-semibold text-sm text-gray-800">{event.title}</div>
-                            <div className="text-xs text-amber-700 mt-1">
+                            <div className="text-xs tenant-text-primary mt-1">
                                 {new Date(event.startDateTime).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                             </div>
                         </li>

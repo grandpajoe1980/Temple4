@@ -300,7 +300,7 @@ export default function AdminVanityDomainsPage({ tenantId }: AdminVanityDomainsP
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-slate-900">{domain.domain}</span>
                       {domain.isPrimary && (
-                        <span className="px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded">
+                        <span className="px-2 py-0.5 text-xs font-medium tenant-bg-100 text-[color:var(--primary)] rounded">
                           Primary
                         </span>
                       )}
@@ -499,7 +499,7 @@ export default function AdminVanityDomainsPage({ tenantId }: AdminVanityDomainsP
               }}
             />
 
-            <div className="bg-amber-50 text-amber-800 rounded-lg p-4 text-sm">
+            <div className="tenant-bg-50 text-[color:var(--primary)] rounded-lg p-4 text-sm">
               <strong>Important:</strong> Before using custom domains, ensure you have:
               <ul className="list-disc ml-5 mt-2 space-y-1">
                 <li>Access to your domain&apos;s DNS settings</li>

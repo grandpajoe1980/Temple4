@@ -154,7 +154,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
             {tenant.contactEmail && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-500">Email</h4>
-                <a href={`mailto:${tenant.contactEmail}`} className="text-amber-600 hover:underline">{tenant.contactEmail}</a>
+                <a href={`mailto:${tenant.contactEmail}`} className="tenant-text-primary hover:underline">{tenant.contactEmail}</a>
               </div>
             )}
             {tenant.phoneNumber && (
@@ -174,7 +174,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                      className="text-gray-600 hover:text-[color:var(--primary)] transition-colors"
                       aria-label={link.ariaLabel}
                     >
                       {link.icon}
@@ -222,7 +222,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               {initialServiceName && (
-                <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                <div className="rounded-md border tenant-border-200 tenant-bg-50 p-4 text-sm text-[color:var(--primary)]">
                   You’re asking about <span className="font-semibold">{initialServiceName}</span>. We’ll include that in your
                   message so our team knows how to help.
                 </div>
@@ -255,7 +255,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
                   id="message"
                   name="message"
                   rows={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                   value={formState.message}
                   onChange={handleInputChange}
                   required

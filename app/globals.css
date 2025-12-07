@@ -933,6 +933,34 @@
   color: #fde047 !important;
 }
 
+/* Tenant-scoped active/highlight utilities that map to tenant branding variables */
+.tenant-active {
+  background-color: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+.tenant-active-strong {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Additional tenant helper tint/utility classes mapping common amber tints
+   to tenant `--primary`. These make it easier to convert many existing
+   `amber-*` usages to tenant-aware styling without changing every component
+   to arbitrary Tailwind color syntax. They are global but visually change
+   only when a tenant subtree overrides `--primary`. 
+   Using color-mix with var() allows these to work with any color format. */
+.tenant-bg-50 { background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 8%, white); }
+.tenant-bg-100 { background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 12%, white); }
+.tenant-bg-200 { background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 20%, white); }
+.tenant-bg-600 { background-color: var(--primary-hex, rgb(var(--primary))); }
+.tenant-text-primary { color: var(--primary-hex, rgb(var(--primary))); }
+.tenant-border-200 { border-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 20%, white); }
+
+/* Tint helper for very light primary color (used in focus rings) */
+.tenant-tint-50 { color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary))) 8%, white); }
+
+
 /* Semi-transparent white backgrounds */
 .dark .bg-white\/95 {
   background-color: rgba(15, 23, 36, 0.95) !important;

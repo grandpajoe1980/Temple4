@@ -31,13 +31,13 @@ const SubmitSupportRequestForm: React.FC<SubmitSupportRequestFormProps> = ({ onS
         <div className="flex space-x-4">
           <label className="flex-1">
             <input type="radio" name="post-type" value={CommunityPostType.SUPPORT_REQUEST} checked={type === CommunityPostType.SUPPORT_REQUEST} onChange={() => setType(CommunityPostType.SUPPORT_REQUEST)} className="sr-only" />
-            <div className={`p-4 rounded-lg border-2 cursor-pointer text-center ${type === CommunityPostType.SUPPORT_REQUEST ? 'border-amber-500 bg-amber-50' : 'border-gray-300 bg-white'}`}>
+            <div className={`p-4 rounded-lg border-2 cursor-pointer text-center ${type === CommunityPostType.SUPPORT_REQUEST ? 'border-[color:var(--primary)] tenant-bg-50' : 'border-gray-300 bg-white'}`}>
               Support Request
             </div>
           </label>
           <label className="flex-1">
             <input type="radio" name="post-type" value={CommunityPostType.TANGIBLE_NEED} checked={type === CommunityPostType.TANGIBLE_NEED} onChange={() => setType(CommunityPostType.TANGIBLE_NEED)} className="sr-only" />
-            <div className={`p-4 rounded-lg border-2 cursor-pointer text-center ${type === CommunityPostType.TANGIBLE_NEED ? 'border-amber-500 bg-amber-50' : 'border-gray-300 bg-white'}`}>
+            <div className={`p-4 rounded-lg border-2 cursor-pointer text-center ${type === CommunityPostType.TANGIBLE_NEED ? 'border-[color:var(--primary)] tenant-bg-50' : 'border-gray-300 bg-white'}`}>
               Tangible Need
             </div>
           </label>
@@ -52,7 +52,7 @@ const SubmitSupportRequestForm: React.FC<SubmitSupportRequestFormProps> = ({ onS
           id="body"
           name="body"
           rows={6}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
           value={body}
           onChange={(e) => setBody(e.target.value)}
           required

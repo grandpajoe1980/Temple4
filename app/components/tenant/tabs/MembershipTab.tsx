@@ -255,7 +255,7 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
         <select
           id="membershipApprovalMode"
           name="membershipApprovalMode"
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md bg-white text-gray-900"
+          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm rounded-md bg-white text-gray-900"
           value={tenant.settings.membershipApprovalMode}
           onChange={handleModeChange}
         >

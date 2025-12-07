@@ -282,7 +282,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
       <div className="border-t border-gray-200 pt-8">
         <h3 className="text-lg font-medium leading-6 text-gray-900">Social Media Links</h3>
         <p className="mt-1 text-sm text-gray-500">Add your social media profiles. These will appear in your temple&apos;s footer.</p>
-        <p className="mt-1 text-xs text-amber-700">Drag to reorder. URLs must use HTTPS.</p>
+        <p className="mt-1 text-xs tenant-text-primary">Drag to reorder. URLs must use HTTPS.</p>
       </div>
       <div className="space-y-4">
         {socialLinks.map((link, index) => (
@@ -294,7 +294,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
             onDrop={(e) => handleDrop(e, index)}
             onDragEnd={handleDragEnd}
             className={`flex items-start space-x-4 p-4 bg-gray-50 rounded-lg border transition-all ${
-              draggedIndex === index ? 'opacity-50 border-amber-500' : 'border-gray-200'
+              draggedIndex === index ? 'opacity-50 border-[color:var(--primary)]' : 'border-gray-200'
             } ${socialLinkErrors[index] ? 'border-red-300 bg-red-50' : ''}`}
           >
             {/* Drag handle */}
@@ -414,7 +414,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
                       .map((link, i) => (
                         <span
                           key={`preview-${link.platform}-${i}`}
-                          className="text-gray-600 hover:text-amber-600 transition-colors cursor-pointer"
+                          className="text-gray-600 hover:text-[color:var(--primary)] transition-colors cursor-pointer"
                           title={link.label || getPlatformName(link.platform)}
                         >
                           {getPlatformIcon(link.platform)}
@@ -434,7 +434,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
       <div className="border-t border-gray-200 pt-8">
         <h3 className="text-lg font-medium leading-6 text-gray-900">Custom Links</h3>
         <p className="mt-1 text-sm text-gray-500">Add custom links to your temple&apos;s public page (e.g., website, donations).</p>
-        <p className="mt-1 text-xs text-amber-700">To enable the &apos;Donate&apos; button on your home page, add a link with the exact label &quot;Donate&quot;.</p>
+        <p className="mt-1 text-xs tenant-text-primary">To enable the &apos;Donate&apos; button on your home page, add a link with the exact label &quot;Donate&quot;.</p>
       </div>
       <div className="space-y-4">
         {(tenant.branding.customLinks || []).map((link, index) => (

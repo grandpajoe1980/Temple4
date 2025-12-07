@@ -28,7 +28,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, tenantId, currentUser }) => {
                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${postTypeStyles[post.type]}`}>
                         {post.type}
                     </span>
-                    <h3 className="mt-2 text-xl font-semibold text-gray-900 hover:text-amber-700 cursor-pointer">
+                    <h3 className="mt-2 text-xl font-semibold text-gray-900 hover:text-[color:var(--primary)] cursor-pointer">
                         {post.title}
                     </h3>
                 </div>
@@ -50,7 +50,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, tenantId, currentUser }) => {
             <div className="flex items-center space-x-3">
                 <Link href={`/profile/${post.authorUserId}`} className="flex items-center space-x-2">
                   <img className="h-8 w-8 rounded-full" src={post.authorAvatarUrl || '/placeholder-avatar.svg'} alt={post.authorDisplayName} />
-                  <span className="font-medium text-gray-800 hover:text-amber-700">{post.authorDisplayName}</span>
+                  <span className="font-medium text-gray-800 hover:text-[color:var(--primary)]">{post.authorDisplayName}</span>
                 </Link>
             </div>
             <time dateTime={publishedDate ? publishedDate.toISOString() : ''} className="text-gray-500">

@@ -89,7 +89,7 @@ const CreateTenantForm: React.FC = () => {
               id="description"
               name="description"
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
               value={formData.description}
               onChange={handleChange}
             />

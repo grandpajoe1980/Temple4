@@ -80,7 +80,7 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
           <select
             id="category"
             name="category"
-            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-amber-500"
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-[color:var(--primary)]"
             value={category}
             onChange={(e) => setCategory(e.target.value as ServiceCategory)}
           >
@@ -101,7 +101,7 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
           id="description"
           name="description"
           rows={4}
-          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-amber-500"
+          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-[color:var(--primary)]"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required

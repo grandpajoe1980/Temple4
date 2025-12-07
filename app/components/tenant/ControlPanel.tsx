@@ -176,7 +176,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
             <p>This section has its own dedicated page.</p>
             <button 
               onClick={() => handleTabClick(activeTab)}
-              className="mt-4 text-amber-600 hover:text-amber-700 font-medium"
+              className="mt-4 tenant-text-primary hover:text-[color:var(--primary)] font-medium"
             >
               Go to {activeTab} →
             </button>
@@ -202,7 +202,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
                 onClick={() => handleTabClick(tab)}
                 className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-between ${
                   isActive
-                    ? 'bg-amber-50 text-amber-700 font-medium'
+                    ? 'tenant-bg-50 tenant-text-primary font-medium'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >

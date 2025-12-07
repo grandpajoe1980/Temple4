@@ -357,7 +357,7 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
     <div className="space-y-8">
         <div>
             <h3 className="text-lg font-medium leading-6 text-gray-900">Donation Settings</h3>
-            <p className="mt-1 text-sm text-gray-500">Configure how your community can receive donations. The main “Enable Donations” toggle is in the <span className="font-semibold text-amber-700">Features</span> tab.</p>
+            <p className="mt-1 text-sm text-gray-500">Configure how your community can receive donations. The main "Enable Donations" toggle is in the <span className="font-semibold tenant-text-primary">Features</span> tab.</p>
         </div>
         
         <div className="space-y-6">
@@ -366,7 +366,7 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
               <select
                 id="mode"
                 name="mode"
-                className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+                className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
                 value={settings.mode}
                 onChange={(e) => handleSettingsChange('mode', e.target.value as 'EXTERNAL' | 'INTEGRATED')}
               >
@@ -470,7 +470,7 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
             <textarea
               id="mailingAddress"
               name="mailingAddress"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
               rows={3}
               value={settings.mailingAddress}
               onChange={e => handleSettingsChange('mailingAddress', e.target.value)}
@@ -482,7 +482,7 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
             <textarea
               id="bankTransferInstructions"
               name="bankTransferInstructions"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
               rows={3}
               value={settings.bankTransferInstructions}
               onChange={e => handleSettingsChange('bankTransferInstructions', e.target.value)}
@@ -502,7 +502,7 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
             <textarea
               id="otherGivingLinks"
               name="otherGivingLinks"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
               rows={3}
               value={serializeOtherGivingLinks(settings.otherGivingLinks)}
               onChange={handleOtherLinksChange}
@@ -514,7 +514,7 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
             <textarea
               id="otherGivingNotes"
               name="otherGivingNotes"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
               rows={3}
               value={settings.otherGivingNotes}
               onChange={e => handleSettingsChange('otherGivingNotes', e.target.value)}
@@ -537,7 +537,7 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="leaderboardVisibility" className="block text-sm font-medium text-gray-700 mb-1">Visibility</label>
-                      <select id="leaderboardVisibility" name="leaderboardVisibility" className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+                      <select id="leaderboardVisibility" name="leaderboardVisibility" className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
                          value={settings.leaderboardVisibility} onChange={e => handleSettingsChange('leaderboardVisibility', e.target.value as 'PUBLIC' | 'MEMBERS_ONLY')}
                       >
                         <option value="MEMBERS_ONLY">Members Only</option>
@@ -546,7 +546,7 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
                     </div>
                      <div>
                       <label htmlFor="leaderboardTimeframe" className="block text-sm font-medium text-gray-700 mb-1">Timeframe</label>
-                      <select id="leaderboardTimeframe" name="leaderboardTimeframe" className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+                      <select id="leaderboardTimeframe" name="leaderboardTimeframe" className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
                         value={settings.leaderboardTimeframe} onChange={e => handleSettingsChange('leaderboardTimeframe', e.target.value as 'ALL_TIME' | 'YEARLY' | 'MONTHLY')}
                       >
                         <option value="ALL_TIME">All Time</option>
@@ -637,14 +637,14 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
                   <div key={fund.id} className="rounded-lg border border-gray-200 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm uppercase tracking-wide text-amber-700">{fund.type}</p>
+                        <p className="text-sm uppercase tracking-wide tenant-text-primary">{fund.type}</p>
                         <p className="text-lg font-semibold text-gray-900">{fund.name}</p>
                         <p className="text-xs text-gray-500">{fund.visibility} · {fund.currency}</p>
                         {fund.description && <p className="text-sm text-gray-600 mt-1">{fund.description}</p>}
                         <p className="text-sm text-gray-700 mt-2">Raised {(fund.amountRaisedCents / 100).toLocaleString(undefined, { style: 'currency', currency: fund.currency })}{fund.goalAmountCents ? ` of ${(fund.goalAmountCents / 100).toLocaleString(undefined, { style: 'currency', currency: fund.currency })}` : ''}</p>
                         {progress !== null && (
                           <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                            <div className="h-full bg-amber-500" style={{ width: `${progress}%` }} />
+                            <div className="h-full bg-[color:var(--primary)]" style={{ width: `${progress}%` }} />
                           </div>
                         )}
                       </div>
@@ -718,7 +718,7 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
                       {donationSummaries.map((summary) => (
                         <div key={summary.fundId} className="rounded-lg border border-gray-200 p-4 bg-white">
                           <h5 className="font-medium text-gray-900">{summary.fundName}</h5>
-                          <p className="text-2xl font-bold text-amber-600 mt-1">
+                          <p className="text-2xl font-bold tenant-text-primary mt-1">
                             {summary.totalAmount.toLocaleString(undefined, { style: 'currency', currency: summary.currency })}
                           </p>
                           <p className="text-xs text-gray-500 mt-1">Total raised</p>
@@ -727,10 +727,10 @@ const DonationsTab: React.FC<DonationsTabProps> = ({ tenant, onUpdate, onSave })
                     </div>
                     
                     {reportTotal && reportTotal.amount > 0 && (
-                      <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
+                      <div className="rounded-lg border-2 tenant-border-200 tenant-bg-50 p-4">
                         <div className="flex items-center justify-between">
                           <span className="font-medium text-gray-900">Total Across All Funds</span>
-                          <span className="text-2xl font-bold text-amber-700">
+                          <span className="text-2xl font-bold tenant-text-primary">
                             {reportTotal.amount.toLocaleString(undefined, { style: 'currency', currency: settings.currency })}
                           </span>
                         </div>

@@ -38,10 +38,10 @@ const ServicesPage = ({ tenant, services, facilities, selectedCategory, isMember
       ) : (
         <>
           {!isMember && (
-            <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <div className="rounded-md border p-4 text-sm" style={{ borderColor: 'color-mix(in srgb, var(--primary) 20%, transparent)', backgroundColor: 'color-mix(in srgb, var(--primary) 8%, transparent)', color: 'color-mix(in srgb, var(--primary) 90%, black)'}}>
               <p>
                 Some services may be reserved for members.{' '}
-                <Link href={`/tenants/${tenant.id}/contact`} className="font-semibold text-amber-700 hover:underline">
+                <Link href={`/tenants/${tenant.id}/contact`} className="font-semibold text-[color:var(--primary)] hover:underline">
                   Contact the team
                 </Link>{' '}
                 to learn more about membership options.
@@ -72,19 +72,19 @@ const ServicesPage = ({ tenant, services, facilities, selectedCategory, isMember
                         {service.pricing ? `Cost: ${service.pricing}` : 'No cost listed'}
                       </p>
                       {service.requiresBooking && (
-                        <p className="text-sm text-amber-700">Booking is required. Our team will help you schedule next steps.</p>
+                        <p className="text-sm tenant-text-primary">Booking is required. Our team will help you schedule next steps.</p>
                       )}
                     </div>
                     <div className="mt-4 flex flex-wrap gap-3">
                       <Link
                         href={`/tenants/${tenant.id}/services/${service.id}`}
-                        className="text-sm font-semibold text-amber-600 hover:text-amber-700"
+                        className="text-sm font-semibold text-[color:var(--primary)] hover:opacity-90"
                       >
                         View details →
                       </Link>
                       <Link
                         href={`/tenants/${tenant.id}/contact?service=${encodeURIComponent(service.name)}`}
-                        className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
+                        className="rounded-md px-4 py-2 text-sm font-semibold text-white transition-colors bg-[color:var(--primary)] hover:opacity-90"
                       >
                         Request info
                       </Link>
@@ -111,7 +111,7 @@ const CategoryChip = ({ href, label, description, active }: CategoryChipProps) =
   <Link
     href={href}
     className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-      active ? 'border-amber-500 bg-amber-100 text-amber-800' : 'border-gray-200 text-gray-600 hover:border-amber-300'
+      active ? 'border-[color:var(--primary)] tenant-bg-100 tenant-text-primary' : 'border-gray-200 text-gray-600 hover:border-[color:var(--primary)]'
     }`}
     title={description}
   >

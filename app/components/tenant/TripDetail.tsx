@@ -376,9 +376,9 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
                 {fundraisingGoal ? ` of ${(fundraisingGoal / 100).toLocaleString(undefined, { style: 'currency', currency: trip.currency || 'USD' })}` : ''}
               </div>
               {fundraisingGoal ? (
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white">
+                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white">
                   <div
-                    className="h-2 bg-amber-400"
+                    className="h-2 tenant-bg-200"
                     style={{ width: `${Math.min(100, Math.round((raised / fundraisingGoal) * 100))}%` }}
                   />
                 </div>

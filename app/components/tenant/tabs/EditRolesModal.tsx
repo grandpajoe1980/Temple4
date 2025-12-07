@@ -80,7 +80,7 @@ const EditRolesModal: React.FC<EditRolesModalProps> = ({ isOpen, onClose, member
               <label key={role} className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-50">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                  className="h-4 w-4 text-[color:var(--primary)] border-gray-300 rounded focus:ring-[color:var(--primary)]"
                   checked={selectedRoles.has(role)}
                   onChange={() => handleRoleToggle(role)}
                 />
@@ -101,7 +101,7 @@ const EditRolesModal: React.FC<EditRolesModalProps> = ({ isOpen, onClose, member
                     <input
                       type="radio"
                       name="primary-role"
-                      className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500"
+                      className="h-4 w-4 text-[color:var(--primary)] border-gray-300 focus:ring-[color:var(--primary)]"
                       checked={primaryRole === role}
                       onChange={() => setPrimaryRole(role)}
                     />

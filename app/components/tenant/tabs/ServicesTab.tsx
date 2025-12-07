@@ -181,7 +181,7 @@ export default function ServicesTab({ tenant, onRefresh }: ServicesTabProps) {
               <button
                 key={template.name}
                 type="button"
-                className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-amber-300 hover:text-amber-700"
+                className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-[color:var(--primary)] hover:text-[color:var(--primary)]"
                 onClick={() => openCreateModal(template)}
                 title="Quick add with prefilled details"
               >
@@ -208,7 +208,7 @@ export default function ServicesTab({ tenant, onRefresh }: ServicesTabProps) {
                         <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-medium text-gray-700">Members Only</span>
                       )}
                       {service.requiresBooking && (
-                        <span className="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-medium text-amber-800">Booking Required</span>
+                        <span className="rounded-full tenant-bg-100 px-3 py-1 text-[11px] font-medium tenant-text-primary">Booking Required</span>
                       )}
                     </div>
                     <div>

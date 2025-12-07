@@ -91,13 +91,13 @@ export default function FacilitiesPage({ tenant, facilities, isMember }: Facilit
                 <div className="mt-auto flex flex-wrap gap-3">
                   <Link
                     href={`/tenants/${tenant.id}/facilities/${facility.id}`}
-                    className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
+                    className="rounded-md bg-[color:var(--primary)] px-4 py-2 text-sm font-semibold text-[color:var(--primary-foreground)] transition-colors hover:opacity-90"
                   >
                     Use this facility
                   </Link>
                   <Link
                     href={`/tenants/${tenant.id}/facilities/${facility.id}`}
-                    className="text-sm font-semibold text-amber-600 hover:text-amber-700"
+                    className="text-sm font-semibold text-[color:var(--primary)] hover:opacity-90"
                   >
                     View availability
                   </Link>

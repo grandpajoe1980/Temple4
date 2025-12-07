@@ -530,7 +530,7 @@ export default function TripJoinForm({ user, tripName, submitting, onSubmit, onC
         </div>
       </div>
 
-      <div className="space-y-2 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-gray-800">
+      <div className="space-y-2 rounded border p-3 text-sm text-gray-800" style={{ borderColor: 'color-mix(in srgb, var(--primary) 20%, transparent)', backgroundColor: 'color-mix(in srgb, var(--primary) 8%, transparent)'}}>
         <h3 className="text-base font-semibold text-gray-900">Participant Release & Liability Waiver</h3>
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
@@ -628,7 +628,7 @@ export default function TripJoinForm({ user, tripName, submitting, onSubmit, onC
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded px-4 py-2 text-sm font-semibold text-white shadow bg-[color:var(--primary)] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? 'Submitting…' : 'Submit & Join Trip'}
         </button>

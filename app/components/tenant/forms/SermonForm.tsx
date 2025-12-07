@@ -53,7 +53,7 @@ const TalkForm: React.FC<TalkFormProps> = ({ onSubmit, onCancel, isSubmitting = 
           id="description"
           name="description"
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Share a short summary of the talk."

@@ -21,7 +21,7 @@ interface TenantCarouselProps {
 const categoryConfig: Record<string, { icon: React.ComponentType<any>; gradient: string; accentColor: string }> = {
   photo: { icon: Camera, gradient: 'from-emerald-400 via-teal-500 to-cyan-600', accentColor: 'text-emerald-600 bg-emerald-50' },
   podcast: { icon: Mic, gradient: 'from-purple-400 via-violet-500 to-indigo-600', accentColor: 'text-purple-600 bg-purple-50' },
-  sermon: { icon: BookOpen, gradient: 'from-amber-400 via-orange-500 to-red-500', accentColor: 'text-amber-600 bg-amber-50' },
+  sermon: { icon: BookOpen, gradient: 'from-amber-400 via-orange-500 to-red-500', accentColor: 'tenant-text-primary tenant-bg-50' },
   book: { icon: BookOpen, gradient: 'from-blue-400 via-indigo-500 to-purple-600', accentColor: 'text-blue-600 bg-blue-50' },
   service: { icon: Heart, gradient: 'from-rose-400 via-pink-500 to-fuchsia-600', accentColor: 'text-rose-600 bg-rose-50' },
   event: { icon: Calendar, gradient: 'from-cyan-400 via-sky-500 to-blue-600', accentColor: 'text-cyan-600 bg-cyan-50' },
@@ -48,7 +48,7 @@ export default function TenantCarousel({ slides }: TenantCarouselProps) {
   if (count === 0) return null;
 
   const current = slides[index];
-  const config = categoryConfig[current.category || ''] || { icon: FileText, gradient: 'from-amber-200 via-orange-200 to-yellow-200', accentColor: 'text-amber-600 bg-amber-50' };
+  const config = categoryConfig[current.category || ''] || { icon: FileText, gradient: 'from-amber-200 via-orange-200 to-yellow-200', accentColor: 'tenant-text-primary tenant-bg-50' };
   const CategoryIcon = config.icon;
 
   return (
@@ -156,7 +156,7 @@ export default function TenantCarousel({ slides }: TenantCarouselProps) {
 
       {/* Hover preview panel */}
       {preview?.slide && (() => {
-        const previewConfig = categoryConfig[preview.slide.category || ''] || { icon: FileText, gradient: '', accentColor: 'text-amber-600 bg-amber-50' };
+        const previewConfig = categoryConfig[preview.slide.category || ''] || { icon: FileText, gradient: '', accentColor: 'tenant-text-primary tenant-bg-50' };
         const PreviewIcon = previewConfig.icon;
         return (
           <div
@@ -194,7 +194,7 @@ export default function TenantCarousel({ slides }: TenantCarouselProps) {
             key={`${s.title}-${i}`}
             aria-label={`Go to ${s.title}`}
             onClick={() => setIndex(i)}
-            className={`h-2 w-8 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50 ${i === index ? 'bg-amber-500' : 'bg-white/60 hover:bg-white/80'}`}
+            className={`h-2 w-8 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50 ${i === index ? 'bg-[color:var(--primary)]' : 'bg-white/60 hover:bg-white/80'}`}
           />
         ))}
       </div>

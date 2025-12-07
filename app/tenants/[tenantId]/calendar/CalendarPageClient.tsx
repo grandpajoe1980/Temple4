@@ -131,7 +131,7 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
       >
         <div className="space-y-4">
           <div className="flex items-center space-x-3 text-sm text-gray-600">
-            <span className="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-semibold">1</span>
+            <span className="w-8 h-8 rounded-full tenant-bg-100 tenant-text-primary flex items-center justify-center font-semibold">1</span>
             <p className="font-medium text-gray-900">Add the basics for your gathering.</p>
           </div>
           <EventForm

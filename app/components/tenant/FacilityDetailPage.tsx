@@ -30,7 +30,7 @@ const fallbackImages: Record<string, string> = {
 };
 
 const statusStyles: Record<string, string> = {
-  REQUESTED: 'bg-amber-50 border-amber-200 text-amber-800',
+  REQUESTED: 'tenant-bg-50 tenant-border-200 tenant-text-primary',
   APPROVED: 'bg-green-50 border-green-200 text-green-800',
   REJECTED: 'bg-rose-50 border-rose-200 text-rose-800',
   CANCELLED: 'bg-slate-50 border-slate-200 text-slate-700',
@@ -136,11 +136,11 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
 
   return (
     <div className="space-y-8">
-      <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 via-white to-white shadow">
+      <div className="overflow-hidden rounded-2xl shadow">
         <div className="relative grid gap-8 md:grid-cols-[1.6fr,1fr]">
           <div className="p-8">
-            <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-wide text-amber-700">
-              <span className="rounded-full bg-amber-100 px-3 py-1">{typeLabels[facility.type] ?? facility.type}</span>
+            <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-wide tenant-text-primary">
+              <span className="rounded-full tenant-bg-100 px-3 py-1">{typeLabels[facility.type] ?? facility.type}</span>
               {facility.isActive ? (
                 <span className="rounded-full bg-green-100 px-3 py-1 text-green-700">Accepting requests</span>
               ) : (
@@ -154,23 +154,23 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
               <p className="mt-3 max-w-3xl text-lg text-gray-700 leading-relaxed">{facility.description}</p>
             )}
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {facility.location && (
-                <div className="rounded-xl border border-amber-100 bg-white p-4 shadow-sm">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Location</p>
+                <div className="rounded-xl border tenant-border-200 bg-white p-4 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wide tenant-text-primary">Location</p>
                   <p className="mt-1 text-base font-semibold text-gray-900">{facility.location}</p>
                   <p className="text-sm text-gray-600">Directions available upon request.</p>
                 </div>
               )}
               {typeof facility.capacity === 'number' && (
-                <div className="rounded-xl border border-amber-100 bg-white p-4 shadow-sm">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Capacity</p>
+                <div className="rounded-xl border tenant-border-200 bg-white p-4 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wide tenant-text-primary">Capacity</p>
                   <p className="mt-1 text-base font-semibold text-gray-900">{facility.capacity} guests</p>
                   <p className="text-sm text-gray-600">Ideal for gatherings, rehearsals, and events.</p>
                 </div>
               )}
-              <div className="rounded-xl border border-amber-100 bg-white p-4 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Availability</p>
+              <div className="rounded-xl border tenant-border-200 bg-white p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-wide tenant-text-primary">Availability</p>
                 <p className="mt-1 text-base font-semibold text-gray-900">
                   {facility.isActive ? 'Currently open for scheduling' : 'Temporarily unavailable'}
                 </p>
@@ -202,17 +202,17 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
         <Card className="space-y-5 border-0 shadow-lg ring-1 ring-gray-100">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Schedule</p>
+              <p className="text-sm font-semibold uppercase tracking-wide tenant-text-primary">Schedule</p>
               <h2 className="text-2xl font-bold text-gray-900">Live availability</h2>
               <p className="text-sm text-gray-600">Reservations and blackout windows are listed in chronological order.</p>
             </div>
-            <div className="rounded-full bg-amber-100 px-4 py-2 text-xs font-semibold text-amber-800">
+              <div className="rounded-full tenant-bg-100 px-4 py-2 text-xs font-semibold tenant-text-primary">
               {schedule.length} scheduled item{schedule.length === 1 ? '' : 's'}
             </div>
           </div>
 
-          {schedule.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-amber-200 bg-amber-50/60 p-6 text-sm text-amber-800">
+            {schedule.length === 0 ? (
+            <div className="rounded-xl border border-dashed tenant-border-200 tenant-bg-50 p-6 text-sm tenant-text-primary">
               No bookings or blackouts are on the calendar. Submit a request to reserve the space.
             </div>
           ) : (
@@ -249,7 +249,7 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
 
         <div className="space-y-6">
           <Card className="border-0 shadow-lg ring-1 ring-gray-100">
-            <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Booking request</p>
+            <p className="text-sm font-semibold uppercase tracking-wide tenant-text-primary">Booking request</p>
             <h2 className="text-xl font-bold text-gray-900">Reserve this facility</h2>
             <p className="text-sm text-gray-600">
               Submit a request with your preferred times. Our team will review availability and confirm via email.
@@ -298,7 +298,7 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
                   value={formState.notes}
                   onChange={handleInputChange}
                   rows={3}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-[color:var(--primary)] focus:outline-none focus:ring-1 focus:ring-[color:var(--primary)]"
                 />
               </div>
               <Button type="submit" disabled={isSubmitting} className="w-full">
@@ -308,7 +308,7 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
           </Card>
 
           <Card className="border-0 shadow-lg ring-1 ring-gray-100">
-            <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Need help?</p>
+            <p className="text-sm font-semibold uppercase tracking-wide tenant-text-primary">Need help?</p>
             <h3 className="text-lg font-bold text-gray-900">Facility concierge</h3>
             <p className="text-sm text-gray-600">
               Share special requirements, equipment needs, or accessibility requests and we will tailor the setup for your visit.
@@ -318,7 +318,7 @@ export default function FacilityDetailPage({ tenantId, facility, isMember }: Fac
               <li>• A/V and stage configuration support</li>
               <li>• Staffing and hospitality coordination</li>
             </ul>
-            <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800\">
+            <div className="mt-4 rounded-lg tenant-bg-50 p-3 text-sm text-[color:var(--primary)]">
               Prefer to talk? Visit the concierge desk or email facilities@asembli.com.
             </div>
           </Card>

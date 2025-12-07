@@ -167,7 +167,7 @@ export default function MobileNav({ className }: MobileNavProps) {
           indent ? 'pl-8' : ''
         } ${
           isActive
-            ? 'bg-amber-50 text-amber-700 font-medium'
+            ? 'tenant-bg-50 tenant-text-primary font-medium'
             : 'text-gray-700 hover:bg-gray-50'
         }`}
       >
@@ -360,13 +360,13 @@ export default function MobileNav({ className }: MobileNavProps) {
       <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0 overflow-y-auto">
         <SheetHeader className="p-4 border-b border-gray-200">
           <SheetTitle className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl tenant-bg-100 tenant-text-primary">
               <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true">
                 <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
               </svg>
             </span>
             <div className="flex flex-col leading-tight">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600">
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] tenant-text-primary">
                 Asembli
               </span>
               <span className="text-base font-semibold text-gray-900">Platform</span>

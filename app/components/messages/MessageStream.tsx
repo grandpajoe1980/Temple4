@@ -195,7 +195,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
              </div>
          </div>
          {!conversation.isDirect && (
-            <button onClick={onToggleDetailsPanel} className={`p-2 rounded-md transition-colors lg:hidden ${isDetailsPanelOpen ? 'bg-amber-100 text-amber-700' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'}`}>
+            <button onClick={onToggleDetailsPanel} className={`p-2 rounded-md transition-colors lg:hidden ${isDetailsPanelOpen ? 'tenant-bg-100 tenant-text-primary' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'}`}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
@@ -209,7 +209,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
           <div className="flex justify-center">
             <button
               type="button"
-              className="px-3 py-1 mb-2 text-xs font-medium text-white bg-amber-600 rounded-full shadow hover:bg-amber-700"
+              className="px-3 py-1 mb-2 text-xs font-medium text-white tenant-bg-600 rounded-full shadow hover:bg-[color:var(--primary)]"
               onClick={() => {
                 scrollToBottom();
                 setShowScrollToLatest(false);
@@ -242,12 +242,12 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
               <div className="flex flex-col">
                 <div
                   className={`max-w-md p-3 rounded-lg ${
-                    isOwnMessage ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-800'
+                    isOwnMessage ? 'bg-[color:var(--primary)] text-[color:var(--primary-foreground)]' : 'bg-gray-100 text-gray-800'
                   }`}
                 >
                   {!isOwnMessage && (
                     <p 
-                        className="text-xs font-bold mb-1 text-amber-700 cursor-pointer"
+                        className="text-xs font-bold mb-1 tenant-text-primary cursor-pointer"
                         onClick={() => onViewProfile(msg.userId)}
                     >
                         {msg.userDisplayName}
@@ -290,7 +290,7 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
               aria-label="Chat message input"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              className="flex-1 w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900 placeholder:text-gray-400"
+              className="flex-1 w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900 placeholder:text-gray-400"
             />
             <Button type="submit">Send</Button>
           </form>

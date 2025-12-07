@@ -37,7 +37,7 @@ const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ con
   const roleColors: { [key: string]: string } = {
     ADMIN: 'bg-red-100 text-red-800',
     STAFF: 'bg-sky-100 text-sky-800',
-    LEADER: 'bg-amber-100 text-amber-800',
+    LEADER: 'tenant-bg-100 text-[color:var(--primary)]',
     MODERATOR: 'bg-indigo-100 text-indigo-800',
     MEMBER: 'bg-gray-100 text-gray-800',
   };

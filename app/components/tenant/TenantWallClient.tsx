@@ -178,7 +178,7 @@ export default function TenantWallClient({ tenantId, initialPosts, showCreateBut
                       className="flex-1 rounded border border-gray-200 px-2 py-1 text-sm"
                       placeholder="Write a comment..."
                     />
-                    <button onClick={() => submitComment(post.id)} className="px-3 py-1 bg-amber-600 text-white rounded text-sm">Comment</button>
+                    <button onClick={() => submitComment(post.id)} className="px-3 py-1 text-white rounded text-sm" style={{ backgroundColor: 'var(--primary)' }}>Comment</button>
                   </div>
                 )}
               </div>

@@ -110,7 +110,7 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
               <img
                 src={profileUser.profile?.avatarUrl || '/default-avatar.png'}
                 alt={`${profileUser.profile?.displayName || 'User'}'s avatar`}
-                className="w-32 h-32 rounded-full ring-4 ring-white ring-offset-2 ring-offset-amber-100"
+                className="w-32 h-32 rounded-full ring-4 ring-white ring-offset-2 ring-offset-[color:var(--primary)]/20"
               />
             )}
             <div className={`mt-6 ${hideAvatar ? '' : 'sm:mt-2'} text-center sm:text-left flex-1`}>

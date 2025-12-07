@@ -19,7 +19,7 @@ const BookCard: React.FC<BookCardProps> = ({ post, canEdit = false, onEdit, onDe
                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800`}>
                         {post.type}
                     </span>
-                    <h3 className="mt-2 text-xl font-semibold text-gray-900 hover:text-amber-700 cursor-pointer">
+                    <h3 className="mt-2 text-xl font-semibold text-gray-900 hover:text-[color:var(--primary)] cursor-pointer">
                         {post.title}
                     </h3>
                 </div>

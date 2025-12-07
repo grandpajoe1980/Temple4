@@ -19,8 +19,8 @@ const ServiceDetailPage = ({ tenant, service }: ServiceDetailPageProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href={`/tenants/${tenant.id}/services`} className="hover:text-amber-600">
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+        <Link href={`/tenants/${tenant.id}/services`} className="hover:text-[color:var(--primary)]">
           ← Back to Services
         </Link>
         <span>/</span>
@@ -42,12 +42,12 @@ const ServiceDetailPage = ({ tenant, service }: ServiceDetailPageProps) => {
             <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
               <span className="font-semibold uppercase tracking-wide">{categoryLabel}</span>
               {!service.isPublic && <span className="rounded-full bg-gray-200 px-3 py-1 text-xs">Members Only</span>}
-              {service.requiresBooking && <span className="rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-800">Booking required</span>}
+              {service.requiresBooking && <span className="rounded-full tenant-bg-100 px-3 py-1 text-xs tenant-text-primary">Booking required</span>}
             </div>
             <h1 className="text-3xl font-bold text-gray-900">{service.name}</h1>
             <p className="text-gray-700 whitespace-pre-line">{service.description}</p>
             {service.pricing && (
-              <div className="rounded-md bg-amber-50 p-4 text-amber-900">
+              <div className="rounded-md tenant-bg-50 p-4 tenant-text-primary">
                 <p className="font-semibold">Suggested Contribution</p>
                 <p>{service.pricing}</p>
               </div>
@@ -61,20 +61,20 @@ const ServiceDetailPage = ({ tenant, service }: ServiceDetailPageProps) => {
                 ? `Email us at ${contactEmail} or use the request form below to start the conversation.`
                 : 'Use the request button below and a team member will reach out with next steps.'}
             </p>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href={infoLink}
-                className="rounded-md bg-amber-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
-              >
-                Request info about {service.name}
-              </Link>
-              <a
-                href={contactEmail ? `mailto:${contactEmail}` : infoLink}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-amber-500"
-              >
-                {contactEmail ? 'Email the team' : 'Open contact form'}
-              </a>
-            </div>
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    href={infoLink}
+                    className="rounded-md px-6 py-2 text-sm font-semibold text-white transition-colors bg-[color:var(--primary)] hover:opacity-90"
+                  >
+                    Request info about {service.name}
+                  </Link>
+                  <a
+                    href={contactEmail ? `mailto:${contactEmail}` : infoLink}
+                    className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-[color:var(--primary)]"
+                  >
+                    {contactEmail ? 'Email the team' : 'Open contact form'}
+                  </a>
+                </div>
           </div>
         </div>
       </Card>

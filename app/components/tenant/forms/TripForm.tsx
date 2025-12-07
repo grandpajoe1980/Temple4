@@ -77,7 +77,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             required
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
         <div>
@@ -85,7 +85,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           <input
             value={form.destination}
             onChange={(e) => setForm({ ...form, destination: e.target.value })}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
         <div>
@@ -93,7 +93,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           <input
             value={form.meetingPoint}
             onChange={(e) => setForm({ ...form, meetingPoint: e.target.value })}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
         <div>
@@ -102,7 +102,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             type="date"
             value={form.startDate}
             onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
         <div>
@@ -111,7 +111,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             type="date"
             value={form.endDate}
             onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
         <div>
@@ -121,7 +121,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             min={0}
             value={form.capacity ?? ''}
             onChange={(e) => setForm({ ...form, capacity: e.target.value ? Number(e.target.value) : undefined })}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
         <div>
@@ -132,7 +132,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             min="0"
             step="0.01"
             defaultValue={typeof form.costCents === 'number' ? (form.costCents / 100).toString() : ''}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
         <div>
@@ -143,7 +143,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             min="0"
             step="0.01"
             defaultValue={typeof form.depositCents === 'number' ? (form.depositCents / 100).toString() : ''}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
         <div>
@@ -154,7 +154,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             min="0"
             step="0.01"
             defaultValue={typeof form.fundraisingGoalCents === 'number' ? (form.fundraisingGoalCents / 100).toString() : ''}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
       </div>
@@ -165,7 +165,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           <textarea
             value={form.summary}
             onChange={(e) => setForm({ ...form, summary: e.target.value })}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
         <div>
@@ -173,7 +173,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           <textarea
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
           />
         </div>
       </div>
@@ -218,7 +218,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
         <select
           value={form.joinPolicy}
           onChange={(e) => setForm({ ...form, joinPolicy: e.target.value as 'OPEN' | 'APPROVAL' })}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
         >
           <option value="APPROVAL">Approval required</option>
           <option value="OPEN">Open join</option>
@@ -238,7 +238,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-[color:var(--primary)] px-4 py-2 text-sm font-semibold text-[color:var(--primary-foreground)] shadow-sm hover:bg-[color:var(--primary)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? 'Saving…' : isEdit ? 'Save changes' : 'Create trip'}
         </button>

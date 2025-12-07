@@ -181,12 +181,12 @@ const AdminLocalizationPage: React.FC<AdminLocalizationPageProps> = ({ tenant })
                     onClick={() => toggleLanguage(language.code)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left transition ${
                       isSelected
-                        ? 'border-amber-500 bg-amber-50 text-amber-800'
+                        ? 'border-[color:var(--primary)] tenant-bg-50 text-[color:var(--primary)]'
                         : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                     }`}
                   >
                     <span className={`w-4 h-4 rounded border flex items-center justify-center ${
-                      isSelected ? 'bg-amber-500 border-amber-500' : 'border-gray-300'
+                      isSelected ? 'bg-[color:var(--primary)] border-[color:var(--primary)]' : 'border-gray-300'
                     }`}>
                       {isSelected && (
                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -197,7 +197,7 @@ const AdminLocalizationPage: React.FC<AdminLocalizationPageProps> = ({ tenant })
                     <span className="flex-1 text-sm">
                       <span className="font-medium">{language.nativeName}</span>
                       {isDefault && (
-                        <span className="ml-1 text-xs text-amber-600">(default)</span>
+                        <span className="ml-1 text-xs tenant-text-primary">(default)</span>
                       )}
                       {language.rtl && (
                         <span className="ml-1 text-xs text-gray-400">RTL</span>
@@ -223,7 +223,7 @@ const AdminLocalizationPage: React.FC<AdminLocalizationPageProps> = ({ tenant })
                   allowedLanguages: allowed.includes(newDefault) ? allowed : [...allowed, newDefault],
                 });
               }}
-              className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-amber-500 focus:border-amber-500"
+              className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)]"
             >
               {SUPPORTED_LANGUAGES.map((language) => (
                 <option key={language.code} value={language.code}>

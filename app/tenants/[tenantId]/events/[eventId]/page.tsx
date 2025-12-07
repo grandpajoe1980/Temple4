@@ -110,7 +110,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ te
                       <div className="font-medium text-slate-900">Capacity</div>
                       <div className="text-slate-600">
                         {(event as any)._count?.rsvps || 0} / {(event as any).capacityLimit} spots taken
-                        {(event as any).waitlistEnabled && <span className="block text-xs text-amber-600 mt-1">Waitlist available</span>}
+                        {(event as any).waitlistEnabled && <span className="block text-xs tenant-text-primary mt-1">Waitlist available</span>}
                       </div>
                     </div>
                   </div>

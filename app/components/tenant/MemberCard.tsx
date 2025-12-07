@@ -15,7 +15,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
   const roleColors: { [key: string]: string } = {
     ADMIN: 'bg-red-100 text-red-800',
     STAFF: 'bg-sky-100 text-sky-800',
-    LEADER: 'bg-amber-100 text-amber-800',
+    LEADER: 'tenant-bg-100 tenant-text-primary',
     MODERATOR: 'bg-indigo-100 text-indigo-800',
     MEMBER: 'bg-gray-100 text-gray-800',
   };
@@ -25,7 +25,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
 
   return (
     <div onClick={onViewProfile} className="cursor-pointer group h-full">
-      <Card className="!p-4 text-center h-full group-hover:shadow-lg group-hover:border-amber-400 border border-transparent transition-all">
+      <Card className="!p-4 text-center h-full group-hover:shadow-lg group-hover:border-[color:var(--primary)] border border-transparent transition-all">
         <Link href={`/profile/${member.id}#posts`} onClick={(e) => e.stopPropagation()}>
           <img
             className="w-20 h-20 mx-auto rounded-full"
@@ -35,7 +35,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
         </Link>
         <h3 className="mt-4 text-md font-semibold text-gray-900 truncate">{displayName}</h3>
         {primaryRole?.displayTitle && (
-          <p className="mt-1 text-sm text-amber-700 truncate">{primaryRole.displayTitle}</p>
+          <p className="mt-1 text-sm tenant-text-primary truncate">{primaryRole.displayTitle}</p>
         )}
         <div className="mt-3 flex flex-wrap justify-center gap-1.5">
           {member.membership.roles.map((roleInfo: UserTenantRole) => (

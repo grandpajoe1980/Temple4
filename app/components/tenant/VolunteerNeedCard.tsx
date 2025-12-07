@@ -56,7 +56,7 @@ const VolunteerNeedCard: React.FC<VolunteerNeedCardProps> = ({ need, currentUser
       <div className="p-6 flex-grow">
         <div className="flex justify-between items-start">
                 <div>
-                <p className="text-sm font-semibold text-amber-600">{need.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+                <p className="text-sm font-semibold tenant-text-primary">{need.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
                 <h3 className="mt-1 text-xl font-semibold text-gray-900">{need.title}</h3>
                 {need.location ? (
                   <p className="mt-1 text-sm text-gray-500">Location: {need.location}</p>

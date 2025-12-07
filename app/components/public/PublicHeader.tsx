@@ -42,7 +42,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ tenant, currentUser, member
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="h-48 bg-gradient-to-r from-amber-100 to-amber-200">
+      <div className="h-48 bg-gradient-to-r from-[color:var(--primary)]/10 to-[color:var(--primary)]/20">
         {tenant.branding.bannerImageUrl && (
           <img
             src={tenant.branding.bannerImageUrl}

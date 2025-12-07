@@ -173,7 +173,7 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
 
       {/* Header Section */}
       <div className="relative bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="h-48 bg-gradient-to-r from-amber-100 to-amber-200">
+        <div className="h-48 tenant-bg-100">
             {tenant.branding.bannerImageUrl && (
               <img 
                   src={tenant.branding.bannerImageUrl} 
@@ -259,8 +259,8 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
                    {upcomingEvents.length > 0 ? upcomingEvents.map((event: any) => (
                         <li key={event.id} className="p-4 hover:bg-gray-50 cursor-pointer">
                             <div className="font-semibold text-sm text-gray-800">{event.title}</div>
-                            <div className="text-xs text-amber-700 mt-1">
-                                {event.startDateTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                            <div className="text-xs tenant-text-primary mt-1">
+                              {event.startDateTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                             </div>
                         </li>
                    )) : (

@@ -203,7 +203,7 @@ const PledgesPage: React.FC<PledgesPageProps> = ({ tenant, user }) => {
               <select
                 value={fundId}
                 onChange={(e) => setFundId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)]"
                 required
               >
                 {funds.map((fund) => (
@@ -232,7 +232,7 @@ const PledgesPage: React.FC<PledgesPageProps> = ({ tenant, user }) => {
               <select
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)]"
               >
                 {Object.entries(frequencyLabels).map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>

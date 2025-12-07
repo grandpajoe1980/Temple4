@@ -75,7 +75,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
                 aria-label="Filter tenants"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white/80 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+                className="w-full rounded-xl border border-slate-200 bg-white/80 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]"
                 placeholder="Search name, creed, or city"
               />
             </div>
@@ -111,7 +111,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
               <button
                 key={tenant.id}
                 onClick={() => onSelect(tenant.id)}
-                className="group w-full rounded-2xl border border-white/70 bg-white/90 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-xl"
+                className="group w-full rounded-2xl border border-white/70 bg-white/90 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[color:var(--primary)] hover:shadow-xl"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
@@ -143,7 +143,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
                     activeFeatures.map((label) => (
                       <span
                         key={label}
-                        className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700"
+                        className="rounded-full tenant-bg-50 px-3 py-1 text-xs font-medium tenant-text-primary"
                       >
                         {label}
                       </span>

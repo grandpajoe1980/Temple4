@@ -206,14 +206,14 @@ const FundsPage: React.FC<FundsPageProps> = ({ tenant, user }) => {
                         {hasGoal && (
                           <div>
                             <div className="flex justify-between text-sm mb-1">
-                              <span className="font-medium text-amber-700">{progress}% funded</span>
+                              <span className="font-medium tenant-text-primary">{progress}% funded</span>
                               <span className="text-gray-500">
                                 ${(fund.amountRaisedCents / 100).toLocaleString()} of ${((fund.goalAmountCents ?? 0) / 100).toLocaleString()}
                               </span>
                             </div>
                             <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                               <div
-                                className="h-full bg-amber-500 transition-all"
+                                className="h-full tenant-bg-600 transition-all"
                                 style={{ width: `${progress}%` }}
                               />
                             </div>
@@ -304,8 +304,8 @@ const FundsPage: React.FC<FundsPageProps> = ({ tenant, user }) => {
                             onClick={() => setSelectedAmount(amount)}
                             className={`p-3 text-center rounded-md border-2 font-semibold transition-colors ${
                               selectedAmount === amount
-                                ? 'bg-amber-100 border-amber-500 text-amber-800'
-                                : 'bg-white border-gray-300 hover:border-amber-400'
+                                ? 'tenant-bg-100 border-[color:var(--primary)] tenant-text-primary'
+                                : 'bg-white border-gray-300 hover:border-[color:var(--primary)]'
                             }`}
                           >
                             ${amount}
@@ -316,8 +316,8 @@ const FundsPage: React.FC<FundsPageProps> = ({ tenant, user }) => {
                           onClick={() => setSelectedAmount('custom')}
                           className={`p-3 text-center rounded-md border-2 font-semibold transition-colors ${
                             selectedAmount === 'custom'
-                              ? 'bg-amber-100 border-amber-500 text-amber-800'
-                              : 'bg-white border-gray-300 hover:border-amber-400'
+                              ? 'tenant-bg-100 border-[color:var(--primary)] tenant-text-primary'
+                              : 'bg-white border-gray-300 hover:border-[color:var(--primary)]'
                           }`}
                         >
                           Other
@@ -346,7 +346,7 @@ const FundsPage: React.FC<FundsPageProps> = ({ tenant, user }) => {
                       <textarea
                         id="message"
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Leave a note with your gift..."

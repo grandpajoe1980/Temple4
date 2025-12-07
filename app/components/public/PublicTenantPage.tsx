@@ -147,7 +147,7 @@ const PublicTenantPage: React.FC<PublicTenantPageProps> = ({ tenant, currentUser
                         </div>
                         <div className="text-right">
                            <p className="text-sm text-gray-500">Logged in as</p>
-                           <p className="font-semibold text-amber-700">{currentUser.profile?.displayName}</p>
+                           <p className="font-semibold tenant-text-primary">{currentUser.profile?.displayName}</p>
                         </div>
                         <img src={currentUser.profile?.avatarUrl || '/placeholder-avatar.svg'} alt="avatar" className="h-8 w-8 rounded-full" />
                      </>

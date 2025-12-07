@@ -59,7 +59,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 key={conv.id}
                 onClick={() => onConversationSelect(conv)}
                 className={`p-4 cursor-pointer transition-colors ${
-                  isActive ? 'bg-amber-50' : 'hover:bg-gray-50'
+                  isActive ? 'tenant-bg-50' : 'hover:bg-gray-50'
                 }`}
               >
                 <div className="flex items-center space-x-3">

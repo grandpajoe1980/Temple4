@@ -220,7 +220,7 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                     {tenant.branding.logoUrl ? (
                          <img src={tenant.branding.logoUrl} alt={`${tenant.name} Logo`} className="h-8 w-auto" />
                     ) : (
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-amber-600" viewBox="http://www.w3.org/2000/svg" fill="currentColor">
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 tenant-text-primary" viewBox="http://www.w3.org/2000/svg" fill="currentColor">
                             <path d="M12 2L1 9l4 2.18v6.32L12 22l7-4.5V11.18L23 9l-3-1.68V5h-2v1.32L12 2zm0 16.5l-5-3.25V11.4l5 2.75v5.6zM12 12L7 9.25 12 6.5 17 9.25 12 12z"/>
                          </svg>
                     )}
@@ -246,17 +246,17 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                         </div>
                             <div className="flex items-center space-x-2">
                               <img src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
-                              <p className="font-semibold text-amber-700 text-sm hidden sm:block">{tenantDisplayName}</p>
+                              <p className="font-semibold tenant-text-primary text-sm hidden sm:block">{tenantDisplayName}</p>
                             </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-gray-600">
-                        <button onClick={onBackToSelect} className="hover:text-amber-700 hidden sm:block">
+                        <button onClick={onBackToSelect} className="hover:text-[color:var(--primary)] hidden sm:block">
                             &larr; Switch Tenant
                         </button>
-                        <button onClick={onNavigateToMessages} className="hover:text-amber-700">
+                        <button onClick={onNavigateToMessages} className="hover:text-[color:var(--primary)]">
                             Global Messages
                         </button>
-                        <a href="/explore" className="hover:text-amber-700">
+                        <a href="/explore" className="hover:text-[color:var(--primary)]">
                             Explore
                         </a>
                     </div>

@@ -243,7 +243,7 @@ const AdminPledgesPage: React.FC<AdminPledgesPageProps> = ({ tenantId }) => {
         </Card>
         <Card>
           <div className="text-center">
-            <p className="text-2xl font-bold text-amber-600">${stats.estimatedMonthly.toFixed(0)}</p>
+            <p className="text-2xl font-bold tenant-text-primary">${stats.estimatedMonthly.toFixed(0)}</p>
             <p className="text-sm text-gray-500">Est. Monthly</p>
           </div>
         </Card>
@@ -256,7 +256,7 @@ const AdminPledgesPage: React.FC<AdminPledgesPageProps> = ({ tenantId }) => {
             onClick={() => setActiveTab('pledges')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'pledges'
-                ? 'border-amber-500 text-amber-600'
+                ? 'border-[color:var(--primary)] tenant-text-primary'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -266,7 +266,7 @@ const AdminPledgesPage: React.FC<AdminPledgesPageProps> = ({ tenantId }) => {
             onClick={() => setActiveTab('settings')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'settings'
-                ? 'border-amber-500 text-amber-600'
+                ? 'border-[color:var(--primary)] tenant-text-primary'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >

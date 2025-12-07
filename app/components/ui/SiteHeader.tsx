@@ -169,16 +169,14 @@ const SiteHeader = () => {
           </div>
           {!pathname?.startsWith('/tenants/') && (
             <nav className="hidden flex-1 items-center gap-2 text-sm font-medium text-slate-500 md:flex" aria-label="Primary">
-              {navItems
+                  {navItems
                 .filter((item) => (isAuthenticated ? true : !item.authOnly))
                 .filter((item) => (pathname?.startsWith('/tenants') ? item.label !== 'Tenants' : true))
                 .map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`rounded-full px-3 py-1 transition-colors ${
-                      pathname?.startsWith(item.href) ? 'bg-amber-50 text-amber-700' : 'hover:text-slate-900'
-                    }`}
+                    className={`rounded-full px-3 py-1 transition-colors ${pathname?.startsWith(item.href) ? 'tenant-active' : 'hover:text-slate-900'}`}
                   >
                     {item.label}
                   </Link>
@@ -461,7 +459,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                                     className={
                                       `block px-4 py-2 text-sm ${
                                         pathname?.startsWith(`${basePath}${sub.path}`)
-                                          ? 'bg-amber-50 text-amber-700'
+                                          ? 'tenant-active'
                                           : 'text-gray-600 hover:bg-gray-50'
                                       }`
                                     }
@@ -547,7 +545,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       >
                         <Link
                           href={`${basePath}${item.path}`}
-                          className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                          className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`}
                           onClick={handleNavClick}
                           role="menuitem"
                           tabIndex={0}
@@ -573,7 +571,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       >
                         <Link
                           href={`${basePath}${item.path}`}
-                          className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                          className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`}
                           onClick={handleNavClick}
                           role="menuitem"
                           tabIndex={0}
@@ -599,7 +597,7 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                       >
                         <Link
                           href={`${basePath}${item.path}`}
-                          className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                          className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}${item.path}`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`}
                           onClick={handleNavClick}
                           role="menuitem"
                           tabIndex={0}
@@ -671,11 +669,11 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                   onMouseLeave={() => scheduleSubmenuHide('content')}
                 >
                   <div className="py-1">
-                    <Link href={`${basePath}/photos`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/photos`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Photos</Link>
-                    <Link href={`${basePath}/podcasts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/podcasts`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Podcasts</Link>
-                    <Link href={`${basePath}/talks`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/talks`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Talks</Link>
-                    <Link href={`${basePath}/books`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/books`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Books</Link>
-                    <Link href={`${basePath}/livestream`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/livestream`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Live Stream</Link>
+                    <Link href={`${basePath}/photos`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/photos`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Photos</Link>
+                    <Link href={`${basePath}/podcasts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/podcasts`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Podcasts</Link>
+                    <Link href={`${basePath}/talks`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/talks`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Talks</Link>
+                    <Link href={`${basePath}/books`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/books`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Books</Link>
+                    <Link href={`${basePath}/livestream`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/livestream`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Live Stream</Link>
                   </div>
                 </div>
               )}
@@ -689,17 +687,17 @@ function TenantMenuPlaceholder({ pathname, session }: { pathname?: string | null
                   onMouseLeave={() => scheduleSubmenuHide('community')}
                 >
                   <div className="py-1">
-                    <Link href={`${basePath}/posts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/posts`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Posts</Link>
-                    <Link href={`${basePath}/community/wall`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/community/wall`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Wall</Link>
-                    <Link href={`${basePath}/calendar`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/calendar`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Calendar</Link>
-                    <Link href={`${basePath}/support-requests`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/support-requests`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Support Requests</Link>
-                    <Link href={`${basePath}/members`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/members`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Members</Link>
-                    <Link href={`${basePath}/staff`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/staff`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Staff</Link>
-                    <Link href={`${basePath}/chat`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/chat`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Chat</Link>
-                    <Link href={`${basePath}/small-groups`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/small-groups`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Small Groups</Link>
-                    <Link href={`${basePath}/trips`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/trips`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Trips</Link>
-                    <Link href={`${basePath}/volunteering`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/volunteering`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Volunteering</Link>
-                    <Link href={`${basePath}/resources`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/resources`) ? 'bg-amber-50 text-amber-700' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Resources</Link>
+                    <Link href={`${basePath}/posts`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/posts`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Posts</Link>
+                    <Link href={`${basePath}/community/wall`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/community/wall`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Wall</Link>
+                    <Link href={`${basePath}/calendar`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/calendar`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Calendar</Link>
+                    <Link href={`${basePath}/support-requests`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/support-requests`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Support Requests</Link>
+                    <Link href={`${basePath}/members`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/members`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Members</Link>
+                    <Link href={`${basePath}/staff`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/staff`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Staff</Link>
+                    <Link href={`${basePath}/chat`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/chat`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Chat</Link>
+                    <Link href={`${basePath}/small-groups`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/small-groups`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Small Groups</Link>
+                    <Link href={`${basePath}/trips`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/trips`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Trips</Link>
+                    <Link href={`${basePath}/volunteering`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/volunteering`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Volunteering</Link>
+                    <Link href={`${basePath}/resources`} className={`block px-4 py-2 text-sm ${pathname?.startsWith(`${basePath}/resources`) ? 'tenant-active' : 'text-gray-700 hover:bg-gray-50'}`} onClick={handleNavClick}>Resources</Link>
                   </div>
                 </div>
               )}

@@ -311,7 +311,7 @@ export default function MemorialSubmissionForm() {
               onChange={(e) => setFormData(prev => ({ ...prev, story: e.target.value }))}
               placeholder="Share memories, achievements, and the impact they had on others..."
               rows={6}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[color:var(--primary)] focus:border-transparent"
             />
             <p className="text-xs text-slate-500">
               {formData.story.length}/10,000 characters
@@ -374,7 +374,7 @@ export default function MemorialSubmissionForm() {
             <select 
               value={formData.privacy}
               onChange={(e) => setFormData(prev => ({ ...prev, privacy: e.target.value }))}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[color:var(--primary)] focus:border-transparent"
             >
               <option value="PUBLIC">Public - Visible to everyone</option>
               <option value="MEMBERS_ONLY">Members Only - Visible to signed-in members</option>

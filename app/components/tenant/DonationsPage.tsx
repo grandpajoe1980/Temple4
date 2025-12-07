@@ -110,7 +110,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tenant, donations }) => {
                             <div className={`flex-1 ${!donor.avatar && 'ml-10'}`}>
                                 <p className="text-sm font-medium text-gray-900">{donor.name}</p>
                             </div>
-                            <p className="text-sm font-semibold text-amber-700">
+                            <p className="text-sm font-semibold tenant-text-primary">
                                 ${donor.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </p>
                         </li>
@@ -314,7 +314,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
               <div key={method.key} className="p-4 rounded-lg border border-gray-200 bg-white">
                 <p className="text-sm font-semibold text-gray-900">{method.label}</p>
                 {method.href ? (
-                  <a className="text-amber-700 break-words" href={method.href} target="_blank" rel="noopener noreferrer">
+                  <a className="tenant-text-primary break-words" href={method.href} target="_blank" rel="noopener noreferrer">
                     {method.value}
                   </a>
                 ) : (
@@ -377,11 +377,11 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                 type="button"
                 key={fund.id}
                 onClick={() => setSelectedFundId(fund.id)}
-                className={`w-full text-left rounded-lg border p-4 transition hover:border-amber-500 ${selectedFundId === fund.id ? 'border-amber-500 ring-2 ring-amber-200' : 'border-gray-200'}`}
+                className={`w-full text-left rounded-lg border p-4 transition hover:border-[color:var(--primary)] ${selectedFundId === fund.id ? 'border-[color:var(--primary)] ring-2 ring-[color:var(--primary)]/20' : 'border-gray-200'}`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
-                    <p className="text-sm uppercase tracking-wide text-amber-700">{fund.type}</p>
+                    <p className="text-sm uppercase tracking-wide tenant-text-primary">{fund.type}</p>
                     <p className="text-lg font-semibold text-gray-900">{fund.name}</p>
                     {fund.description && <p className="text-sm text-gray-600">{fund.description}</p>}
                     <p className="text-xs text-gray-500">
@@ -399,7 +399,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                   </div>
                   {progress !== null && (
                     <div className="text-right min-w-[120px]">
-                      <p className="text-sm font-semibold text-amber-700">{progress}% funded</p>
+                      <p className="text-sm font-semibold tenant-text-primary">{progress}% funded</p>
                       <p className="text-xs text-gray-500">
                         ${(fund.amountRaisedCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })} / {((fund.goalAmountCents ?? 0) / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </p>
@@ -408,7 +408,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                 </div>
                 {progress !== null && (
                   <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                    <div className="h-full bg-amber-500" style={{ width: `${progress}%` }} />
+                    <div className="h-full bg-[color:var(--primary)]" style={{ width: `${progress}%` }} />
                   </div>
                 )}
               </button>
@@ -424,7 +424,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
       <Card title={`Make a Donation${selectedFund ? ` to ${selectedFund.name}` : ''}`} description={subtitle || `Your support for ${tenant.name} is greatly appreciated.`}>
         <div className="space-y-6">
           {selectedFund && (
-            <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+            <div className="rounded-lg tenant-bg-50 p-3 text-sm text-[color:var(--primary)]">
               <p className="font-semibold">{selectedFund.name}</p>
               {selectedFund.goalAmountCents && (
                 <p className="mt-1">Goal: {(selectedFund.goalAmountCents / 100).toLocaleString(undefined, { style: 'currency', currency: selectedFund.currency })}</p>
@@ -434,19 +434,19 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">Select a Pledge Amount ({selectedFund?.currency || settings.currency})</label>
-              <span className="text-xs font-medium text-amber-700">Adds to the leaderboard</span>
+              <span className="text-xs font-medium tenant-text-primary">Adds to the leaderboard</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {suggestedAmounts.map((amount: number) => (
                 <button type="button" key={amount} onClick={() => setSelectedAmount(amount)}
-                  className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === amount ? 'bg-amber-100 border-amber-500 text-amber-800' : 'bg-white border-gray-300 hover:border-amber-400'}`}
+                  className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === amount ? 'tenant-bg-100 border-[color:var(--primary)] text-[color:var(--primary)]' : 'bg-white border-gray-300 hover:border-[color:var(--primary)]/40'}`}
                 >
                   ${amount}
                 </button>
               ))}
               {settings.allowCustomAmounts && (
                    <button type="button" onClick={() => setSelectedAmount('custom')}
-                      className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === 'custom' ? 'bg-amber-100 border-amber-500 text-amber-800' : 'bg-white border-gray-300 hover:border-amber-400'}`}
+                      className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === 'custom' ? 'tenant-bg-100 border-[color:var(--primary)] text-[color:var(--primary)]' : 'bg-white border-gray-300 hover:border-[color:var(--primary)]/40'}`}
                    >
                       Custom
                   </button>
@@ -472,7 +472,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
               Message (Optional)
             </label>
             <textarea id="message" name="message" rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
                 value={message} onChange={(e) => setMessage(e.target.value)}
             />
           </div>
@@ -557,8 +557,8 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
   return (
     <div className="space-y-8">
       {/* Hero Section */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 p-8 md:p-12 overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-100 rounded-full -mr-32 -mt-32 opacity-50" />
+      <div className="relative rounded-2xl bg-gradient-to-br from-[color:var(--primary)]/10 to-orange-50 p-8 md:p-12 overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[color:var(--primary)]/10 rounded-full -mr-32 -mt-32 opacity-50" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-100 rounded-full -ml-24 -mb-24 opacity-50" />
         <div className="relative z-10 max-w-2xl">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
@@ -584,13 +584,13 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <div className="text-center">
-              <p className="text-3xl font-bold text-amber-600">{funds.length}</p>
+              <p className="text-3xl font-bold tenant-text-primary">{funds.length}</p>
               <p className="text-sm text-gray-500">Active Funds</p>
             </div>
           </Card>
           <Card>
             <div className="text-center">
-              <p className="text-3xl font-bold text-amber-600">
+              <p className="text-3xl font-bold tenant-text-primary">
                 ${funds.reduce((sum, f) => sum + f.amountRaisedCents, 0) / 100 >= 1000
                   ? `${(funds.reduce((sum, f) => sum + f.amountRaisedCents, 0) / 100000).toFixed(1)}k`
                   : (funds.reduce((sum, f) => sum + f.amountRaisedCents, 0) / 100).toLocaleString()}
@@ -600,7 +600,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
           </Card>
           <Card>
             <div className="text-center">
-              <p className="text-3xl font-bold text-amber-600">
+              <p className="text-3xl font-bold tenant-text-primary">
                 {funds.filter(f => f.goalAmountCents && f.amountRaisedCents >= f.goalAmountCents).length}
               </p>
               <p className="text-sm text-gray-500">Goals Met</p>
@@ -608,7 +608,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
           </Card>
           <Card>
             <div className="text-center">
-              <p className="text-3xl font-bold text-amber-600">
+              <p className="text-3xl font-bold tenant-text-primary">
                 {settings.leaderboardEnabled ? donations.length : '—'}
               </p>
               <p className="text-sm text-gray-500">Donors</p>
@@ -632,17 +632,17 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                         type="button"
                         key={fund.id}
                         onClick={() => setSelectedFundId(fund.id)}
-                        className={`w-full text-left rounded-lg border p-4 transition hover:border-amber-500 ${selectedFundId === fund.id ? 'border-amber-500 ring-2 ring-amber-200 bg-amber-50' : 'border-gray-200 bg-white'}`}
+                        className={`w-full text-left rounded-lg border p-4 transition hover:border-[color:var(--primary)] ${selectedFundId === fund.id ? 'border-[color:var(--primary)] ring-2 ring-[color:var(--primary)]/20 tenant-bg-50' : 'border-gray-200 bg-white'}`}
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div className="space-y-1 flex-1">
-                            <p className="text-xs uppercase tracking-wide text-amber-700 font-medium">{fund.type}</p>
+                            <p className="text-xs uppercase tracking-wide tenant-text-primary font-medium">{fund.type}</p>
                             <p className="text-lg font-semibold text-gray-900">{fund.name}</p>
                             {fund.description && <p className="text-sm text-gray-600 line-clamp-2">{fund.description}</p>}
                           </div>
                           {progress !== null && (
                             <div className="text-right min-w-[100px]">
-                              <p className="text-sm font-semibold text-amber-700">{progress}%</p>
+                              <p className="text-sm font-semibold tenant-text-primary">{progress}%</p>
                               <p className="text-xs text-gray-500">
                                 ${(fund.amountRaisedCents / 100).toLocaleString()}
                               </p>
@@ -651,7 +651,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                         </div>
                         {progress !== null && (
                           <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
-                            <div className="h-full bg-amber-500" style={{ width: `${progress}%` }} />
+                            <div className="h-full bg-[color:var(--primary)]" style={{ width: `${progress}%` }} />
                           </div>
                         )}
                       </button>
@@ -659,7 +659,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                   })}
                   {funds.length > 3 && (
                     <div className="text-center pt-2">
-                      <Link href={`/tenants/${tenant.id}/donations/funds`} className="text-sm font-medium text-amber-600 hover:text-amber-700">
+                      <Link href={`/tenants/${tenant.id}/donations/funds`} className="text-sm font-medium tenant-text-primary hover:text-[color:var(--primary)]">
                         View all {funds.length} funds →
                       </Link>
                     </div>
@@ -682,19 +682,19 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                 <p>When you give to {tenant.name}, you&apos;re supporting:</p>
                 <ul className="space-y-2">
                   <li className="flex items-start gap-2">
-                    <span className="text-amber-500 mt-0.5">✓</span>
+                    <span className="text-[color:var(--primary)] mt-0.5">✓</span>
                     <span>Weekly worship services and programs</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-amber-500 mt-0.5">✓</span>
+                    <span className="text-[color:var(--primary)] mt-0.5">✓</span>
                     <span>Community outreach and missions</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-amber-500 mt-0.5">✓</span>
+                    <span className="text-[color:var(--primary)] mt-0.5">✓</span>
                     <span>Youth and children&apos;s ministry</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-amber-500 mt-0.5">✓</span>
+                    <span className="text-[color:var(--primary)] mt-0.5">✓</span>
                     <span>Facility maintenance and improvements</span>
                   </li>
                 </ul>

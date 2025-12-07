@@ -96,7 +96,7 @@ const PermissionsTab: React.FC<PermissionsTabProps> = ({ tenant, onUpdate, curre
                                 <td key={`${roleType}-${permission}`} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                     <input
                                         type="checkbox"
-                                        className="h-4 w-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                                        className="h-4 w-4 text-[color:var(--primary)] border-gray-300 rounded focus:ring-[color:var(--primary)]"
                                         checked={localPermissions?.[roleType]?.[permission] || false}
                                         onChange={(e) => handlePermissionChange(roleType, permission, e.target.checked)}
                                     />
@@ -105,7 +105,7 @@ const PermissionsTab: React.FC<PermissionsTabProps> = ({ tenant, onUpdate, curre
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                 <input
                                     type="checkbox"
-                                    className="h-4 w-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                                    className="h-4 w-4 text-[color:var(--primary)] border-gray-300 rounded focus:ring-[color:var(--primary)]"
                                     checked={true}
                                     disabled={true}
                                 />

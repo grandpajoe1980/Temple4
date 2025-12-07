@@ -102,7 +102,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
       if (event.isOnline && event.onlineUrl) {
           return (
               <p className="mt-3 text-sm text-gray-600 line-clamp-2">
-                 <a href={event.onlineUrl} target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:text-amber-800 hover:underline">
+                 <a href={event.onlineUrl} target="_blank" rel="noopener noreferrer" className="hover:underline" style={{ color: 'var(--primary)' }}>
                     {event.description} (Click here to join)
                  </a>
               </p>
@@ -118,10 +118,10 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
   return (
     <Card className="!p-0 overflow-hidden">
       <div className="p-6">
-        <p className="text-sm font-semibold text-amber-600">
+         <p className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
           {formatDateTime(event.startDateTime, event.endDateTime)}
         </p>
-        <h3 className="mt-2 text-xl font-semibold text-gray-900 hover:text-amber-700 cursor-pointer">
+         <h3 className="mt-2 text-xl font-semibold text-gray-900 cursor-pointer" style={{ '--tw-text-opacity': 1 } as any}>
           {event.title}
         </h3>
         <div className="mt-2 flex items-center text-sm text-gray-500">

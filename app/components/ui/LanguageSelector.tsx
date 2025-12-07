@@ -39,7 +39,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       <select
         value={lang}
         onChange={(e) => setLang(e.target.value)}
-        className={`px-2 py-1 text-sm border border-gray-300 rounded-md bg-white focus:ring-amber-500 focus:border-amber-500 ${className}`}
+        className={`px-2 py-1 text-sm border border-gray-300 rounded-md bg-white focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] ${className}`}
         aria-label={t('accessibility.languageSelector')}
         disabled={isLoading}
       >
@@ -62,7 +62,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             disabled={isLoading}
             className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
               lang === language.code
-                ? 'bg-amber-100 text-amber-800 font-medium'
+                ? 'tenant-bg-100 tenant-text-primary font-medium'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
@@ -80,7 +80,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         disabled={isLoading}
-        className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+        className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)]"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label={t('accessibility.languageSelector')}
@@ -96,7 +96,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
         {isLoading && (
-          <span className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <span className="w-4 h-4 border-2 border-[color:var(--primary)] border-t-transparent rounded-full animate-spin" />
         )}
       </button>
 
@@ -116,7 +116,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                     setIsOpen(false);
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    lang === language.code ? 'bg-amber-50 text-amber-800' : 'text-gray-700'
+                    lang === language.code ? 'tenant-bg-50 tenant-text-primary' : 'text-gray-700'
                   }`}
                   role="option"
                   aria-selected={lang === language.code}
@@ -130,8 +130,8 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                   {language.rtl && (
                     <span className="text-xs text-gray-400">RTL</span>
                   )}
-                  {lang === language.code && (
-                    <svg className="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                    {lang === language.code && (
+                    <svg className="w-4 h-4 tenant-text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"

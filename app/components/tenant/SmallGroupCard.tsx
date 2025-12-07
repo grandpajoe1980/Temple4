@@ -98,7 +98,7 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
     <Card className="!p-0 flex flex-col h-full">
       <div className="p-6 flex-grow">
         <h3 className="text-xl font-semibold text-gray-900">{group.name}</h3>
-        <p className="text-sm font-medium text-amber-600 mt-1">{group.meetingSchedule}</p>
+        <p className="text-sm font-medium tenant-text-primary mt-1">{group.meetingSchedule}</p>
         <div className="mt-2">
           <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${group.isHidden ? 'bg-yellow-100 text-yellow-800' : (group.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800')}`}>
             {group.isHidden ? 'Hidden' : (group.isActive ? 'Active' : 'Inactive')}

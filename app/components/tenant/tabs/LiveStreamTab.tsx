@@ -33,7 +33,7 @@ const LiveStreamTab: React.FC<LiveStreamTabProps> = ({ tenant, onUpdate, onSave 
     <div className="space-y-8">
       <div>
         <h3 className="text-lg font-medium leading-6 text-gray-900">Live Stream Settings</h3>
-        <p className="mt-1 text-sm text-gray-500">Configure your live stream embed. The main “Enable Live Stream” toggle is in the <span className="font-semibold text-amber-700">Features</span> tab.</p>
+        <p className="mt-1 text-sm text-gray-500">Configure your live stream embed. The main "Enable Live Stream" toggle is in the <span className="font-semibold tenant-text-primary">Features</span> tab.</p>
       </div>
       
       <div className="space-y-6">
@@ -42,7 +42,7 @@ const LiveStreamTab: React.FC<LiveStreamTabProps> = ({ tenant, onUpdate, onSave 
           <select
             id="provider"
             name="provider"
-            className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-white text-gray-900"
+            className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
             value={settings.provider}
             onChange={(e) => handleSettingsChange('provider', e.target.value as LiveStreamSettings['provider'])}
           >

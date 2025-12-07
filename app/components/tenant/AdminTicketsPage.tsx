@@ -567,16 +567,16 @@ export default function AdminTicketsPage({ tenantId }: AdminTicketsPageProps) {
 
             {/* SLA Info */}
             {(selectedTicket.slaResponseDue || selectedTicket.slaResolveDue) && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
-                <div className="font-medium text-amber-800">SLA Targets</div>
+              <div className="tenant-bg-50 border tenant-border-200 rounded-lg p-3 text-sm">
+                <div className="font-medium text-[color:var(--primary)]">SLA Targets</div>
                 {selectedTicket.slaResponseDue && !selectedTicket.firstResponseAt && (
-                  <div className={new Date(selectedTicket.slaResponseDue) < new Date() ? 'text-red-600' : 'text-amber-700'}>
+                  <div className={new Date(selectedTicket.slaResponseDue) < new Date() ? 'text-red-600' : 'tenant-text-primary'}>
                     First Response: {formatDate(selectedTicket.slaResponseDue)}
                     {new Date(selectedTicket.slaResponseDue) < new Date() && ' (BREACHED)'}
                   </div>
                 )}
                 {selectedTicket.slaResolveDue && !selectedTicket.resolvedAt && (
-                  <div className={new Date(selectedTicket.slaResolveDue) < new Date() ? 'text-red-600' : 'text-amber-700'}>
+                  <div className={new Date(selectedTicket.slaResolveDue) < new Date() ? 'text-red-600' : 'tenant-text-primary'}>
                     Resolution: {formatDate(selectedTicket.slaResolveDue)}
                     {new Date(selectedTicket.slaResolveDue) < new Date() && ' (BREACHED)'}
                   </div>

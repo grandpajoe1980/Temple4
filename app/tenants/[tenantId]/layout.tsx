@@ -6,6 +6,7 @@ import { hasRole, can } from '@/lib/permissions';
 import { TenantRole } from '@/types';
 import TenantNav from './TenantNav';
 import TenantFooter from './TenantFooter';
+import TenantBrandingProvider from './TenantBrandingProvider';
 
 // Enable ISR with revalidation for tenant pages
 export const revalidate = 60; // Revalidate every 60 seconds
@@ -47,26 +48,28 @@ export default async function TenantLayout({
   ) : false;
 
   return (
-    <div className="bg-muted min-h-screen flex flex-col">
-      {/* Header hidden on mobile - navigation handled by MobileNav in SiteHeader */}
-      <header
-        className="sticky z-30 bg-card shadow-sm hidden md:block"
-        style={{
-          top: 'calc(var(--site-header-height, 4.5rem) + var(--impersonation-banner-offset, 0px))',
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-0">
-            <TenantNav tenant={tenant} canViewSettings={canViewSettings} />
+    <TenantBrandingProvider primaryColor={tenant.branding?.primaryColor} accentColor={tenant.branding?.accentColor}>
+      <div className="bg-muted min-h-screen flex flex-col">
+        {/* Header hidden on mobile - navigation handled by MobileNav in SiteHeader */}
+        <header
+          className="sticky z-30 bg-card shadow-sm hidden md:block"
+          style={{
+            top: 'calc(var(--site-header-height, 4.5rem) + var(--impersonation-banner-offset, 0px))',
+          }}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-0">
+              <TenantNav tenant={tenant} canViewSettings={canViewSettings} />
+            </div>
           </div>
-        </div>
-      </header>
-      <main className="flex-grow pb-10" style={{ paddingTop: 'clamp(2px, 0.35vw, 6px)' }}>
-        <div suppressHydrationWarning className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {children}
-        </div>
-      </main>
-      <TenantFooter tenant={tenant} />
-    </div>
+        </header>
+        <main className="flex-grow pb-10" style={{ paddingTop: 'clamp(2px, 0.35vw, 6px)' }}>
+          <div suppressHydrationWarning className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {children}
+          </div>
+        </main>
+        <TenantFooter tenant={tenant} />
+      </div>
+    </TenantBrandingProvider>
   );
 }

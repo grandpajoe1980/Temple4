@@ -41,30 +41,30 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ tenant, currentUser, member
   const customLinks = tenant.branding.customLinks || [];
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="h-48 bg-gradient-to-r from-[rgb(var(--primary-rgb))]/10 to-[rgb(var(--primary-rgb))]/20">
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden overflow-x-hidden">
+      <div className="h-48 bg-gradient-to-r from-[rgb(var(--primary-rgb))]/10 to-[rgb(var(--primary-rgb))]/20 overflow-hidden">
         {tenant.branding.bannerImageUrl && (
           <img
             src={tenant.branding.bannerImageUrl}
             alt={`${tenant.name} banner`}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain object-left max-w-full"
           />
         )}
       </div>
       <div className="p-6">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex items-end space-x-5">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between min-w-0">
+          <div className="flex items-end space-x-5 min-w-0">
             <div className="flex-shrink-0">
               <img
                 src={tenant.branding.logoUrl || '/placeholder-logo.svg'}
                 alt={`${tenant.name} logo`}
-                className="h-24 w-24 rounded-full bg-white p-1 shadow-md object-cover ring-4 ring-white -mt-16"
+                className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-white p-1 shadow-md object-cover ring-4 ring-white -mt-12 sm:-mt-16 max-w-full"
               />
             </div>
-            <div className="mt-4 sm:mt-0">
-              <h1 className="text-3xl font-bold text-gray-900 truncate">{tenant.name}</h1>
-              <p className="text-md font-medium text-gray-500">{tenant.creed}</p>
-              <p className="text-sm text-gray-400 mt-1">{tenant.address.city}, {tenant.address.state}</p>
+            <div className="mt-4 sm:mt-0 min-w-0 flex-1 pr-4 sm:pr-2">
+              <h1 className="text-xl sm:text-3xl font-bold text-gray-900 break-words leading-tight w-full">{tenant.name}</h1>
+              <p className="text-md font-medium text-gray-500 whitespace-normal break-words">{tenant.creed}</p>
+              <p className="text-sm text-gray-400 mt-1 whitespace-normal">{tenant.address.city}, {tenant.address.state}</p>
             </div>
           </div>
           <div className="mt-4 sm:mt-0 flex-shrink-0 flex items-center space-x-3">
@@ -77,7 +77,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ tenant, currentUser, member
           </div>
         </div>
         <div className="mt-6 border-t border-gray-200 pt-4">
-             <p className="text-gray-600">{tenant.description}</p>
+             <p className="text-gray-600 whitespace-normal break-words">{tenant.description}</p>
         </div>
       </div>
     </div>

@@ -97,8 +97,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
 
     const rawBody = await request.json().catch(() => ({}));
     const parsed = intakeSchema.safeParse(rawBody);
-    if (!parsed.success || !parsed.data.waiverAccepted) {
-      return validationError({ form: ['Please complete the required join form and accept the waiver before joining.'] });
+    if (!parsed.success) {
+      // Format Zod errors into a readable structure
+      const fieldErrors: Record<string, string[]> = {};
+      for (const issue of parsed.error.issues) {
+        const path = issue.path.join('.') || 'form';
+        if (!fieldErrors[path]) fieldErrors[path] = [];
+        fieldErrors[path].push(issue.message);
+      }
+      return validationError(fieldErrors, 'Please fix the following validation errors');
+    }
+    if (!parsed.data.waiverAccepted) {
+      return validationError({ waiverAccepted: ['You must accept the waiver to join the trip'] }, 'Waiver acceptance required');
     }
 
     const result = await joinTrip(tenantId, tripId, userId, parsed.data);

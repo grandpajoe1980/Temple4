@@ -81,7 +81,17 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        throw new Error((body && body.message) || res.statusText || `HTTP ${res.status}`);
+        // Build detailed error message from validation errors
+        let errorMessage = (body && body.message) || res.statusText || `HTTP ${res.status}`;
+        if (body?.errors && typeof body.errors === 'object') {
+          const errorDetails = Object.entries(body.errors)
+            .map(([field, msgs]) => `• ${field}: ${(msgs as string[]).join(', ')}`)
+            .join('\n');
+          if (errorDetails) {
+            errorMessage = `${errorMessage}:\n${errorDetails}`;
+          }
+        }
+        throw new Error(errorMessage);
       }
       if (onRefresh) onRefresh();
       // re-fetch trip to include the new membership state

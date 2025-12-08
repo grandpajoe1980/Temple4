@@ -11,9 +11,9 @@ interface TenantNavProps {
   canViewSettings: boolean;
 }
 
-type TenantPage = 'home' | 'content' | 'community' | 'settings' | 'services' | 'donations' | 'contact';
+type TenantPage = 'home' | 'content' | 'community' | 'work' | 'settings' | 'services' | 'donations' | 'contact';
 // Settings removed from submenu - uses ControlPanel sidebar instead
-type SubmenuKey = 'content' | 'community' | 'services' | 'donations';
+type SubmenuKey = 'content' | 'community' | 'work' | 'services' | 'donations';
 type NavItemFeature = keyof Omit<
   TenantSettings,
   | 'id'
@@ -29,6 +29,7 @@ const navItems: { key: TenantPage; label: string; path: string; feature?: NavIte
   { key: 'home', label: 'Home', path: '' },
   { key: 'content', label: 'Content', path: '/content' },
   { key: 'community', label: 'Community', path: '/posts' },
+  { key: 'work', label: 'Work', path: '/admin/workboard', adminOnly: true },
   { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
   { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
   { key: 'contact', label: 'Contact Us', path: '/contact' },
@@ -48,17 +49,21 @@ const communitySubItems: { key: string; label: string; path: string; feature?: N
   { key: 'events', label: 'Events', path: '/events', feature: 'enableEvents' },
   { key: 'wall', label: 'Wall', path: '/community/wall' },
   { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
-  { key: 'supportRequests', label: 'Support Requests', path: '/support-requests', feature: 'enableSupportRequests' },
-  { key: 'memorials', label: 'Memorials', path: '/memorials', feature: 'enableMemorials' },
   { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
+  { key: 'supportRequests', label: 'Support', path: '/support-requests', feature: 'enableSupportRequests' },
+  { key: 'memorials', label: 'Memorials', path: '/memorials', feature: 'enableMemorials' },
   { key: 'staff', label: 'Staff', path: '/staff', feature: 'enableMemberDirectory' },
   { key: 'chat', label: 'Chat', path: '/chat', feature: 'enableGroupChat' },
   { key: 'smallGroups', label: 'Small Groups', path: '/small-groups', feature: 'enableSmallGroups' },
   { key: 'trips', label: 'Trips', path: '/trips', feature: 'enableTrips' },
   { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
   { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
+];
+
+const workSubItems: { key: string; label: string; path: string; feature?: NavItemFeature; adminOnly?: boolean }[] = [
   { key: 'workboard', label: 'Workboard', path: '/admin/workboard', feature: 'enableWorkboard', adminOnly: true },
-  { key: 'tickets', label: 'Support Tickets', path: '/admin/tickets', feature: 'enableTicketing', adminOnly: true },
+  { key: 'tickets', label: 'Tickets', path: '/admin/tickets', feature: 'enableTicketing', adminOnly: true },
+  { key: 'assets', label: 'Assets', path: '/admin/assets', feature: 'enableAssetManagement', adminOnly: true },
 ];
 
 const serviceSubItems: { key: string; label: string; path: string }[] = [
@@ -91,12 +96,17 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
       return 'content';
     }
 
-    // Check community items including admin pages for workboard and tickets
+    // Check community items
     if (
       pathname.startsWith(`${basePath}/community`) ||
       communitySubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))
     ) {
       return 'community';
+    }
+
+    // Check work items (admin pages for workboard, tickets, assets)
+    if (workSubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))) {
+      return 'work';
     }
 
     if (pathname.startsWith(`${basePath}/services`)) {
@@ -118,6 +128,8 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const contentHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const communityShowTimer = React.useRef<NodeJS.Timeout | null>(null);
   const communityHideTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const workShowTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const workHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const servicesShowTimer = React.useRef<NodeJS.Timeout | null>(null);
   const servicesHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const donationsShowTimer = React.useRef<NodeJS.Timeout | null>(null);
@@ -126,6 +138,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     () => ({
       content: { show: contentShowTimer, hide: contentHideTimer },
       community: { show: communityShowTimer, hide: communityHideTimer },
+      work: { show: workShowTimer, hide: workHideTimer },
       services: { show: servicesShowTimer, hide: servicesHideTimer },
       donations: { show: donationsShowTimer, hide: donationsHideTimer },
     }),
@@ -258,6 +271,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     const itemsByKey: Record<SubmenuKey, { key: string; label: string; path: string; feature?: NavItemFeature; adminOnly?: boolean }[]> = {
       content: contentSubItems,
       community: communitySubItems,
+      work: workSubItems,
       services: serviceSubItems,
       donations: donationsSubItems,
     };
@@ -286,6 +300,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     const itemsByKey: Record<SubmenuKey, { key: string; label: string; path: string; feature?: NavItemFeature; adminOnly?: boolean }[]> = {
       content: contentSubItems,
       community: communitySubItems,
+      work: workSubItems,
       services: serviceSubItems,
       donations: donationsSubItems,
     };
@@ -322,6 +337,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
             (item.path === '' && pathname === basePath) ||
             (item.key === 'content' && contentSubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))) ||
             (item.key === 'community' && communitySubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))) ||
+            (item.key === 'work' && workSubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))) ||
             (item.key === 'services' && pathname.startsWith(`${basePath}/services`)) ||
             (item.key === 'donations' && pathname.startsWith(`${basePath}/donations`)) ||
             (item.key === 'settings' && pathname.startsWith(`${basePath}/settings`));
@@ -348,6 +364,21 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
                 className="relative"
                 onMouseEnter={() => scheduleShow('community')}
                 onMouseLeave={() => scheduleHide('community')}
+              >
+                <Link href={fullPath} className={baseClasses(isActive)}>
+                  {item.label}
+                </Link>
+              </div>
+            );
+          }
+
+          if (item.key === 'work') {
+            return (
+              <div
+                key={item.key}
+                className="relative"
+                onMouseEnter={() => scheduleShow('work')}
+                onMouseLeave={() => scheduleHide('work')}
               >
                 <Link href={fullPath} className={baseClasses(isActive)}>
                   {item.label}

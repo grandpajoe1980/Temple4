@@ -29,6 +29,42 @@ export async function POST(req: Request) {
 
     const info = detectPodcast(url)
 
+    // If it's an Apple Podcasts URL, try the iTunes Lookup API to get reliable
+    // artwork and title metadata. This avoids trying to fetch the Apple page
+    // directly (which can be blocked) and ensures the client has an image to
+    // display instead of rendering a blocked iframe.
+    if (info.provider === 'apple' && info.podcastId) {
+      try {
+        const lookupUrl = `https://itunes.apple.com/lookup?id=${info.podcastId}&entity=podcastEpisode`
+        const lookupRes = await fetch(lookupUrl)
+        if (lookupRes.ok) {
+          const lookupJson = await lookupRes.json()
+          const results = lookupJson.results || []
+          if (results.length > 0) {
+            // Prefer episode-level metadata when we have an episode id
+            let title: string | undefined
+            let image: string | undefined
+            if (info.episodeId) {
+              const ep = results.find((r: any) => String(r.trackId) === String(info.episodeId))
+              if (ep) {
+                image = ep.artworkUrl600 || ep.artworkUrl160 || ep.artworkUrl100
+                title = ep.trackName || ep.collectionName
+              }
+            }
+            // Fallback to collection-level artwork/title
+            if (!image) {
+              const col = results.find((r: any) => r.wrapperType === 'collection') || results[0]
+              image = col.artworkUrl600 || col.artworkUrl100 || col.artworkUrl60
+              title = title || col.collectionName || col.trackName
+            }
+
+            return NextResponse.json({ provider: 'apple', title, image, info })
+          }
+        }
+      } catch (err) {
+        // ignore and fall through to other metadata strategies
+      }
+    }
     // Try provider-specific oEmbed endpoints first
     if (info.provider === 'youtube') {
       const endpoint = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`

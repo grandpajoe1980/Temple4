@@ -39,6 +39,7 @@ interface TenantSettings {
   enableResourceCenter?: boolean;
   enableWorkboard?: boolean;
   enableTicketing?: boolean;
+  enableAssetManagement?: boolean;
   enableRecurringPledges?: boolean;
 }
 
@@ -55,7 +56,7 @@ const communitySubItems = [
   { key: 'posts', label: 'Posts', path: '/posts', feature: 'enablePosts' },
   { key: 'wall', label: 'Wall', path: '/community/wall' },
   { key: 'calendar', label: 'Calendar', path: '/calendar', feature: 'enableCalendar' },
-  { key: 'supportRequests', label: 'Support Requests', path: '/support-requests', feature: 'enableSupportRequests' },
+  { key: 'supportRequests', label: 'Support', path: '/support-requests', feature: 'enableSupportRequests' },
   { key: 'memorials', label: 'Memorials', path: '/memorials', feature: 'enableMemorials' },
   { key: 'members', label: 'Members', path: '/members', feature: 'enableMemberDirectory' },
   { key: 'staff', label: 'Staff', path: '/staff', feature: 'enableMemberDirectory' },
@@ -64,6 +65,12 @@ const communitySubItems = [
   { key: 'trips', label: 'Trips', path: '/trips', feature: 'enableTrips' },
   { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
   { key: 'resources', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
+];
+
+const workSubItems = [
+  { key: 'workboard', label: 'Workboard', path: '/admin/workboard', feature: 'enableWorkboard', adminOnly: true },
+  { key: 'tickets', label: 'Tickets', path: '/admin/tickets', feature: 'enableTicketing', adminOnly: true },
+  { key: 'assets', label: 'Assets', path: '/admin/assets', feature: 'enableAssetManagement', adminOnly: true },
 ];
 
 const serviceSubItems = [
@@ -224,6 +231,9 @@ export default function MobileNav({ className }: MobileNavProps) {
 
       {/* Community Section */}
       {renderExpandableSection('community', 'Community', `${basePath}/community`, communitySubItems)}
+
+      {/* Work Section (Admin only) */}
+      {isAdmin && renderExpandableSection('work', 'Work', `${basePath}/admin/workboard`, workSubItems)}
 
       {/* Services Section */}
       {isFeatureEnabled('enableServices') &&

@@ -128,8 +128,20 @@ const defaultValues: TripJoinFormValues = {
   waiverAccepted: false,
 };
 
+// Validation error state type
+interface ValidationErrors {
+  fullLegalName?: boolean;
+  dateOfBirth?: boolean;
+  email?: boolean;
+  emergencyContactName?: boolean;
+  emergencyContactPhone?: boolean;
+  waiverAccepted?: boolean;
+}
+
 export default function TripJoinForm({ user, tripName, submitting, onSubmit, onCancel }: TripJoinFormProps) {
   const [form, setForm] = useState<TripJoinFormValues>(defaultValues);
+  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [attempted, setAttempted] = useState(false);
 
   useEffect(() => {
     setForm((prev) => ({
@@ -153,30 +165,110 @@ export default function TripJoinForm({ user, tripName, submitting, onSubmit, onC
       ...prev,
       [section]: { ...(prev as any)[section], ...values },
     }));
+    // Clear errors for the field being updated if we've attempted validation
+    if (attempted) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        // Map section + values to error keys
+        if (section === 'personalInfo') {
+          if ('fullLegalName' in values) newErrors.fullLegalName = !values.fullLegalName;
+          if ('dateOfBirth' in values) newErrors.dateOfBirth = !values.dateOfBirth;
+          if ('email' in values) newErrors.email = !values.email;
+          if ('emergencyContact' in values) {
+            const ec = values.emergencyContact as any;
+            if (ec?.name !== undefined) newErrors.emergencyContactName = !ec.name;
+            if (ec?.phone !== undefined) newErrors.emergencyContactPhone = !ec.phone;
+          }
+        }
+        return newErrors;
+      });
+    }
+  };
+
+  const validateForm = (): ValidationErrors => {
+    const newErrors: ValidationErrors = {};
+    
+    // Required field validations
+    if (!form.personalInfo.fullLegalName.trim()) {
+      newErrors.fullLegalName = true;
+    }
+    if (!form.personalInfo.dateOfBirth) {
+      newErrors.dateOfBirth = true;
+    }
+    if (!form.personalInfo.email.trim()) {
+      newErrors.email = true;
+    }
+    if (!form.personalInfo.emergencyContact.name.trim()) {
+      newErrors.emergencyContactName = true;
+    }
+    if (!form.personalInfo.emergencyContact.phone?.trim()) {
+      newErrors.emergencyContactPhone = true;
+    }
+    if (!form.waiverAccepted) {
+      newErrors.waiverAccepted = true;
+    }
+
+    setErrors(newErrors);
+    return newErrors;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.waiverAccepted) {
-      alert('Please accept the waiver to join the trip.');
+    setAttempted(true);
+    
+    const validationErrors = validateForm();
+    const hasErrors = Object.keys(validationErrors).length > 0;
+    
+    if (hasErrors) {
+      // Build error messages from the fresh validation result
+      const errorMessages: string[] = [];
+      if (validationErrors.fullLegalName) errorMessages.push('Full legal name');
+      if (validationErrors.dateOfBirth) errorMessages.push('Date of birth');
+      if (validationErrors.email) errorMessages.push('Email');
+      if (validationErrors.emergencyContactName) errorMessages.push('Emergency contact name');
+      if (validationErrors.emergencyContactPhone) errorMessages.push('Emergency contact phone');
+      if (validationErrors.waiverAccepted) errorMessages.push('Waiver acceptance');
+      
+      alert(`Please fill in all required fields:\n• ${errorMessages.join('\n• ')}`);
+      
+      // Scroll to first error field
+      setTimeout(() => {
+        const firstErrorField = document.querySelector('.border-red-500');
+        if (firstErrorField) {
+          firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          (firstErrorField as HTMLInputElement).focus?.();
+        }
+      }, 50);
       return;
     }
+    
     onSubmit(form);
   };
+
+  // Helper for input error styling
+  const inputErrorClass = (hasError: boolean) =>
+    hasError ? 'border-red-500 ring-1 ring-red-500 bg-red-50' : 'border-gray-300';
+
+  // Helper for required label
+  const RequiredStar = () => <span className="text-red-500 ml-0.5">*</span>;
 
   return (
     <form onSubmit={handleSubmit} className="max-h-[70vh] space-y-6 overflow-y-auto pr-2">
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-900">A. Personal Information</h3>
+        <p className="text-xs text-gray-500"><span className="text-red-500">*</span> Required fields</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-sm font-medium text-gray-700">Full legal name</label>
+            <label className="text-sm font-medium text-gray-700">Full legal name<RequiredStar /></label>
             <input
               required
               value={form.personalInfo.fullLegalName}
               onChange={(e) => update('personalInfo', { fullLegalName: e.target.value })}
-              className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className={`mt-1 w-full rounded border px-3 py-2 text-sm ${inputErrorClass(attempted && errors.fullLegalName === true)}`}
             />
+            {attempted && errors.fullLegalName && (
+              <p className="mt-1 text-xs text-red-600">Full legal name is required</p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700">Preferred name</label>
@@ -187,13 +279,17 @@ export default function TripJoinForm({ user, tripName, submitting, onSubmit, onC
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700">Date of birth</label>
+            <label className="text-sm font-medium text-gray-700">Date of birth<RequiredStar /></label>
             <input
               type="date"
+              required
               value={form.personalInfo.dateOfBirth}
               onChange={(e) => update('personalInfo', { dateOfBirth: e.target.value })}
-              className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className={`mt-1 w-full rounded border px-3 py-2 text-sm ${inputErrorClass(attempted && errors.dateOfBirth === true)}`}
             />
+            {attempted && errors.dateOfBirth && (
+              <p className="mt-1 text-xs text-red-600">Date of birth is required</p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700">Gender (optional)</label>
@@ -228,26 +324,32 @@ export default function TripJoinForm({ user, tripName, submitting, onSubmit, onC
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700">Email</label>
+            <label className="text-sm font-medium text-gray-700">Email<RequiredStar /></label>
             <input
               required
               type="email"
               value={form.personalInfo.email}
               onChange={(e) => update('personalInfo', { email: e.target.value })}
-              className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className={`mt-1 w-full rounded border px-3 py-2 text-sm ${inputErrorClass(attempted && errors.email === true)}`}
             />
+            {attempted && errors.email && (
+              <p className="mt-1 text-xs text-red-600">Email is required</p>
+            )}
           </div>
           <div className="sm:col-span-2 grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-medium text-gray-700">Emergency contact name</label>
+              <label className="text-sm font-medium text-gray-700">Emergency contact name<RequiredStar /></label>
               <input
                 required
                 value={form.personalInfo.emergencyContact.name}
                 onChange={(e) =>
                   update('personalInfo', { emergencyContact: { ...form.personalInfo.emergencyContact, name: e.target.value } })
                 }
-                className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm"
+                className={`mt-1 w-full rounded border px-3 py-2 text-sm ${inputErrorClass(attempted && errors.emergencyContactName === true)}`}
               />
+              {attempted && errors.emergencyContactName && (
+                <p className="mt-1 text-xs text-red-600">Emergency contact name is required</p>
+              )}
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Relationship</label>
@@ -262,14 +364,18 @@ export default function TripJoinForm({ user, tripName, submitting, onSubmit, onC
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">Emergency contact phone</label>
+              <label className="text-sm font-medium text-gray-700">Emergency contact phone<RequiredStar /></label>
               <input
+                required
                 value={form.personalInfo.emergencyContact.phone || ''}
                 onChange={(e) =>
                   update('personalInfo', { emergencyContact: { ...form.personalInfo.emergencyContact, phone: e.target.value } })
                 }
-                className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm"
+                className={`mt-1 w-full rounded border px-3 py-2 text-sm ${inputErrorClass(attempted && errors.emergencyContactPhone === true)}`}
               />
+              {attempted && errors.emergencyContactPhone && (
+                <p className="mt-1 text-xs text-red-600">Emergency contact phone is required</p>
+              )}
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Emergency contact email</label>
@@ -595,15 +701,26 @@ export default function TripJoinForm({ user, tripName, submitting, onSubmit, onC
             I have read and understood this waiver. I sign it voluntarily.
           </li>
         </ol>
-        <label className="mt-3 inline-flex items-center gap-2 font-semibold text-gray-900">
-          <input
-            type="checkbox"
-            checked={form.waiverAccepted}
-            onChange={(e) => setForm((prev) => ({ ...prev, waiverAccepted: e.target.checked }))}
-            required
-          />
-          I have read and agree to the Participant Release & Liability Waiver.
-        </label>
+        <div className={`mt-3 rounded p-2 ${attempted && errors.waiverAccepted ? 'bg-red-50 border border-red-500' : ''}`}>
+          <label className="inline-flex items-center gap-2 font-semibold text-gray-900">
+            <input
+              type="checkbox"
+              checked={form.waiverAccepted}
+              onChange={(e) => {
+                setForm((prev) => ({ ...prev, waiverAccepted: e.target.checked }));
+                if (attempted) {
+                  setErrors((prev) => ({ ...prev, waiverAccepted: !e.target.checked }));
+                }
+              }}
+              required
+              className={attempted && errors.waiverAccepted ? 'ring-2 ring-red-500' : ''}
+            />
+            I have read and agree to the Participant Release & Liability Waiver.<span className="text-red-500 ml-0.5">*</span>
+          </label>
+          {attempted && errors.waiverAccepted && (
+            <p className="mt-1 text-xs text-red-600">You must accept the waiver to join the trip</p>
+          )}
+        </div>
         <div className="mt-2 flex justify-end">
           <button
             type="button"

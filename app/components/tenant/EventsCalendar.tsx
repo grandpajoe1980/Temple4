@@ -130,13 +130,15 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
 
   return (
     <>
-      <CustomToolbar
-        date={currentDate}
-        view={currentView}
-        onViewChange={handleViewChange}
-        onDateChange={handleDateNavigate}
-        isMobile={Boolean(isMobile)}
-      />
+      <div className="sticky top-0 z-20 bg-background pb-2">
+        <CustomToolbar
+          date={currentDate}
+          view={currentView}
+          onViewChange={handleViewChange}
+          onDateChange={handleDateNavigate}
+          isMobile={Boolean(isMobile)}
+        />
+      </div>
 
       <div className={`bg-card rounded-2xl border border-border shadow-sm overflow-visible calendar-container ${isMobile ? 'mobile-calendar' : ''}`}>
         {/* Month View (Desktop & Mobile) */}

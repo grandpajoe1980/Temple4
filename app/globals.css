@@ -388,13 +388,11 @@
 /* CRITICAL: Fix the scroller/harness chain that's hiding the calendar */
 .fc .fc-scroller-harness {
   overflow: visible !important;
-  min-height: 300px;
 }
 
 .fc .fc-scroller {
   overflow: visible !important;
   height: auto !important;
-  min-height: 300px;
 }
 
 .fc .fc-scroller-liquid-absolute {

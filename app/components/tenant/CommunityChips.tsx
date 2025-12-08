@@ -59,6 +59,7 @@ export default function CommunityChips({ tenantId }: { tenantId: string }) {
     { key: 'volunteering', label: 'Volunteering', path: '/volunteering', feature: 'enableVolunteering' },
     { key: 'resourceCenter', label: 'Resources', path: '/resources', feature: 'enableResourceCenter' },
     { key: 'tickets', label: 'Support', path: '/admin/tickets', feature: 'enableTicketing' },
+    { key: 'assets', label: 'Assets', path: '/admin/assets', feature: 'enableAssetManagement' },
   ];
 
   return (

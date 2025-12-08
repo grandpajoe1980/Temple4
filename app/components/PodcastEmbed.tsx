@@ -176,17 +176,34 @@ export default function PodcastEmbed({ url }: Props) {
           </a>
         </div>
             {src ? (
-              <DetectedIframe
-                title={`apple-podcast-${info.podcastId}-${info.episodeId || 'pod'}`}
-                src={src}
-                style={{ width: '100%', maxWidth: 660, overflow: 'hidden', borderRadius: 10 }}
-                height={450}
-                frameBorder={0}
-                allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
-                sandbox="allow-forms allow-same-origin allow-scripts allow-storage-access-by-user-activation"
-                loading="lazy"
-                fallbackSrc={url}
-              />
+              // If we have artwork from metadata, prefer showing that as a clickable
+              // image instead of relying on the Apple iframe (which is frequently
+              // blocked/refuses to connect). Falls back to the iframe only when
+              // artwork is unavailable.
+              artwork ? (
+                <div style={{ position: 'relative', width: '100%', maxWidth: 660, borderRadius: 10, overflow: 'hidden', cursor: 'pointer' }} onClick={() => openPlayer(src)}>
+                  <img src={artwork} alt={title || 'podcast artwork'} style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <div style={{ width: 64, height: 64, borderRadius: 32, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="white" aria-hidden>
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <DetectedIframe
+                  title={`apple-podcast-${info.podcastId}-${info.episodeId || 'pod'}`}
+                  src={src}
+                  style={{ width: '100%', maxWidth: 660, overflow: 'hidden', borderRadius: 10 }}
+                  height={450}
+                  frameBorder={0}
+                  allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+                  sandbox="allow-forms allow-same-origin allow-scripts allow-storage-access-by-user-activation"
+                  loading="lazy"
+                  fallbackSrc={url}
+                />
+              )
             ) : (
               <div>
                 <a href={url} target="_blank" rel="noreferrer noopener">

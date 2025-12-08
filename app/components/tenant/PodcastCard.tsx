@@ -12,19 +12,12 @@ interface PodcastCardProps {
   expanded?: boolean;
 }
 
-const PodcastCard: React.FC<PodcastCardProps> = ({ podcast, canEdit = false, onEdit, onDelete, onPlay, expanded = false }) => {
-  // A simple embed for archive.org, might need adjustment for other providers
-  const embedUrl = podcast.embedUrl.includes('archive.org') 
-    ? podcast.embedUrl.replace('/details/', '/embed/') + '?autoplay=0' 
-    : podcast.embedUrl;
-
+const PodcastCard: React.FC<PodcastCardProps> = ({ podcast, canEdit = false, onEdit, onDelete, onPlay, expanded = true }) => {
+  // Always show the full embedded player
   return (
     <Card className="relative !p-0 overflow-hidden flex flex-col">
-      {/** action buttons: Play is available to all users; Edit/Delete only if canEdit */}
+      {/** action buttons: Edit/Delete only if canEdit */}
       <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
-        <button onClick={() => onPlay?.(podcast)} className="h-9 w-9 rounded-full bg-green-500 text-white flex items-center justify-center" title="Play">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 3v18l15-9L5 3z" fill="currentColor"/></svg>
-        </button>
         {canEdit ? (
           <>
             <button onClick={() => onEdit?.(podcast)} className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center" title="Edit">
@@ -37,28 +30,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({ podcast, canEdit = false, onE
         ) : null}
       </div>
       <div className="p-6">
-        {expanded ? (
-          <div>
-            <PodcastEmbed url={podcast.embedUrl} />
-          </div>
-        ) : (
-          podcast.artworkUrl ? (
-            <div className="w-full h-40 bg-gray-100 rounded-md overflow-hidden flex items-center justify-center">
-              <img src={podcast.artworkUrl} alt={podcast.title} className="object-cover w-full h-full" />
-            </div>
-          ) : (
-            <iframe
-              src={embedUrl}
-              width="100%"
-              height="40"
-              frameBorder="0"
-              allowFullScreen={false}
-              allow="autoplay; clipboard-write; encrypted-media;"
-              title={podcast.title}
-              className="rounded-md"
-            ></iframe>
-          )
-        )}
+        <PodcastEmbed url={podcast.embedUrl} />
       </div>
       <div className="p-6 pt-2 flex-grow">
         <h3 className="text-xl font-semibold text-gray-900">{podcast.title}</h3>

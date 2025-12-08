@@ -216,33 +216,33 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
         </div>
       )}
 
-      {/* Header Section */}
-      <div className="relative bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="h-48 tenant-bg-100">
-            {tenant.branding?.bannerImageUrl && (
-              <img 
-                  src={tenant.branding.bannerImageUrl} 
-                  alt={`${tenant.name} banner`} 
-                  className="h-full w-full object-cover"
-              />
-            )}
+        {/* Header Section */}
+        <div className="relative bg-white rounded-lg shadow-sm overflow-hidden overflow-x-hidden">
+        <div className="h-48 tenant-bg-100 overflow-hidden">
+          {tenant.branding?.bannerImageUrl && (
+            <img 
+              src={tenant.branding.bannerImageUrl} 
+              alt={`${tenant.name} banner`} 
+              className="h-full w-full object-contain object-left max-w-full"
+            />
+          )}
         </div>
         <div className="p-6">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
-                <div className="flex items-end space-x-5">
-                    <div className="flex-shrink-0">
-                         <img 
-                            src={tenant.branding?.logoUrl || '/placeholder-logo.svg'}
-                            alt={`${tenant.name} logo`}
-                            className="h-24 w-24 rounded-full bg-white p-1 shadow-md object-cover ring-4 ring-white -mt-16"
-                        />
-                    </div>
-                    <div className="mt-4 sm:mt-0">
-                        <h2 className="text-2xl font-bold text-gray-900 truncate">{tenant.name}</h2>
-                        <p className="text-sm font-medium text-gray-500">{tenant.creed}</p>
-                    </div>
-                </div>
-                <div className="mt-4 sm:mt-0 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between min-w-0">
+            <div className="flex items-end space-x-5 min-w-0">
+              <div className="flex-shrink-0">
+                 <img 
+                  src={tenant.branding?.logoUrl || '/placeholder-logo.svg'}
+                  alt={`${tenant.name} logo`}
+                  className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-white p-1 shadow-md object-cover ring-4 ring-white -mt-12 sm:-mt-16 max-w-full"
+                />
+              </div>
+              <div className="mt-4 sm:mt-0 min-w-0 flex-1 pr-4 sm:pr-2">
+                        <h2 className="text-xl sm:text-3xl font-bold text-gray-900 break-words leading-tight w-full">{tenant.name}</h2>
+                <p className="text-sm font-medium text-gray-500 whitespace-normal break-words">{tenant.creed}</p>
+              </div>
+            </div>
+            <div className="mt-4 sm:mt-0 flex-shrink-0">
                     {tenant.settings?.enableDonations && donationLink && (
                         <a href={donationLink.url} target="_blank" rel="noopener noreferrer">
                             <Button>

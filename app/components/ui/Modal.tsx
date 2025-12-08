@@ -60,7 +60,7 @@ const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 flex justify-center items-start overflow-y-auto p-2 sm:p-4 md:p-8"
+      className="fixed inset-0 bg-black/50 dark:bg-black/70 z-60 flex justify-center items-start overflow-y-auto p-2 sm:p-4 md:p-8"
       aria-labelledby="modal-title"
       role="dialog"
       aria-modal="true"
@@ -73,7 +73,7 @@ const Modal: React.FC<ModalProps> = ({
         ref={modalRef}
         data-test={dataTest}
       >
-        <div className="flex justify-between items-center p-3 sm:p-4 border-b border-border sticky top-0 bg-card z-10">
+        <div className="flex justify-between items-center p-3 sm:p-4 border-b border-border sticky top-0 bg-card z-70">
           <h2 id="modal-title" className="text-base sm:text-lg font-semibold text-foreground line-clamp-1 pr-4">
             {title}
           </h2>

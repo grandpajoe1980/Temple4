@@ -1081,6 +1081,32 @@
   border-color: var(--accent-hex, rgb(var(--accent)));
 }
 
+/* Dark-mode overrides for tenant utilities to ensure sufficient contrast
+   when tenant tints are used in components (e.g. small banners, toasts). */
+.dark .tenant-bg-50 {
+  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary-rgb))) 8%, var(--card));
+}
+
+.dark .tenant-bg-100 {
+  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary-rgb))) 12%, var(--card));
+}
+
+.dark .tenant-bg-200 {
+  background-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary-rgb))) 20%, var(--card));
+}
+
+.dark .tenant-border-200 {
+  border-color: color-mix(in srgb, var(--primary-hex, rgb(var(--primary-rgb))) 20%, transparent);
+}
+
+.dark .tenant-accent-bg-50 {
+  background-color: color-mix(in srgb, var(--accent-hex, rgb(var(--accent))) 8%, var(--card));
+}
+
+.dark .tenant-text-primary {
+  color: var(--primary-hex, rgb(var(--primary-rgb)));
+}
+
 
 /* Semi-transparent white backgrounds */
 .dark .bg-white\/95 {

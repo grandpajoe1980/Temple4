@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import useFocusTrap from '@/app/hooks/useFocusTrap';
 import { X } from 'lucide-react';
 
@@ -58,9 +59,9 @@ const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div
-      className="fixed inset-0 bg-black/50 dark:bg-black/70 z-60 flex justify-center items-start overflow-y-auto p-2 sm:p-4 md:p-8"
+      className="fixed inset-0 bg-black/50 dark:bg-black/70 z-[9999] flex justify-center items-start overflow-y-auto p-2 sm:p-4 md:p-8"
       aria-labelledby="modal-title"
       role="dialog"
       aria-modal="true"
@@ -68,12 +69,12 @@ const Modal: React.FC<ModalProps> = ({
       data-test={dataTest ? `${dataTest}-overlay` : undefined}
     >
       <div
-        className={`bg-card text-card-foreground rounded-xl shadow-xl w-full ${sizeClasses[size]} overflow-hidden my-2 sm:my-4 md:my-8 animate-in fade-in-0 zoom-in-95 duration-200`}
+        className={`bg-card text-card-foreground rounded-xl shadow-xl w-full ${sizeClasses[size]} overflow-hidden my-2 sm:my-4 md:my-8 animate-in fade-in-0 zoom-in-95 duration-200 z-[9999]`}
         onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
         ref={modalRef}
         data-test={dataTest}
       >
-        <div className="flex justify-between items-center p-3 sm:p-4 border-b border-border sticky top-0 bg-card z-70">
+        <div className="flex justify-between items-center p-3 sm:p-4 border-b border-border sticky top-0 bg-card z-[10000]">
           <h2 id="modal-title" className="text-base sm:text-lg font-semibold text-foreground line-clamp-1 pr-4">
             {title}
           </h2>
@@ -91,6 +92,12 @@ const Modal: React.FC<ModalProps> = ({
       </div>
     </div>
   );
+
+  // Use portal to render at body level, escaping any parent stacking contexts
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+  return modalContent;
 };
 
 export default Modal;

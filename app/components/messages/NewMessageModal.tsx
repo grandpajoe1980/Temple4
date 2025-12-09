@@ -4,6 +4,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import type { User } from '@/types';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 
 interface NewMessageModalProps {
   currentUser: User;
@@ -64,19 +66,22 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ currentUser, onClose,
           {filteredUsers.length > 0 ? (
             filteredUsers.map(user => (
               <li
-                key={user.id}
-                className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50"
-                onClick={() => onStartConversation(user.id)}
-              >
-                <div className="flex items-center space-x-4">
-                  {/* FIX: Access avatarUrl and displayName from the nested profile object. */}
-                  <img src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile?.displayName} className="w-10 h-10 rounded-full" />
-                  <div>
-                    <p className="font-semibold text-gray-800">{user.profile?.displayName}</p>
-                    <p className="text-sm text-gray-500">{user.email}</p>
+                  key={user.id}
+                  className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50"
+                  onClick={() => onStartConversation(user.id)}
+                >
+                  <div className="flex items-center space-x-4">
+                    <UserLink userId={user.id} className="inline-flex">
+                      <Avatar src={user.profile?.avatarUrl ?? undefined} name={user.profile?.displayName ?? undefined} size="md" />
+                    </UserLink>
+                    <div>
+                      <UserLink userId={user.id} className="font-semibold text-gray-800 block">
+                        <span className="font-semibold">{user.profile?.displayName}</span>
+                      </UserLink>
+                      <p className="text-sm text-gray-500">{user.email}</p>
+                    </div>
                   </div>
-                </div>
-              </li>
+                </li>
             ))
           ) : (
             <li className="p-8 text-center text-sm text-gray-500">

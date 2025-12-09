@@ -65,11 +65,36 @@ export async function GET(
             },
         });
 
-        const enrichedPosts = posts.map((post) => ({
-            ...post,
-            authorDisplayName: post.isAnonymous ? 'Anonymous' : post.authorUserId || 'Unknown',
-            authorAvatarUrl: undefined,
-        }));
+        // Resolve author display names and avatar URLs from user profiles
+        const authorIds = Array.from(new Set(posts.map((p) => p.authorUserId).filter(Boolean))) as string[];
+        let usersById: Record<string, any> = {};
+        if (authorIds.length > 0) {
+            const users = await prisma.user.findMany({
+                where: { id: { in: authorIds } },
+                include: { profile: true },
+            });
+            usersById = users.reduce((acc, u) => ({ ...acc, [u.id]: u }), {} as Record<string, any>);
+        }
+
+        const enrichedPosts = posts.map((post) => {
+            if (post.isAnonymous || !post.authorUserId) {
+                return {
+                    ...post,
+                    authorDisplayName: 'Anonymous',
+                    authorAvatarUrl: undefined,
+                };
+            }
+
+            const user = usersById[post.authorUserId];
+            const displayName = user?.profile?.displayName || user?.email || post.authorUserId;
+            const avatarUrl = user?.profile?.avatarUrl || undefined;
+
+            return {
+                ...post,
+                authorDisplayName: displayName,
+                authorAvatarUrl: avatarUrl,
+            };
+        });
 
         return NextResponse.json(enrichedPosts);
     } catch (error) {

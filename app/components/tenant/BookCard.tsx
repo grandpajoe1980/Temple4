@@ -1,6 +1,8 @@
 import React from 'react';
 import type { PostWithAuthor } from '@/types';
 import Card from '../ui/Card';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 
 interface BookCardProps {
     post: PostWithAuthor;
@@ -42,10 +44,10 @@ const BookCard: React.FC<BookCardProps> = ({ post, canEdit = false, onEdit, onDe
             </p>
         </div>
         <div className="bg-gray-50 px-6 py-3 flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-3">
-                <img className="h-8 w-8 rounded-full" src={post.authorAvatarUrl} alt={post.authorDisplayName} />
+            <UserLink userId={(post as any).authorUserId} className="flex items-center space-x-3">
+                <Avatar src={post.authorAvatarUrl} name={post.authorDisplayName} size="sm" />
                 <span className="font-medium text-gray-800">{post.authorDisplayName}</span>
-            </div>
+            </UserLink>
             <time dateTime={post.publishedAt.toISOString()} className="text-gray-500">
                 {post.publishedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </time>

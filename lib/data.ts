@@ -758,11 +758,27 @@ export async function getNotificationsForUser(userId: string) {
         orderBy: { createdAt: 'desc' },
     });
     
-    return notifications.map((notif: any) => ({
-        ...notif,
-        actorUserId: notif.actorUserId ?? undefined,
-        link: notif.link ?? undefined,
-    }));
+  // Collect actor user IDs and fetch their profiles so we can render avatars/names in the UI
+  const actorIds = Array.from(new Set(notifications.map((n: any) => n.actorUserId).filter(Boolean)));
+  let actorMap: Record<string, any> = {};
+  if (actorIds.length > 0) {
+    const actors = await prisma.user.findMany({
+      where: { id: { in: actorIds } },
+      include: { profile: true },
+    });
+    actorMap = actors.reduce((acc: Record<string, any>, u: any) => {
+      acc[u.id] = u;
+      return acc;
+    }, {} as Record<string, any>);
+  }
+
+  return notifications.map((notif: any) => ({
+    ...notif,
+    actorUserId: notif.actorUserId ?? undefined,
+    actorDisplayName: notif.actorUserId ? actorMap[notif.actorUserId]?.profile?.displayName ?? undefined : undefined,
+    actorAvatarUrl: notif.actorUserId ? actorMap[notif.actorUserId]?.profile?.avatarUrl ?? undefined : undefined,
+    link: notif.link ?? undefined,
+  }));
 }
 
 /**

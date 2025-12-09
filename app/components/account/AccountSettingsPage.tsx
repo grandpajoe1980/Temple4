@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 import { useRouter } from 'next/navigation';
 import type { User as PrismaUser, UserProfile as PrismaUserProfile } from '@prisma/client';
 import Button from '../ui/Button';
@@ -106,11 +108,13 @@ const AccountSettingsPage: React.FC<AccountSettingsPageProps> = ({ user }) => {
     <div className="max-w-4xl mx-auto space-y-8 py-10 px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-start">
         <div className="flex items-center space-x-4">
-          <img
-            src={user.profile?.avatarUrl || '/placeholder-avatar.svg'}
-            alt={user.profile?.displayName || user.email}
-            className="w-16 h-16 rounded-full"
-          />
+          <UserLink userId={user.id} className="inline-flex">
+            <Avatar
+              src={user.profile?.avatarUrl || '/placeholder-avatar.svg'}
+              name={user.profile?.displayName || user.email}
+              size="lg"
+            />
+          </UserLink>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
             <p className="text-sm text-gray-500">Manage your profile, privacy, and account preferences.</p>

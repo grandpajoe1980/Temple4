@@ -580,6 +580,8 @@ export interface Notification {
   id: string;
   userId: string; // The recipient
   actorUserId?: string; // The user who caused the notification
+  actorDisplayName?: string;
+  actorAvatarUrl?: string | null;
   type: NotificationType;
   message: string;
   link?: string; // e.g., messages, tenant/tenant-1

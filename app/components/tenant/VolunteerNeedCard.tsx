@@ -4,6 +4,8 @@ import React from 'react';
 import type { User } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 
 interface VolunteerNeedCardProps {
   need: any;
@@ -79,10 +81,10 @@ const VolunteerNeedCard: React.FC<VolunteerNeedCardProps> = ({ need, currentUser
             {need.signups.length > 0 ? (
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                     {need.signups.map(({ user }: any) => (
-                      <div key={user.id} className="flex items-center space-x-2 bg-gray-100 rounded-full pr-3 py-1">
-                        <img src={(user.profile as any)?.avatarUrl || '/placeholder-avatar.svg'} alt={(user.profile as any)?.displayName || user.email} className="w-6 h-6 rounded-full"/>
+                      <UserLink key={user.id} userId={user.id} className="flex items-center space-x-2 bg-gray-100 rounded-full pr-3 py-1 inline-flex">
+                        <Avatar src={(user.profile as any)?.avatarUrl || '/placeholder-avatar.svg'} name={(user.profile as any)?.displayName || user.email} size="xs" className="w-6 h-6" />
                         <span className="text-sm text-gray-800">{(user.profile as any)?.displayName || user.email}</span>
-                      </div>
+                      </UserLink>
                     ))}
                 </div>
             ) : (

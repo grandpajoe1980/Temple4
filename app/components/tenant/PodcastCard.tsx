@@ -1,6 +1,8 @@
 import React from 'react';
 import type { EnrichedMediaItem } from '@/types';
 import Card from '../ui/Card';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 import PodcastEmbed from '@/app/components/PodcastEmbed';
 
 interface PodcastCardProps {
@@ -37,10 +39,10 @@ const PodcastCard: React.FC<PodcastCardProps> = ({ podcast, canEdit = false, onE
         <p className="mt-2 text-sm text-gray-600 line-clamp-3">{podcast.description}</p>
       </div>
       <div className="bg-gray-50 px-6 py-3 flex items-center justify-between text-sm">
-        <div className="flex items-center space-x-3">
-          <img className="h-8 w-8 rounded-full" src={podcast.authorAvatarUrl} alt={podcast.authorDisplayName} />
+        <UserLink userId={(podcast as any).authorUserId} className="flex items-center space-x-3">
+          <Avatar src={podcast.authorAvatarUrl} name={podcast.authorDisplayName} size="sm" />
           <span className="font-medium text-gray-800">{podcast.authorDisplayName}</span>
-        </div>
+        </UserLink>
         <time dateTime={podcast.publishedAt.toISOString()} className="text-gray-500">
           {podcast.publishedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </time>

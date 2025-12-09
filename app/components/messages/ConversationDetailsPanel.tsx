@@ -3,6 +3,8 @@
 import React, { useMemo } from 'react';
 // FIX: Changed 'import type' for TenantRole to a value import.
 import { TenantRole, type EnrichedConversation, type Tenant, type User, type UserTenantMembership } from '@/types';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 
 interface ConversationDetailsPanelProps {
   conversation: EnrichedConversation;
@@ -61,24 +63,22 @@ const ConversationDetailsPanel: React.FC<ConversationDetailsPanelProps> = ({ con
         </div>
         <ul>
           {enrichedParticipants.map(participant => (
-            <li 
-              key={participant.id} 
-              className="px-4 py-2 hover:bg-gray-50 cursor-pointer"
-              onClick={() => onViewProfile(participant.id)}
-            >
-              <div className="flex items-center space-x-3">
-                <img src={participant.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={participant.profile?.displayName ?? ''} className="w-8 h-8 rounded-full" />
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-800">{participant.membership?.displayName ?? participant.profile?.displayName ?? ''}</p>
-                  <div className="flex flex-wrap gap-1 mt-0.5">
-                    {participant.roles.map(role => (
-                       <span key={role} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${roleColors[role] || 'bg-gray-100 text-gray-800'}`}>
-                         {role}
-                       </span>
-                    ))}
+            <li key={participant.id} className="px-4 py-2 hover:bg-gray-50">
+              <UserLink userId={participant.id} className="block">
+                <div className="flex items-center space-x-3">
+                  <Avatar src={participant.profile?.avatarUrl ?? undefined} name={participant.profile?.displayName ?? undefined} size="sm" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-800">{participant.membership?.displayName ?? participant.profile?.displayName ?? ''}</p>
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {participant.roles.map(role => (
+                         <span key={role} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${roleColors[role] || 'bg-gray-100 text-gray-800'}`}>
+                           {role}
+                         </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </UserLink>
             </li>
           ))}
         </ul>

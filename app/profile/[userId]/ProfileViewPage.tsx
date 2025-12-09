@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import { ProfileFeed } from '@/app/components/profile/ProfileFeed';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 
 interface ProfileViewPageProps {
   profileUser: User & {
@@ -107,11 +109,9 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
         <div className="p-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8">
             {!hideAvatar && (
-              <img
-                src={profileUser.profile?.avatarUrl || '/default-avatar.png'}
-                alt={`${profileUser.profile?.displayName || 'User'}'s avatar`}
-                className="w-32 h-32 rounded-full ring-4 ring-white ring-offset-2 ring-offset-[color:var(--primary)]/20"
-              />
+              <UserLink userId={profileUser.id} className="inline-flex">
+                <Avatar src={profileUser.profile?.avatarUrl ?? undefined} name={profileUser.profile?.displayName ?? undefined} size="xl" />
+              </UserLink>
             )}
             <div className={`mt-6 ${hideAvatar ? '' : 'sm:mt-2'} text-center sm:text-left flex-1`}>
               <h2 className="text-3xl font-bold text-gray-900">

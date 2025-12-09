@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+import UserLink from '@/app/components/ui/UserLink';
 
 interface UserMenuProps {
   user: {
@@ -91,7 +92,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, avatarUrl, displayName }) => 
       {isOpen && (
         <div className="absolute right-0 mt-3 w-56 origin-top-right bg-white/95 backdrop-blur rounded-lg shadow-xl ring-1 ring-black/10 border border-gray-100 py-1 z-50">
           <div className="px-4 py-3 border-b border-gray-100">
-            <p className="text-sm font-semibold text-gray-900 truncate">{name}</p>
+            <UserLink userId={(user as any)?.id} fragment="posts" className="block">
+              <p className="text-sm font-semibold text-gray-900 truncate">{name}</p>
+            </UserLink>
             {user.email && (
               <p className="text-xs text-gray-500 truncate">{user.email}</p>
             )}

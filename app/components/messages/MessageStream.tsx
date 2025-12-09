@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import type { User, EnrichedConversation, EnrichedChatMessage, Tenant } from '@/types';
 import Button from '../ui/Button';
 import { normalizeMessage, type MessageWithUser } from '@/app/messages/normalizers';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 
 interface MessageStreamProps {
   currentUser: User;
@@ -185,8 +187,9 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
          <div className="flex items-center space-x-3">
              {isDirect && otherParticipant ? (
-               // FIX: Access avatarUrl and displayName from the nested profile object.
-               <img src={otherParticipant.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={otherParticipant.profile?.displayName ?? ''} className="w-10 h-10 rounded-full" />
+               <UserLink userId={otherParticipant.id} className="inline-flex">
+                 <Avatar src={otherParticipant.profile?.avatarUrl ?? undefined} name={otherParticipant.profile?.displayName ?? undefined} size="md" />
+               </UserLink>
              ) : (
                 <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500 text-xl">#</div>
              )}
@@ -232,12 +235,9 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
               onMouseLeave={() => setShowActionsFor(null)}
             >
               {!isOwnMessage && (
-                <img
-                  src={msg.userAvatarUrl}
-                  alt={msg.userDisplayName}
-                  className="w-8 h-8 rounded-full cursor-pointer"
-                  onClick={() => onViewProfile(msg.userId)}
-                />
+                <UserLink userId={msg.userId} className="flex-shrink-0">
+                  <Avatar src={msg.userAvatarUrl ?? undefined} name={msg.userDisplayName ?? undefined} size="xs" className="cursor-pointer" />
+                </UserLink>
               )}
               <div className="flex flex-col">
                 <div
@@ -246,12 +246,9 @@ const MessageStream: React.FC<MessageStreamProps> = ({ currentUser, conversation
                   }`}
                 >
                   {!isOwnMessage && (
-                    <p 
-                        className="text-xs font-bold mb-1 tenant-text-primary cursor-pointer"
-                        onClick={() => onViewProfile(msg.userId)}
-                    >
-                        {msg.userDisplayName}
-                    </p>
+                    <UserLink userId={msg.userId} className="text-xs font-bold mb-1 tenant-text-primary inline-block">
+                      <span>{msg.userDisplayName}</span>
+                    </UserLink>
                   )}
                   <p className="text-sm" style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</p>
                 </div>

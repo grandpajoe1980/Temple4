@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 import { Heart, MessageCircle, Smile, Trash2, MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -68,19 +70,13 @@ export function ProfilePostCard({
             {/* Header */}
             <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                        {post.authorAvatarUrl ? (
-                            <img
-                                src={post.authorAvatarUrl}
-                                alt={post.authorDisplayName}
-                                className="w-10 h-10 rounded-full object-cover"
-                            />
-                        ) : (
-                            post.authorDisplayName[0]?.toUpperCase()
-                        )}
-                    </div>
+                    <UserLink userId={post.userId} className="inline-flex items-center">
+                        <Avatar src={post.authorAvatarUrl ?? undefined} name={post.authorDisplayName} size="md" />
+                    </UserLink>
                     <div>
-                        <h3 className="font-semibold text-gray-900">{post.authorDisplayName}</h3>
+                        <UserLink userId={post.userId} className="font-semibold text-gray-900">
+                          <h3 className="font-semibold text-gray-900">{post.authorDisplayName}</h3>
+                        </UserLink>
                         <p className="text-sm text-gray-500">
                             {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })} · {post.privacy.toLowerCase()}
                         </p>
@@ -259,19 +255,13 @@ export function ProfilePostCard({
                     <div className="space-y-3">
                         {post.comments.map((comment) => (
                             <div key={comment.id} className="flex gap-2">
-                                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold">
-                                    {comment.authorAvatarUrl ? (
-                                        <img
-                                            src={comment.authorAvatarUrl}
-                                            alt={comment.authorDisplayName}
-                                            className="w-8 h-8 rounded-full object-cover"
-                                        />
-                                    ) : (
-                                        comment.authorDisplayName[0]?.toUpperCase()
-                                    )}
-                                </div>
+                                <UserLink userId={comment.userId} className="flex-shrink-0">
+                                  <Avatar src={comment.authorAvatarUrl ?? undefined} name={comment.authorDisplayName} size="sm" />
+                                </UserLink>
                                 <div className="flex-1 bg-gray-100 rounded-lg px-3 py-2">
-                                    <p className="font-semibold text-sm text-gray-900">{comment.authorDisplayName}</p>
+                                    <UserLink userId={comment.userId} className="font-semibold text-sm text-gray-900 hover:tenant-text-primary inline-block">
+                                      <p className="font-semibold text-sm text-gray-900">{comment.authorDisplayName}</p>
+                                    </UserLink>
                                     <p className="text-gray-800">{comment.content}</p>
                                     <p className="text-xs text-gray-500 mt-1">
                                         {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}

@@ -7,6 +7,8 @@ import Card from '@/app/components/ui/Card';
 import Input from '@/app/components/ui/Input';
 import Modal from '@/app/components/ui/Modal';
 import ToggleSwitch from '@/app/components/ui/ToggleSwitch';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 import { MemberNoteWithDetails, HospitalVisitWithDetails, NoteCategory, NoteVisibility, FollowUpStatus, TenantSettings } from '@/types';
 
 interface AdminMemberNotesPageProps {
@@ -547,8 +549,8 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
                           {note.content}
                         </p>
                         <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
-                          <span>👤 {note.member.displayName}</span>
-                          <span>✍️ {note.author.displayName}</span>
+                          <span>👤 <UserLink userId={note.member.id}><span>{note.member.displayName}</span></UserLink></span>
+                          <span>✍️ <UserLink userId={note.author.id}><span>{note.author.displayName}</span></UserLink></span>
                           <span>📅 {formatDate(note.createdAt)}</span>
                           {note.followUpDate && (
                             <span className="text-orange-600">
@@ -594,7 +596,7 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-slate-800">
-                        🏥 Visit to {visit.member.displayName}
+                        🏥 Visit to <UserLink userId={visit.member.id}>{visit.member.displayName}</UserLink>
                       </h3>
                       <p className="text-sm text-slate-600 mt-1">
                         {visit.hospitalName || 'Hospital not specified'}
@@ -623,7 +625,7 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
                         </p>
                       )}
                       <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
-                        <span>🧑‍⚕️ Visitor: {visit.visitor.displayName}</span>
+                        <span>🧑‍⚕️ Visitor: <UserLink userId={visit.visitor.id}>{visit.visitor.displayName}</UserLink></span>
                         <span>📅 {formatDateTime(visit.visitDate)}</span>
                         {visit.duration && <span>⏱️ {visit.duration} min</span>}
                         {visit.followUpDate && (
@@ -669,7 +671,7 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
                         {note.title || 'Untitled Note'}
                       </h3>
                       <p className="text-sm text-slate-600">
-                        Member: {note.member.displayName}
+                        Member: <UserLink userId={note.member.id}>{note.member.displayName}</UserLink>
                       </p>
                       <p className="text-sm text-slate-600 mt-1 line-clamp-2">
                         {note.content}
@@ -684,7 +686,7 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
                         </span>
                         {note.assignedTo && (
                           <span className="text-slate-500">
-                            👤 Assigned to: {note.assignedTo.displayName}
+                            👤 Assigned to: <UserLink userId={note.assignedTo.id}>{note.assignedTo.displayName}</UserLink>
                           </span>
                         )}
                       </div>
@@ -981,7 +983,7 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
                 {selectedNote.title || 'Untitled Note'}
               </h3>
               <p className="text-sm text-slate-500">
-                Re: {selectedNote.member.displayName}
+                Re: <UserLink userId={selectedNote.member.id}>{selectedNote.member.displayName}</UserLink>
               </p>
             </div>
 
@@ -992,7 +994,7 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-slate-500">Author:</span>{' '}
-                <span className="font-medium">{selectedNote.author.displayName}</span>
+                <UserLink userId={selectedNote.author.id}><span className="font-medium">{selectedNote.author.displayName}</span></UserLink>
               </div>
               <div>
                 <span className="text-slate-500">Created:</span>{' '}
@@ -1007,7 +1009,7 @@ export default function AdminMemberNotesPage({ tenantId }: AdminMemberNotesPageP
               {selectedNote.assignedTo && (
                 <div>
                   <span className="text-slate-500">Assigned To:</span>{' '}
-                  <span className="font-medium">{selectedNote.assignedTo.displayName}</span>
+                  <UserLink userId={selectedNote.assignedTo.id}><span className="font-medium">{selectedNote.assignedTo.displayName}</span></UserLink>
                 </div>
               )}
             </div>

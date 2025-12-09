@@ -5,6 +5,8 @@ import type { Tenant, User } from '@/types';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import ToggleSwitch from '../ui/ToggleSwitch';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 
 interface CreateChannelFormProps {
   tenant: Tenant;
@@ -125,9 +127,12 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ tenant, currentUs
             {filteredMembers.map(member => (
               <div key={member.id} className="flex items-center justify-between p-2 rounded hover:bg-gray-50">
                 <div className="flex items-center space-x-3">
-                  {/* FIX: Access avatarUrl and displayName from the nested profile object. */}
-                  <img src={member.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={member.profile?.displayName} className="w-8 h-8 rounded-full" />
-                  <span className="text-sm text-gray-800">{member.profile?.displayName}</span>
+                  <UserLink userId={member.id} className="inline-flex">
+                    <Avatar src={member.profile?.avatarUrl ?? undefined} name={member.profile?.displayName ?? undefined} size="sm" />
+                  </UserLink>
+                  <UserLink userId={member.id} className="text-sm text-gray-800">
+                    <span>{member.profile?.displayName}</span>
+                  </UserLink>
                 </div>
                 <input
                   type="checkbox"

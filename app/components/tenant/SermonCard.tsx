@@ -1,6 +1,8 @@
 import React from 'react';
 import type { EnrichedMediaItem } from '@/types';
 import Card from '../ui/Card';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 
 function normalizeYoutubeEmbed(url?: string) {
   if (!url) return url;
@@ -59,8 +61,10 @@ const TalkCard: React.FC<TalkCardProps> = ({ talk, canEdit = false, onEdit, onDe
       </div>
       <div className="bg-gray-50 px-6 py-3 flex items-center justify-between text-sm">
         <div className="flex items-center space-x-3">
-          <img className="h-8 w-8 rounded-full" src={talk.authorAvatarUrl} alt={talk.authorDisplayName} />
-          <span className="font-medium text-gray-800">{talk.authorDisplayName}</span>
+          <UserLink userId={(talk as any).authorUserId} className="flex items-center space-x-3">
+            <Avatar src={talk.authorAvatarUrl} name={talk.authorDisplayName} size="sm" />
+            <span className="font-medium text-gray-800">{talk.authorDisplayName}</span>
+          </UserLink>
         </div>
         <time dateTime={talk.publishedAt.toISOString()} className="text-gray-500">
           {talk.publishedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}

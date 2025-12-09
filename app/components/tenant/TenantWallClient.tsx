@@ -7,6 +7,8 @@ import Button from '../ui/Button';
 import { ProfilePostForm } from '../profile/ProfilePostForm';
 import { createProfilePostClient } from '../profile/profile-post-client';
 import { useToast } from '../ui/Toast';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 
 type CommentDto = {
   id: string;
@@ -125,9 +127,18 @@ export default function TenantWallClient({ tenantId, initialPosts, showCreateBut
           <div className="flex items-start gap-3">
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-gray-900">{post.authorDisplayName}</div>
-                  <div className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
+                <div className="flex items-center">
+                  <UserLink userId={post.userId} className="inline-flex items-center">
+                    <Avatar src={post.authorAvatarUrl ?? undefined} name={post.authorDisplayName} size="sm" className="mr-3" />
+                  </UserLink>
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">
+                      <UserLink userId={post.userId} className="text-gray-900">
+                        <span>{post.authorDisplayName}</span>
+                      </UserLink>
+                    </div>
+                    <div className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
+                  </div>
                 </div>
                 <div>
                   {(currentUserId === post.userId || canModerate || (session?.user as any)?.isSuperAdmin) && (
@@ -164,8 +175,16 @@ export default function TenantWallClient({ tenantId, initialPosts, showCreateBut
                 <div className="text-sm font-semibold">Comments</div>
                 <div className="space-y-2 mt-2">
                   {post.comments.map((c) => (
-                    <div key={c.id} className="text-sm">
-                      <span className="font-medium">{c.authorDisplayName}</span>: {c.content}
+                    <div key={c.id} className="text-sm flex items-start gap-2">
+                      <UserLink userId={c.userId} className="flex-shrink-0">
+                        <Avatar src={c.authorAvatarUrl ?? undefined} name={c.authorDisplayName} size="xs" className="mr-2" />
+                      </UserLink>
+                      <div>
+                        <UserLink userId={c.userId} className="font-medium text-sm inline-block mr-1">
+                          <span className="font-medium">{c.authorDisplayName}</span>
+                        </UserLink>
+                        <span>{c.content}</span>
+                      </div>
                     </div>
                   ))}
                 </div>

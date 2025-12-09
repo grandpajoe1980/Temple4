@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import type { Tenant, PostWithAuthor } from '@/types';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 // Map post DTOs locally to avoid importing server-only helpers
 
 interface PublicPostsViewProps {
@@ -76,12 +78,12 @@ const PublicPostsView: React.FC<PublicPostsViewProps> = ({ tenant }) => {
             </div>
             <p className="text-gray-700 line-clamp-3">{post.body}</p>
             <div className="flex items-center space-x-2 pt-2 text-sm text-gray-600">
-              <img
-                className="h-8 w-8 rounded-full"
-                src={post.authorAvatarUrl || '/placeholder-avatar.svg'}
-                alt={post.authorDisplayName}
-              />
-              <span className="font-medium">{post.authorDisplayName}</span>
+              <UserLink userId={post.authorUserId} className="inline-flex">
+                <Avatar src={post.authorAvatarUrl ?? undefined} name={post.authorDisplayName ?? undefined} size="sm" />
+              </UserLink>
+              <UserLink userId={post.authorUserId} className="font-medium">
+                <span className="font-medium">{post.authorDisplayName}</span>
+              </UserLink>
             </div>
           </div>
         ))

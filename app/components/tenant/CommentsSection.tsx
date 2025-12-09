@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 import type { User } from '@prisma/client';
 import type { PostCommentWithAuthor } from '@/types';
 
@@ -91,11 +93,13 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
       <h4 className="text-sm font-semibold text-gray-900 mb-3">Add Comment</h4>
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="flex items-start space-x-3">
-          <img
-            src={currentUser.profile?.avatarUrl || '/placeholder-avatar.svg'}
-            alt={currentUser.profile?.displayName || currentUser.email || 'Your avatar'}
-            className="h-10 w-10 rounded-full object-cover"
-          />
+          <UserLink userId={currentUser.id}>
+            <Avatar
+              src={currentUser.profile?.avatarUrl || '/placeholder-avatar.svg'}
+              name={currentUser.profile?.displayName || currentUser.email || 'Your avatar'}
+              size="md"
+            />
+          </UserLink>
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
@@ -119,18 +123,16 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
         ) : (
           comments.map((comment) => (
             <div key={comment.id} className="flex space-x-3">
-              <Link href={`/profile/${comment.authorUserId}`} className="flex-shrink-0">
-                <img
-                  src={comment.authorAvatarUrl || '/placeholder-avatar.svg'}
-                  alt={comment.authorDisplayName}
-                  className="h-10 w-10 rounded-full object-cover"
-                />
-              </Link>
+              <div className="flex-shrink-0">
+                <UserLink userId={comment.authorUserId}>
+                  <Avatar src={comment.authorAvatarUrl || '/placeholder-avatar.svg'} name={comment.authorDisplayName} size="md" />
+                </UserLink>
+              </div>
               <div className="flex-1">
                 <div className="flex items-center space-x-2">
-                  <Link href={`/profile/${comment.authorUserId}`} className="text-sm font-semibold text-gray-900 hover:tenant-text-primary">
+                  <UserLink userId={comment.authorUserId} className="text-sm font-semibold text-gray-900 hover:tenant-text-primary inline-block">
                     {comment.authorDisplayName}
-                  </Link>
+                  </UserLink>
                   <span className="text-xs text-gray-500">
                     {comment.createdAt.toLocaleString('en-US', {
                       month: 'short',

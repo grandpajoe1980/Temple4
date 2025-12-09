@@ -5,6 +5,8 @@ import type { Tenant, User, EnrichedCommunityPost } from '@/types';
 import { CommunityPostStatus } from '@/types';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 
 async function fetchCommunityPosts(tenantId: string, includePrivate?: boolean) {
   const search = includePrivate ? '?includePrivate=true' : '';
@@ -179,9 +181,15 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                         <div className="flex items-center">
                             <div className="h-10 w-10 flex-shrink-0">
-                                <img className="h-10 w-10 rounded-full" src={post.authorAvatarUrl} alt={post.authorDisplayName} />
+                                <UserLink userId={post.authorUserId}>
+                                  <Avatar src={post.authorAvatarUrl} name={post.authorDisplayName} size="md" />
+                                </UserLink>
                             </div>
-                            <div className="ml-4 font-medium text-gray-900">{post.authorDisplayName}</div>
+                            <div className="ml-4 font-medium text-gray-900">
+                              <UserLink userId={post.authorUserId} className="inline-block">
+                                {post.authorDisplayName}
+                              </UserLink>
+                            </div>
                         </div>
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500">

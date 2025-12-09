@@ -2,6 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import Button from '../ui/Button';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
+
 
 interface SmallGroupDetailProps {
   tenantId: string;
@@ -283,11 +286,13 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
               {(group.members || []).map((m: any) => (
                 <li key={m.user?.id || m.id} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <img src={m.user?.profile?.avatarUrl || '/placeholder-avatar.svg'} className="w-8 h-8 rounded-full" alt="" />
-                    <div>
-                      <div className="text-sm font-medium">{m.user?.profile?.displayName || m.user?.email}</div>
-                      <div className="text-xs text-gray-500">{m.role}</div>
-                    </div>
+                    <UserLink userId={m.user?.id} className="flex items-center space-x-3">
+                      <Avatar src={m.user?.profile?.avatarUrl || '/placeholder-avatar.svg'} name={m.user?.profile?.displayName || m.user?.email} size="sm" />
+                      <div>
+                        <div className="text-sm font-medium">{m.user?.profile?.displayName || m.user?.email}</div>
+                        <div className="text-xs text-gray-500">{m.role}</div>
+                      </div>
+                    </UserLink>
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
@@ -429,11 +434,15 @@ export default function SmallGroupDetail({ tenantId, groupId, currentUser, onClo
                             setLoading(false);
                           }
                         }}>
-                          <img src={u.profile?.avatarUrl || '/placeholder-avatar.svg'} alt="" className="w-10 h-10 rounded-full mr-4" />
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{u.profile?.displayName || u.email}</div>
-                            <div className="text-xs text-gray-500">{u.email}</div>
-                          </div>
+                                <UserLink userId={u.id} onClick={(e) => e.stopPropagation()}>
+                                  <Avatar src={u.profile?.avatarUrl || '/placeholder-avatar.svg'} name={u.profile?.displayName || u.email} size="md" className="w-10 h-10 rounded-full mr-4" />
+                                </UserLink>
+                                <div className="flex-1">
+                                  <UserLink userId={u.id} onClick={(e) => e.stopPropagation()} className="font-medium text-sm">
+                                    <span className="font-medium text-sm">{u.profile?.displayName || u.email}</span>
+                                  </UserLink>
+                                  <div className="text-xs text-gray-500">{u.email}</div>
+                                </div>
                           <div>
                             {addingUserId === u.id ? <span className="text-xs text-gray-500">Adding…</span> : <button className="text-xs text-indigo-600">Add</button>}
                           </div>

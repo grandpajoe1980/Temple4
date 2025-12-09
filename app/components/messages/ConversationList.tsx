@@ -3,6 +3,8 @@
 import React, { useMemo } from 'react';
 import type { EnrichedConversation, User } from '@/types';
 import Input from '../ui/Input';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 
 interface ConversationListProps {
   conversations: EnrichedConversation[];
@@ -65,11 +67,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 <div className="flex items-center space-x-3">
                   <div className="relative">
                     {(conv.kind === 'DM' || conv.isDirect) && otherParticipant ? (
-                      <img
-                        className="h-10 w-10 rounded-full"
-                        src={otherParticipant.profile?.avatarUrl || '/placeholder-avatar.svg'}
-                        alt={otherParticipant.profile?.displayName ?? ''}
-                      />
+                      <UserLink userId={otherParticipant.id} className="inline-flex">
+                        <Avatar src={otherParticipant.profile?.avatarUrl ?? undefined} name={otherParticipant.profile?.displayName ?? undefined} size="md" />
+                      </UserLink>
                     ) : (
                       <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                         <span className="text-gray-500 font-bold">#</span>
@@ -79,7 +79,13 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-semibold text-gray-900 truncate">
-                        {conv.displayName}
+                        {(conv.kind === 'DM' || conv.isDirect) && otherParticipant ? (
+                          <UserLink userId={otherParticipant.id} className="text-gray-900">
+                            <span>{conv.displayName}</span>
+                          </UserLink>
+                        ) : (
+                          <span>{conv.displayName}</span>
+                        )}
                       </p>
                       {conv.lastMessage && (
                         <div className="text-xs text-gray-400 self-start flex-shrink-0 ml-2">

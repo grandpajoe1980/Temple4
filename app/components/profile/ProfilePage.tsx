@@ -5,6 +5,8 @@ import type { User, Tenant } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { ProfileFeed } from './ProfileFeed';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 
 interface ProfilePageProps {
   profileUser: User;
@@ -29,11 +31,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ profileUser, affiliatedTenant
       <Card className="!p-0">
         <div className="p-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8">
-            <img
-              src={profileUser.profile?.avatarUrl || '/placeholder-avatar.svg'}
-              alt={`${profileUser.profile?.displayName ?? ''}'s avatar`}
-              className="w-32 h-32 rounded-full ring-4 ring-white ring-offset-2 ring-offset-amber-100"
-            />
+            <UserLink userId={profileUser.id} className="inline-flex">
+              <Avatar
+                src={profileUser.profile?.avatarUrl || '/placeholder-avatar.svg'}
+                alt={`${profileUser.profile?.displayName ?? ''}'s avatar`}
+                name={profileUser.profile?.displayName ?? ''}
+                size="xl"
+                className="w-32 h-32 rounded-full ring-4 ring-white ring-offset-2 ring-offset-amber-100"
+              />
+            </UserLink>
             <div className="mt-6 sm:mt-2 text-center sm:text-left">
               <h2 className="text-3xl font-bold text-gray-900">{profileUser.profile?.displayName ?? ''}</h2>
               {location && <p className="mt-1 text-md text-gray-500">{location}</p>}

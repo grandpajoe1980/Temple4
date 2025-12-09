@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 import TripJoinForm, { TripJoinFormValues } from './TripJoinForm';
 import TripForm, { TripFormValues } from './forms/TripForm';
 
@@ -459,19 +461,21 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
           {(trip.members || []).map((m: any) => (
             <li key={m.id || m.user?.id} className="flex flex-col gap-2 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                {m.user?.profile?.avatarUrl ? (
-                  <img src={m.user.profile.avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
-                ) : (
-                  <div className="h-10 w-10 rounded-full bg-gray-200" />
-                )}
-                <div>
-                  <div className="text-sm font-medium text-gray-800">{m.user?.profile?.displayName || m.user?.email || 'Member'}</div>
-                  <div className="text-xs text-gray-500">
-                    Status: {m.status}
-                    {m.travelPreferences?.intakeForm ? ' · Intake on file' : ''}
-                    {m.waiverAcceptedAt ? ' · Waiver accepted' : ''}
+                <UserLink userId={m.user?.id} className="inline-flex items-center gap-3">
+                  {m.user?.profile?.avatarUrl ? (
+                    <Avatar src={m.user.profile.avatarUrl} name={m.user?.profile?.displayName || m.user?.email} size="md" />
+                  ) : (
+                    <Avatar name={m.user?.profile?.displayName || m.user?.email || 'Member'} size="md" />
+                  )}
+                  <div>
+                    <div className="text-sm font-medium text-gray-800">{m.user?.profile?.displayName || m.user?.email || 'Member'}</div>
+                    <div className="text-xs text-gray-500">
+                      Status: {m.status}
+                      {m.travelPreferences?.intakeForm ? ' · Intake on file' : ''}
+                      {m.waiverAcceptedAt ? ' · Waiver accepted' : ''}
+                    </div>
                   </div>
-                </div>
+                </UserLink>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 {m.travelPreferences?.intakeForm ? (

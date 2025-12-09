@@ -7,6 +7,8 @@ import Card from '@/app/components/ui/Card';
 import Input from '@/app/components/ui/Input';
 import Modal from '@/app/components/ui/Modal';
 import ToggleSwitch from '@/app/components/ui/ToggleSwitch';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 import MemberSelect, { MemberOption } from '@/app/components/ui/MemberSelect';
 import { TaskWithDetails, TaskStatus, TaskPriority, TaskRecurrence, TenantSettings } from '@/types';
 
@@ -453,17 +455,13 @@ export default function AdminWorkboardPage({ tenantId }: AdminWorkboardPageProps
                       <div className="flex items-center gap-2">
                         {task.assignee && (
                           <div className="flex items-center gap-1">
-                            {task.assignee.avatarUrl ? (
-                              <img
-                                src={task.assignee.avatarUrl}
-                                alt=""
-                                className="w-5 h-5 rounded-full"
+                            <UserLink userId={task.assignee?.id}>
+                              <Avatar
+                                src={task.assignee?.avatarUrl}
+                                name={task.assignee?.displayName}
+                                size="xs"
                               />
-                            ) : (
-                              <div className="w-5 h-5 rounded-full bg-slate-300 flex items-center justify-center text-xs">
-                                {task.assignee.displayName[0]}
-                              </div>
-                            )}
+                            </UserLink>
                           </div>
                         )}
                       </div>
@@ -535,14 +533,16 @@ export default function AdminWorkboardPage({ tenantId }: AdminWorkboardPageProps
                     <td className="p-3">
                       {task.assignee ? (
                         <div className="flex items-center gap-2">
-                          {task.assignee.avatarUrl ? (
-                            <img src={task.assignee.avatarUrl} alt="" className="w-6 h-6 rounded-full" />
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-slate-300 flex items-center justify-center text-xs">
-                              {task.assignee.displayName[0]}
-                            </div>
-                          )}
-                          <span className="text-sm">{task.assignee.displayName}</span>
+                          <UserLink userId={task.assignee?.id}>
+                            <Avatar
+                              src={task.assignee?.avatarUrl}
+                              name={task.assignee?.displayName}
+                              size="xs"
+                            />
+                          </UserLink>
+                          <UserLink userId={task.assignee?.id} className="text-sm">
+                            <span className="text-sm">{task.assignee.displayName}</span>
+                          </UserLink>
                         </div>
                       ) : (
                         <span className="text-sm text-slate-400">Unassigned</span>
@@ -755,16 +755,14 @@ export default function AdminWorkboardPage({ tenantId }: AdminWorkboardPageProps
               <div className="space-y-3 max-h-64 overflow-y-auto mb-4">
                 {selectedTask.comments?.map((comment) => (
                   <div key={comment.id} className="flex gap-3">
-                    {comment.author.avatarUrl ? (
-                      <img src={comment.author.avatarUrl} alt="" className="w-8 h-8 rounded-full" />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center text-sm">
-                        {comment.author.displayName[0]}
-                      </div>
-                    )}
+                    <UserLink userId={comment.author?.id}>
+                      <Avatar src={comment.author?.avatarUrl} name={comment.author?.displayName} size="sm" />
+                    </UserLink>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm">{comment.author.displayName}</span>
+                        <UserLink userId={comment.author?.id} className="font-medium text-sm">
+                          <span className="font-medium text-sm">{comment.author.displayName}</span>
+                        </UserLink>
                         <span className="text-xs text-slate-400">
                           {new Date(comment.createdAt).toLocaleString()}
                         </span>

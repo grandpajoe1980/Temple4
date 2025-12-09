@@ -6,6 +6,8 @@ import type { EventWithCreator } from '@/types';
 import { RSVPStatus } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 
 interface EventCardProps {
   event: EventWithCreator & { kind?: 'event' | 'trip' | 'birthday'; tripId?: string; birthdayUserId?: string; isAllDay?: boolean };
@@ -160,12 +162,24 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
           <div className="text-right text-xs text-gray-600">
             <div className="font-semibold text-gray-900">{rsvpCount} RSVP{rsvpCount === 1 ? '' : 's'}</div>
             <div className="text-gray-500">{currentStatusLabel || 'Update your status'}</div>
-            <div className="text-[11px] text-gray-400">Created by {event.creatorDisplayName}</div>
+            <div className="text-[11px] text-gray-400">
+              Created by{' '}
+              <UserLink userId={(event as any).createdByUserId} className="inline-flex items-center text-gray-700">
+                <Avatar src={event.creatorAvatarUrl ?? undefined} name={event.creatorDisplayName} size="xs" className="mr-2" />
+                <span className="text-[11px]">{event.creatorDisplayName}</span>
+              </UserLink>
+            </div>
           </div>
         </div>
       ) : (
         <div className="bg-gray-50 px-6 py-3 text-xs text-gray-600 flex items-center justify-between">
-          <div className="text-gray-500">{isTrip ? 'Trip' : 'Birthday'} • {event.creatorDisplayName}</div>
+          <div className="text-gray-500">
+            {isTrip ? 'Trip' : 'Birthday'} •{' '}
+            <UserLink userId={(event as any).createdByUserId} className="inline-flex items-center text-gray-700">
+              <Avatar src={event.creatorAvatarUrl ?? undefined} name={event.creatorDisplayName} size="xs" className="mr-2" />
+              <span className="text-sm">{event.creatorDisplayName}</span>
+            </UserLink>
+          </div>
           <div className="text-gray-500">{isTrip ? `Members: ${rsvpCount}` : 'All-day'}</div>
         </div>
       )}

@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -9,6 +10,10 @@ interface AvatarProps {
   size?: AvatarSize;
   className?: string;
   alt?: string;
+  /** Optional href to wrap the avatar with a link to a profile */
+  href?: string;
+  /** Optional className applied to the Link wrapper */
+  linkClassName?: string;
 }
 
 const sizeClasses: Record<AvatarSize, string> = {
@@ -31,17 +36,18 @@ const sizePx: Record<AvatarSize, number> = {
  * Avatar component with fallback to initials when no image is provided.
  * Accessible and optimized for Next.js Image component.
  */
-export function Avatar({ src, name, size = 'md', className = '', alt }: AvatarProps) {
+export function Avatar({ src, name, size = 'md', className = '', alt, href, linkClassName }: AvatarProps) {
   const sizeClass = sizeClasses[size];
   const dimensions = sizePx[size];
-  
+
   // Generate initials from name
-  const initials = name
-    ?.split(' ')
-    .map((word) => word[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase() || '?';
+  const initials =
+    name
+      ?.split(' ')
+      .map((word) => word[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() || '?';
 
   // Generate a consistent color based on name
   const getColorFromName = (name?: string): string => {
@@ -62,13 +68,15 @@ export function Avatar({ src, name, size = 'md', className = '', alt }: AvatarPr
 
   const bgColor = getColorFromName(name);
 
+  let avatarElement: React.ReactElement;
+
   if (src) {
     // Check if it's an external URL or local path
     const isExternal = src.startsWith('http://') || src.startsWith('https://');
-    
+
     if (isExternal) {
       // Use regular img for external URLs to avoid Next.js image domain config issues
-      return (
+      avatarElement = (
         <img
           src={src}
           alt={alt || name || 'User avatar'}
@@ -77,29 +85,39 @@ export function Avatar({ src, name, size = 'md', className = '', alt }: AvatarPr
           height={dimensions}
         />
       );
+    } else {
+      avatarElement = (
+        <Image
+          src={src}
+          alt={alt || name || 'User avatar'}
+          width={dimensions}
+          height={dimensions}
+          className={`rounded-full object-cover ${className}`}
+        />
+      );
     }
-    
-    return (
-      <Image
-        src={src}
-        alt={alt || name || 'User avatar'}
-        width={dimensions}
-        height={dimensions}
-        className={`rounded-full object-cover ${className}`}
-      />
+  } else {
+    // Fallback to initials
+    avatarElement = (
+      <div
+        className={`rounded-full ${bgColor} text-white flex items-center justify-center font-medium ${sizeClass} ${className}`}
+        role="img"
+        aria-label={alt || name || 'User avatar'}
+      >
+        {initials}
+      </div>
     );
   }
 
-  // Fallback to initials
-  return (
-    <div
-      className={`rounded-full ${bgColor} text-white flex items-center justify-center font-medium ${sizeClass} ${className}`}
-      role="img"
-      aria-label={alt || name || 'User avatar'}
-    >
-      {initials}
-    </div>
-  );
+  if (href) {
+    return (
+      <Link href={href} className={linkClassName}>
+        {avatarElement}
+      </Link>
+    );
+  }
+
+  return avatarElement;
 }
 
 export default Avatar;

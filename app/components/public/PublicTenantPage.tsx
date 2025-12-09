@@ -12,6 +12,8 @@ import PodcastsPage from '../tenant/PodcastsPage';
 import BooksPage from '../tenant/BooksPage';
 import NotificationBell from '../notifications/NotificationBell';
 import NotificationPanel from '../notifications/NotificationPanel';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 
 
 
@@ -147,9 +149,13 @@ const PublicTenantPage: React.FC<PublicTenantPageProps> = ({ tenant, currentUser
                         </div>
                         <div className="text-right">
                            <p className="text-sm text-gray-500">Logged in as</p>
-                           <p className="font-semibold tenant-text-primary">{currentUser.profile?.displayName}</p>
+                           <UserLink userId={currentUser?.id} className="font-semibold tenant-text-primary">
+                             <span className="font-semibold tenant-text-primary">{currentUser.profile?.displayName}</span>
+                           </UserLink>
                         </div>
-                        <img src={currentUser.profile?.avatarUrl || '/placeholder-avatar.svg'} alt="avatar" className="h-8 w-8 rounded-full" />
+                        <UserLink userId={currentUser?.id} onClick={(e) => e.stopPropagation()}>
+                          <Avatar src={currentUser.profile?.avatarUrl || '/placeholder-avatar.svg'} name={currentUser.profile?.displayName} size="sm" />
+                        </UserLink>
                      </>
                  ) : (
                     <Button variant="secondary" size="sm" onClick={onNavigateToLogin}>Login / Register</Button>

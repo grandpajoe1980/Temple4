@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 import type { DonationSettings, EnrichedDonationRecord, FundWithProgress, TenantSettings } from '@/types';
 // Use server API routes instead of importing server-only helpers
 import Button from '../ui/Button';
@@ -80,7 +82,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tenant, donations }) => {
     );
 
     const aggregatedDonations = useMemo(() => {
-        const userTotals: { [key: string]: { total: number; name: string; avatar?: string } } = {};
+        const userTotals: { [key: string]: { total: number; name: string; avatar?: string; userId?: string | number | null } } = {};
 
         filteredDonations.forEach((donation) => {
             if (donation.isAnonymousOnLeaderboard) {
@@ -88,7 +90,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tenant, donations }) => {
             }
             const key = donation.userId || donation.displayName;
             if (!userTotals[key]) {
-                userTotals[key] = { total: 0, name: donation.displayName, avatar: donation.userAvatarUrl };
+              userTotals[key] = { total: 0, name: donation.displayName, avatar: donation.userAvatarUrl, userId: donation.userId };
             }
             userTotals[key].total += donation.amount;
         });
@@ -104,16 +106,33 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tenant, donations }) => {
             {aggregatedDonations.length > 0 ? (
                  <ul className="divide-y divide-gray-200">
                     {aggregatedDonations.map((donor, index) => (
-                        <li key={donor.name + index} className="py-3 flex items-center">
-                            <div className="w-8 text-lg font-bold text-gray-400">{index + 1}</div>
-                             {donor.avatar && <img className="h-10 w-10 rounded-full" src={donor.avatar} alt={donor.name} />}
-                            <div className={`flex-1 ${!donor.avatar && 'ml-10'}`}>
+                      <li key={donor.name + index} className="py-3 flex items-center">
+                        <div className="w-8 text-lg font-bold text-gray-400">{index + 1}</div>
+                        <div className={`flex-1 flex items-center ${!donor.avatar ? 'pl-2' : ''}`}>
+                          {donor.userId ? (
+                            <UserLink userId={donor.userId} className="flex items-center space-x-3">
+                              {donor.avatar ? (
+                                <Avatar src={donor.avatar} name={donor.name} size="md" className="h-10 w-10" />
+                              ) : (
+                                <div className="w-10" />
+                              )}
+                              <div className={`${!donor.avatar && 'ml-8'}`}>
                                 <p className="text-sm font-medium text-gray-900">{donor.name}</p>
-                            </div>
-                            <p className="text-sm font-semibold tenant-text-primary">
-                                ${donor.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </p>
-                        </li>
+                              </div>
+                            </UserLink>
+                          ) : (
+                            <>
+                              {donor.avatar && <Avatar src={donor.avatar} name={donor.name} size="md" className="h-10 w-10" />}
+                              <div className={`ml-3 ${!donor.avatar && 'ml-10'}`}>
+                                <p className="text-sm font-medium text-gray-900">{donor.name}</p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                        <p className="text-sm font-semibold tenant-text-primary">
+                          ${donor.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                      </li>
                     ))}
                 </ul>
             ) : (

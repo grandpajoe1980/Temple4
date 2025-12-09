@@ -11,6 +11,8 @@ import AccountSettingsTab from '@/app/components/account/AccountSettingsTab';
 import Button from '@/app/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProfileFeed } from '@/app/components/profile/ProfileFeed';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 
 interface ProfileClientPageProps {
   user: User & {
@@ -67,11 +69,9 @@ export default function ProfileClientPage({ user: initialUser }: ProfileClientPa
     <div className="container mx-auto p-4">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <img
-            src={user.profile?.avatarUrl || '/default-avatar.png'}
-            alt={user.profile?.displayName || user.email}
-            className="w-24 h-24 rounded-full"
-          />
+          <UserLink userId={user.id} className="inline-flex">
+            <Avatar src={user.profile?.avatarUrl ?? undefined} name={user.profile?.displayName ?? undefined} size="xl" />
+          </UserLink>
           <div>
             <h1 className="text-3xl font-bold">{user.profile?.displayName}</h1>
             <p className="text-gray-500">{user.email}</p>

@@ -5,6 +5,8 @@ import type { EnrichedSmallGroup, User } from '@/types';
 // Use tenant-scoped small-group APIs instead of server helpers
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 
 interface SmallGroupCardProps {
   group: EnrichedSmallGroup;
@@ -109,15 +111,13 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
         </p>
         <div className="mt-6 border-t border-gray-200 pt-4">
              <div className="flex items-center space-x-3">
-                <img
-                  src={group.leader?.profile?.avatarUrl || '/placeholder-avatar.svg'}
-                  alt={group.leader?.profile?.displayName || group.leader?.email || 'Group leader'}
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <p className="text-xs text-gray-500">Leader</p>
-                  <p className="text-sm font-medium text-gray-800">{group.leader?.profile?.displayName || group.leader?.email || 'Leader'}</p>
-                </div>
+                <UserLink userId={group.leader?.id} className="flex items-center space-x-3">
+                  <Avatar src={group.leader?.profile?.avatarUrl || '/placeholder-avatar.svg'} name={group.leader?.profile?.displayName || group.leader?.email || 'Leader'} size="md" className="w-10 h-10" />
+                  <div>
+                    <p className="text-xs text-gray-500">Leader</p>
+                    <p className="text-sm font-medium text-gray-800">{group.leader?.profile?.displayName || group.leader?.email || 'Leader'}</p>
+                  </div>
+                </UserLink>
             </div>
         </div>
         <div className="mt-4">
@@ -126,13 +126,14 @@ const SmallGroupCard: React.FC<SmallGroupCardProps> = ({ group, currentUser, onU
                 {members.slice(0, 7).map((m, idx) => {
                      const user = m.user;
                      return (
-                       <img
-                         key={user?.id ?? idx}
-                         className="inline-block h-8 w-8 rounded-full ring-2 ring-white"
-                         src={user?.profile?.avatarUrl || '/placeholder-avatar.svg'}
-                         alt={user?.profile?.displayName || user?.email || 'Group member'}
-                         title={user?.profile?.displayName || user?.email || 'Group member'}
-                       />
+                       <UserLink key={user?.id ?? idx} userId={user?.id} className="inline-block" >
+                         <Avatar
+                           className="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+                           src={user?.profile?.avatarUrl || '/placeholder-avatar.svg'}
+                           name={user?.profile?.displayName || user?.email || 'Group member'}
+                           size="sm"
+                         />
+                       </UserLink>
                      );
                 })}
                  {group.members.length > 7 && (

@@ -5,6 +5,8 @@ import type { Tenant, User, EnrichedMember, UserTenantRole } from '@/types';
 import { MembershipApprovalMode, MembershipStatus, OnboardingStatus } from '@/types';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 // Use server API routes from client components instead of importing server-only Prisma helpers
 // Permissions are fetched from the server via the tenant context endpoint
 import EditRolesModal from './EditRolesModal';
@@ -191,10 +193,16 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                           <div className="flex items-center">
                             <div className="h-10 w-10 flex-shrink-0">
-                              <img className="h-10 w-10 rounded-full" src={member.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={member.profile?.displayName} />
+                              <UserLink userId={member.id}>
+                                <Avatar src={member.profile?.avatarUrl || '/placeholder-avatar.svg'} name={member.profile?.displayName || member.email} size="md" />
+                              </UserLink>
                             </div>
                             <div className="ml-4">
-                              <div className="font-medium text-gray-900">{member.profile?.displayName}</div>
+                              <div className="font-medium text-gray-900">
+                                <UserLink userId={member.id} className="inline-block">
+                                  {member.profile?.displayName}
+                                </UserLink>
+                              </div>
                               <div className="text-gray-500">{member.email}</div>
                             </div>
                           </div>

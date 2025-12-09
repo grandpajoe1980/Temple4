@@ -8,6 +8,8 @@ import Input from '@/app/components/ui/Input';
 import Modal from '@/app/components/ui/Modal';
 import ToggleSwitch from '@/app/components/ui/ToggleSwitch';
 import MemberSelect, { MemberOption } from '@/app/components/ui/MemberSelect';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 import { TicketWithDetails, TicketStatus, TicketPriority, TicketCategory, TenantSettings } from '@/types';
 
 interface AdminTicketsPageProps {
@@ -603,14 +605,12 @@ export default function AdminTicketsPage({ tenantId }: AdminTicketsPageProps) {
                     {!update.isSystemGenerated && (
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          {update.author?.avatarUrl ? (
-                            <img src={update.author.avatarUrl} alt="" className="w-6 h-6 rounded-full" />
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-slate-300 flex items-center justify-center text-xs">
-                              {update.authorName[0]}
-                            </div>
-                          )}
-                          <span className="font-medium text-sm">{update.authorName}</span>
+                          <UserLink userId={update.author?.id}>
+                            <Avatar src={update.author?.avatarUrl} name={update.authorName} size="xs" />
+                          </UserLink>
+                          <UserLink userId={update.author?.id} className="font-medium text-sm">
+                            <span className="font-medium text-sm">{update.authorName}</span>
+                          </UserLink>
                           {update.isInternal && (
                             <span className="text-xs bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded">Internal</span>
                           )}

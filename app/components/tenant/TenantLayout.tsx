@@ -23,6 +23,8 @@ import SmallGroupsPage from './SmallGroupsPage';
 import LiveStreamPage from './LiveStreamPage';
 import PrayerWallPage from './PrayerWallPage';
 import ResourceCenterPage from './ResourceCenterPage';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 
 interface TenantLayoutProps {
   tenant: Tenant;
@@ -245,8 +247,10 @@ const TenantLayout: React.FC<TenantLayoutProps> = ({ tenant, user, onUpdateTenan
                             )}
                         </div>
                             <div className="flex items-center space-x-2">
-                              <img src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile?.displayName} className="h-8 w-8 rounded-full"/>
-                              <p className="font-semibold tenant-text-primary text-sm hidden sm:block">{tenantDisplayName}</p>
+                              <UserLink userId={user.id} className="flex items-center space-x-2">
+                                <Avatar src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} name={user.profile?.displayName || user.email} size="sm" className="h-8 w-8" />
+                                <p className="font-semibold tenant-text-primary text-sm hidden sm:block">{tenantDisplayName}</p>
+                              </UserLink>
                             </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-gray-600">

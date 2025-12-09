@@ -5,6 +5,8 @@ import type { Tenant, User, EnrichedVolunteerNeed } from '@/types';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import VolunteerNeedForm from '../forms/VolunteerNeedForm';
+import Avatar from '../../ui/Avatar';
+import UserLink from '../../ui/UserLink';
 
 interface VolunteeringTabProps {
   tenant: Tenant;
@@ -97,9 +99,13 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
                     <ul className="divide-y divide-gray-200">
                       {need.signups.map(({ user, signup }: any) => (
                         <li key={signup.id} className="py-2 flex items-center space-x-3">
-                          <img src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} alt={user.profile?.displayName} className="w-8 h-8 rounded-full" />
+                          <UserLink userId={user.id} onClick={(e) => e.stopPropagation()}>
+                            <Avatar src={user.profile?.avatarUrl || '/placeholder-avatar.svg'} name={user.profile?.displayName} size="sm" />
+                          </UserLink>
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{user.profile?.displayName}</p>
+                            <UserLink userId={user.id} className="text-sm font-medium text-gray-900" onClick={(e) => e.stopPropagation()}>
+                              <p className="text-sm font-medium text-gray-900">{user.profile?.displayName}</p>
+                            </UserLink>
                             <p className="text-xs text-gray-500">{user.email}</p>
                           </div>
                         </li>

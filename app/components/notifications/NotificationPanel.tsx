@@ -3,6 +3,8 @@
 import React from 'react';
 import type { Notification } from '@/types';
 import Button from '../ui/Button';
+import Avatar from '../ui/Avatar';
+import UserLink from '../ui/UserLink';
 
 interface NotificationPanelProps {
   notifications: Notification[];
@@ -110,10 +112,33 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
                     </span>
                   </div>
                 )}
-                <div className={notification.isRead ? 'pl-4' : ''}>
-                  <p className="text-foreground">{notification.message}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{timeSince(notification.createdAt)}</p>
-                </div>
+
+                {/* If the notification has an actor, show their avatar and name linked to profile */}
+                {notification.actorUserId ? (
+                  <div className={`flex items-center ${notification.isRead ? 'pl-4' : ''}`}>
+                    <UserLink userId={notification.actorUserId} className="flex-shrink-0">
+                      <Avatar src={notification.actorAvatarUrl ?? undefined} name={notification.actorDisplayName ?? undefined} size="sm" className="mr-3" />
+                    </UserLink>
+                    <div>
+                      {notification.actorDisplayName ? (
+                        <p className="text-foreground">
+                          <UserLink userId={notification.actorUserId} className="font-semibold mr-1 inline-block text-foreground">
+                            <span className="font-semibold">{notification.actorDisplayName}</span>
+                          </UserLink>
+                          <span className="ml-1">{notification.message}</span>
+                        </p>
+                      ) : (
+                        <p className="text-foreground">{notification.message}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">{timeSince(notification.createdAt)}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={notification.isRead ? 'pl-4' : ''}>
+                    <p className="text-foreground">{notification.message}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{timeSince(notification.createdAt)}</p>
+                  </div>
+                )}
               </article>
             </li>
           ))

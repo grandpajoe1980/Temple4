@@ -2,6 +2,8 @@ import React from 'react';
 import type { EnrichedCommunityPost } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 import { CommunityPostType } from '@/types';
 
 interface PrayerPostCardProps {
@@ -26,16 +28,18 @@ const PrayerPostCard: React.FC<PrayerPostCardProps> = ({ post }) => {
       </div>
       <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
         <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-                <img className="h-8 w-8 rounded-full" src={post.authorAvatarUrl} alt={post.authorDisplayName} />
-                <div>
-                    <p className="text-sm font-medium text-gray-800">{post.authorDisplayName}</p>
-               <p className="text-xs text-gray-500">{(post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt)).toLocaleDateString()}</p>
-                </div>
-            </div>
-            <Button variant="secondary" size="sm">
-                {isSupport ? "I support!" : "I Can Help"}
-            </Button>
+          <div className="flex items-center space-x-3">
+            <UserLink userId={post.authorUserId} className="flex items-center space-x-3">
+              <Avatar src={post.authorAvatarUrl || '/placeholder-avatar.svg'} name={post.authorDisplayName || 'Anonymous'} size="sm" />
+              <div>
+                <p className="text-sm font-medium text-gray-800">{post.authorDisplayName}</p>
+                <p className="text-xs text-gray-500">{(post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt)).toLocaleDateString()}</p>
+              </div>
+            </UserLink>
+          </div>
+          <Button variant="secondary" size="sm">
+            {isSupport ? 'I support!' : 'I Can Help'}
+          </Button>
         </div>
       </div>
     </Card>

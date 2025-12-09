@@ -1,5 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
+import Avatar from '@/app/components/ui/Avatar';
+import UserLink from '@/app/components/ui/UserLink';
 import type { PostWithAuthor } from '@/types';
 import Card from '../ui/Card';
 import CommentsSection, { CurrentUser } from './CommentsSection';
@@ -48,10 +50,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, tenantId, currentUser }) => {
         </div>
         <div className="bg-gray-50 px-6 py-3 flex items-center justify-between text-sm">
             <div className="flex items-center space-x-3">
-                <Link href={`/profile/${post.authorUserId}`} className="flex items-center space-x-2">
-                  <img className="h-8 w-8 rounded-full" src={post.authorAvatarUrl || '/placeholder-avatar.svg'} alt={post.authorDisplayName} />
+                <UserLink userId={post.authorUserId} className="flex items-center space-x-2">
+                  <Avatar src={post.authorAvatarUrl || '/placeholder-avatar.svg'} name={post.authorDisplayName} size="sm" />
                   <span className="font-medium text-gray-800 hover:tenant-text-primary">{post.authorDisplayName}</span>
-                </Link>
+                </UserLink>
             </div>
             <time dateTime={publishedDate ? publishedDate.toISOString() : ''} className="text-gray-500">
                 {publishedDate

@@ -86,6 +86,9 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const basePath = `/tenants/${tenant.id}`;
+  const [userPermissions, setUserPermissions] = React.useState<Record<string, boolean> | null>(null);
+  const [membership, setMembership] = React.useState<any | null>(null);
+  const [tenantPermissions, setTenantPermissions] = React.useState<Record<string, any> | null>(null);
   const navRef = React.useRef<HTMLElement | null>(null);
   const navTabsRef = React.useRef<HTMLDivElement | null>(null);
   const deriveLockedSubmenu = React.useCallback((): SubmenuKey | null => {
@@ -181,6 +184,41 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     setVisibleSubmenu(key);
   };
 
+
+  // Fetch per-user permissions and tenant permission defaults for this tenant
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(`/api/tenants/${tenant.id}/me`);
+        if (res.ok) {
+          const data = await res.json();
+          if (mounted) {
+            setUserPermissions(data?.permissions || null);
+            setMembership(data?.membership || null);
+            setTenantPermissions(data?.tenant?.permissions || null);
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [tenant.id]);
+
+  // Helper: determine whether membership roles grant canViewWorkMenu via tenant.permissions
+  const membershipAllowsWork = React.useCallback(() => {
+    if (!membership || !tenantPermissions) return false;
+    const roles: { role: string }[] = membership.roles || [];
+    for (const r of roles) {
+      const key = r.role as string;
+      if (tenantPermissions[key] && tenantPermissions[key].canViewWorkMenu) return true;
+    }
+    return false;
+  }, [membership, tenantPermissions]);
   const scheduleHide = (key: SubmenuKey) => {
     if (lockedSubmenu === key) return;
     const showTimer = submenuTimers[key].show;
@@ -327,7 +365,16 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
         {navItems.map((item) => {
           const isEnabled = isFeatureEnabled(item.feature);
           if (!isEnabled) return null;
-          if (item.adminOnly && !canViewSettings) return null;
+          // Allow admin-only items when the user can view settings (admins) OR when
+          // this is the Work item and the user's tenant permissions explicitly allow it.
+          if (
+            item.adminOnly &&
+            !(
+              canViewSettings ||
+              (item.key === 'work' && (userPermissions?.canViewWorkMenu || membershipAllowsWork()))
+            )
+          )
+            return null;
 
           const fullPath = `${basePath}${item.path}`;
           const pathOnly = item.path.split('?')[0];

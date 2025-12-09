@@ -16,6 +16,9 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
     const [open, setOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [tenantSettings, setTenantSettings] = useState<any | null>(null);
+    const [membership, setMembership] = useState<any | null>(null);
+    const [tenantPermissions, setTenantPermissions] = useState<Record<string, any> | null>(null);
+    const [userPermissions, setUserPermissions] = useState<Record<string, boolean> | null>(null);
     const [activeSubmenu, setActiveSubmenu] = useState<TenantSubmenuKey | null>(null);
     const submenuShowTimer = useRef<number | null>(null);
     const submenuHideTimer = useRef<number | null>(null);
@@ -76,6 +79,9 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                         const tenantIsAdmin = Boolean(data?.permissions?.isAdmin);
                         const platformAdmin = Boolean((session as any)?.user?.isSuperAdmin);
                         setIsAdmin(tenantIsAdmin || platformAdmin);
+                        setMembership(data?.membership || null);
+                        setTenantPermissions(data?.tenant?.permissions || null);
+                        setUserPermissions(data?.permissions || null);
                     }
                 }
             } catch (e) {
@@ -196,6 +202,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                     { key: 'home', label: 'Home', path: '' },
                                     { key: 'content', label: 'Content', path: '/content' },
                                     { key: 'community', label: 'Community', path: '/community' },
+                                    { key: 'work', label: 'Work', path: '/admin/workboard', adminOnly: true, feature: 'enableWorkboard' },
                                     { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
                                     { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
                                     { key: 'contact', label: 'Contact Us', path: '/contact' },
@@ -203,7 +210,20 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                 ].map((item) => {
                                     const isEnabled = !item.feature || Boolean(tenantSettings?.[item.feature]);
                                     if (!isEnabled) return null;
-                                    if (item.adminOnly && !isAdmin) return null;
+                                    // allow adminOnly when user is admin OR when it's the Work item and role-level permissions allow it
+                                    if (item.adminOnly && item.key === 'work') {
+                                        const allowed = isAdmin || Boolean(userPermissions?.canViewWorkMenu) || (membership && tenantPermissions && (() => {
+                                            const roles: { role: string }[] = membership?.roles || [];
+                                            for (const r of roles) {
+                                                const key = r.role as string;
+                                                if (tenantPermissions[key] && tenantPermissions[key].canViewWorkMenu) return true;
+                                            }
+                                            return false;
+                                        })());
+                                        if (!allowed) return null;
+                                    } else if (item.adminOnly && !isAdmin) {
+                                        return null;
+                                    }
                                     if (item.key === 'community') {
                                         return (
                                             <div key={item.key}>
@@ -307,12 +327,13 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                             <div className="min-w-[18rem]">
                                 {[
                                     { key: 'home', label: 'Home', path: '' },
-                                    { key: 'content', label: 'Content', path: '/content' },
-                                    { key: 'community', label: 'Community', path: '/community' },
-                                    { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
-                                    { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
-                                    { key: 'contact', label: 'Contact Us', path: '/contact' },
-                                    { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
+                                        { key: 'content', label: 'Content', path: '/content' },
+                                        { key: 'community', label: 'Community', path: '/community' },
+                                        { key: 'work', label: 'Work', path: '/admin/workboard', adminOnly: true, feature: 'enableWorkboard' },
+                                        { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
+                                        { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
+                                        { key: 'contact', label: 'Contact Us', path: '/contact' },
+                                        { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
                                 ].map((item) => {
                                     const isEnabled = !item.feature || Boolean(tenantSettings?.[item.feature]);
                                     if (!isEnabled) return null;
@@ -514,7 +535,15 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                     <div className="py-2 px-1">
                                         {(() => {
                                             const slugFor = (label: string) => label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                                            return CONTROL_PANEL_TABS.map((tab) => {
+                                            const preferredOrder = ['General', 'Features', 'Permissions', 'Membership & Moderation'];
+                                            const ordered: string[] = [];
+                                            for (const p of preferredOrder) {
+                                                if (CONTROL_PANEL_TABS.includes(p)) ordered.push(p);
+                                            }
+                                            for (const t of CONTROL_PANEL_TABS) {
+                                                if (!ordered.includes(t)) ordered.push(t);
+                                            }
+                                            return ordered.map((tab) => {
                                                 const slug = slugFor(tab);
                                                 return (
                                                     <Link

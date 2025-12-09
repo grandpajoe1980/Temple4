@@ -349,6 +349,7 @@ export interface RolePermissions {
   canManageResources: boolean;
   canManageContactSubmissions: boolean;
   canManageFacilities: boolean;
+  canViewWorkMenu?: boolean;
   canManagePrayerWall: boolean;
 }
 

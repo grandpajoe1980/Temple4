@@ -66,7 +66,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
   }, [currentUser, tenant.id]);
 
   const availableTabs = useMemo(() => {
-    return CONTROL_PANEL_TABS.filter(tab => {
+    const filtered = CONTROL_PANEL_TABS.filter(tab => {
       if (isAdmin) {
         return true; // Admins see all tabs
       }
@@ -89,6 +89,20 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
           return false; // Hide all other tabs from non-admins
       }
     });
+
+    // Reorder settings tabs so important items appear at the top in a specific order
+    const preferredOrder = ['General', 'Features', 'Permissions', 'Membership & Moderation'];
+    const ordered: string[] = [];
+    // Add preferred tabs first if present
+    for (const p of preferredOrder) {
+      if (filtered.includes(p)) ordered.push(p);
+    }
+    // Add remaining tabs in their existing order
+    for (const t of filtered) {
+      if (!ordered.includes(t)) ordered.push(t);
+    }
+
+    return ordered;
   }, [currentUser, isAdmin, permissions]);
   
   const [activeTab, setActiveTab] = useState(availableTabs[0] || CONTROL_PANEL_TABS[0]);

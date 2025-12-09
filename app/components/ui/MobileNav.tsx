@@ -92,10 +92,14 @@ export default function MobileNav({ className }: MobileNavProps) {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [tenantSettings, setTenantSettings] = useState<TenantSettings | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userPermissions, setUserPermissions] = useState<Record<string, boolean> | null>(null);
+  const [membership, setMembership] = useState<any | null>(null);
+  const [tenantPermissions, setTenantPermissions] = useState<Record<string, any> | null>(null);
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
   const isAuthenticated = Boolean(session?.user);
+  const isPlatformAdmin = Boolean((session as any)?.user?.isSuperAdmin);
 
   // Detect if we're on a tenant page
   const isTenantPage = pathname?.startsWith('/tenants/');
@@ -120,6 +124,9 @@ export default function MobileNav({ className }: MobileNavProps) {
             const tenantIsAdmin = Boolean(data?.permissions?.isAdmin);
             const platformAdmin = Boolean((session as any)?.user?.isSuperAdmin);
             setIsAdmin(tenantIsAdmin || platformAdmin);
+            setUserPermissions(data?.permissions || null);
+            setMembership(data?.membership || null);
+            setTenantPermissions(data?.tenant?.permissions || null);
           }
         }
       } catch (e) {
@@ -233,7 +240,14 @@ export default function MobileNav({ className }: MobileNavProps) {
       {renderExpandableSection('community', 'Community', `${basePath}/community`, communitySubItems)}
 
       {/* Work Section (Admin only) */}
-      {isAdmin && renderExpandableSection('work', 'Work', `${basePath}/admin/workboard`, workSubItems)}
+      {(isAdmin || userPermissions?.canViewWorkMenu || (membership && tenantPermissions && (() => {
+        const roles: { role: string }[] = membership?.roles || [];
+        for (const r of roles) {
+          const key = r.role as string;
+          if (tenantPermissions[key] && tenantPermissions[key].canViewWorkMenu) return true;
+        }
+        return false;
+      })())) && renderExpandableSection('work', 'Work', `${basePath}/admin/workboard`, workSubItems)}
 
       {/* Services Section */}
       {isFeatureEnabled('enableServices') &&
@@ -289,10 +303,20 @@ export default function MobileNav({ className }: MobileNavProps) {
           </button>
           {expandedSections['settings'] && (
             <div className="bg-muted/50">
-              {CONTROL_PANEL_TABS.map((tab) => {
-                const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                return renderNavLink(`${basePath}/settings?category=${slug}`, tab, true);
-              })}
+              {(() => {
+                const preferredOrder = ['General', 'Features', 'Permissions', 'Membership & Moderation'];
+                const ordered: string[] = [];
+                for (const p of preferredOrder) {
+                  if (CONTROL_PANEL_TABS.includes(p)) ordered.push(p);
+                }
+                for (const t of CONTROL_PANEL_TABS) {
+                  if (!ordered.includes(t)) ordered.push(t);
+                }
+                return ordered.map((tab) => {
+                  const slug = tab.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                  return renderNavLink(`${basePath}/settings?category=${slug}`, tab, true);
+                });
+              })()}
             </div>
           )}
         </div>
@@ -335,6 +359,9 @@ export default function MobileNav({ className }: MobileNavProps) {
           {renderNavLink('/auth/register', 'Create Account')}
         </>
       )}
+
+      {/* Work Section for platform admins */}
+      {isPlatformAdmin && renderExpandableSection('work', 'Work', '/admin/workboard', workSubItems)}
 
       {/* Theme Toggle */}
       <div className="border-t border-border my-2" />

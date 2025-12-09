@@ -55,6 +55,7 @@ const defaultRolePermissions: RolePermissions = {
   canManageContactSubmissions: false,
   canManageFacilities: false,
   canManagePrayerWall: false,
+  canViewWorkMenu: false,
 };
 
 export const adminPermissions: RolePermissions = {
@@ -77,6 +78,7 @@ export const adminPermissions: RolePermissions = {
   canManageContactSubmissions: true,
   canManageFacilities: true,
   canManagePrayerWall: true,
+  canViewWorkMenu: true,
 };
 
 const defaultPermissions: TenantFeaturePermissions = {
@@ -84,6 +86,7 @@ const defaultPermissions: TenantFeaturePermissions = {
     ...defaultRolePermissions,
     canCreatePosts: true,
     canUploadResources: true, // Allow members to upload resources by default
+    canViewWorkMenu: false,
   },
   [TenantRoleType.STAFF]: {
     ...defaultRolePermissions,
@@ -99,6 +102,7 @@ const defaultPermissions: TenantFeaturePermissions = {
     canManageResources: true,
     canManageContactSubmissions: true,
     canManageFacilities: true,
+    canViewWorkMenu: false,
   },
   [TenantRoleType.MODERATOR]: {
     ...defaultRolePermissions,
@@ -109,6 +113,7 @@ const defaultPermissions: TenantFeaturePermissions = {
     canManageSupportRequests: true,
     canManageResources: true, // Moderators can manage resources
     canManageFacilities: false,
+    canViewWorkMenu: false,
   },
   ADMIN: {
     ...adminPermissions,

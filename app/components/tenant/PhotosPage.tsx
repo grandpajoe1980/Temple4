@@ -100,9 +100,9 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
     if (!isAdmin) return;
     if (!confirm('Delete this photo? This action cannot be undone.')) return;
 
-    try {
-      // If there is a storageKey, attempt to delete the file first
-      if (storageKey) {
+      try {
+      // If there is a storageKey and it refers to local tenant storage (not an external URL), attempt to delete the file first
+      if (storageKey && !storageKey.startsWith('http')) {
         const res = await fetch('/api/upload/delete', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },

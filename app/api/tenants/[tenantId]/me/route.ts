@@ -48,9 +48,12 @@ export async function GET(
       permissions.canManageContactSubmissions = await can(user as any, tenant as any, 'canManageContactSubmissions');
       permissions.canCreatePosts = await can(user as any, tenant as any, 'canCreatePosts');
       permissions.canCreateEvents = await can(user as any, tenant as any, 'canCreateEvents');
+      // New permission: whether the user's role allows viewing the tenant Work menu
+      permissions.canViewWorkMenu = await can(user as any, tenant as any, 'canViewWorkMenu');
     }
 
-    return NextResponse.json({ membership, tenant: { id: tenant.id, slug: tenant.slug }, permissions });
+    // Include tenant.permissions so clients can consult per-role permission defaults
+    return NextResponse.json({ membership, tenant: { id: tenant.id, slug: tenant.slug, permissions: tenant.permissions }, permissions });
   } catch (error) {
     console.error('[tenant me] Error:', error);
     return handleApiError(error, { route: 'GET /api/tenants/[tenantId]/me', tenantId });

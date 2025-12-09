@@ -24,6 +24,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
     canManageResources: true,
     canManageContactSubmissions: true,
     canManageFacilities: true,
+    canViewWorkMenu: true,
   },
   MEMBER: {
     canCreatePosts: true,
@@ -42,6 +43,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
     canManageResources: false,
     canManageContactSubmissions: false,
     canManageFacilities: false,
+    canViewWorkMenu: false,
   },
   STAFF: {
     canCreatePosts: true,
@@ -60,6 +62,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
     canManageResources: true,
     canManageContactSubmissions: true,
     canManageFacilities: true,
+    canViewWorkMenu: false,
   },
   MODERATOR: {
     canCreatePosts: true,
@@ -78,6 +81,7 @@ const DEFAULT_TENANT_PERMISSIONS = {
     canManageResources: false,
     canManageContactSubmissions: false,
     canManageFacilities: false,
+    canViewWorkMenu: false,
   },
 };
 

@@ -79,38 +79,20 @@ export interface ProfilePostCommentDto {
 }
 
 /**
- * Check if two users are "friends" (share at least one tenant membership)
+ * Check if two users are friends (using the Friendship model)
  */
 async function areUsersFriends(userId1: string, userId2: string): Promise<boolean> {
-    // Get all tenant IDs for user1
-    const user1Tenants = await prisma.userTenantMembership.findMany({
+    // Check if there's a friendship record between the two users
+    const friendship = await prisma.friendship.findFirst({
         where: {
-            userId: userId1,
-            status: 'APPROVED'
+            OR: [
+                { userId: userId1, friendId: userId2 },
+                { userId: userId2, friendId: userId1 },
+            ],
         },
-        select: {
-            tenantId: true
-        }
     });
 
-    if (user1Tenants.length === 0) {
-        return false;
-    }
-
-    const tenantIds = user1Tenants.map(m => m.tenantId);
-
-    // Check if user2 has any membership in those tenants
-    const sharedMembership = await prisma.userTenantMembership.findFirst({
-        where: {
-            userId: userId2,
-            tenantId: {
-                in: tenantIds
-            },
-            status: 'APPROVED'
-        }
-    });
-
-    return sharedMembership !== null;
+    return friendship !== null;
 }
 
 /**

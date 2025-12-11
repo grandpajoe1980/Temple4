@@ -20,6 +20,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
     const [tenantPermissions, setTenantPermissions] = useState<Record<string, any> | null>(null);
     const [userPermissions, setUserPermissions] = useState<Record<string, boolean> | null>(null);
     const [activeSubmenu, setActiveSubmenu] = useState<TenantSubmenuKey | null>(null);
+    const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
     const submenuShowTimer = useRef<number | null>(null);
     const submenuHideTimer = useRef<number | null>(null);
     const menuCloseTimer = useRef<number | null>(null);
@@ -154,6 +155,27 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
             closeAllSubmenus();
         }
     }, [open, closeAllSubmenus]);
+
+    // Fetch pending friend requests for authenticated users
+    const isAuthenticated = Boolean(session?.user);
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setPendingFriendRequests(0);
+            return;
+        }
+        const fetchRequests = async () => {
+            try {
+                const res = await fetch('/api/friends/requests');
+                if (res.ok) {
+                    const data = await res.json();
+                    setPendingFriendRequests(data.requests?.length || 0);
+                }
+            } catch (e) { /* ignore */ }
+        };
+        fetchRequests();
+        const interval = setInterval(fetchRequests, 60000);
+        return () => clearInterval(interval);
+    }, [isAuthenticated]);
 
     return (
         <div
@@ -310,10 +332,22 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                             {/* Divider and site-level links */}
                             <div className="border-t border-border mt-2" />
                             <div className="py-2">
+                                {isAuthenticated && (
+                                    <Link
+                                        href="/friends"
+                                        className="block px-4 py-3 text-sm text-foreground hover:bg-muted relative"
+                                        onClick={handleNavClick}
+                                        role="menuitem"
+                                    >
+                                        Friends
+                                        {pendingFriendRequests > 0 && (
+                                            <span className="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full">
+                                                {pendingFriendRequests}
+                                            </span>
+                                        )}
+                                    </Link>
+                                )}
                                 <Link href="/" className="block px-4 py-3 text-sm text-foreground hover:bg-muted" onClick={handleNavClick} role="menuitem">
-                                    Asembli
-                                </Link>
-                                <Link href="/explore" className="block px-4 py-3 text-sm text-foreground hover:bg-muted" onClick={handleNavClick} role="menuitem">
                                     Explore
                                 </Link>
                             </div>
@@ -327,13 +361,13 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                             <div className="min-w-[18rem]">
                                 {[
                                     { key: 'home', label: 'Home', path: '' },
-                                        { key: 'content', label: 'Content', path: '/content' },
-                                        { key: 'community', label: 'Community', path: '/community' },
-                                        { key: 'work', label: 'Work', path: '/admin/workboard', adminOnly: true, feature: 'enableWorkboard' },
-                                        { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
-                                        { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
-                                        { key: 'contact', label: 'Contact Us', path: '/contact' },
-                                        { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
+                                    { key: 'content', label: 'Content', path: '/content' },
+                                    { key: 'community', label: 'Community', path: '/community' },
+                                    { key: 'work', label: 'Work', path: '/admin/workboard', adminOnly: true, feature: 'enableWorkboard' },
+                                    { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
+                                    { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
+                                    { key: 'contact', label: 'Contact Us', path: '/contact' },
+                                    { key: 'settings', label: 'Settings', path: '/settings', adminOnly: true },
                                 ].map((item) => {
                                     const isEnabled = !item.feature || Boolean(tenantSettings?.[item.feature]);
                                     if (!isEnabled) return null;
@@ -458,8 +492,17 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                 })}
                                 {/* Divider and site-level links for desktop menu */}
                                 <div className="border-t border-border mt-1" />
-                                <Link href="/" className="block px-4 py-2 text-sm text-foreground hover:bg-muted" onClick={handleNavClick} role="menuitem">Asembli</Link>
-                                <Link href="/explore" className="block px-4 py-2 text-sm text-foreground hover:bg-muted" onClick={handleNavClick} role="menuitem">Explore</Link>
+                                {isAuthenticated && (
+                                    <Link href="/friends" className="block px-4 py-2 text-sm text-foreground hover:bg-muted relative" onClick={handleNavClick} role="menuitem">
+                                        Friends
+                                        {pendingFriendRequests > 0 && (
+                                            <span className="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full">
+                                                {pendingFriendRequests}
+                                            </span>
+                                        )}
+                                    </Link>
+                                )}
+                                <Link href="/" className="block px-4 py-2 text-sm text-foreground hover:bg-muted" onClick={handleNavClick} role="menuitem">Explore</Link>
                             </div>
 
                             {/* Right column: submenu (shows when hovered) */}

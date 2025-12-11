@@ -96,6 +96,7 @@ export default function MobileNav({ className }: MobileNavProps) {
   const [userPermissions, setUserPermissions] = useState<Record<string, boolean> | null>(null);
   const [membership, setMembership] = useState<any | null>(null);
   const [tenantPermissions, setTenantPermissions] = useState<Record<string, any> | null>(null);
+  const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
@@ -158,6 +159,31 @@ export default function MobileNav({ className }: MobileNavProps) {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fetch pending friend requests count for authenticated users
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setPendingFriendRequests(0);
+      return;
+    }
+
+    const fetchPendingRequests = async () => {
+      try {
+        const res = await fetch('/api/friends/requests');
+        if (res.ok) {
+          const data = await res.json();
+          setPendingFriendRequests(data.requests?.length || 0);
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    fetchPendingRequests();
+    // Refresh every 60 seconds
+    const interval = setInterval(fetchPendingRequests, 60000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({
@@ -347,6 +373,24 @@ export default function MobileNav({ className }: MobileNavProps) {
       {/* Global Links */}
       {renderNavLink('/', 'Explore')}
 
+      {/* Friends Link - Always visible for authenticated users */}
+      {isAuthenticated && (
+        <button
+          onClick={() => handleNavClick('/friends')}
+          className={`w-full text-left block px-4 py-3 text-base transition-colors relative ${pathname === '/friends' || pathname?.startsWith('/friends/')
+              ? 'tenant-bg-50 tenant-text-primary font-medium'
+              : 'text-foreground hover:bg-muted'
+            }`}
+        >
+          Friends
+          {pendingFriendRequests > 0 && (
+            <span className="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full">
+              {pendingFriendRequests}
+            </span>
+          )}
+        </button>
+      )}
+
       {/* Theme Toggle */}
       <div className="border-t border-border my-2" />
       <div className="px-4 py-3 flex items-center justify-between">
@@ -366,6 +410,20 @@ export default function MobileNav({ className }: MobileNavProps) {
           {renderNavLink('/account', 'My Account')}
           {renderNavLink('/notifications', 'Notifications')}
           {renderNavLink('/messages', 'Messages')}
+          <button
+            onClick={() => handleNavClick('/friends')}
+            className={`w-full text-left block px-4 py-3 text-base transition-colors relative ${pathname === '/friends' || pathname?.startsWith('/friends/')
+              ? 'tenant-bg-50 tenant-text-primary font-medium'
+              : 'text-foreground hover:bg-muted'
+              }`}
+          >
+            Friends
+            {pendingFriendRequests > 0 && (
+              <span className="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full">
+                {pendingFriendRequests}
+              </span>
+            )}
+          </button>
         </>
       )}
 

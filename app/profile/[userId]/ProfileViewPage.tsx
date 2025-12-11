@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import type { User, UserProfile, UserPrivacySettings, AccountSettings } from '@prisma/client';
 import { useRouter } from 'next/navigation';
@@ -20,9 +20,14 @@ interface ProfileViewPageProps {
   isSuperAdmin: boolean;
 }
 
+type FriendStatus = 'NONE' | 'PENDING_SENT' | 'PENDING_RECEIVED' | 'FRIENDS' | 'LOADING';
+
 export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdmin }: ProfileViewPageProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [friendStatus, setFriendStatus] = useState<FriendStatus>('LOADING');
+  const [friendshipId, setFriendshipId] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
   const pathname = usePathname();
   const hideAvatar = pathname?.startsWith('/tenants/') ?? false;
 
@@ -31,6 +36,31 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
   const location = [profileUser.profile?.locationCity, profileUser.profile?.locationCountry]
     .filter(Boolean)
     .join(', ');
+
+  // Fetch friend status on mount
+  useEffect(() => {
+    if (isOwnProfile) {
+      setFriendStatus('NONE');
+      return;
+    }
+
+    const fetchFriendStatus = async () => {
+      try {
+        const response = await fetch(`/api/users/${profileUser.id}/friend-request`);
+        if (response.ok) {
+          const data = await response.json();
+          setFriendStatus(data.status);
+          setFriendshipId(data.friendshipId || null);
+          setRequestId(data.requestId || null);
+        }
+      } catch (error) {
+        console.error('Error fetching friend status:', error);
+        setFriendStatus('NONE');
+      }
+    };
+
+    fetchFriendStatus();
+  }, [profileUser.id, isOwnProfile]);
 
   const handleSendMessage = async () => {
     setIsLoading(true);
@@ -57,6 +87,81 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
     }
   };
 
+  const handleAddFriend = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/users/${profileUser.id}/friend-request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === 'ACCEPTED') {
+          setFriendStatus('FRIENDS');
+        } else {
+          setFriendStatus('PENDING_SENT');
+        }
+      } else {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to send friend request');
+      }
+    } catch (error: any) {
+      console.error('Error sending friend request:', error);
+      alert(error.message || 'Failed to send friend request. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAcceptRequest = async () => {
+    if (!requestId) return;
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/friends/requests/${requestId}/accept`, {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        setFriendStatus('FRIENDS');
+        setRequestId(null);
+      } else {
+        throw new Error('Failed to accept friend request');
+      }
+    } catch (error) {
+      console.error('Error accepting friend request:', error);
+      alert('Failed to accept friend request. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRemoveFriend = async () => {
+    if (!friendshipId) return;
+    if (!confirm('Are you sure you want to remove this friend?')) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/friends/${friendshipId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setFriendStatus('NONE');
+        setFriendshipId(null);
+      } else {
+        throw new Error('Failed to remove friend');
+      }
+    } catch (error) {
+      console.error('Error removing friend:', error);
+      alert('Failed to remove friend. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleImpersonate = async () => {
     if (!confirm(`Are you sure you want to impersonate ${profileUser.profile?.displayName || profileUser.email}?`)) {
       return;
@@ -69,7 +174,7 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           targetUserId: profileUser.id,
           reason: 'Profile page impersonation'
         }),
@@ -87,6 +192,50 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
       alert(error.message || 'Failed to start impersonation. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const renderFriendButton = () => {
+    if (isOwnProfile) return null;
+
+    switch (friendStatus) {
+      case 'LOADING':
+        return (
+          <Button disabled variant="outline">
+            Loading...
+          </Button>
+        );
+      case 'NONE':
+        return (
+          <Button onClick={handleAddFriend} disabled={isLoading} variant="primary">
+            Add Friend
+          </Button>
+        );
+      case 'PENDING_SENT':
+        return (
+          <Button disabled variant="outline">
+            Request Pending
+          </Button>
+        );
+      case 'PENDING_RECEIVED':
+        return (
+          <Button onClick={handleAcceptRequest} disabled={isLoading} variant="primary">
+            Accept Request
+          </Button>
+        );
+      case 'FRIENDS':
+        return (
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+              ✓ Friends
+            </span>
+            <Button onClick={handleRemoveFriend} disabled={isLoading} variant="outline" size="sm">
+              Remove
+            </Button>
+          </div>
+        );
+      default:
+        return null;
     }
   };
 
@@ -118,9 +267,10 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
                 {profileUser.profile?.displayName || profileUser.email}
               </h2>
               {location && <p className="mt-1 text-md text-gray-500">{location}</p>}
-              <div className="mt-4 flex items-center space-x-3">
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                {renderFriendButton()}
                 {!isOwnProfile && (
-                  <Button onClick={handleSendMessage} disabled={isLoading}>
+                  <Button onClick={handleSendMessage} disabled={isLoading} variant="outline">
                     Direct Message
                   </Button>
                 )}

@@ -68,9 +68,9 @@ const communitySubItems = [
 ];
 
 const workSubItems = [
-  { key: 'workboard', label: 'Workboard', path: '/admin/workboard', feature: 'enableWorkboard', adminOnly: true },
-  { key: 'tickets', label: 'Tickets', path: '/admin/tickets', feature: 'enableTicketing', adminOnly: true },
-  { key: 'assets', label: 'Assets', path: '/admin/assets', feature: 'enableAssetManagement', adminOnly: true },
+  { key: 'workboard', label: 'Workboard', path: '/admin/workboard', feature: 'enableWorkboard' },
+  { key: 'tickets', label: 'Tickets', path: '/admin/tickets', feature: 'enableTicketing' },
+  { key: 'assets', label: 'Assets', path: '/admin/assets', feature: 'enableAssetManagement' },
 ];
 
 const serviceSubItems = [
@@ -239,15 +239,28 @@ export default function MobileNav({ className }: MobileNavProps) {
       {/* Community Section */}
       {renderExpandableSection('community', 'Community', `${basePath}/community`, communitySubItems)}
 
-      {/* Work Section (Admin only) */}
-      {(isAdmin || userPermissions?.canViewWorkMenu || (membership && tenantPermissions && (() => {
-        const roles: { role: string }[] = membership?.roles || [];
-        for (const r of roles) {
-          const key = r.role as string;
-          if (tenantPermissions[key] && tenantPermissions[key].canViewWorkMenu) return true;
-        }
-        return false;
-      })())) && renderExpandableSection('work', 'Work', `${basePath}/admin/workboard`, workSubItems)}
+      {/* Work Section (permission + feature toggles) */}
+      {(() => {
+        const membershipAllowsWork = () => {
+          if (!membership || !tenantPermissions) return false;
+          const roles: { role: string }[] = membership.roles || [];
+          for (const r of roles) {
+            const key = r.role as string;
+            if (tenantPermissions[key] && tenantPermissions[key].canViewWorkMenu) return true;
+          }
+          return false;
+        };
+        const hasWorkAccess = Boolean(isAdmin || userPermissions?.canViewWorkMenu || membershipAllowsWork());
+        const workFeaturesOn = tenantSettings
+          ? Boolean(
+              tenantSettings.enableWorkboard ||
+              tenantSettings.enableTicketing ||
+              tenantSettings.enableAssetManagement
+            )
+          : true;
+        if (!workFeaturesOn || !hasWorkAccess) return null;
+        return renderExpandableSection('work', 'Work', `${basePath}/admin/workboard`, workSubItems);
+      })()}
 
       {/* Services Section */}
       {isFeatureEnabled('enableServices') &&

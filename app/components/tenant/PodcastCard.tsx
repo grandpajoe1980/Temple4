@@ -31,7 +31,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({ podcast, canEdit = false, onE
           </>
         ) : null}
       </div>
-      <div className="p-6">
+      <div className="p-6" onClick={() => onPlay?.(podcast)} style={{ cursor: 'pointer' }}>
         <PodcastEmbed url={podcast.embedUrl} />
       </div>
       <div className="p-6 pt-2 flex-grow">

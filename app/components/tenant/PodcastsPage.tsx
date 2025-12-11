@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import type { EnrichedMediaItem, Tenant, User } from '@/types';
 import Button from '../ui/Button';
 import PodcastCard from './PodcastCard';
+import PodcastEmbed from '@/app/components/PodcastEmbed';
 import { useRouter } from 'next/navigation';
 import Modal from '../ui/Modal';
 import PodcastForm, { type PodcastFormData } from './forms/PodcastForm';
@@ -38,6 +39,7 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingPodcast, setEditingPodcast] = useState<EnrichedMediaItem | null>(null);
   const [expandedPodcastId, setExpandedPodcastId] = useState<string | null>(null);
+  const [playingUrl, setPlayingUrl] = useState<string | null>(null);
   const router = useRouter();
   const setPageHeader = useSetPageHeader();
 
@@ -156,7 +158,7 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
               canEdit={canCreate}
               onEdit={() => handleEditPodcast(podcast)}
               onDelete={() => handleDeletePodcast(podcast.id)}
-              onPlay={() => setExpandedPodcastId((cur) => (cur === podcast.id ? null : podcast.id))}
+              onPlay={() => setPlayingUrl(podcast.embedUrl)}
               expanded={expandedPodcastId === podcast.id}
             />
           ))}
@@ -178,6 +180,14 @@ const PodcastsPage: React.FC<PodcastsPageProps> = ({ tenant, user, podcasts: ini
           defaultValues={editingPodcast ? { title: editingPodcast.title, description: editingPodcast.description, embedUrl: editingPodcast.embedUrl } : undefined}
         />
       </Modal>
+      {playingUrl ? (
+        <Modal isOpen={!!playingUrl} onClose={() => setPlayingUrl(null)} title="Playing Podcast">
+          <div className="w-full">
+            {/* PodcastEmbed is a client component (uses hooks) and supports autoplay */}
+            <PodcastEmbed url={playingUrl!} autoplay />
+          </div>
+        </Modal>
+      ) : null}
     </div>
   );
 };

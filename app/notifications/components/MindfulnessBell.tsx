@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 type SoundOption = 'bell' | 'chime' | 'gong';
 
@@ -90,6 +90,41 @@ export default function MindfulnessBell() {
     }
   }, []);
 
+  const ensureAudioContext = useCallback(() => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return audioCtxRef.current;
+  }, []);
+
+  const stopTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setNextAt(null);
+  }, []);
+
+  const startTimer = useCallback(() => {
+    stopTimer();
+    const minutes = minutesFromValue(value);
+    const ms = minutes * 60 * 1000;
+    const id = window.setInterval(() => {
+      const ctx = ensureAudioContext();
+      playSynthSound(ctx, option);
+      setNextAt(Date.now() + ms);
+    }, ms);
+    timerRef.current = id;
+    setNextAt(Date.now() + ms);
+  }, [ensureAudioContext, option, stopTimer, value]);
+
+  const playNow = useCallback(() => {
+    const ctx = ensureAudioContext();
+    playSynthSound(ctx, option);
+  }, [ensureAudioContext, option]);
+
+  const toggleRunning = useCallback(() => setIsRunning((s) => !s), []);
+
   useEffect(() => {
     // persist settings
     try {
@@ -107,43 +142,7 @@ export default function MindfulnessBell() {
       stopTimer();
     }
     return () => stopTimer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRunning, option, value]);
-
-  const ensureAudioContext = () => {
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    return audioCtxRef.current;
-  };
-
-  const playNow = () => {
-    const ctx = ensureAudioContext();
-    playSynthSound(ctx, option);
-  };
-
-  const startTimer = () => {
-    stopTimer();
-    const minutes = minutesFromValue(value);
-    const ms = minutes * 60 * 1000;
-    const id = window.setInterval(() => {
-      const ctx = ensureAudioContext();
-      playSynthSound(ctx, option);
-      setNextAt(Date.now() + ms);
-    }, ms);
-    timerRef.current = id;
-    setNextAt(Date.now() + ms);
-  };
-
-  const stopTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    setNextAt(null);
-  };
-
-  const toggleRunning = () => setIsRunning((s) => !s);
+  }, [isRunning, startTimer, stopTimer]);
 
   return (
     <div className="max-w-xl rounded-2xl bg-white p-6 shadow">

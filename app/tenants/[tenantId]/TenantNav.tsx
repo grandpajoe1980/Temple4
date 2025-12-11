@@ -29,7 +29,7 @@ const navItems: { key: TenantPage; label: string; path: string; feature?: NavIte
   { key: 'home', label: 'Home', path: '' },
   { key: 'content', label: 'Content', path: '/content' },
   { key: 'community', label: 'Community', path: '/posts' },
-  { key: 'work', label: 'Work', path: '/admin/workboard', adminOnly: true },
+  { key: 'work', label: 'Work', path: '/admin/workboard' },
   { key: 'services', label: 'Services', path: '/services', feature: 'enableServices' },
   { key: 'donations', label: 'Donations', path: '/donations', feature: 'enableDonations' },
   { key: 'contact', label: 'Contact Us', path: '/contact' },
@@ -61,9 +61,9 @@ const communitySubItems: { key: string; label: string; path: string; feature?: N
 ];
 
 const workSubItems: { key: string; label: string; path: string; feature?: NavItemFeature; adminOnly?: boolean }[] = [
-  { key: 'workboard', label: 'Workboard', path: '/admin/workboard', feature: 'enableWorkboard', adminOnly: true },
-  { key: 'tickets', label: 'Tickets', path: '/admin/tickets', feature: 'enableTicketing', adminOnly: true },
-  { key: 'assets', label: 'Assets', path: '/admin/assets', feature: 'enableAssetManagement', adminOnly: true },
+  { key: 'workboard', label: 'Workboard', path: '/admin/workboard', feature: 'enableWorkboard' },
+  { key: 'tickets', label: 'Tickets', path: '/admin/tickets', feature: 'enableTicketing' },
+  { key: 'assets', label: 'Assets', path: '/admin/assets', feature: 'enableAssetManagement' },
 ];
 
 const serviceSubItems: { key: string; label: string; path: string }[] = [
@@ -91,42 +91,10 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const [tenantPermissions, setTenantPermissions] = React.useState<Record<string, any> | null>(null);
   const navRef = React.useRef<HTMLElement | null>(null);
   const navTabsRef = React.useRef<HTMLDivElement | null>(null);
-  const deriveLockedSubmenu = React.useCallback((): SubmenuKey | null => {
-    if (
-      pathname.startsWith(`${basePath}/content`) ||
-      contentSubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))
-    ) {
-      return 'content';
-    }
-
-    // Check community items
-    if (
-      pathname.startsWith(`${basePath}/community`) ||
-      communitySubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))
-    ) {
-      return 'community';
-    }
-
-    // Check work items (admin pages for workboard, tickets, assets)
-    if (workSubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))) {
-      return 'work';
-    }
-
-    if (pathname.startsWith(`${basePath}/services`)) {
-      return 'services';
-    }
-
-    if (pathname.startsWith(`${basePath}/donations`)) {
-      return 'donations';
-    }
-
-    // Settings pages don't show inline submenu - ControlPanel has sidebar navigation
-
-    return null;
-  }, [basePath, pathname]);
-
-  const lockedSubmenu = React.useMemo(() => deriveLockedSubmenu(), [deriveLockedSubmenu]);
-  const [activeSubmenu, setActiveSubmenu] = React.useState<SubmenuKey | null>(lockedSubmenu);
+  const workFeaturesOn = Boolean(
+    tenant.settings?.enableWorkboard || tenant.settings?.enableTicketing || tenant.settings?.enableAssetManagement
+  );
+  const [activeSubmenu, setActiveSubmenu] = React.useState<SubmenuKey | null>(null);
   const contentShowTimer = React.useRef<NodeJS.Timeout | null>(null);
   const contentHideTimer = React.useRef<NodeJS.Timeout | null>(null);
   const communityShowTimer = React.useRef<NodeJS.Timeout | null>(null);
@@ -219,6 +187,40 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
     }
     return false;
   }, [membership, tenantPermissions]);
+  const hasWorkAccess = Boolean(
+    canViewSettings || userPermissions?.canViewWorkMenu || membershipAllowsWork()
+  );
+  const deriveLockedSubmenu = React.useCallback((): SubmenuKey | null => {
+    if (
+      pathname.startsWith(`${basePath}/content`) ||
+      contentSubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))
+    ) {
+      return 'content';
+    }
+
+    if (
+      pathname.startsWith(`${basePath}/community`) ||
+      communitySubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`))
+    ) {
+      return 'community';
+    }
+
+    if (workSubItems.some((sub) => pathname.startsWith(`${basePath}${sub.path}`)) && workFeaturesOn && hasWorkAccess) {
+      return 'work';
+    }
+
+    if (pathname.startsWith(`${basePath}/services`)) {
+      return 'services';
+    }
+
+    if (pathname.startsWith(`${basePath}/donations`)) {
+      return 'donations';
+    }
+
+    return null;
+  }, [basePath, pathname, hasWorkAccess, workFeaturesOn]);
+
+  const lockedSubmenu = React.useMemo(() => deriveLockedSubmenu(), [deriveLockedSubmenu]);
   const scheduleHide = (key: SubmenuKey) => {
     if (lockedSubmenu === key) return;
     const showTimer = submenuTimers[key].show;
@@ -284,7 +286,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
 
     return items
       .filter((sub) => isFeatureEnabled(sub.feature))
-      .filter((sub) => !sub.adminOnly || canViewSettings)
+      .filter((sub) => !sub.adminOnly || canViewSettings || (key === 'work' && hasWorkAccess))
       .map((sub) => {
         const match = sub.path.match(/\?category=([^&]+)/);
         const subCategory = match ? match[1] : '';
@@ -365,13 +367,14 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
         {navItems.map((item) => {
           const isEnabled = isFeatureEnabled(item.feature);
           if (!isEnabled) return null;
+          if (item.key === 'work' && (!workFeaturesOn || !hasWorkAccess)) return null;
           // Allow admin-only items when the user can view settings (admins) OR when
           // this is the Work item and the user's tenant permissions explicitly allow it.
           if (
             item.adminOnly &&
             !(
               canViewSettings ||
-              (item.key === 'work' && (userPermissions?.canViewWorkMenu || membershipAllowsWork()))
+              (item.key === 'work' && hasWorkAccess)
             )
           )
             return null;

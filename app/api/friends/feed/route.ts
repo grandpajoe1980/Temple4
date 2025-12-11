@@ -26,16 +26,19 @@ export async function GET(request: Request) {
 
         const friendIds = friendships.map((f) => f.friendId);
 
-        if (friendIds.length === 0) {
+        // Include current user's own posts along with friends' posts
+        const userIdsToInclude = [...friendIds, currentUserId];
+
+        if (userIdsToInclude.length === 0) {
             return NextResponse.json({ posts: [], totalCount: 0, page, limit });
         }
 
-        // Get posts from friends with FRIENDS privacy
+        // Get posts from friends and self with FRIENDS or PUBLIC privacy
         const [posts, totalCount] = await Promise.all([
             prisma.profilePost.findMany({
                 where: {
-                    userId: { in: friendIds },
-                    privacy: 'FRIENDS',
+                    userId: { in: userIdsToInclude },
+                    privacy: { in: ['FRIENDS', 'PUBLIC'] },
                     deletedAt: null,
                 },
                 include: {
@@ -74,8 +77,8 @@ export async function GET(request: Request) {
             }),
             prisma.profilePost.count({
                 where: {
-                    userId: { in: friendIds },
-                    privacy: 'FRIENDS',
+                    userId: { in: userIdsToInclude },
+                    privacy: { in: ['FRIENDS', 'PUBLIC'] },
                     deletedAt: null,
                 },
             }),

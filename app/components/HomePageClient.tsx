@@ -128,6 +128,24 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                       </span>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
+                      {/* Friends Card - Always first */}
+                      <button
+                        onClick={() => router.push('/friends')}
+                        className="group flex w-full items-center gap-4 rounded-2xl border border-border bg-card px-4 py-3 text-left shadow-sm ring-1 ring-blue-500/20 transition hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:ring-blue-400/30"
+                      >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20">
+                          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-sm font-semibold text-foreground">Friends</span>
+                          <span className="text-xs text-muted-foreground line-clamp-1">
+                            See what your friends are up to
+                          </span>
+                        </div>
+                      </button>
+
                       {memberTenants.map((tenant) => {
                         const logoUrl = tenant.branding?.logoUrl || '';
                         const initial = tenant.name?.slice(0, 1).toUpperCase() || '?';
@@ -155,6 +173,31 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                         );
                       })}
                     </div>
+                  </div>
+                )}
+
+                {/* Friends card for logged-in users with no tenant memberships */}
+                {isLoggedIn && memberTenants.length === 0 && !isSearching && (
+                  <div className="search-transition search-fade-in">
+                    <div className="mb-3">
+                      <h2 className="text-lg font-semibold text-foreground">Quick Links</h2>
+                    </div>
+                    <button
+                      onClick={() => router.push('/friends')}
+                      className="group flex w-full items-center gap-4 rounded-2xl border border-border bg-card px-4 py-3 text-left shadow-sm ring-1 ring-blue-500/20 transition hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:ring-blue-400/30"
+                    >
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20">
+                        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-semibold text-foreground">Friends</span>
+                        <span className="text-xs text-muted-foreground line-clamp-1">
+                          See what your friends are up to
+                        </span>
+                      </div>
+                    </button>
                   </div>
                 )}
 

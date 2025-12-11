@@ -7,6 +7,7 @@ import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';
 import { FriendsFeed } from '@/app/components/friends/FriendsFeed';
 import { FriendsList } from '@/app/components/friends/FriendsList';
+import { ProfilePostForm } from '@/app/components/profile/ProfilePostForm';
 
 interface FriendsPageProps {
     currentUserId: string;
@@ -49,6 +50,8 @@ export default function FriendsPage({ currentUserId }: FriendsPageProps) {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'feed' | 'requests'>('feed');
     const [initialTabSet, setInitialTabSet] = useState(false);
+    const [showPostForm, setShowPostForm] = useState(false);
+    const [feedKey, setFeedKey] = useState(0); // Used to refresh feed after posting
 
     const fetchFriends = useCallback(async () => {
         try {
@@ -117,6 +120,26 @@ export default function FriendsPage({ currentUserId }: FriendsPageProps) {
             }
         } catch (error) {
             console.error('Error rejecting request:', error);
+        }
+    };
+
+    const handleCreatePost = async (postData: any) => {
+        try {
+            // Create a profile post with FRIENDS privacy by default
+            const response = await fetch(`/api/users/${currentUserId}/profile-posts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...postData,
+                    privacy: postData.privacy || 'FRIENDS', // Default to FRIENDS privacy
+                }),
+            });
+            if (response.ok) {
+                setShowPostForm(false);
+                setFeedKey(prev => prev + 1); // Refresh the feed
+            }
+        } catch (error) {
+            console.error('Error creating post:', error);
         }
     };
 
@@ -229,6 +252,31 @@ export default function FriendsPage({ currentUserId }: FriendsPageProps) {
 
                     {/* Feed - Right Column on Desktop */}
                     <div className="lg:col-span-8 order-1 lg:order-2">
+                        {/* Create Post Section */}
+                        {!showPostForm ? (
+                            <Card className="p-4 mb-4">
+                                <button
+                                    onClick={() => setShowPostForm(true)}
+                                    className="w-full flex items-center gap-3 text-left text-gray-500 hover:text-gray-700 transition-colors"
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-base">Share something with your friends...</span>
+                                </button>
+                            </Card>
+                        ) : (
+                            <div className="mb-4">
+                                <ProfilePostForm
+                                    userId={currentUserId}
+                                    onSubmit={handleCreatePost}
+                                    onCancel={() => setShowPostForm(false)}
+                                />
+                            </div>
+                        )}
+
                         {friends.length === 0 ? (
                             <Card className="p-8 text-center">
                                 <h3 className="text-lg font-medium text-gray-900 mb-2">No friends yet</h3>
@@ -237,7 +285,7 @@ export default function FriendsPage({ currentUserId }: FriendsPageProps) {
                                 </p>
                             </Card>
                         ) : (
-                            <FriendsFeed currentUserId={currentUserId} />
+                            <FriendsFeed key={feedKey} currentUserId={currentUserId} />
                         )}
                     </div>
                 </div>

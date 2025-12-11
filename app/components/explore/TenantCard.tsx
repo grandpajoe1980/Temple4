@@ -8,13 +8,13 @@ import Link from 'next/link';
 type TenantWithRelations = Tenant & {
   settings: TenantSettings | null;
   branding: TenantBranding | null;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    country: string;
-    postalCode: string;
-  };
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+  } | null;
 };
 
 interface TenantCardProps {
@@ -22,6 +22,10 @@ interface TenantCardProps {
 }
 
 const TenantCard: React.FC<TenantCardProps> = ({ tenant }) => {
+  const locationText = tenant.address?.city && tenant.address?.state
+    ? `${tenant.address.city}, ${tenant.address.state}`
+    : null;
+
   return (
     <div className="h-full">
       <Link href={`/tenants/${tenant.id}`} className="block h-full">
@@ -48,9 +52,11 @@ const TenantCard: React.FC<TenantCardProps> = ({ tenant }) => {
           <div className="p-6 pt-10 flex-grow">
             <h3 className="text-lg font-bold text-gray-800 group-hover:text-amber-700 transition-colors">{tenant.name}</h3>
             <p className="text-sm font-medium text-amber-600">{tenant.creed}</p>
-            <p className="mt-1 text-sm text-gray-500">
-              {tenant.address.city}, {tenant.address.state}
-            </p>
+            {locationText && (
+              <p className="mt-1 text-sm text-gray-500">
+                {locationText}
+              </p>
+            )}
             <p className="mt-4 text-sm text-gray-600 line-clamp-3 flex-grow">
               {tenant.description}
             </p>

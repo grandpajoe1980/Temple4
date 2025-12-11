@@ -1144,3 +1144,64 @@
 .dark .border-slate-300 {
   border-color: #3d4a5c !important;
 }
+
+/* =========================================================================
+   Home Page Animations
+   ========================================================================= */
+
+/* Fade-up animation on page load */
+@keyframes fadeUpIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUpIn 0.5s ease-out forwards;
+}
+
+/* Stagger delay utilities for cascading animations */
+.animate-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animate-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animate-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animate-delay-400 {
+  animation-delay: 400ms;
+}
+
+/* Initial state for elements that will animate (prevents flash) */
+.animate-fade-up-init {
+  opacity: 0;
+}
+
+/* Search transition effects for home page */
+.search-transition {
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.search-fade-out {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+}
+
+.search-fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}

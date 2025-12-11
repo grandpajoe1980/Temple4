@@ -1,16 +1,11 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../api/auth/[...nextauth]/route';
-import { getTenants } from '@/lib/data';
-import ExplorePage from '../components/explore/ExplorePage';
+import { redirect } from 'next/navigation';
 
-export default async function Page() {
-  const session = await getServerSession(authOptions);
-  const tenants = await getTenants();
+interface PageProps {
+  searchParams: Promise<{ q?: string }>;
+}
 
-  return (
-    <ExplorePage 
-      initialSearchTerm=""
-      tenants={tenants}
-    />
-  );
+export default async function Page({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const searchTerm = params?.q;
+  redirect(searchTerm ? `/?q=${encodeURIComponent(searchTerm)}` : '/');
 }

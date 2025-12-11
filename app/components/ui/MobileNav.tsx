@@ -88,6 +88,7 @@ const donationsSubItems = [
 ];
 
 export default function MobileNav({ className }: MobileNavProps) {
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [tenantSettings, setTenantSettings] = useState<TenantSettings | null>(null);
@@ -152,6 +153,11 @@ export default function MobileNav({ className }: MobileNavProps) {
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  // Set mounted after hydration to avoid Radix UI ID mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({
@@ -253,10 +259,10 @@ export default function MobileNav({ className }: MobileNavProps) {
         const hasWorkAccess = Boolean(isAdmin || userPermissions?.canViewWorkMenu || membershipAllowsWork());
         const workFeaturesOn = tenantSettings
           ? Boolean(
-              tenantSettings.enableWorkboard ||
-              tenantSettings.enableTicketing ||
-              tenantSettings.enableAssetManagement
-            )
+            tenantSettings.enableWorkboard ||
+            tenantSettings.enableTicketing ||
+            tenantSettings.enableAssetManagement
+          )
           : true;
         if (!workFeaturesOn || !hasWorkAccess) return null;
         return renderExpandableSection('work', 'Work', `${basePath}/admin/workboard`, workSubItems);
@@ -339,8 +345,7 @@ export default function MobileNav({ className }: MobileNavProps) {
       <div className="border-t border-border my-2" />
 
       {/* Global Links */}
-      {renderNavLink('/', 'Asembli Home')}
-      {renderNavLink('/explore', 'Explore')}
+      {renderNavLink('/', 'Explore')}
 
       {/* Theme Toggle */}
       <div className="border-t border-border my-2" />
@@ -354,7 +359,6 @@ export default function MobileNav({ className }: MobileNavProps) {
   const renderGlobalNav = () => (
     <div className="flex flex-col">
       {renderNavLink('/', 'Home')}
-      {renderNavLink('/explore', 'Explore')}
 
       {isAuthenticated && (
         <>
@@ -384,6 +388,26 @@ export default function MobileNav({ className }: MobileNavProps) {
       </div>
     </div>
   );
+
+  // Don't render Sheet until after hydration to avoid Radix UI ID mismatch
+  if (!mounted) {
+    return (
+      <button
+        aria-label="Open navigation menu"
+        className={`p-2 rounded-md text-muted-foreground hover:bg-muted md:hidden ${className || ''}`}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    );
+  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

@@ -11,7 +11,7 @@ const footerSections = [
   {
     title: 'Community',
     links: [
-      { label: 'Explore Tenants', href: '/explore' },
+      { label: 'Find Communities', href: '/' },
       { label: 'Create Tenant', href: '/tenants/new' },
       { label: 'Messages', href: '/messages' },
     ],

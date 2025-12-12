@@ -199,7 +199,8 @@ const AdminConsole: React.FC<AdminConsoleProps> = ({ onBack }) => {
         throw new Error(data.message || 'Failed to start impersonation');
       }
 
-      setFeedback('Impersonation session started. Refresh to use the impersonated context.');
+      // Force a full page reload to refresh the session
+      window.location.reload();
     } catch (error) {
       console.error(error);
       setFeedback(error instanceof Error ? error.message : 'Failed to impersonate user');

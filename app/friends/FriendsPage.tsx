@@ -7,6 +7,7 @@ import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';
 import { FriendsFeed } from '@/app/components/friends/FriendsFeed';
 import { FriendsList } from '@/app/components/friends/FriendsList';
+import { UserSearchPanel } from '@/app/components/friends/UserSearchPanel';
 import { ProfilePostForm } from '@/app/components/profile/ProfilePostForm';
 
 interface FriendsPageProps {
@@ -48,7 +49,7 @@ export default function FriendsPage({ currentUserId }: FriendsPageProps) {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'feed' | 'requests'>('feed');
+    const [activeTab, setActiveTab] = useState<'feed' | 'requests' | 'add'>('feed');
     const [initialTabSet, setInitialTabSet] = useState(false);
     const [showPostForm, setShowPostForm] = useState(false);
     const [feedKey, setFeedKey] = useState(0); // Used to refresh feed after posting
@@ -185,9 +186,21 @@ export default function FriendsPage({ currentUserId }: FriendsPageProps) {
                         </span>
                     )}
                 </button>
+                <button
+                    onClick={() => setActiveTab('add')}
+                    className={`pb-2 px-1 font-medium transition-colors ${activeTab === 'add'
+                        ? 'text-blue-600 border-b-2 border-blue-600'
+                        : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                >
+                    Add
+                </button>
             </div>
 
-            {activeTab === 'requests' ? (
+            {activeTab === 'add' ? (
+                /* Add Friends Tab */
+                <UserSearchPanel currentUserId={currentUserId} />
+            ) : activeTab === 'requests' ? (
                 /* Friend Requests Tab */
                 <div className="max-w-2xl">
                     {pendingRequests.length === 0 ? (

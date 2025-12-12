@@ -163,17 +163,10 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
   };
 
   const handleImpersonate = async () => {
-    if (!confirm(`Are you sure you want to impersonate ${profileUser.profile?.displayName || profileUser.email}?`)) {
-      return;
-    }
-
-    setIsLoading(true);
     try {
       const response = await fetch('/api/admin/impersonate/start', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           targetUserId: profileUser.id,
           reason: 'Profile page impersonation'
@@ -185,13 +178,10 @@ export default function ProfileViewPage({ profileUser, currentUserId, isSuperAdm
         throw new Error(data.message || 'Failed to start impersonation');
       }
 
-      // Refresh the page to reflect the impersonated session
-      router.refresh();
+      window.location.reload();
     } catch (error: any) {
       console.error('Error starting impersonation:', error);
       alert(error.message || 'Failed to start impersonation. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
   };
 

@@ -35,14 +35,14 @@ const ImpersonationController = () => {
         throw new Error('Failed to end impersonation');
       }
 
-      router.refresh();
+      // Force a full page reload to refresh the session
+      window.location.reload();
     } catch (error) {
       console.error('Failed to exit impersonation', error);
       alert('Failed to exit impersonation. Please try again.');
-    } finally {
       setIsEnding(false);
     }
-  }, [isEnding, router]);
+  }, [isEnding]);
 
   useEffect(() => {
     const root = document.documentElement;

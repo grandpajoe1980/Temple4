@@ -5,7 +5,6 @@ import { getTenantById, getUserById } from '@/lib/data';
 import { hasRole, can } from '@/lib/permissions';
 import { TenantRole } from '@/types';
 import TenantNav from './TenantNav';
-import TenantFooter from './TenantFooter';
 import TenantBrandingProvider from './TenantBrandingProvider';
 
 // Enable ISR with revalidation for tenant pages
@@ -68,7 +67,6 @@ export default async function TenantLayout({
             {children}
           </div>
         </main>
-        <TenantFooter tenant={tenant} />
       </div>
     </TenantBrandingProvider>
   );

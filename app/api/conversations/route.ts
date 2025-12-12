@@ -27,12 +27,16 @@ type ConversationWithUnread =
 // GET /api/conversations - List conversations for current user with unread counts
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   const userId = session.user.id;
+
+  // Check for scope filter (GLOBAL or TENANT)
+  const { searchParams } = new URL(request.url);
+  const scopeParam = searchParams.get('scope') as 'GLOBAL' | 'TENANT' | null;
 
   try {
     // Fetch approved tenant memberships for the current user to enforce isolation on tenant conversations
@@ -49,11 +53,11 @@ export async function GET(request: NextRequest) {
     // Build a tenant-aware filter so users only see conversations in tenants they belong to
     const tenantFilter = memberTenantIds.length > 0
       ? {
-          OR: [
-            { tenantId: null },
-            { tenantId: { in: memberTenantIds } }
-          ]
-        }
+        OR: [
+          { tenantId: null },
+          { tenantId: { in: memberTenantIds } }
+        ]
+      }
       : { tenantId: null };
 
     // Fetch conversations where user is a participant
@@ -64,7 +68,9 @@ export async function GET(request: NextRequest) {
             userId: userId
           }
         },
-        ...tenantFilter
+        ...tenantFilter,
+        // Apply scope filter if provided
+        ...(scopeParam && { scope: scopeParam })
       },
       include: {
         participants: {
@@ -134,7 +140,7 @@ export async function GET(request: NextRequest) {
         };
       })
     );
-  
+
     return NextResponse.json(conversationsWithUnread);
   } catch (error) {
     console.error('Failed to fetch conversations:', error);
@@ -151,11 +157,11 @@ const createConversationSchema = z.object({
 // POST /api/conversations - Create a tenant channel or multi-user conversation
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   const userId = session.user.id;
 
   try {

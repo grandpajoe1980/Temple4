@@ -158,7 +158,7 @@ export async function getTenantsForUser(userId: string): Promise<TenantWithBrand
   } catch (err: any) {
     // If the Prisma client/schema is out of sync (missing columns), avoid crashing the whole app in dev.
     if (process.env.NODE_ENV === 'development') {
-       
+
       console.error('getTenantsForUser: database query failed - returning empty tenant list as fallback', err?.message || err);
     }
     return [];
@@ -178,7 +178,7 @@ export async function getTenantById(tenantId: string): Promise<TenantWithRelatio
       branding: true,
     },
   });
-  
+
   if (!tenant) return null;
 
   // Return tenant with proper types - settings and branding are nullable in the relation
@@ -233,24 +233,24 @@ export async function createFacilityBlackout(data: FacilityBlackoutInput): Promi
  * @returns Array of all tenants with settings, branding, and address information
  */
 export async function getTenants(): Promise<TenantWithRelations[]> {
-    const tenants = await prisma.tenant.findMany({
-        include: {
-            settings: true,
-            branding: true,
-        }
-    });
-    
-    // Transform Prisma data to include nested address
-    return tenants.map((tenant: any) => ({
-        ...tenant,
-        address: {
-            street: tenant.street,
-            city: tenant.city,
-            state: tenant.state,
-            country: tenant.country,
-            postalCode: tenant.postalCode,
-        },
-    }));
+  const tenants = await prisma.tenant.findMany({
+    include: {
+      settings: true,
+      branding: true,
+    }
+  });
+
+  // Transform Prisma data to include nested address
+  return tenants.map((tenant: any) => ({
+    ...tenant,
+    address: {
+      street: tenant.street,
+      city: tenant.city,
+      state: tenant.state,
+      country: tenant.country,
+      postalCode: tenant.postalCode,
+    },
+  }));
 }
 
 export async function exportTenantData(tenantId: string): Promise<TenantDataExport | null> {
@@ -312,9 +312,9 @@ export async function exportTenantData(tenantId: string): Promise<TenantDataExpo
 
   const facilities = (prisma as any)?.facility
     ? await prisma.facility.findMany({
-        where: { tenantId },
-        include: { bookings: true, blackouts: true },
-      })
+      where: { tenantId },
+      include: { bookings: true, blackouts: true },
+    })
     : [];
 
   const contactSubmissions = await prisma.contactSubmission.findMany({
@@ -347,20 +347,20 @@ export async function exportTenantData(tenantId: string): Promise<TenantDataExpo
       ...post,
       author: post.author
         ? {
-            id: post.author.id,
-            email: post.author.email,
-            profile: post.author.profile,
-          }
+          id: post.author.id,
+          email: post.author.email,
+          profile: post.author.profile,
+        }
         : null,
     })),
     events: events.map((event) => ({
       ...event,
       creator: event.creator
         ? {
-            id: event.creator.id,
-            email: event.creator.email,
-            profile: event.creator.profile,
-          }
+          id: event.creator.id,
+          email: event.creator.email,
+          profile: event.creator.profile,
+        }
         : null,
     })),
     services,
@@ -753,11 +753,11 @@ export async function getFacilityCalendar(
  * @returns Array of notifications with normalized optional fields
  */
 export async function getNotificationsForUser(userId: string) {
-    const notifications = await prisma.notification.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
-    });
-    
+  const notifications = await prisma.notification.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  });
+
   // Collect actor user IDs and fetch their profiles so we can render avatars/names in the UI
   const actorIds = Array.from(new Set(notifications.map((n: any) => n.actorUserId).filter(Boolean)));
   let actorMap: Record<string, any> = {};
@@ -787,10 +787,10 @@ export async function getNotificationsForUser(userId: string) {
  * @returns The updated notification record
  */
 export async function markNotificationAsRead(notificationId: string): Promise<Notification> {
-    return await prisma.notification.update({
-        where: { id: notificationId },
-        data: { isRead: true },
-    });
+  return await prisma.notification.update({
+    where: { id: notificationId },
+    data: { isRead: true },
+  });
 }
 
 /**
@@ -799,10 +799,10 @@ export async function markNotificationAsRead(notificationId: string): Promise<No
  * @returns Update result with count of affected records
  */
 export async function markAllNotificationsAsRead(userId: string) {
-    return await prisma.notification.updateMany({
-        where: { userId },
-        data: { isRead: true },
-    });
+  return await prisma.notification.updateMany({
+    where: { userId },
+    data: { isRead: true },
+  });
 }
 
 /**
@@ -812,14 +812,14 @@ export async function markAllNotificationsAsRead(userId: string) {
  * @returns User with all related data, or null if not found
  */
 export async function getUserByEmail(email: string) {
-    return await prisma.user.findUnique({
-        where: { email },
-        include: {
-            profile: true,
-            privacySettings: true,
-            accountSettings: true,
-        },
-    });
+  return await prisma.user.findUnique({
+    where: { email },
+    include: {
+      profile: true,
+      privacySettings: true,
+      accountSettings: true,
+    },
+  });
 }
 
 /**
@@ -830,30 +830,30 @@ export async function getUserByEmail(email: string) {
  * @returns Success object with user data, or error object if email already exists
  */
 export async function registerUser(displayName: string, email: string, pass: string) {
-    const existingUser = await getUserByEmail(email);
-    if (existingUser) {
-        return { success: false, message: 'User with this email already exists.' };
-    }
-    const hashedPassword = await bcrypt.hash(pass, 10);
-    const user = await prisma.user.create({
-        data: {
-            email,
-            password: hashedPassword,
-            profile: {
-                create: {
-                    displayName,
-                },
-            },
-            accountSettings: { create: {} },
-            privacySettings: { create: {} },
+  const existingUser = await getUserByEmail(email);
+  if (existingUser) {
+    return { success: false, message: 'User with this email already exists.' };
+  }
+  const hashedPassword = await bcrypt.hash(pass, 10);
+  const user = await prisma.user.create({
+    data: {
+      email,
+      password: hashedPassword,
+      profile: {
+        create: {
+          displayName,
         },
-        include: {
-            profile: true,
-            privacySettings: true,
-            accountSettings: true,
-        }
-    });
-    return { success: true, user };
+      },
+      accountSettings: { create: {} },
+      privacySettings: { create: {} },
+    },
+    include: {
+      profile: true,
+      privacySettings: true,
+      accountSettings: true,
+    }
+  });
+  return { success: true, user };
 }
 
 /**
@@ -864,252 +864,253 @@ export async function registerUser(displayName: string, email: string, pass: str
  * @returns The created tenant record
  */
 export async function createTenant(tenantDetails: Omit<Tenant, 'id' | 'slug' | 'permissions'>, ownerId: string): Promise<Tenant> {
-    const tenant = await prisma.tenant.create({
-        data: {
-            ...tenantDetails as any, // TODO: Ticket #0002 - Type alignment needed
-            slug: tenantDetails.name.toLowerCase().replace(/ /g, '-'),
-            memberships: {
-                create: {
-                    userId: ownerId,
-                    roles: {
-                        create: {
-                            role: TenantRole.ADMIN,
-                        }
-                    },
-                    status: MembershipStatus.APPROVED,
-                }
-            },
-            settings: { 
-                create: {
-                    isPublic: false,
-                    membershipApprovalMode: 'APPROVAL_REQUIRED',
-                    enableCalendar: true,
-                    enablePosts: true,
-                    enableTalks: true,
-                    enablePodcasts: true,
-                enablePhotos: true,
-                    enableBooks: true,
-                    enableDonations: true,
-                    enableVolunteering: true,
-                    enableSmallGroups: true,
-                    enableLiveStream: true,
-                    enableSupportRequests: true,
-                    autoApproveSupportRequests: false,
-                    enableResourceCenter: true,
-                    visitorVisibility: {},
-                    donationSettings: {},
-                    liveStreamSettings: {},
-                } 
-            },
-            branding: { 
-              create: {
-                logoUrl: '',
-                bannerImageUrl: '',
-                primaryColor: '#111827',
-                accentColor: '#FFFFFF',
-                customLinks: [],
-              } 
-            },
+  const tenant = await prisma.tenant.create({
+    data: {
+      ...tenantDetails as any, // TODO: Ticket #0002 - Type alignment needed
+      slug: tenantDetails.name.toLowerCase().replace(/ /g, '-'),
+      memberships: {
+        create: {
+          userId: ownerId,
+          roles: {
+            create: {
+              role: TenantRole.ADMIN,
+            }
+          },
+          status: MembershipStatus.APPROVED,
         }
-    });
-    return tenant;
+      },
+      settings: {
+        create: {
+          isPublic: false,
+          membershipApprovalMode: 'APPROVAL_REQUIRED',
+          enableCalendar: true,
+          enablePosts: true,
+          enableTalks: true,
+          enablePodcasts: true,
+          enablePhotos: true,
+          enableBooks: true,
+          enableDonations: true,
+          enableVolunteering: true,
+          enableSmallGroups: true,
+          enableLiveStream: true,
+          enableSupportRequests: true,
+          autoApproveSupportRequests: false,
+          enableResourceCenter: true,
+          visitorVisibility: {},
+          donationSettings: {},
+          liveStreamSettings: {},
+        }
+      },
+      branding: {
+        create: {
+          logoUrl: '',
+          bannerImageUrl: '',
+          primaryColor: '#111827',
+          accentColor: '#FFFFFF',
+          customLinks: [],
+        }
+      },
+    }
+  });
+  return tenant;
 }
 
 export async function updateTenant(tenant: Partial<TenantWithRelations>): Promise<Tenant> {
-    const { id, settings, branding, ...data } = tenant;
-    
-    const updateData: any = { ...data };
+  const { id, settings, branding, ...data } = tenant;
 
-    if (settings) {
-        const { id: settingsId, tenantId: settingsTenantId, ...restOfSettings } = settings;
-        updateData.settings = {
-            update: {
-                ...restOfSettings,
-                visitorVisibility: restOfSettings.visitorVisibility || undefined,
-                donationSettings: restOfSettings.donationSettings || undefined,
-                liveStreamSettings: restOfSettings.liveStreamSettings || undefined,
-            }
-        };
-    }
+  const updateData: any = { ...data };
 
-    if (branding) {
-        const { id: brandingId, tenantId: brandingTenantId, ...restOfBranding } = branding;
-        updateData.branding = {
-            update: {
-                ...restOfBranding,
-                customLinks: restOfBranding.customLinks || undefined,
-                socialLinks: restOfBranding.socialLinks || undefined,
-            }
-        };
-    }
+  if (settings) {
+    const { id: settingsId, tenantId: settingsTenantId, ...restOfSettings } = settings;
+    updateData.settings = {
+      update: {
+        ...restOfSettings,
+        visitorVisibility: restOfSettings.visitorVisibility || undefined,
+        donationSettings: restOfSettings.donationSettings || undefined,
+        liveStreamSettings: restOfSettings.liveStreamSettings || undefined,
+      }
+    };
+  }
 
-    return await prisma.tenant.update({
-        where: { id },
-        data: updateData,
-    });
+  if (branding) {
+    const { id: brandingId, tenantId: brandingTenantId, ...restOfBranding } = branding;
+    updateData.branding = {
+      update: {
+        ...restOfBranding,
+        customLinks: restOfBranding.customLinks || undefined,
+        socialLinks: restOfBranding.socialLinks || undefined,
+      }
+    };
+  }
+
+  return await prisma.tenant.update({
+    where: { id },
+    data: updateData,
+  });
 }
 
 export async function requestToJoinTenant(userId: string, tenantId: string): Promise<UserTenantMembership> {
-    const existingMembership = await getMembershipForUserInTenant(userId, tenantId);
-if (existingMembership) {
-        return existingMembership;
-    }
-    const tenantSettings = await prisma.tenantSettings.findUnique({ where: { tenantId } });
-    const onboarding = deriveOnboardingFields({ status: MembershipStatus.PENDING, settings: tenantSettings });
-    return await prisma.userTenantMembership.create({
-        data: {
-            userId,
-            tenantId,
-            roles: {
-                create: {
-                    role: TenantRole.MEMBER,
-                }
-            },
-            status: MembershipStatus.PENDING,
-            ...onboarding,
+  const existingMembership = await getMembershipForUserInTenant(userId, tenantId);
+  if (existingMembership) {
+    return existingMembership;
+  }
+  const tenantSettings = await prisma.tenantSettings.findUnique({ where: { tenantId } });
+  const onboarding = deriveOnboardingFields({ status: MembershipStatus.PENDING, settings: tenantSettings });
+  return await prisma.userTenantMembership.create({
+    data: {
+      userId,
+      tenantId,
+      roles: {
+        create: {
+          role: TenantRole.MEMBER,
         }
-    });
+      },
+      status: MembershipStatus.PENDING,
+      ...onboarding,
+    }
+  });
 }
 
 // NOTE: These are not secure and are for demonstration only.
 // In a real app, you'd use secure tokens and a proper reset flow.
 export async function requestPasswordReset(email: string): Promise<boolean> {
-    const user = await getUserByEmail(email);
-    if (!user) return false;
-    // In a real app, generate a token, save it, and email a link.
-    console.log(`Password reset requested for ${email}. In this demo, we'll just allow a direct reset.`);
-    return true;
+  const user = await getUserByEmail(email);
+  if (!user) return false;
+  // In a real app, generate a token, save it, and email a link.
+  console.log(`Password reset requested for ${email}. In this demo, we'll just allow a direct reset.`);
+  return true;
 }
 
 export async function resetPassword(email: string, newPass: string) {
-    const user = await getUserByEmail(email);
-    if (!user) return { success: false, message: "User not found." };
-    const hashedPassword = await bcrypt.hash(newPass, 10);
-    await prisma.user.update({
-        where: { email },
-        data: { password: hashedPassword },
-    });
-    return { success: true };
+  const user = await getUserByEmail(email);
+  if (!user) return { success: false, message: "User not found." };
+  const hashedPassword = await bcrypt.hash(newPass, 10);
+  await prisma.user.update({
+    where: { email },
+    data: { password: hashedPassword },
+  });
+  return { success: true };
 }
 
 export async function logAuditEvent(event: Omit<AuditLog, 'id' | 'createdAt'>): Promise<AuditLog> {
-    return await prisma.auditLog.create({
-        data: {
-            ...event as any, // TODO: Ticket #0002 - Type alignment needed
-            metadata: event.metadata || {},
-        },
-    });
+  return await prisma.auditLog.create({
+    data: {
+      ...event as any, // TODO: Ticket #0002 - Type alignment needed
+      metadata: event.metadata || {},
+    },
+  });
 }
 
 export async function getOrCreateDirectConversation(userId1: string, userId2: string): Promise<Conversation> {
-    const existing = await prisma.conversation.findFirst({
-        where: {
-            isDirectMessage: true,
-            participants: {
-                every: {
-                    userId: { in: [userId1, userId2] }
-                }
-            }
-        },
-        include: { participants: true }
-    });
+  const existing = await prisma.conversation.findFirst({
+    where: {
+      isDirectMessage: true,
+      participants: {
+        every: {
+          userId: { in: [userId1, userId2] }
+        }
+      }
+    },
+    include: { participants: true }
+  });
 
-    if (existing) return existing;
+  if (existing) return existing;
 
-    try {
-      return await prisma.conversation.create({
-        data: {
-          isDirectMessage: true,
-          scope: 'GLOBAL',
-          kind: 'DM',
-          participants: {
-            create: [
-              { userId: userId1 },
-              { userId: userId2 },
-            ]
-          }
-        },
-        include: {
-          participants: {
-            include: {
-              user: {
-                include: {
-                  profile: true,
-                }
+  try {
+    return await prisma.conversation.create({
+      data: {
+        isDirectMessage: true,
+        scope: 'GLOBAL',
+        kind: 'DM',
+        participants: {
+          create: [
+            { userId: userId1 },
+            { userId: userId2 },
+          ]
+        }
+      },
+      include: {
+        participants: {
+          include: {
+            user: {
+              include: {
+                profile: true,
               }
             }
+          }
+        },
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+          }
+        }
+      }
+    });
+  } catch (err: any) {
+    // Handle race where another process created the conversation concurrently
+    if (err?.code === 'P2002') {
+      const fallback = await prisma.conversation.findFirst({
+        where: {
+          isDirectMessage: true,
+          AND: [
+            { participants: { some: { userId: userId1 } } },
+            { participants: { some: { userId: userId2 } } },
+          ],
+        },
+        include: {
+          participants: {
+            include: { user: { include: { profile: true } } },
           },
-          tenant: {
-            select: {
-              id: true,
-              name: true,
+          tenant: { select: { id: true, name: true } },
+        },
+      });
+
+      if (fallback) return fallback;
+    }
+
+    throw err;
+  }
+}
+
+export async function getConversationsForUser(userId: string, options?: { scope?: 'GLOBAL' | 'TENANT' }) {
+  return await prisma.conversation.findMany({
+    where: {
+      participants: {
+        some: {
+          userId: userId
+        }
+      },
+      ...(options?.scope && { scope: options.scope })
+    },
+    include: {
+      participants: {
+        include: {
+          user: {
+            include: {
+              profile: true
             }
           }
         }
-      });
-    } catch (err: any) {
-      // Handle race where another process created the conversation concurrently
-      if (err?.code === 'P2002') {
-        const fallback = await prisma.conversation.findFirst({
-          where: {
-            isDirectMessage: true,
-            AND: [
-              { participants: { some: { userId: userId1 } } },
-              { participants: { some: { userId: userId2 } } },
-            ],
-          },
-          include: {
-            participants: {
-              include: { user: { include: { profile: true } } },
-            },
-            tenant: { select: { id: true, name: true } },
-          },
-        });
-
-        if (fallback) return fallback;
-      }
-
-      throw err;
-    }
-}
-
-export async function getConversationsForUser(userId: string) {
-    return await prisma.conversation.findMany({
-        where: {
-            participants: {
-                some: {
-                    userId: userId
-                }
-            }
-        },
-        include: {
-            participants: {
-                include: {
-                    user: {
-                        include: {
-                            profile: true
-                        }
-                    }
-                }
-            },
-            messages: {
-                orderBy: {
-                    createdAt: 'desc'
-                },
-                take: 1,
-                include: {
-                    user: {
-                        include: {
-                            profile: true
-                        }
-                    }
-                }
-            }
-        },
+      },
+      messages: {
         orderBy: {
-            id: 'desc'
+          createdAt: 'desc'
+        },
+        take: 1,
+        include: {
+          user: {
+            include: {
+              profile: true
+            }
+          }
         }
-    });
+      }
+    },
+    orderBy: {
+      id: 'desc'
+    }
+  });
 }
 
 /**
@@ -1237,88 +1238,88 @@ export async function deleteMessageAs(actorUserId: string, messageId: string) {
 }
 
 export async function markConversationAsRead(conversationId: string, userId: string) {
-    // This would update read receipts via ConversationParticipant's lastReadMessageId
-    // For now, just return success
-    return { success: true };
+  // This would update read receipts via ConversationParticipant's lastReadMessageId
+  // For now, just return success
+  return { success: true };
 }
 
 export async function getAllUsers() {
-    return await prisma.user.findMany({
-        include: {
-            profile: true
-        }
-    });
+  return await prisma.user.findMany({
+    include: {
+      profile: true
+    }
+  });
 }
 
 export async function getAuditLogs() {
-    return await prisma.auditLog.findMany({
+  return await prisma.auditLog.findMany({
+    include: {
+      actorUser: {
         include: {
-            actorUser: {
-                include: {
-                    profile: true
-                }
-            },
-            effectiveUser: {
-                include: {
-                    profile: true
-                }
-            }
-        },
-        orderBy: {
-            createdAt: 'desc'
-        },
-        take: 100
-    });
+          profile: true
+        }
+      },
+      effectiveUser: {
+        include: {
+          profile: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    },
+    take: 100
+  });
 }
 
 // Get enriched memberships for a user (includes tenant details)
 export async function getEnrichedMembershipsForUser(userId: string) {
-    const memberships = await prisma.userTenantMembership.findMany({
-        where: { userId },
+  const memberships = await prisma.userTenantMembership.findMany({
+    where: { userId },
+    include: {
+      tenant: {
         include: {
-            tenant: {
-                include: {
-                    settings: true,
-                    branding: true,
-                }
-            }
+          settings: true,
+          branding: true,
         }
-    });
-    
-    return memberships.map((m: any) => ({
-        membership: m,
-        tenant: m.tenant
-    }));
+      }
+    }
+  });
+
+  return memberships.map((m: any) => ({
+    membership: m,
+    tenant: m.tenant
+  }));
 }
 
 // Update membership profile (display name within a tenant)
 export async function updateMembershipProfile(
-    userId: string, 
-    membershipId: string, 
-    data: { displayName?: string }
+  userId: string,
+  membershipId: string,
+  data: { displayName?: string }
 ) {
-    return await prisma.userTenantMembership.update({
-        where: { id: membershipId, userId },
-        data: {
-            displayName: data.displayName,
-        }
-    });
+  return await prisma.userTenantMembership.update({
+    where: { id: membershipId, userId },
+    data: {
+      displayName: data.displayName,
+    }
+  });
 }
 
 // Update user notification preferences
 export async function updateUserNotificationPreferences(
-    userId: string,
-    preferences: any
+  userId: string,
+  preferences: any
 ) {
-    // Note: This assumes notification preferences are stored in a JSON field or separate table
-    // Adjust based on your actual schema
-    return await prisma.user.update({
-        where: { id: userId },
-        data: {
-            // If you have a notificationPreferences JSON field:
-            // notificationPreferences: preferences
-        }
-    });
+  // Note: This assumes notification preferences are stored in a JSON field or separate table
+  // Adjust based on your actual schema
+  return await prisma.user.update({
+    where: { id: userId },
+    data: {
+      // If you have a notificationPreferences JSON field:
+      // notificationPreferences: preferences
+    }
+  });
 }
 
 // ===== MISSING FUNCTION STUBS =====
@@ -1354,94 +1355,94 @@ export async function getMembersForTenant(tenantId: string): Promise<MemberWithM
 }
 
 export async function updateMembershipStatus(userId: string, tenantId: string, status: string) {
-    return prisma.userTenantMembership.update({
-        where: {
-            userId_tenantId: {
-                userId,
-                tenantId,
-            },
-        },
-        data: { status: status as any },
-    });
+  return prisma.userTenantMembership.update({
+    where: {
+      userId_tenantId: {
+        userId,
+        tenantId,
+      },
+    },
+    data: { status: status as any },
+  });
 }
 
 export async function updateMemberRolesAndTitle(membershipId: string, roles: any[], userId?: string) {
-    const [primaryRole] = roles.filter((role) => role.isPrimary);
+  const [primaryRole] = roles.filter((role) => role.isPrimary);
 
-    await prisma.userTenantRole.deleteMany({ where: { membershipId } });
+  await prisma.userTenantRole.deleteMany({ where: { membershipId } });
 
-    await prisma.userTenantRole.createMany({
-        data: roles.map((role) => ({
-            membershipId,
-            role: role.role,
-            isPrimary: role.isPrimary || false,
-            displayTitle: role.displayTitle || null,
-        })),
+  await prisma.userTenantRole.createMany({
+    data: roles.map((role) => ({
+      membershipId,
+      role: role.role,
+      isPrimary: role.isPrimary || false,
+      displayTitle: role.displayTitle || null,
+    })),
+  });
+
+  if (primaryRole?.displayTitle) {
+    await prisma.userTenantMembership.update({
+      where: { id: membershipId },
+      data: { displayName: primaryRole.displayTitle },
     });
-
-    if (primaryRole?.displayTitle) {
-        await prisma.userTenantMembership.update({
-            where: { id: membershipId },
-            data: { displayName: primaryRole.displayTitle },
-        });
-    }
+  }
 }
 
 export async function getSmallGroupsForTenant(tenantId: string) {
-    const groups = await prisma.smallGroup.findMany({
-        where: { tenantId },
+  const groups = await prisma.smallGroup.findMany({
+    where: { tenantId },
+    include: {
+      members: {
         include: {
-            members: {
-                include: {
-                    user: {
-                        include: {
-                            profile: true,
-                        }
-                    }
-                }
-            }
-        },
-        orderBy: { name: 'asc' },
-    });
-
-    // Fetch leaders separately for enrichment
-    const enrichedGroups = await Promise.all(groups.map(async (group: any) => {
-      let leader = null;
-      if (group.leaderUserId) {
-        try {
-          leader = await prisma.user.findUnique({
-            where: { id: group.leaderUserId },
+          user: {
             include: {
               profile: true,
-              privacySettings: true,
-              accountSettings: true,
             }
-          });
-        } catch (err) {
-          // Defensive: if Prisma validation or other error occurs, log and continue without leader
-          // This prevents a single bad group row from crashing the tenant page.
-           
-          console.error(`Failed to load leader for group ${group.id}:`, err);
-          leader = null;
+          }
         }
       }
+    },
+    orderBy: { name: 'asc' },
+  });
 
-        return {
-          ...group,
-          leader: leader || null,
-          members: group.members.map((m: any) => ({
-            id: m.id,
-            role: m.role,
-            status: m.status,
-            addedByUserId: m.addedByUserId,
-            joinedAt: m.joinedAt,
-            leftAt: m.leftAt,
-            user: m.user,
-          }))
-        };
-    }));
+  // Fetch leaders separately for enrichment
+  const enrichedGroups = await Promise.all(groups.map(async (group: any) => {
+    let leader = null;
+    if (group.leaderUserId) {
+      try {
+        leader = await prisma.user.findUnique({
+          where: { id: group.leaderUserId },
+          include: {
+            profile: true,
+            privacySettings: true,
+            accountSettings: true,
+          }
+        });
+      } catch (err) {
+        // Defensive: if Prisma validation or other error occurs, log and continue without leader
+        // This prevents a single bad group row from crashing the tenant page.
 
-    return enrichedGroups;
+        console.error(`Failed to load leader for group ${group.id}:`, err);
+        leader = null;
+      }
+    }
+
+    return {
+      ...group,
+      leader: leader || null,
+      members: group.members.map((m: any) => ({
+        id: m.id,
+        role: m.role,
+        status: m.status,
+        addedByUserId: m.addedByUserId,
+        joinedAt: m.joinedAt,
+        leftAt: m.leftAt,
+        user: m.user,
+      }))
+    };
+  }));
+
+  return enrichedGroups;
 }
 
 export async function getSmallGroupById(groupId: string) {
@@ -1779,22 +1780,22 @@ export async function joinTrip(tenantId: string, tripId: string, userId: string,
 
   const emergencyContact = intake?.personalInfo?.emergencyContact
     ? {
-        name: intake.personalInfo.emergencyContact.name || null,
-        relationship: intake.personalInfo.emergencyContact.relationship || null,
-        phone: intake.personalInfo.emergencyContact.phone || null,
-        email: intake.personalInfo.emergencyContact.email || null,
-      }
+      name: intake.personalInfo.emergencyContact.name || null,
+      relationship: intake.personalInfo.emergencyContact.relationship || null,
+      phone: intake.personalInfo.emergencyContact.phone || null,
+      email: intake.personalInfo.emergencyContact.email || null,
+    }
     : undefined;
 
   const intakeEnvelope = intake
     ? {
-        personalInfo: intake.personalInfo || {},
-        medical: intake.medical || {},
-        passport: intake.passport || {},
-        guardian: intake.guardian || {},
-        waiver: intake.waiver || {},
-        agreements: intake.agreements || {},
-      }
+      personalInfo: intake.personalInfo || {},
+      medical: intake.medical || {},
+      passport: intake.passport || {},
+      guardian: intake.guardian || {},
+      waiver: intake.waiver || {},
+      agreements: intake.agreements || {},
+    }
     : undefined;
 
   const waiverAcceptedAt = intake?.waiverAccepted ? new Date() : undefined;
@@ -1891,143 +1892,143 @@ export async function getVolunteerNeedsForTenant(tenantId: string): Promise<Volu
 }
 
 export async function addVolunteerNeed(tenantId: string, needData: any) {
-    // TODO: Implement volunteer need creation
-    return null;
+  // TODO: Implement volunteer need creation
+  return null;
 }
 
 export async function getResourceItemsForTenant(tenantId: string, isMember?: boolean): Promise<EnrichedResourceItem[]> {
-    // TODO: Implement resource items fetching
-    // isMember parameter to filter based on visibility (members-only vs public)
-    return [];
+  // TODO: Implement resource items fetching
+  // isMember parameter to filter based on visibility (members-only vs public)
+  return [];
 }
 
 export async function addResourceItem(itemData: any) {
-    // TODO: Implement resource item creation
-    // Expected fields: tenantId, uploaderUserId, title, description, fileUrl, fileType, visibility
-    return null;
+  // TODO: Implement resource item creation
+  // Expected fields: tenantId, uploaderUserId, title, description, fileUrl, fileType, visibility
+  return null;
 }
 
 export async function deleteResourceItem(itemId: string, userId?: string) {
-    // TODO: Implement resource item deletion
-    // userId parameter for audit logging when implemented
-    return null;
+  // TODO: Implement resource item deletion
+  // userId parameter for audit logging when implemented
+  return null;
 }
 
 export async function getCommunityPostsForTenant(tenantId: string, includePrivate?: boolean): Promise<CommunityPost[]> {
-    const posts = await prisma.communityPost.findMany({
-        where: {
-            tenantId,
-            ...(includePrivate ? {} : { status: CommunityPostStatus.PUBLISHED }),
-        },
-        orderBy: { createdAt: 'desc' },
-    });
+  const posts = await prisma.communityPost.findMany({
+    where: {
+      tenantId,
+      ...(includePrivate ? {} : { status: CommunityPostStatus.PUBLISHED }),
+    },
+    orderBy: { createdAt: 'desc' },
+  });
 
-    return posts.map((post: any) => ({
-        ...post,
-        authorDisplayName: post.isAnonymous ? 'Anonymous' : post.authorUserId || 'Unknown',
-        authorAvatarUrl: undefined,
-        createdAt: new Date(post.createdAt),
-    }));
+  return posts.map((post: any) => ({
+    ...post,
+    authorDisplayName: post.isAnonymous ? 'Anonymous' : post.authorUserId || 'Unknown',
+    authorAvatarUrl: undefined,
+    createdAt: new Date(post.createdAt),
+  }));
 }
 
 export async function updateCommunityPostStatus(postId: string, status: string) {
-    return prisma.communityPost.update({
-        where: { id: postId },
-        data: { status: status as any },
-    });
+  return prisma.communityPost.update({
+    where: { id: postId },
+    data: { status: status as any },
+  });
 }
 
 export async function getContactSubmissionsForTenant(tenantId: string) {
-    const submissions = await prisma.contactSubmission.findMany({
-        where: { tenantId },
-        orderBy: { createdAt: 'desc' },
-    });
+  const submissions = await prisma.contactSubmission.findMany({
+    where: { tenantId },
+    orderBy: { createdAt: 'desc' },
+  });
 
-    return submissions.map((submission) => ({
-        ...submission,
-        createdAt: new Date(submission.createdAt),
-    }));
+  return submissions.map((submission) => ({
+    ...submission,
+    createdAt: new Date(submission.createdAt),
+  }));
 }
 
 export async function updateContactSubmissionStatus(submissionId: string, status: string, userId?: string) {
-    return prisma.contactSubmission.update({
-        where: { id: submissionId },
-        data: { status: status as any },
-    });
+  return prisma.contactSubmission.update({
+    where: { id: submissionId },
+    data: { status: status as any },
+  });
 }
 
 export async function respondToContactSubmission(submissionId: string, response: string, userId?: string, tenantName?: string) {
-    await prisma.contactSubmission.update({
-        where: { id: submissionId },
-        data: { status: ContactSubmissionStatus.READ },
-    });
+  await prisma.contactSubmission.update({
+    where: { id: submissionId },
+    data: { status: ContactSubmissionStatus.READ },
+  });
 
-    console.info(`Response recorded for submission ${submissionId}${tenantName ? ` from ${tenantName}` : ''}: ${response}`);
+  console.info(`Response recorded for submission ${submissionId}${tenantName ? ` from ${tenantName}` : ''}: ${response}`);
 }
 
 export async function updateTenantPermissions(tenantId: string, permissions: any, userId?: string) {
-    // TODO: Implement tenant permissions update
-    // userId parameter for audit logging when implemented
-    return null;
+  // TODO: Implement tenant permissions update
+  // userId parameter for audit logging when implemented
+  return null;
 }
 
 export async function addPost(tenantId: string, postData: any) {
-    // TODO: Implement post creation
-    return null;
+  // TODO: Implement post creation
+  return null;
 }
 
 export async function addEvent(eventData: any) {
-    // TODO: Implement event creation
-    // Expected fields: tenantId, createdByUserId, title, description, startDateTime, endDateTime, location, onlineUrl
-    return null;
+  // TODO: Implement event creation
+  // Expected fields: tenantId, createdByUserId, title, description, startDateTime, endDateTime, location, onlineUrl
+  return null;
 }
 
 export async function getTalksForTenant(tenantId: string) {
-    const talks = await prisma.mediaItem.findMany({
-        where: { 
-            tenantId, 
-            type: 'TALK_VIDEO',
-            deletedAt: null,
-        },
-        orderBy: { publishedAt: 'desc' },
+  const talks = await prisma.mediaItem.findMany({
+    where: {
+      tenantId,
+      type: 'TALK_VIDEO',
+      deletedAt: null,
+    },
+    orderBy: { publishedAt: 'desc' },
+    include: {
+      author: {
         include: {
-            author: {
-                include: {
-                    profile: true,
-                }
-            }
+          profile: true,
         }
-    });
-    
-    return talks.map((talk: any) => ({
-        ...talk,
-        authorDisplayName: talk.author.profile?.displayName || 'Unknown',
-        authorAvatarUrl: talk.author.profile?.avatarUrl || undefined,
-    }));
+      }
+    }
+  });
+
+  return talks.map((talk: any) => ({
+    ...talk,
+    authorDisplayName: talk.author.profile?.displayName || 'Unknown',
+    authorAvatarUrl: talk.author.profile?.avatarUrl || undefined,
+  }));
 }
 
 export async function getPodcastsForTenant(tenantId: string) {
-    const podcasts = await prisma.mediaItem.findMany({
-        where: { 
-            tenantId, 
-            type: 'PODCAST_AUDIO',
-            deletedAt: null,
-        },
-        orderBy: { publishedAt: 'desc' },
+  const podcasts = await prisma.mediaItem.findMany({
+    where: {
+      tenantId,
+      type: 'PODCAST_AUDIO',
+      deletedAt: null,
+    },
+    orderBy: { publishedAt: 'desc' },
+    include: {
+      author: {
         include: {
-            author: {
-                include: {
-                    profile: true,
-                }
-            }
+          profile: true,
         }
-    });
-    
-    return podcasts.map((podcast: any) => ({
-        ...podcast,
-        authorDisplayName: podcast.author.profile?.displayName || 'Unknown',
-        authorAvatarUrl: podcast.author.profile?.avatarUrl || undefined,
-    }));
+      }
+    }
+  });
+
+  return podcasts.map((podcast: any) => ({
+    ...podcast,
+    authorDisplayName: podcast.author.profile?.displayName || 'Unknown',
+    authorAvatarUrl: podcast.author.profile?.avatarUrl || undefined,
+  }));
 }
 
 export async function getPhotosForTenant(tenantId: string) {
@@ -2055,176 +2056,176 @@ export async function getPhotosForTenant(tenantId: string) {
 }
 
 export async function getBooksForTenant(tenantId: string) {
-    const books = await prisma.post.findMany({
-        where: { 
-            tenantId, 
-            type: 'BOOK',
-            isPublished: true,
-        },
-        orderBy: { publishedAt: 'desc' },
+  const books = await prisma.post.findMany({
+    where: {
+      tenantId,
+      type: 'BOOK',
+      isPublished: true,
+    },
+    orderBy: { publishedAt: 'desc' },
+    include: {
+      author: {
         include: {
-            author: {
-                include: {
-                    profile: true,
-                }
-            }
+          profile: true,
         }
-    });
-    
-    return books.map((book: any) => ({
-        ...book,
-        type: book.type as 'BLOG' | 'ANNOUNCEMENT' | 'BOOK',
-        authorDisplayName: book.author.profile?.displayName || 'Unknown',
-        authorAvatarUrl: book.author.profile?.avatarUrl || undefined,
-    }));
+      }
+    }
+  });
+
+  return books.map((book: any) => ({
+    ...book,
+    type: book.type as 'BLOG' | 'ANNOUNCEMENT' | 'BOOK',
+    authorDisplayName: book.author.profile?.displayName || 'Unknown',
+    authorAvatarUrl: book.author.profile?.avatarUrl || undefined,
+  }));
 }
 
 export type DonationRecordInput = Omit<DonationRecord, 'tenantId' | 'donatedAt' | 'id'> & {
-    userAvatarUrl?: string;
+  userAvatarUrl?: string;
 };
 
 export async function getFundsForTenant(tenantId: string, includeArchived = false): Promise<FundWithProgress[]> {
-    const funds = await prisma.fund.findMany({
-        where: {
-            tenantId,
-            ...(includeArchived ? {} : { archivedAt: null }),
-        },
-        orderBy: { createdAt: 'desc' },
-    });
+  const funds = await prisma.fund.findMany({
+    where: {
+      tenantId,
+      ...(includeArchived ? {} : { archivedAt: null }),
+    },
+    orderBy: { createdAt: 'desc' },
+  });
 
-    if (funds.length === 0) return [];
+  if (funds.length === 0) return [];
 
-    const totals = await prisma.donationRecord.groupBy({
-        by: ['fundId'],
-        _sum: { amount: true },
-        where: {
-            tenantId,
-            fundId: { in: funds.map((f) => f.id) },
-        },
-    });
+  const totals = await prisma.donationRecord.groupBy({
+    by: ['fundId'],
+    _sum: { amount: true },
+    where: {
+      tenantId,
+      fundId: { in: funds.map((f) => f.id) },
+    },
+  });
 
-    return funds.map((fund) => {
-        const sum = totals.find((t) => t.fundId === fund.id)?._sum.amount ?? 0;
-        const amountRaisedCents = Math.round(sum * 100);
-        return {
-            ...(fund as unknown as Fund),
-            amountRaisedCents,
-        } as FundWithProgress;
-    });
+  return funds.map((fund) => {
+    const sum = totals.find((t) => t.fundId === fund.id)?._sum.amount ?? 0;
+    const amountRaisedCents = Math.round(sum * 100);
+    return {
+      ...(fund as unknown as Fund),
+      amountRaisedCents,
+    } as FundWithProgress;
+  });
 }
 
 export async function getDonationsForTenant(tenantId: string): Promise<EnrichedDonationRecord[]> {
-    const donations = await prisma.donationRecord.findMany({
-        where: { tenantId, fund: { archivedAt: null } },
-        include: {
-            user: { include: { profile: true } },
-            fund: true,
-        },
-        orderBy: { donatedAt: 'desc' },
-        take: 250,
-    });
+  const donations = await prisma.donationRecord.findMany({
+    where: { tenantId, fund: { archivedAt: null } },
+    include: {
+      user: { include: { profile: true } },
+      fund: true,
+    },
+    orderBy: { donatedAt: 'desc' },
+    take: 250,
+  });
 
-    return donations.map((donation) => ({
-        ...(donation as unknown as DonationRecord),
-        userAvatarUrl: donation.user?.profile?.avatarUrl || undefined,
-        fundName: donation.fund.name,
-    }));
+  return donations.map((donation) => ({
+    ...(donation as unknown as DonationRecord),
+    userAvatarUrl: donation.user?.profile?.avatarUrl || undefined,
+    fundName: donation.fund.name,
+  }));
 }
 
 export async function addDonationRecord(
-    tenantId: string,
-    donationData: DonationRecordInput,
+  tenantId: string,
+  donationData: DonationRecordInput,
 ): Promise<EnrichedDonationRecord | null> {
-    const fund = await prisma.fund.findFirst({
-        where: { id: donationData.fundId, tenantId, archivedAt: null },
-    });
+  const fund = await prisma.fund.findFirst({
+    where: { id: donationData.fundId, tenantId, archivedAt: null },
+  });
 
-    if (!fund) return null;
+  if (!fund) return null;
 
-    const now = new Date();
-    if (fund.startDate && now < fund.startDate) return null;
-    if (fund.endDate && now > fund.endDate) return null;
-    if (fund.currency !== donationData.currency) return null;
+  const now = new Date();
+  if (fund.startDate && now < fund.startDate) return null;
+  if (fund.endDate && now > fund.endDate) return null;
+  if (fund.currency !== donationData.currency) return null;
 
-    const amountCents = Math.round(donationData.amount * 100);
-    if (fund.minAmountCents && amountCents < fund.minAmountCents) return null;
-    if (fund.maxAmountCents && amountCents > fund.maxAmountCents) return null;
-    if (!fund.allowAnonymous && donationData.isAnonymousOnLeaderboard) return null;
+  const amountCents = Math.round(donationData.amount * 100);
+  if (fund.minAmountCents && amountCents < fund.minAmountCents) return null;
+  if (fund.maxAmountCents && amountCents > fund.maxAmountCents) return null;
+  if (!fund.allowAnonymous && donationData.isAnonymousOnLeaderboard) return null;
 
-    const donation = await prisma.donationRecord.create({
-        data: {
-            tenantId,
-            fundId: donationData.fundId,
-            userId: donationData.userId,
-            displayName: donationData.displayName,
-            amount: donationData.amount,
-            currency: donationData.currency,
-            isAnonymousOnLeaderboard: donationData.isAnonymousOnLeaderboard,
-            message: donationData.message,
-            designationNote: donationData.designationNote,
-            campaignMetadata: donationData.campaignMetadata as any,
-            paymentBrand: donationData.paymentBrand,
-            paymentLast4: donationData.paymentLast4,
-        },
-        include: {
-            user: { include: { profile: true } },
-            fund: true,
-        },
-    });
+  const donation = await prisma.donationRecord.create({
+    data: {
+      tenantId,
+      fundId: donationData.fundId,
+      userId: donationData.userId,
+      displayName: donationData.displayName,
+      amount: donationData.amount,
+      currency: donationData.currency,
+      isAnonymousOnLeaderboard: donationData.isAnonymousOnLeaderboard,
+      message: donationData.message,
+      designationNote: donationData.designationNote,
+      campaignMetadata: donationData.campaignMetadata as any,
+      paymentBrand: donationData.paymentBrand,
+      paymentLast4: donationData.paymentLast4,
+    },
+    include: {
+      user: { include: { profile: true } },
+      fund: true,
+    },
+  });
 
-    return {
-        ...(donation as unknown as DonationRecord),
-        userAvatarUrl: donation.user?.profile?.avatarUrl || donationData.userAvatarUrl,
-        fundName: donation.fund.name,
-    };
+  return {
+    ...(donation as unknown as DonationRecord),
+    userAvatarUrl: donation.user?.profile?.avatarUrl || donationData.userAvatarUrl,
+    fundName: donation.fund.name,
+  };
 }
 
 export async function addContactSubmission(tenantId: string, submissionData: any) {
-    const submission = await prisma.contactSubmission.create({
-        data: {
-            tenantId,
-            name: submissionData.name,
-            email: submissionData.email,
-            message: submissionData.message,
-            status: ContactSubmissionStatus.UNREAD,
-        },
-    });
+  const submission = await prisma.contactSubmission.create({
+    data: {
+      tenantId,
+      name: submissionData.name,
+      email: submissionData.email,
+      message: submissionData.message,
+      status: ContactSubmissionStatus.UNREAD,
+    },
+  });
 
-    return submission;
+  return submission;
 }
 
 export async function addCommunityPost(postData: any) {
-    // TODO: Implement community post creation
-    // Expected fields: tenantId, authorUserId (can be null for anonymous), type, body, isAnonymous
-    return null;
+  // TODO: Implement community post creation
+  // Expected fields: tenantId, authorUserId (can be null for anonymous), type, body, isAnonymous
+  return null;
 }
 export async function leaveSmallGroup(groupId: string, userId: string) {
-    const membership = await prisma.smallGroupMembership.findUnique({
-      where: { groupId_userId: { groupId, userId } }
-    });
+  const membership = await prisma.smallGroupMembership.findUnique({
+    where: { groupId_userId: { groupId, userId } }
+  });
 
-    if (!membership) return null;
+  if (!membership) return null;
 
-    await prisma.smallGroupMembership.delete({ where: { id: membership.id } });
-    return { success: true };
+  await prisma.smallGroupMembership.delete({ where: { id: membership.id } });
+  return { success: true };
 }
 
 export async function signUpForNeed(needId: string, userId: string) {
-    // TODO: Implement volunteer need sign up
-    return null;
+  // TODO: Implement volunteer need sign up
+  return null;
 }
 
 export async function cancelSignUp(needId: string, userId: string) {
-    // TODO: Implement volunteer need cancellation
-    return null;
+  // TODO: Implement volunteer need cancellation
+  return null;
 }
 
 export async function createConversation(conversationData: any) {
-    // TODO: Implement conversation creation
-    return null;
+  // TODO: Implement conversation creation
+  return null;
 }
 
 export async function adminUpdateUserProfile(userId: string, profileData: any) {
-    // TODO: Implement admin user profile update
-    return null;
+  // TODO: Implement admin user profile update
+  return null;
 }

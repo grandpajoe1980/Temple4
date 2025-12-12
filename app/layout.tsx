@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Providers from './components/providers'
 import SiteHeader from './components/ui/SiteHeader'
-import SiteFooter from './components/ui/SiteFooter'
 
 export const metadata: Metadata = {
   title: 'Asembli',
@@ -31,7 +30,6 @@ export default function RootLayout({
             <main id="main-content" className="flex-1 focus-visible:outline-none">
               {children}
             </main>
-            <SiteFooter />
           </div>
         </Providers>
       </body>

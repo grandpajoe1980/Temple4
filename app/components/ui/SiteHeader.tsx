@@ -12,6 +12,7 @@ import MobileNav from './MobileNav';
 import TenantMenu from './TenantMenu';
 import { ThemeToggle } from '../ThemeToggle';
 import { usePageHeader } from './PageHeaderContext';
+import useTranslation from '@/app/hooks/useTranslation';
 
 const navItems: { label: string; href: string; authOnly?: boolean }[] = [];
 
@@ -19,6 +20,7 @@ const SiteHeader = () => {
   const { data: session } = useSession();
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -147,7 +149,7 @@ const SiteHeader = () => {
                     <path fill="currentColor" d="M12 2 2 9l1.5.84V21h6v-6h5v6h6V9.84L22 9z" />
                   </svg>
                 </span>
-                  <div className="hidden sm:flex flex-col leading-tight">
+                <div className="hidden sm:flex flex-col leading-tight">
                   <span className="text-xs font-semibold uppercase tracking-[0.3em] tenant-text-primary">Asembli</span>
                   <span className="text-lg font-semibold text-foreground">Platform</span>
                 </div>
@@ -203,10 +205,10 @@ const SiteHeader = () => {
             ) : (
               <div className="flex items-center gap-2">
                 <Button type="button" variant="secondary" size="sm" onClick={() => router.push('/auth/login')}>
-                  Log in
+                  {t('auth.logIn')}
                 </Button>
                 <Button type="button" size="sm" onClick={() => router.push('/auth/register')}>
-                  Create account
+                  {t('auth.createAccount')}
                 </Button>
               </div>
             )}

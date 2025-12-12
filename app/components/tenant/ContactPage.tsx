@@ -7,6 +7,7 @@ import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube, FaLinkedin, FaGlobe } from 'react-icons/fa';
 import { FaTiktok, FaXTwitter } from 'react-icons/fa6';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface ContactPageProps {
   tenant: {
@@ -38,6 +39,7 @@ interface ContactPageProps {
 }
 
 const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName }) => {
+  const { t } = useTranslation();
   const serviceMessage = initialServiceName
     ? `Hi there! I'm interested in learning more about ${initialServiceName}.`
     : '';
@@ -65,7 +67,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       const response = await fetch(`/api/tenants/${tenant.id}/contact-submissions`, {
         method: 'POST',
@@ -80,10 +82,10 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
 
       setIsSubmitted(true);
       resetForm();
-      toast.success('Message sent successfully! We\'ll get back to you soon.');
+      toast.success(t('contact.messageSentSuccess'));
     } catch (error) {
       console.error('Failed to send message:', error);
-      toast.error('Failed to send message. Please try again.');
+      toast.error(t('contact.messageSendError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -144,29 +146,29 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       {/* Left Column: Info & Map */}
       <div className="md:col-span-1 space-y-8">
-        <Card title="Contact Information">
+        <Card title={t('contact.contactInfo')}>
           <div className="space-y-4">
             <div>
-              <h4 className="text-sm font-semibold text-gray-500">Address</h4>
+              <h4 className="text-sm font-semibold text-gray-500">{t('contact.address')}</h4>
               <p className="text-gray-800">{tenant.address.street}</p>
               <p className="text-gray-800">{[tenant.address.city, tenant.address.state, tenant.address.postalCode].filter(Boolean).join(', ')}</p>
             </div>
             {tenant.contactEmail && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-500">Email</h4>
+                <h4 className="text-sm font-semibold text-gray-500">{t('contact.email')}</h4>
                 <a href={`mailto:${tenant.contactEmail}`} className="tenant-text-primary hover:underline">{tenant.contactEmail}</a>
               </div>
             )}
             {tenant.phoneNumber && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-500">Phone</h4>
+                <h4 className="text-sm font-semibold text-gray-500">{t('contact.phone')}</h4>
                 <p className="text-gray-800">{tenant.phoneNumber}</p>
               </div>
             )}
             {/* Social Links */}
             {branding && socialLinks.length > 0 && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-500 mb-2">Follow Us</h4>
+                <h4 className="text-sm font-semibold text-gray-500 mb-2">{t('contact.followUs')}</h4>
                 <div className="flex gap-3">
                   {socialLinks.map((link) => (
                     <a
@@ -186,38 +188,38 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
           </div>
         </Card>
         <Card className="!p-0 overflow-hidden">
-           <div className="aspect-video w-full">
-             <iframe
-                src={mapSrc}
-                width="600"
-                height="450"
-                style={{ border: 0 }}
-                allowFullScreen={false}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={`Map of ${tenant.name}`}
-                className="w-full h-full"
-              ></iframe>
-           </div>
+          <div className="aspect-video w-full">
+            <iframe
+              src={mapSrc}
+              width="600"
+              height="450"
+              style={{ border: 0 }}
+              allowFullScreen={false}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title={`Map of ${tenant.name}`}
+              className="w-full h-full"
+            ></iframe>
+          </div>
         </Card>
       </div>
 
       {/* Right Column: Contact Form */}
       <div className="md:col-span-2">
-        <Card title="Send us a Message">
+        <Card title={t('contact.sendMessage')}>
           {isSubmitted ? (
             <div className="text-center p-8">
-                <h3 className="text-lg font-medium text-gray-900">Message Sent!</h3>
-                <p className="mt-1 text-sm text-gray-500">Thank you for contacting us. An administrator or staff member will get back to you shortly.</p>
-                <Button
-                  className="mt-4"
-                  onClick={() => {
-                    resetForm();
-                    setIsSubmitted(false);
-                  }}
-                >
-                  Send Another
-                </Button>
+              <h3 className="text-lg font-medium text-gray-900">{t('contact.messageSent')}</h3>
+              <p className="mt-1 text-sm text-gray-500">{t('contact.messageSentDesc')}</p>
+              <Button
+                className="mt-4"
+                onClick={() => {
+                  resetForm();
+                  setIsSubmitted(false);
+                }}
+              >
+                {t('contact.sendAnother')}
+              </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -228,22 +230,22 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
                 </div>
               )}
               <Input
-                label="Your Name"
-                id="name" 
-                name="name" 
-                type="text" 
-                value={formState.name} 
-                onChange={handleInputChange} 
+                label={t('contact.yourName')}
+                id="name"
+                name="name"
+                type="text"
+                value={formState.name}
+                onChange={handleInputChange}
                 required
                 disabled={isSubmitting}
               />
-              <Input 
-                label="Your Email" 
-                id="email" 
-                name="email" 
-                type="email" 
-                value={formState.email} 
-                onChange={handleInputChange} 
+              <Input
+                label={t('contact.yourEmail')}
+                id="email"
+                name="email"
+                type="email"
+                value={formState.email}
+                onChange={handleInputChange}
                 required
                 disabled={isSubmitting}
               />
@@ -264,7 +266,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
               </div>
               <div className="text-right">
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                  {isSubmitting ? t('contact.sending') : t('contact.sendMessageBtn')}
                 </Button>
               </div>
             </form>

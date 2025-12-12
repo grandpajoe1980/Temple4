@@ -5,6 +5,7 @@ import { getTranslation, detectBrowserLanguage, isSupportedLanguage } from '@/li
 import { isRTL, getLanguageInfo } from '@/lib/services/translation';
 
 const STORAGE_KEY = 'preferred-language';
+const DEFAULT_LANG = 'en';
 
 interface UseTranslationOptions {
   defaultLang?: string;
@@ -12,28 +13,38 @@ interface UseTranslationOptions {
 }
 
 export function useTranslation(options: UseTranslationOptions = {}) {
-  const [lang, setLangState] = useState<string>(() => {
-    // Try to get from localStorage on client
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored && isSupportedLanguage(stored)) {
-        return stored;
+  // Always start with default language to prevent hydration mismatch
+  // The server and client must render the same content initially
+  const [lang, setLangState] = useState<string>(options.defaultLang || DEFAULT_LANG);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Load stored language preference AFTER initial hydration
+  useEffect(() => {
+    setIsMounted(true);
+
+    // Check localStorage for stored preference
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored && isSupportedLanguage(stored)) {
+      setLangState(stored);
+    } else {
+      // Fall back to browser language detection
+      const browserLang = detectBrowserLanguage();
+      if (browserLang !== lang) {
+        setLangState(browserLang);
       }
     }
-    return options.defaultLang || detectBrowserLanguage();
-  });
-  
-  const [isLoading, setIsLoading] = useState(false);
+  }, []); // Only run once on mount
 
-  // Sync with localStorage
+  // Sync with localStorage and update document attributes when language changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, lang);
-      // Update HTML dir attribute for RTL support
-      document.documentElement.dir = isRTL(lang) ? 'rtl' : 'ltr';
-      document.documentElement.lang = lang;
-    }
-  }, [lang]);
+    if (!isMounted) return;
+
+    localStorage.setItem(STORAGE_KEY, lang);
+    // Update HTML dir attribute for RTL support
+    document.documentElement.dir = isRTL(lang) ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+  }, [lang, isMounted]);
 
   const setLang = useCallback((newLang: string) => {
     if (options.allowedLanguages?.length && !options.allowedLanguages.includes(newLang)) {
@@ -43,7 +54,7 @@ export function useTranslation(options: UseTranslationOptions = {}) {
     if (isSupportedLanguage(newLang)) {
       setIsLoading(true);
       setLangState(newLang);
-      // Simulate loading for UX
+      // Brief loading state for UX
       setTimeout(() => setIsLoading(false), 100);
     }
   }, [options.allowedLanguages]);
@@ -59,9 +70,11 @@ export function useTranslation(options: UseTranslationOptions = {}) {
     setLang,
     t,
     isLoading,
+    isMounted,
     isRTL: isRTL(lang),
     languageInfo,
   };
 }
 
 export default useTranslation;
+

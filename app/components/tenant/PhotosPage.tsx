@@ -7,6 +7,7 @@ import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import ContentChips from './content-chips';
 import { useSetPageHeader } from '../ui/PageHeaderContext';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface PhotoItem {
   id: string;
@@ -25,6 +26,7 @@ interface PhotosPageProps {
 }
 
 const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, canCreate, isAdmin = false }) => {
+  const { t } = useTranslation();
   const [photos, setPhotos] = useState<PhotoItem[]>(initialPhotos || []);
   const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -35,7 +37,7 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
     const file = e.target.files?.[0];
     if (!file) return;
     if (!canCreate) {
-      toast.error('You do not have permission to upload photos');
+      toast.error(t('photos.noPermission'));
       return;
     }
 
@@ -66,31 +68,30 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
       };
 
       setPhotos((p) => [created as PhotoItem, ...p]);
-      toast.success('Photo uploaded');
+      toast.success(t('photos.uploadSuccess'));
       if (inputRef.current) inputRef.current.value = '';
     } catch (error: any) {
       console.error('Upload error', error);
-      toast.error('Upload failed');
+      toast.error(t('photos.uploadFailed'));
     } finally {
       setIsUploading(false);
     }
   };
 
-  // Set page header content in the site header
   useEffect(() => {
     setPageHeader({
-      title: 'Photos',
-      subtitle: `A gallery of recent photos for ${tenant.name}`,
+      title: t('menu.photos'),
+      subtitle: t('photos.gallerySubtitle', { name: tenant.name }),
       actions: canCreate ? (
         <Button size="sm" onClick={() => inputRef.current?.click()} disabled={isUploading}>
-          {isUploading ? 'Uploading...' : 'Upload'}
+          {isUploading ? t('photos.uploading') : t('photos.upload')}
         </Button>
       ) : undefined,
     });
-    
+
     // Clear header when component unmounts
     return () => setPageHeader(null);
-  }, [canCreate, isUploading, tenant.name, setPageHeader]);
+  }, [canCreate, isUploading, tenant.name, setPageHeader, t]);
 
   useEffect(() => {
     setPhotos(initialPhotos || []);
@@ -100,7 +101,7 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
     if (!isAdmin) return;
     if (!confirm('Delete this photo? This action cannot be undone.')) return;
 
-      try {
+    try {
       // If there is a storageKey and it refers to local tenant storage (not an external URL), attempt to delete the file first
       if (storageKey && !storageKey.startsWith('http')) {
         const res = await fetch('/api/upload/delete', {
@@ -128,17 +129,17 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
       }
 
       setPhotos((p) => p.filter((ph) => ph.id !== id));
-      toast.success('Photo deleted');
+      toast.success(t('photos.deleted'));
     } catch (error) {
       console.error('Delete error', error);
-      toast.error('Failed to delete photo');
+      toast.error(t('photos.deleteFailed'));
     }
   };
 
   return (
     <div>
       <ContentChips tenantId={tenant.id} active="Photos" />
-      
+
       {/* Hidden file input - triggered by button in site header */}
       {canCreate && (
         <input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} className="hidden" />
@@ -146,40 +147,41 @@ const PhotosPage: React.FC<PhotosPageProps> = ({ tenant, user, initialPhotos, ca
 
       {photos.length === 0 ? (
         <div className="text-center bg-white p-12 rounded-lg shadow-sm">
-          <h3 className="text-lg font-medium text-gray-900">No Photos Yet</h3>
-          <p className="mt-1 text-sm text-gray-500">Upload photos to build your gallery.</p>
+          <h3 className="text-lg font-medium text-gray-900">{t('photos.noPhotos')}</h3>
+          <p className="mt-1 text-sm text-gray-500">{t('photos.uploadToGallery')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {photos.map((photo) => {
             // Determine the image URL - Imgbb URLs are stored directly, local files need /storage/ prefix
-            const imageUrl = photo.storageKey?.startsWith('http') 
-              ? photo.storageKey 
+            const imageUrl = photo.storageKey?.startsWith('http')
+              ? photo.storageKey
               : `/storage/${photo.storageKey}`;
-            
+
             return (
-            <div key={photo.id} className="relative rounded bg-white shadow-sm">
-              {isAdmin && (
-                <button
-                  aria-label="Delete photo"
-                  onClick={() => handleDelete(photo.storageKey, photo.id)}
-                  className="absolute z-10 top-2 right-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 focus:outline-none"
-                >
-                  <span className="text-sm leading-none">−</span>
-                </button>
-              )}
-              {photo.storageKey ? (
-                <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="block">
-                  <img src={imageUrl} alt={photo.title || 'Photo'} className="w-full h-auto max-h-64 object-contain" />
-                </a>
-              ) : (
-                <div className="w-full max-h-64 flex items-center justify-center bg-gray-50 text-gray-500 text-sm">
-                  No image available
-                </div>
-              )}
-              <div className="p-2 text-xs text-gray-600">{photo.authorDisplayName}</div>
-            </div>
-          );})}
+              <div key={photo.id} className="relative rounded bg-white shadow-sm">
+                {isAdmin && (
+                  <button
+                    aria-label="Delete photo"
+                    onClick={() => handleDelete(photo.storageKey, photo.id)}
+                    className="absolute z-10 top-2 right-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 focus:outline-none"
+                  >
+                    <span className="text-sm leading-none">−</span>
+                  </button>
+                )}
+                {photo.storageKey ? (
+                  <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="block">
+                    <img src={imageUrl} alt={photo.title || 'Photo'} className="w-full h-auto max-h-64 object-contain" />
+                  </a>
+                ) : (
+                  <div className="w-full max-h-64 flex items-center justify-center bg-gray-50 text-gray-500 text-sm">
+                    {t('photos.noImage')}
+                  </div>
+                )}
+                <div className="p-2 text-xs text-gray-600">{photo.authorDisplayName}</div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

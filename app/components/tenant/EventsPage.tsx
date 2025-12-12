@@ -12,6 +12,7 @@ import DayEventsModal from './DayEventsModal';
 import { useToast } from '../ui/Toast';
 import { DayPicker } from 'react-day-picker';
 import { useSetPageHeader } from '../ui/PageHeaderContext';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface EventsPageProps {
   tenant: Tenant;
@@ -21,6 +22,7 @@ interface EventsPageProps {
 type ViewMode = 'list' | 'calendar';
 
 const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
+  const { t } = useTranslation();
   const [events, setEvents] = useState<EventWithCreator[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
@@ -75,13 +77,13 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
 
   useEffect(() => {
     setPageHeader({
-      title: 'Events',
+      title: t('events.title'),
       actions: canCreate ? (
-        <Button size="sm" data-test="create-event-trigger" onClick={() => setIsModalOpen(true)}>+ New</Button>
+        <Button size="sm" data-test="create-event-trigger" onClick={() => setIsModalOpen(true)}>+ {t('common.new')}</Button>
       ) : undefined,
     });
     return () => setPageHeader(null);
-  }, [canCreate, setPageHeader]);
+  }, [canCreate, setPageHeader, t]);
 
   const handleCreateEvent = async (eventData: Omit<Event, 'id' | 'tenantId' | 'createdByUserId'>) => {
     setIsSubmitting(true);
@@ -111,15 +113,15 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
         }))
       );
       setIsModalOpen(false);
-      toast.success('Event created successfully!');
+      toast.success(t('events.createSuccess'));
     } catch (error) {
       console.error('Failed to create event:', error);
-      toast.error('Failed to create event. Please try again.');
+      toast.error(t('events.createError'));
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
     setCalendarFocusDate(date);
@@ -156,7 +158,7 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
       <div className="space-y-8">
 
         <div className="text-center bg-white p-12 rounded-lg shadow-sm">
-          <p className="text-gray-500">Loading events...</p>
+          <p className="text-gray-500">{t('events.loadingEvents')}</p>
         </div>
       </div>
     );
@@ -164,25 +166,23 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
 
   return (
     <div className="space-y-8">
-<div className="flex justify-end items-center">
-          <div className="bg-gray-200 p-1 rounded-lg flex space-x-1">
-             <button
-              onClick={() => setViewMode('calendar')}
-              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-                viewMode === 'calendar' ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-300'
+      <div className="flex justify-end items-center">
+        <div className="bg-gray-200 p-1 rounded-lg flex space-x-1">
+          <button
+            onClick={() => setViewMode('calendar')}
+            className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${viewMode === 'calendar' ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-300'
               }`}
-            >
-              Calendar
-            </button>
-             <button
-              onClick={() => setViewMode('list')}
-              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-300'
+          >
+            {t('events.calendar')}
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${viewMode === 'list' ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-300'
               }`}
-            >
-              List
-            </button>
-          </div>
+          >
+            {t('events.list')}
+          </button>
+        </div>
       </div>
 
       {viewMode === 'calendar' ? (
@@ -223,26 +223,26 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
         </div>
       ) : (
         <>
-        {events.length > 0 ? (
-          <div className="space-y-6">
-            {events.map((event: EventWithCreator) => (
-              <EventCard key={event.id} event={event} currentUserId={user.id} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center bg-white p-12 rounded-lg shadow-sm">
-            <h3 className="text-lg font-medium text-gray-900">No Events Scheduled</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              There are no upcoming events. {canCreate ? 'You can schedule a new one.' : ''}
-            </p>
-          </div>
-        )}
+          {events.length > 0 ? (
+            <div className="space-y-6">
+              {events.map((event: EventWithCreator) => (
+                <EventCard key={event.id} event={event} currentUserId={user.id} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center bg-white p-12 rounded-lg shadow-sm">
+              <h3 className="text-lg font-medium text-gray-900">{t('events.noEventsScheduled')}</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                {t('events.noEventsMessage')} {canCreate ? t('events.canSchedule') : ''}
+              </p>
+            </div>
+          )}
         </>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => !isSubmitting && setIsModalOpen(false)} dataTest="create-event-modal" title="Create a New Event">
-        <EventForm 
-          onSubmit={handleCreateEvent} 
+      <Modal isOpen={isModalOpen} onClose={() => !isSubmitting && setIsModalOpen(false)} dataTest="create-event-modal" title={t('events.createEvent')}>
+        <EventForm
+          onSubmit={handleCreateEvent}
           onCancel={() => setIsModalOpen(false)}
           isSubmitting={isSubmitting}
         />

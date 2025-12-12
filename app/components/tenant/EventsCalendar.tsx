@@ -10,6 +10,7 @@ import DayEventsModal from './DayEventsModal';
 import { CustomToolbar } from './calendar/CustomToolbar';
 import { ListView } from './calendar/ListView';
 import { MobileWeekView } from './calendar/MobileWeekView';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface EventsCalendarProps {
   events: EventWithCreator[];
@@ -20,12 +21,13 @@ interface EventsCalendarProps {
 }
 
 const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, onEventClick, focusDate, currentUserId }) => {
+  const { t } = useTranslation();
   const calendarRef = useRef<FullCalendar | null>(null);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [mounted, setMounted] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
-  
+
   // State for custom view management
   const [currentView, setCurrentView] = useState<'month' | 'week' | 'list'>('month');
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -100,7 +102,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
 
   const handleDateNavigate = (direction: 'prev' | 'next' | 'today') => {
     const newDate = new Date(currentDate);
-    
+
     if (direction === 'today') {
       const today = new Date();
       setCurrentDate(today);
@@ -113,7 +115,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
     } else if (currentView === 'week') {
       newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
     }
-    
+
     setCurrentDate(newDate);
     if (calendarRef.current) {
       calendarRef.current.getApi().gotoDate(newDate);
@@ -123,7 +125,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
   if (!mounted || isMobile === null) {
     return (
       <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden calendar-container min-h-[400px] flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading calendar...</div>
+        <div className="animate-pulse text-muted-foreground">{t('calendar.loading')}</div>
       </div>
     );
   }

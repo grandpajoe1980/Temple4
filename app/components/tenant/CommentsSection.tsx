@@ -15,6 +15,7 @@ export type CurrentUser = User & {
 };
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface CommentsSectionProps {
   tenantId: string;
@@ -23,11 +24,15 @@ interface CommentsSectionProps {
 }
 
 const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, currentUser }) => {
+  const { t, language } = useTranslation();
   const [comments, setComments] = useState<PostCommentWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [newComment, setNewComment] = useState('');
   const toast = useToast();
+
+  // Get locale for date formatting
+  const localeCode = language === 'vi' ? 'vi-VN' : language === 'es' ? 'es-ES' : 'en-US';
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -45,7 +50,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
           }))
         );
       } catch (error) {
-        toast.error('Unable to load comments right now.');
+        toast.error(t('comments.loadError'));
       } finally {
         setLoading(false);
       }
@@ -68,7 +73,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
 
       if (!response.ok) {
         const error = await response.json();
-        toast.error(error?.message || 'Failed to post comment.');
+        toast.error(error?.message || t('comments.postError'));
         return;
       }
 
@@ -82,7 +87,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
       setComments((prev) => [...prev, normalized]);
       setNewComment('');
     } catch (error) {
-      toast.error('Something went wrong while posting your comment.');
+      toast.error(t('comments.somethingWentWrong'));
     } finally {
       setSubmitting(false);
     }
@@ -90,7 +95,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
 
   return (
     <div className="border-t border-gray-200 px-6 py-4">
-      <h4 className="text-sm font-semibold text-gray-900 mb-3">Add Comment</h4>
+      <h4 className="text-sm font-semibold text-gray-900 mb-3">{t('comments.addComment')}</h4>
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="flex items-start space-x-3">
           <UserLink userId={currentUser.id}>
@@ -103,23 +108,23 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Share your thoughts..."
+            placeholder={t('comments.placeholder')}
             className="flex-1 rounded-md border border-gray-300 shadow-sm focus:tenant-border-200 focus:ring-[rgb(var(--primary-rgb))] text-sm p-2"
             rows={2}
           />
         </div>
         <div className="text-right">
           <Button type="submit" disabled={submitting || !newComment.trim()}>
-            {submitting ? 'Posting...' : 'Post Comment'}
+            {submitting ? t('comments.posting') : t('comments.postComment')}
           </Button>
         </div>
       </form>
 
       <div className="mt-4 space-y-4">
         {loading ? (
-          <p className="text-sm text-gray-500">Loading comments...</p>
+          <p className="text-sm text-gray-500">{t('comments.loading')}</p>
         ) : comments.length === 0 ? (
-          <p className="text-sm text-gray-500">No comments yet. Be the first to share.</p>
+          <p className="text-sm text-gray-500">{t('comments.noComments')}</p>
         ) : (
           comments.map((comment) => (
             <div key={comment.id} className="flex space-x-3">
@@ -134,7 +139,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
                     {comment.authorDisplayName}
                   </UserLink>
                   <span className="text-xs text-gray-500">
-                    {comment.createdAt.toLocaleString('en-US', {
+                    {comment.createdAt.toLocaleString(localeCode, {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',

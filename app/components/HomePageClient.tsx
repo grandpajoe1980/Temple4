@@ -6,6 +6,7 @@ import Logo from './ui/Logo';
 import TenantCard from './explore/TenantCard';
 import { Session } from 'next-auth';
 import type { TenantWithBrandingAndSettings } from '@/lib/data';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface HomePageClientProps {
   session: Session | null;
@@ -16,6 +17,7 @@ interface HomePageClientProps {
 export default function HomePageClient({ session, tenants, allTenants }: HomePageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
 
   // Initialize search from URL query param
   const initialSearchTerm = searchParams?.get('q') ?? '';
@@ -83,11 +85,11 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                   </span>
                   <input
                     id="home-search"
-                    aria-label="Search for a community"
+                    aria-label={t('common.search')}
                     type="search"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search for a community by name, creed, or location..."
+                    placeholder={t('home.searchPlaceholder')}
                     className="w-full h-14 rounded-full border border-slate-200 bg-white pl-12 pr-16 text-base text-slate-900 placeholder:text-slate-400 shadow-inner focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
                   />
 
@@ -95,7 +97,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                     <button
                       type="button"
                       onClick={() => setSearchTerm('')}
-                      aria-label="Clear search"
+                      aria-label={t('home.clearSearch')}
                       className="absolute right-2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-300"
                     >
                       <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -110,9 +112,9 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
               {!isLoggedIn && (
                 <div className="text-center text-sm text-slate-500 animate-fade-up animate-fade-up-init" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
                   <button onClick={() => router.push('/auth/login')} className="text-amber-600 hover:underline font-medium">
-                    Sign in
+                    {t('auth.signIn')}
                   </button>
-                  {' '}to see your communities and join new ones
+                  {' '}{t('auth.signInToSee')}
                 </div>
               )}
 
@@ -122,9 +124,9 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                 {isLoggedIn && memberTenants.length > 0 && (
                   <div className={`search-transition ${isSearching ? 'search-fade-out' : 'search-fade-in'}`}>
                     <div className="mb-3 flex items-center justify-between gap-4">
-                      <h2 className="text-lg font-semibold text-slate-900">Your communities</h2>
+                      <h2 className="text-lg font-semibold text-slate-900">{t('home.yourCommunities')}</h2>
                       <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                        {memberTenants.length} {memberTenants.length === 1 ? 'membership' : 'memberships'}
+                        {memberTenants.length} {memberTenants.length === 1 ? t('common.membership') : t('common.memberships')}
                       </span>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
@@ -139,9 +141,9 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                           </svg>
                         </div>
                         <div className="flex flex-col gap-0.5">
-                          <span className="text-sm font-semibold text-foreground">Friends</span>
+                          <span className="text-sm font-semibold text-foreground">{t('navigation.friends')}</span>
                           <span className="text-xs text-muted-foreground line-clamp-1">
-                            See what your friends are up to
+                            {t('home.seeWhatFriendsAreDoing')}
                           </span>
                         </div>
                       </button>
@@ -166,7 +168,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                             <div className="flex flex-col gap-0.5">
                               <span className="text-sm font-semibold text-slate-900">{tenant.name}</span>
                               <span className="text-xs text-slate-500 line-clamp-1">
-                                {tenant.creed || 'Member community'}
+                                {tenant.creed || t('common.memberCommunity')}
                               </span>
                             </div>
                           </button>
@@ -180,7 +182,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                 {isLoggedIn && memberTenants.length === 0 && !isSearching && (
                   <div className="search-transition search-fade-in">
                     <div className="mb-3">
-                      <h2 className="text-lg font-semibold text-foreground">Quick Links</h2>
+                      <h2 className="text-lg font-semibold text-foreground">{t('home.quickLinks')}</h2>
                     </div>
                     <button
                       onClick={() => router.push('/friends')}
@@ -192,9 +194,9 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                         </svg>
                       </div>
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-sm font-semibold text-foreground">Friends</span>
+                        <span className="text-sm font-semibold text-foreground">{t('navigation.friends')}</span>
                         <span className="text-xs text-muted-foreground line-clamp-1">
-                          See what your friends are up to
+                          {t('home.seeWhatFriendsAreDoing')}
                         </span>
                       </div>
                     </button>
@@ -206,10 +208,10 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                   <div className={`search-transition ${isSearching ? 'search-fade-in' : 'search-fade-out'}`}>
                     <div className="mb-4">
                       <h2 className="text-lg font-semibold text-slate-900">
-                        {filteredTenants.length} {filteredTenants.length === 1 ? 'result' : 'results'} found
+                        {filteredTenants.length} {filteredTenants.length === 1 ? t('common.result') : t('common.results')} {t('common.noResults').split(' ')[0].toLowerCase() === 'no' ? 'found' : ''}
                       </h2>
                       <p className="text-sm text-slate-500">
-                        Showing results for &ldquo;{searchTerm}&rdquo;
+                        {t('home.showingResultsFor')} &ldquo;{searchTerm}&rdquo;
                       </p>
                     </div>
 
@@ -221,9 +223,9 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                       </div>
                     ) : (
                       <div className="text-center bg-white p-8 rounded-lg shadow-sm border border-slate-100">
-                        <h3 className="text-lg font-medium text-slate-900">No Communities Found</h3>
+                        <h3 className="text-lg font-medium text-slate-900">{t('home.noCommunitiesFound')}</h3>
                         <p className="mt-2 text-sm text-slate-500">
-                          Your search for &ldquo;{searchTerm}&rdquo; did not match any communities. Try a different search term.
+                          {t('home.noCommunitiesFoundDesc', { term: searchTerm })}
                         </p>
                       </div>
                     )}
@@ -234,7 +236,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
                 {!isLoggedIn && !isSearching && (
                   <div className="text-center p-8">
                     <p className="text-slate-500">
-                      Search for a community above to get started
+                      {t('home.searchToGetStarted')}
                     </p>
                   </div>
                 )}

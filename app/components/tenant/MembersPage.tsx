@@ -6,6 +6,7 @@ import MemberCard from './MemberCard';
 import type { MemberWithMembership, TenantWithRelations, UserWithProfileSettings } from '@/lib/data';
 import CommunityChips from './CommunityChips';
 import { useSetPageHeader } from '../ui/PageHeaderContext';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface MembersPageProps {
   tenant: Pick<TenantWithRelations, 'name'>;
@@ -15,13 +16,14 @@ interface MembersPageProps {
 }
 
 const MembersPage: React.FC<MembersPageProps> = ({ tenant, user: _user, members, onViewProfile }) => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const setPageHeader = useSetPageHeader();
 
   useEffect(() => {
-    setPageHeader({ title: 'Members' });
+    setPageHeader({ title: t('menu.members') });
     return () => setPageHeader(null);
-  }, [setPageHeader]);
+  }, [setPageHeader, t]);
 
   const filteredMembers = useMemo(() => {
     if (!searchTerm) {
@@ -40,9 +42,9 @@ const MembersPage: React.FC<MembersPageProps> = ({ tenant, user: _user, members,
 
       <div className="max-w-md">
         <Input
-          label="Search Members"
+          label={t('members.searchMembers')}
           id="member-search"
-          placeholder="Search by name or email..."
+          placeholder={t('members.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -56,9 +58,9 @@ const MembersPage: React.FC<MembersPageProps> = ({ tenant, user: _user, members,
         </div>
       ) : (
         <div className="text-center bg-white p-12 rounded-lg shadow-sm">
-          <h3 className="text-lg font-medium text-gray-900">No Members Found</h3>
+          <h3 className="text-lg font-medium text-gray-900">{t('members.noMembersFound')}</h3>
           <p className="mt-1 text-sm text-gray-500">
-            No members match your search criteria.
+            {t('members.noMembersMatch')}
           </p>
         </div>
       )}

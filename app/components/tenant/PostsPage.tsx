@@ -11,6 +11,7 @@ import PostForm from './PostForm';
 import { useToast } from '../ui/Toast';
 import CommunityChips from '../tenant/CommunityChips';
 import { useSetPageHeader } from '../ui/PageHeaderContext';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface PostsPageProps {
   tenant: Pick<Tenant, 'id' | 'name'>;
@@ -20,6 +21,7 @@ interface PostsPageProps {
 }
 
 const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts, canCreate }) => {
+  const { t } = useTranslation();
   const [posts, setPosts] = useState<PostWithAuthor[]>(initialPosts);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,13 +30,13 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
 
   useEffect(() => {
     setPageHeader({
-      title: 'Posts',
+      title: t('menu.posts'),
       actions: canCreate ? (
-        <Button size="sm" data-test="create-post-trigger" onClick={() => setIsModalOpen(true)}>+ New</Button>
+        <Button size="sm" data-test="create-post-trigger" onClick={() => setIsModalOpen(true)}>+ {t('common.new')}</Button>
       ) : undefined,
     });
     return () => setPageHeader(null);
-  }, [canCreate, setPageHeader]);
+  }, [canCreate, setPageHeader, t]);
 
   const handleCreatePost = async (postData: PostInput) => {
     setIsSubmitting(true);
@@ -44,19 +46,19 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(postData),
       });
-      
+
       if (response.ok) {
         const newPost = await response.json();
         // Optimistically update
         setPosts([newPost, ...posts]);
         setIsModalOpen(false);
-        toast.success('Post created successfully!');
+        toast.success(t('posts.createSuccess'));
       } else {
         const error = await response.json();
-        toast.error(error.message || 'Failed to create post. Please try again.');
+        toast.error(error.message || t('posts.createError'));
       }
     } catch (error) {
-      toast.error('An unexpected error occurred. Please try again.');
+      toast.error(t('common.unexpectedError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -77,25 +79,25 @@ const PostsPage: React.FC<PostsPageProps> = ({ tenant, user, posts: initialPosts
           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <h3 className="mt-2 text-lg font-medium text-gray-900">No Posts Yet</h3>
+          <h3 className="mt-2 text-lg font-medium text-gray-900">{t('posts.noPostsYet')}</h3>
           <p className="mt-1 text-sm text-gray-500">
-            {canCreate 
-              ? "Get started by creating your first post or announcement." 
-              : "Check back later for updates from this community."}
+            {canCreate
+              ? t('posts.getStarted')
+              : t('posts.checkBackLater')}
           </p>
           {canCreate && (
             <div className="mt-6">
               <Button data-test="create-post-trigger-2" onClick={() => setIsModalOpen(true)}>
-                Create First Post
+                {t('posts.createFirst')}
               </Button>
             </div>
           )}
         </div>
       )}
-      
-      <Modal isOpen={isModalOpen} onClose={() => !isSubmitting && setIsModalOpen(false)} dataTest="create-post-modal" title="Create a New Post">
-        <PostForm 
-          onSubmit={handleCreatePost} 
+
+      <Modal isOpen={isModalOpen} onClose={() => !isSubmitting && setIsModalOpen(false)} dataTest="create-post-modal" title={t('posts.createNew')}>
+        <PostForm
+          onSubmit={handleCreatePost}
           onCancel={() => setIsModalOpen(false)}
           isSubmitting={isSubmitting}
         />

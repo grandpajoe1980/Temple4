@@ -10,6 +10,7 @@ import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
 import ToggleSwitch from '../ui/ToggleSwitch';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface DonationsPageProps {
   tenant: {
@@ -25,12 +26,12 @@ interface DonationsPageProps {
 }
 
 interface LeaderboardProps {
-    tenant: DonationsPageProps['tenant'];
-    donations: EnrichedDonationRecord[];
+  tenant: DonationsPageProps['tenant'];
+  donations: EnrichedDonationRecord[];
 }
 
 const formatTimeframeLabel = (timeframe?: DonationSettings['leaderboardTimeframe']) =>
-    (timeframe ?? 'ALL_TIME').replace('_', ' ').toLowerCase();
+  (timeframe ?? 'ALL_TIME').replace('_', ' ').toLowerCase();
 
 const DEFAULT_SUGGESTED_AMOUNTS = [5, 10, 25, 50, 100];
 const defaultDonationSettings: DonationSettings = {
@@ -55,95 +56,97 @@ const defaultDonationSettings: DonationSettings = {
 };
 
 const leaderboardTimeframeFilter = (
-    donations: EnrichedDonationRecord[],
-    timeframe: DonationSettings['leaderboardTimeframe'],
+  donations: EnrichedDonationRecord[],
+  timeframe: DonationSettings['leaderboardTimeframe'],
 ) => {
-    if (timeframe === 'ALL_TIME') return donations;
+  if (timeframe === 'ALL_TIME') return donations;
 
-    const now = new Date();
-    const startDate = new Date(now);
-    if (timeframe === 'YEARLY') {
-        startDate.setMonth(0, 1);
-        startDate.setHours(0, 0, 0, 0);
-    }
-    if (timeframe === 'MONTHLY') {
-        startDate.setDate(1);
-        startDate.setHours(0, 0, 0, 0);
-    }
+  const now = new Date();
+  const startDate = new Date(now);
+  if (timeframe === 'YEARLY') {
+    startDate.setMonth(0, 1);
+    startDate.setHours(0, 0, 0, 0);
+  }
+  if (timeframe === 'MONTHLY') {
+    startDate.setDate(1);
+    startDate.setHours(0, 0, 0, 0);
+  }
 
-    return donations.filter((donation) => donation.donatedAt >= startDate);
+  return donations.filter((donation) => donation.donatedAt >= startDate);
 };
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ tenant, donations }) => {
-    const timeframe = tenant.settings?.donationSettings?.leaderboardTimeframe ?? 'ALL_TIME';
-    const filteredDonations = useMemo(
-        () => leaderboardTimeframeFilter(donations, timeframe),
-        [donations, timeframe],
-    );
+  const { t } = useTranslation();
+  const timeframe = tenant.settings?.donationSettings?.leaderboardTimeframe ?? 'ALL_TIME';
+  const filteredDonations = useMemo(
+    () => leaderboardTimeframeFilter(donations, timeframe),
+    [donations, timeframe],
+  );
 
-    const aggregatedDonations = useMemo(() => {
-        const userTotals: { [key: string]: { total: number; name: string; avatar?: string; userId?: string | number | null } } = {};
+  const aggregatedDonations = useMemo(() => {
+    const userTotals: { [key: string]: { total: number; name: string; avatar?: string; userId?: string | number | null } } = {};
 
-        filteredDonations.forEach((donation) => {
-            if (donation.isAnonymousOnLeaderboard) {
-                return;
-            }
-            const key = donation.userId || donation.displayName;
-            if (!userTotals[key]) {
-              userTotals[key] = { total: 0, name: donation.displayName, avatar: donation.userAvatarUrl, userId: donation.userId };
-            }
-            userTotals[key].total += donation.amount;
-        });
+    filteredDonations.forEach((donation) => {
+      if (donation.isAnonymousOnLeaderboard) {
+        return;
+      }
+      const key = donation.userId || donation.displayName;
+      if (!userTotals[key]) {
+        userTotals[key] = { total: 0, name: donation.displayName, avatar: donation.userAvatarUrl, userId: donation.userId };
+      }
+      userTotals[key].total += donation.amount;
+    });
 
-        return Object.values(userTotals)
-            .sort((a, b) => b.total - a.total)
-            .slice(0, 10);
+    return Object.values(userTotals)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 10);
 
-    }, [filteredDonations]);
+  }, [filteredDonations]);
 
-    return (
-        <Card title={`Top Donors (${formatTimeframeLabel(timeframe)})`}>
-            {aggregatedDonations.length > 0 ? (
-                 <ul className="divide-y divide-gray-200">
-                    {aggregatedDonations.map((donor, index) => (
-                      <li key={donor.name + index} className="py-3 flex items-center">
-                        <div className="w-8 text-lg font-bold text-gray-400">{index + 1}</div>
-                        <div className={`flex-1 flex items-center ${!donor.avatar ? 'pl-2' : ''}`}>
-                          {donor.userId ? (
-                            <UserLink userId={donor.userId} className="flex items-center space-x-3">
-                              {donor.avatar ? (
-                                <Avatar src={donor.avatar} name={donor.name} size="md" className="h-10 w-10" />
-                              ) : (
-                                <div className="w-10" />
-                              )}
-                              <div className={`${!donor.avatar && 'ml-8'}`}>
-                                <p className="text-sm font-medium text-gray-900">{donor.name}</p>
-                              </div>
-                            </UserLink>
-                          ) : (
-                            <>
-                              {donor.avatar && <Avatar src={donor.avatar} name={donor.name} size="md" className="h-10 w-10" />}
-                              <div className={`ml-3 ${!donor.avatar && 'ml-10'}`}>
-                                <p className="text-sm font-medium text-gray-900">{donor.name}</p>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        <p className="text-sm font-semibold tenant-text-primary">
-                          ${donor.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
-                      </li>
-                    ))}
-                </ul>
-            ) : (
-                <p className="text-sm text-gray-500 text-center py-4">No donations to display for this period.</p>
-            )}
-        </Card>
-    )
+  return (
+    <Card title={t('donations.topDonors', { timeframe: formatTimeframeLabel(timeframe) })}>
+      {aggregatedDonations.length > 0 ? (
+        <ul className="divide-y divide-gray-200">
+          {aggregatedDonations.map((donor, index) => (
+            <li key={donor.name + index} className="py-3 flex items-center">
+              <div className="w-8 text-lg font-bold text-gray-400">{index + 1}</div>
+              <div className={`flex-1 flex items-center ${!donor.avatar ? 'pl-2' : ''}`}>
+                {donor.userId ? (
+                  <UserLink userId={donor.userId} className="flex items-center space-x-3">
+                    {donor.avatar ? (
+                      <Avatar src={donor.avatar} name={donor.name} size="md" className="h-10 w-10" />
+                    ) : (
+                      <div className="w-10" />
+                    )}
+                    <div className={`${!donor.avatar && 'ml-8'}`}>
+                      <p className="text-sm font-medium text-gray-900">{donor.name}</p>
+                    </div>
+                  </UserLink>
+                ) : (
+                  <>
+                    {donor.avatar && <Avatar src={donor.avatar} name={donor.name} size="md" className="h-10 w-10" />}
+                    <div className={`ml-3 ${!donor.avatar && 'ml-10'}`}>
+                      <p className="text-sm font-medium text-gray-900">{donor.name}</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              <p className="text-sm font-semibold tenant-text-primary">
+                ${donor.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-gray-500 text-center py-4">{t('donations.noDonationsToDisplay')}</p>
+      )}
+    </Card>
+  )
 }
 
 
 const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }) => {
+  const { t } = useTranslation();
   const settings = { ...defaultDonationSettings, ...(tenant.settings?.donationSettings || {}) };
   const suggestedAmounts = settings.suggestedAmounts?.length
     ? settings.suggestedAmounts
@@ -227,8 +230,8 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
     e.preventDefault();
     const amount = selectedAmount === 'custom' ? parseFloat(customAmount) : selectedAmount;
     if (isNaN(amount) || amount <= 0) {
-        alert('Please enter a valid donation amount.');
-        return;
+      alert('Please enter a valid donation amount.');
+      return;
     }
     if (!selectedFundId) {
       alert('Please choose a fund to support.');
@@ -262,7 +265,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
       }
     })();
   };
-  
+
   const givingMethods = useMemo(() => {
     const methods: Array<{ key: string; label: string; value: string; href?: string; isMultiline?: boolean }> = [];
 
@@ -310,15 +313,15 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
   }, [settings.bankTransferInstructions, settings.cashAppTag, settings.mailingAddress, settings.otherGivingLinks, settings.otherGivingNotes, settings.paypalUrl, settings.textToGiveNumber, settings.venmoHandle, settings.zelleEmail]);
 
   if (isSubmitted) {
-      return (
-        <Card>
-            <div className="text-center py-12">
-                <h3 className="text-2xl font-bold text-gray-900">Thank You!</h3>
-                <p className="mt-2 text-gray-600">Your generous donation to {tenant.name} is greatly appreciated.</p>
-                <Button onClick={() => setIsSubmitted(false)} className="mt-6">Make Another Donation</Button>
-            </div>
-        </Card>
-      );
+    return (
+      <Card>
+        <div className="text-center py-12">
+          <h3 className="text-2xl font-bold text-gray-900">{t('donations.thankYou')}</h3>
+          <p className="mt-2 text-gray-600">{t('donations.thankYouMessage', { name: tenant.name })}</p>
+          <Button onClick={() => setIsSubmitted(false)} className="mt-6">{t('donations.makeAnother')}</Button>
+        </div>
+      </Card>
+    );
   }
 
   const renderGivingOptions = () => {
@@ -326,7 +329,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
     if (!hasGivingOptions) return null;
 
     return (
-      <Card title="Ways to Give">
+      <Card title={t('donations.waysToGive')}>
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {givingMethods.map((method) => (
@@ -370,16 +373,16 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
   const renderFundSelector = () => {
     if (fundsLoading) {
       return (
-        <Card title="Choose a Fund">
-          <p className="text-sm text-gray-600">Loading available funds…</p>
+        <Card title={t('donations.chooseFund')}>
+          <p className="text-sm text-gray-600">{t('common.loading')}</p>
         </Card>
       );
     }
 
     if (funds.length === 0) {
       return (
-        <Card title="Choose a Fund">
-          <p className="text-sm text-gray-600">No active funds are available right now. Please check back later.</p>
+        <Card title={t('donations.chooseFund')}>
+          <p className="text-sm text-gray-600">{t('donations.noActiveFunds')}</p>
         </Card>
       );
     }
@@ -425,7 +428,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                     </div>
                   )}
                 </div>
-                  {progress !== null && (
+                {progress !== null && (
                   <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-200">
                     <div className="h-full tenant-active" style={{ width: `${progress}%` }} />
                   </div>
@@ -464,35 +467,35 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                 </button>
               ))}
               {settings.allowCustomAmounts && (
-                   <button type="button" onClick={() => setSelectedAmount('custom')}
-                      className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === 'custom' ? 'tenant-bg-100 border-[color:var(--primary)] text-[color:var(--primary)]' : 'bg-white border-gray-300 hover:border-[color:var(--primary)]/40'}`}
-                   >
-                      Custom
-                  </button>
+                <button type="button" onClick={() => setSelectedAmount('custom')}
+                  className={`p-4 text-center rounded-md border-2 font-semibold transition-colors ${selectedAmount === 'custom' ? 'tenant-bg-100 border-[color:var(--primary)] text-[color:var(--primary)]' : 'bg-white border-gray-300 hover:border-[color:var(--primary)]/40'}`}
+                >
+                  Custom
+                </button>
               )}
             </div>
           </div>
           {selectedAmount === 'custom' && settings.allowCustomAmounts && (
-              <Input 
-                  label="Custom Amount"
-                  id="customAmount"
-                  name="customAmount"
-                  type="number"
-                  step="0.01"
-                  min="1"
-                  value={customAmount}
-                  onChange={e => setCustomAmount(e.target.value)}
-                  placeholder="e.g., 75.50"
-                  required
-              />
+            <Input
+              label="Custom Amount"
+              id="customAmount"
+              name="customAmount"
+              type="number"
+              step="0.01"
+              min="1"
+              value={customAmount}
+              onChange={e => setCustomAmount(e.target.value)}
+              placeholder="e.g., 75.50"
+              required
+            />
           )}
           <div>
             <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
               Message (Optional)
             </label>
             <textarea id="message" name="message" rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
-                value={message} onChange={(e) => setMessage(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900"
+              value={message} onChange={(e) => setMessage(e.target.value)}
             />
           </div>
           <Input
@@ -504,14 +507,14 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
             placeholder="e.g., In honor of our youth group"
           />
           <ToggleSwitch
-              label="Remain Anonymous on Leaderboard"
-              enabled={isAnonymous}
-              onChange={setIsAnonymous}
+            label="Remain Anonymous on Leaderboard"
+            enabled={isAnonymous}
+            onChange={setIsAnonymous}
           />
         </div>
-         <div className="text-right border-t border-gray-200 pt-6 mt-6">
-              <Button type="submit">Donate Now</Button>
-          </div>
+        <div className="text-right border-t border-gray-200 pt-6 mt-6">
+          <Button type="submit">{t('donations.donateNow')}</Button>
+        </div>
       </Card>
     </form>
   );
@@ -566,8 +569,8 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
     return (
       <Card>
         <div className="text-center py-12 space-y-3">
-          <h3 className="text-xl font-semibold text-gray-800">Donations are not enabled</h3>
-          <p className="text-gray-600">Please contact this community’s administrator for giving options.</p>
+          <h3 className="text-xl font-semibold text-gray-800">{t('donations.notEnabled')}</h3>
+          <p className="text-gray-600">{t('donations.contactAdmin')}</p>
         </div>
       </Card>
     );
@@ -576,8 +579,8 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
   return (
     <div className="space-y-8">
       {/* Hero Section */}
-        <div className="relative rounded-2xl bg-gradient-to-br from-[color:var(--primary)]/10 to-orange-50 p-8 md:p-12 overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 tenant-bg-50 rounded-full -mr-32 -mt-32 opacity-50" />
+      <div className="relative rounded-2xl bg-gradient-to-br from-[color:var(--primary)]/10 to-orange-50 p-8 md:p-12 overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 tenant-bg-50 rounded-full -mr-32 -mt-32 opacity-50" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-100 rounded-full -ml-24 -mb-24 opacity-50" />
         <div className="relative z-10 max-w-2xl">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
@@ -589,10 +592,10 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
           </p>
           <div className="mt-6 flex flex-wrap gap-4">
             <Button onClick={() => { if (funds[0]) setSelectedFundId(funds[0].id); }}>
-              Give Now
+              {t('menu.giveNow')}
             </Button>
             <Link href={`/tenants/${tenant.id}/donations/funds`}>
-              <Button variant="secondary">Browse All Funds</Button>
+              <Button variant="secondary">{t('donations.browseAllFunds')}</Button>
             </Link>
           </div>
         </div>
@@ -604,7 +607,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
           <Card>
             <div className="text-center">
               <p className="text-3xl font-bold tenant-text-primary">{funds.length}</p>
-              <p className="text-sm text-gray-500">Active Funds</p>
+              <p className="text-sm text-gray-500">{t('donations.activeFunds')}</p>
             </div>
           </Card>
           <Card>
@@ -614,7 +617,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
                   ? `${(funds.reduce((sum, f) => sum + f.amountRaisedCents, 0) / 100000).toFixed(1)}k`
                   : (funds.reduce((sum, f) => sum + f.amountRaisedCents, 0) / 100).toLocaleString()}
               </p>
-              <p className="text-sm text-gray-500">Total Raised</p>
+              <p className="text-sm text-gray-500">{t('donations.totalRaised')}</p>
             </div>
           </Card>
           <Card>
@@ -622,7 +625,7 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
               <p className="text-3xl font-bold tenant-text-primary">
                 {funds.filter(f => f.goalAmountCents && f.amountRaisedCents >= f.goalAmountCents).length}
               </p>
-              <p className="text-sm text-gray-500">Goals Met</p>
+              <p className="text-sm text-gray-500">{t('donations.goalsMet')}</p>
             </div>
           </Card>
           <Card>
@@ -630,100 +633,100 @@ const DonationsPage: React.FC<DonationsPageProps> = ({ tenant, user, onRefresh }
               <p className="text-3xl font-bold tenant-text-primary">
                 {settings.leaderboardEnabled ? donations.length : '—'}
               </p>
-              <p className="text-sm text-gray-500">Donors</p>
+              <p className="text-sm text-gray-500">{t('donations.donors')}</p>
             </div>
           </Card>
         </div>
       )}
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-            {/* Featured Funds */}
-            {funds.length > 0 && (
-              <Card title="Featured Giving Opportunities" description="Choose a fund to support or browse all options.">
-                <div className="space-y-4">
-                  {funds.slice(0, 3).map((fund) => {
-                    const progress = fund.goalAmountCents
-                      ? Math.min(100, Math.round((fund.amountRaisedCents / fund.goalAmountCents) * 100))
-                      : null;
-                    return (
-                      <button
-                        type="button"
-                        key={fund.id}
-                        onClick={() => setSelectedFundId(fund.id)}
-                        className={`w-full text-left rounded-lg border p-4 transition hover:border-[color:var(--primary)] ${selectedFundId === fund.id ? 'border-[color:var(--primary)] ring-2 ring-[color:var(--primary)]/20 tenant-bg-50' : 'border-gray-200 bg-white'}`}
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="space-y-1 flex-1">
-                            <p className="text-xs uppercase tracking-wide tenant-text-primary font-medium">{fund.type}</p>
-                            <p className="text-lg font-semibold text-gray-900">{fund.name}</p>
-                            {fund.description && <p className="text-sm text-gray-600 line-clamp-2">{fund.description}</p>}
-                          </div>
-                          {progress !== null && (
-                            <div className="text-right min-w-[100px]">
-                              <p className="text-sm font-semibold tenant-text-primary">{progress}%</p>
-                              <p className="text-xs text-gray-500">
-                                ${(fund.amountRaisedCents / 100).toLocaleString()}
-                              </p>
-                            </div>
-                          )}
+          {/* Featured Funds */}
+          {funds.length > 0 && (
+            <Card title={t('donations.featuredGiving')} description={t('donations.featuredGivingDesc')}>
+              <div className="space-y-4">
+                {funds.slice(0, 3).map((fund) => {
+                  const progress = fund.goalAmountCents
+                    ? Math.min(100, Math.round((fund.amountRaisedCents / fund.goalAmountCents) * 100))
+                    : null;
+                  return (
+                    <button
+                      type="button"
+                      key={fund.id}
+                      onClick={() => setSelectedFundId(fund.id)}
+                      className={`w-full text-left rounded-lg border p-4 transition hover:border-[color:var(--primary)] ${selectedFundId === fund.id ? 'border-[color:var(--primary)] ring-2 ring-[color:var(--primary)]/20 tenant-bg-50' : 'border-gray-200 bg-white'}`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1 flex-1">
+                          <p className="text-xs uppercase tracking-wide tenant-text-primary font-medium">{fund.type}</p>
+                          <p className="text-lg font-semibold text-gray-900">{fund.name}</p>
+                          {fund.description && <p className="text-sm text-gray-600 line-clamp-2">{fund.description}</p>}
                         </div>
                         {progress !== null && (
-                          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
-                            <div className="h-full bg-[color:var(--primary)]" style={{ width: `${progress}%` }} />
+                          <div className="text-right min-w-[100px]">
+                            <p className="text-sm font-semibold tenant-text-primary">{progress}%</p>
+                            <p className="text-xs text-gray-500">
+                              ${(fund.amountRaisedCents / 100).toLocaleString()}
+                            </p>
                           </div>
                         )}
-                      </button>
-                    );
-                  })}
-                  {funds.length > 3 && (
-                    <div className="text-center pt-2">
-                      <Link href={`/tenants/${tenant.id}/donations/funds`} className="text-sm font-medium tenant-text-primary hover:text-[color:var(--primary)]">
-                        View all {funds.length} funds →
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            )}
-
-            {renderContent()}
-            {renderGivingOptions()}
-        </div>
-        <div className="lg:col-span-1 space-y-6">
-            {settings.leaderboardEnabled && (
-                <Leaderboard tenant={tenant} donations={donations} />
-            )}
-            
-            {/* Impact Section */}
-            <Card title="Your Impact">
-              <div className="space-y-4 text-sm text-gray-600">
-                <p>When you give to {tenant.name}, you&apos;re supporting:</p>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-[color:var(--primary)] mt-0.5">✓</span>
-                    <span>Weekly worship services and programs</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[color:var(--primary)] mt-0.5">✓</span>
-                    <span>Community outreach and missions</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[color:var(--primary)] mt-0.5">✓</span>
-                    <span>Youth and children&apos;s ministry</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[color:var(--primary)] mt-0.5">✓</span>
-                    <span>Facility maintenance and improvements</span>
-                  </li>
-                </ul>
-                {settings.taxId && (
-                  <p className="pt-2 border-t border-gray-100 text-xs text-gray-500">
-                    Tax-deductible. Tax ID: {settings.taxId}
-                  </p>
+                      </div>
+                      {progress !== null && (
+                        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+                          <div className="h-full bg-[color:var(--primary)]" style={{ width: `${progress}%` }} />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+                {funds.length > 3 && (
+                  <div className="text-center pt-2">
+                    <Link href={`/tenants/${tenant.id}/donations/funds`} className="text-sm font-medium tenant-text-primary hover:text-[color:var(--primary)]">
+                      View all {funds.length} funds →
+                    </Link>
+                  </div>
                 )}
               </div>
             </Card>
+          )}
+
+          {renderContent()}
+          {renderGivingOptions()}
+        </div>
+        <div className="lg:col-span-1 space-y-6">
+          {settings.leaderboardEnabled && (
+            <Leaderboard tenant={tenant} donations={donations} />
+          )}
+
+          {/* Impact Section */}
+          <Card title={t('donations.yourImpact')}>
+            <div className="space-y-4 text-sm text-gray-600">
+              <p>When you give to {tenant.name}, you&apos;re supporting:</p>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-[color:var(--primary)] mt-0.5">✓</span>
+                  <span>Weekly worship services and programs</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[color:var(--primary)] mt-0.5">✓</span>
+                  <span>Community outreach and missions</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[color:var(--primary)] mt-0.5">✓</span>
+                  <span>Youth and children&apos;s ministry</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[color:var(--primary)] mt-0.5">✓</span>
+                  <span>Facility maintenance and improvements</span>
+                </li>
+              </ul>
+              {settings.taxId && (
+                <p className="pt-2 border-t border-gray-100 text-xs text-gray-500">
+                  Tax-deductible. Tax ID: {settings.taxId}
+                </p>
+              )}
+            </div>
+          </Card>
         </div>
       </div>
     </div>

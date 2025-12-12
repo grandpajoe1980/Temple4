@@ -1,5 +1,7 @@
+"use client";
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface CustomToolbarProps {
   date: Date;
@@ -16,9 +18,18 @@ export const CustomToolbar: React.FC<CustomToolbarProps> = ({
   onDateChange,
   isMobile,
 }) => {
+  const { t, lang } = useTranslation();
+  const localeCode = lang === 'vi' ? 'vi-VN' : lang === 'es' ? 'es-ES' : 'en-US';
+
+  const viewLabels: Record<'month' | 'week' | 'list', string> = {
+    month: t('calendar.month'),
+    week: t('calendar.week'),
+    list: t('calendar.list'),
+  };
+
   const formatDateTitle = () => {
-    if (view === 'list') return 'Upcoming Events';
-    
+    if (view === 'list') return t('calendar.upcomingEvents');
+
     const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
     if (view === 'week') {
       // Calculate week range
@@ -26,20 +37,20 @@ export const CustomToolbar: React.FC<CustomToolbarProps> = ({
       start.setDate(date.getDate() - date.getDay()); // Start of week (Sunday)
       const end = new Date(start);
       end.setDate(start.getDate() + 6); // End of week (Saturday)
-      
+
       // Same month?
       if (start.getMonth() === end.getMonth()) {
-        return `${start.toLocaleString('default', { month: 'short' })} ${start.getDate()} – ${end.getDate()}, ${start.getFullYear()}`;
+        return `${start.toLocaleString(localeCode, { month: 'short' })} ${start.getDate()} – ${end.getDate()}, ${start.getFullYear()}`;
       }
       // Different months, same year?
       if (start.getFullYear() === end.getFullYear()) {
-        return `${start.toLocaleString('default', { month: 'short' })} ${start.getDate()} – ${end.toLocaleString('default', { month: 'short' })} ${end.getDate()}, ${start.getFullYear()}`;
+        return `${start.toLocaleString(localeCode, { month: 'short' })} ${start.getDate()} – ${end.toLocaleString(localeCode, { month: 'short' })} ${end.getDate()}, ${start.getFullYear()}`;
       }
       // Different years
-      return `${start.toLocaleString('default', { month: 'short' })} ${start.getDate()}, ${start.getFullYear()} – ${end.toLocaleString('default', { month: 'short' })} ${end.getDate()}, ${end.getFullYear()}`;
+      return `${start.toLocaleString(localeCode, { month: 'short' })} ${start.getDate()}, ${start.getFullYear()} – ${end.toLocaleString(localeCode, { month: 'short' })} ${end.getDate()}, ${end.getFullYear()}`;
     }
-    
-    return date.toLocaleDateString('default', options);
+
+    return date.toLocaleDateString(localeCode, options);
   };
 
   return (
@@ -67,7 +78,7 @@ export const CustomToolbar: React.FC<CustomToolbarProps> = ({
                 onClick={() => onDateChange('today')}
                 className="ml-2 px-3 py-1 text-sm font-medium rounded-full bg-secondary hover:bg-secondary/80 transition-colors"
               >
-                Today
+                {t('calendar.today')}
               </button>
             </>
           )}
@@ -81,21 +92,19 @@ export const CustomToolbar: React.FC<CustomToolbarProps> = ({
               onClick={() => onViewChange(v)}
               className={`
                 px-3 py-1 text-sm font-medium rounded-md transition-all capitalize
-                ${view === v 
-                  ? 'bg-background text-foreground shadow-sm' 
+                ${view === v
+                  ? 'bg-background text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
                 }
               `}
             >
-              {v}
+              {viewLabels[v]}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Center: Title (Row 2 for better mobile fit, or centered in Row 1 on desktop? 
-          User asked for "mobile native". A separate row or prominent header is good.) 
-      */}
+      {/* Center: Title */}
       <div className="text-center">
         <h2 className="text-xl font-bold text-foreground">
           {formatDateTitle()}

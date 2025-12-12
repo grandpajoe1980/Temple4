@@ -8,6 +8,7 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Avatar from '../ui/Avatar';
 import UserLink from '../ui/UserLink';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface EventCardProps {
   event: EventWithCreator & { kind?: 'event' | 'trip' | 'birthday'; tripId?: string; birthdayUserId?: string; isAllDay?: boolean };
@@ -15,6 +16,7 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
+  const { t, language } = useTranslation();
   const router = useRouter();
   const kind = (event as any).kind;
   const isTrip = kind === 'trip';
@@ -24,20 +26,23 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
   const [rsvpCount, setRsvpCount] = useState<number>(event.rsvpCount ?? 0);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Get locale code for date formatting
+  const localeCode = language === 'vi' ? 'vi-VN' : language === 'es' ? 'es-ES' : 'en-US';
+
   const formatDateTime = (start: Date, end: Date) => {
-    const startDate = start.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    const startDate = start.toLocaleDateString(localeCode, { weekday: 'long', month: 'long', day: 'numeric' });
     if (event.isAllDay || isBirthday) {
       return startDate;
     }
-    const startTime = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    const endTime = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    return `${startDate} from ${startTime} to ${endTime}`;
+    const startTime = start.toLocaleTimeString(localeCode, { hour: 'numeric', minute: '2-digit', hour12: true });
+    const endTime = end.toLocaleTimeString(localeCode, { hour: 'numeric', minute: '2-digit', hour12: true });
+    return `${startDate} ${t('events.from')} ${startTime} ${t('events.to')} ${endTime}`;
   };
 
   const currentStatusLabel = useMemo(() => {
     if (!rsvpStatus || rsvpStatus === 'NOT_GOING') return null;
-    return rsvpStatus === 'GOING' ? 'You are going' : 'Interested';
-  }, [rsvpStatus]);
+    return rsvpStatus === 'GOING' ? t('events.youAreGoing') : t('events.interested');
+  }, [rsvpStatus, t]);
 
   const applyRsvpCount = (nextStatus: RSVPStatus, previousStatus: RSVPStatus | null, count: number) => {
     const wasCounting = previousStatus === 'GOING' || previousStatus === 'INTERESTED';
@@ -72,12 +77,12 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
       setRsvpStatus(status);
     } catch (error) {
       console.error('RSVP update failed', error);
-      alert('Unable to update your RSVP right now. Please try again.');
+      alert(t('events.rsvpError'));
     } finally {
       setIsUpdating(false);
     }
   };
-  
+
   const LocationInfo = () => {
     if (event.isOnline) {
       return (
@@ -86,44 +91,44 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
             <path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V3z" />
             <path d="M2 12.5a.5.5 0 01.5-.5h15a.5.5 0 010 1h-15a.5.5 0 01-.5-.5z" />
           </svg>
-          Virtual Event
+          {t('events.virtualEvent')}
         </>
       );
     }
     return (
-       <>
+      <>
         <svg xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
         </svg>
         {event.locationText}
-       </>
+      </>
     );
   };
-  
+
   const Description = () => {
-      if (event.isOnline && event.onlineUrl) {
-          return (
-              <p className="mt-3 text-sm text-gray-600 line-clamp-2">
-                 <a href={event.onlineUrl} target="_blank" rel="noopener noreferrer" className="hover:underline" style={{ color: 'var(--primary)' }}>
-                    {event.description} (Click here to join)
-                 </a>
-              </p>
-          );
-      }
+    if (event.isOnline && event.onlineUrl) {
       return (
-          <p className="mt-3 text-sm text-gray-600 line-clamp-2">
-            {event.description}
-          </p>
+        <p className="mt-3 text-sm text-gray-600 line-clamp-2">
+          <a href={event.onlineUrl} target="_blank" rel="noopener noreferrer" className="hover:underline" style={{ color: 'var(--primary)' }}>
+            {event.description} ({t('events.clickToJoin')})
+          </a>
+        </p>
       );
+    }
+    return (
+      <p className="mt-3 text-sm text-gray-600 line-clamp-2">
+        {event.description}
+      </p>
+    );
   };
 
   return (
     <Card className="!p-0 overflow-hidden">
       <div className="p-6">
-         <p className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
+        <p className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
           {formatDateTime(event.startDateTime, event.endDateTime)}
         </p>
-         <h3 className="mt-2 text-xl font-semibold text-gray-900 cursor-pointer" style={{ '--tw-text-opacity': 1 } as any}>
+        <h3 className="mt-2 text-xl font-semibold text-gray-900 cursor-pointer" style={{ '--tw-text-opacity': 1 } as any}>
           {event.title}
         </h3>
         <div className="mt-2 flex items-center text-sm text-gray-500">
@@ -140,7 +145,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
               disabled={isUpdating}
               onClick={() => handleRsvp(RSVPStatus.GOING)}
             >
-              {rsvpStatus === 'GOING' ? 'Going ✓' : 'Going'}
+              {rsvpStatus === 'GOING' ? `${t('events.going')} ✓` : t('events.going')}
             </Button>
             <Button
               variant={rsvpStatus === 'INTERESTED' ? 'primary' : 'secondary'}
@@ -148,7 +153,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
               disabled={isUpdating}
               onClick={() => handleRsvp(RSVPStatus.INTERESTED)}
             >
-              {rsvpStatus === 'INTERESTED' ? 'Interested ✓' : 'Interested'}
+              {rsvpStatus === 'INTERESTED' ? `${t('events.interested')} ✓` : t('events.interested')}
             </Button>
             <Button
               variant={rsvpStatus === 'NOT_GOING' ? 'primary' : 'ghost'}
@@ -156,14 +161,14 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
               disabled={isUpdating}
               onClick={() => handleRsvp(RSVPStatus.NOT_GOING)}
             >
-              Not Going
+              {t('events.notGoing')}
             </Button>
           </div>
           <div className="text-right text-xs text-gray-600">
-            <div className="font-semibold text-gray-900">{rsvpCount} RSVP{rsvpCount === 1 ? '' : 's'}</div>
-            <div className="text-gray-500">{currentStatusLabel || 'Update your status'}</div>
+            <div className="font-semibold text-gray-900">{rsvpCount} {rsvpCount === 1 ? t('events.rsvp') : t('events.rsvps')}</div>
+            <div className="text-gray-500">{currentStatusLabel || t('events.updateStatus')}</div>
             <div className="text-[11px] text-gray-400">
-              Created by{' '}
+              {t('events.createdBy')}{' '}
               <UserLink userId={(event as any).createdByUserId} className="inline-flex items-center text-gray-700">
                 <Avatar src={event.creatorAvatarUrl ?? undefined} name={event.creatorDisplayName} size="xs" className="mr-2" />
                 <span className="text-[11px]">{event.creatorDisplayName}</span>
@@ -174,13 +179,13 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
       ) : (
         <div className="bg-gray-50 px-6 py-3 text-xs text-gray-600 flex items-center justify-between">
           <div className="text-gray-500">
-            {isTrip ? 'Trip' : 'Birthday'} •{' '}
+            {isTrip ? t('events.trip') : t('events.birthday')} •{' '}
             <UserLink userId={(event as any).createdByUserId} className="inline-flex items-center text-gray-700">
               <Avatar src={event.creatorAvatarUrl ?? undefined} name={event.creatorDisplayName} size="xs" className="mr-2" />
               <span className="text-sm">{event.creatorDisplayName}</span>
             </UserLink>
           </div>
-          <div className="text-gray-500">{isTrip ? `Members: ${rsvpCount}` : 'All-day'}</div>
+          <div className="text-gray-500">{isTrip ? `${t('events.members')}: ${rsvpCount}` : t('events.allDay')}</div>
         </div>
       )}
     </Card>

@@ -6,6 +6,7 @@ import Button from '../ui/Button';
 import { FormField } from '../ui/FormField';
 import { useFormValidation } from '@/app/hooks/useFormValidation';
 import { loginSchema, type LoginFormData } from '@/lib/validation';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface LoginFormProps {
   onLogin: (email: string, pass: string) => Promise<boolean>;
@@ -14,6 +15,7 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onNavigateToRegister, onNavigateToForgotPassword }) => {
+  const { t } = useTranslation();
   const {
     values,
     getFieldProps,
@@ -31,57 +33,57 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onNavigateToRegister, on
     onSubmit: async (data) => {
       const success = await onLogin(data.email, data.password);
       if (!success) {
-        setSubmitError('Invalid email or password.');
+        setSubmitError(t('auth.invalidCredentials'));
       }
     },
   });
 
   return (
     <div className="max-w-md mx-auto">
-      <Card title="Platform Login" description="Enter your credentials to continue.">
+      <Card title={t('auth.platformLogin')} description={t('auth.enterCredentials')}>
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           {submitError && (
             <div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-md text-sm" role="alert">
-                {submitError}
+              {submitError}
             </div>
           )}
-          <FormField 
+          <FormField
             {...getFieldProps('email')}
-            label="Email Address"
+            label={t('auth.emailAddress')}
             type="email"
-            placeholder="you@example.com"
+            placeholder={t('auth.emailPlaceholder')}
             autoComplete="email"
             error={getFieldError('email')}
             required
           />
-          <FormField 
+          <FormField
             {...getFieldProps('password')}
-            label="Password"
+            label={t('auth.password')}
             type="password"
-            placeholder="Enter your password"
+            placeholder={t('auth.passwordPlaceholder')}
             autoComplete="current-password"
             error={getFieldError('password')}
             required
           />
-           <div className="text-right">
-             <button 
-               type="button" 
-               onClick={onNavigateToForgotPassword} 
-               className="text-sm text-amber-600 hover:text-amber-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-             >
-               Forgot your password?
-             </button>
-           </div>
-           <div className="flex justify-between items-center">
-             <button 
-               type="button" 
-               onClick={onNavigateToRegister} 
-               className="text-sm text-amber-600 hover:text-amber-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-             >
-               Create an account
-             </button>
+          <div className="text-right">
+            <button
+              type="button"
+              onClick={onNavigateToForgotPassword}
+              className="text-sm text-amber-600 hover:text-amber-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+            >
+              {t('auth.forgotPassword')}
+            </button>
+          </div>
+          <div className="flex justify-between items-center">
+            <button
+              type="button"
+              onClick={onNavigateToRegister}
+              className="text-sm text-amber-600 hover:text-amber-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+            >
+              {t('auth.createAccount')}
+            </button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in...' : 'Login'}
+              {isSubmitting ? t('auth.signingIn') : t('auth.login')}
             </Button>
           </div>
         </form>

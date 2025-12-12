@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type { Tenant, TenantSettings } from '@prisma/client';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface TenantNavProps {
   tenant: Tenant & { settings: TenantSettings | null };
@@ -86,11 +87,55 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const basePath = `/tenants/${tenant.id}`;
+  const { t } = useTranslation();
   const [userPermissions, setUserPermissions] = React.useState<Record<string, boolean> | null>(null);
   const [membership, setMembership] = React.useState<any | null>(null);
   const [tenantPermissions, setTenantPermissions] = React.useState<Record<string, any> | null>(null);
   const navRef = React.useRef<HTMLElement | null>(null);
   const navTabsRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Translation mapping for menu labels
+  const labelMap = React.useMemo(() => ({
+    'Home': t('navigation.home'),
+    'Content': t('menu.content'),
+    'Community': t('navigation.community'),
+    'Work': t('menu.work'),
+    'Services': t('menu.services'),
+    'Donations': t('donations.title'),
+    'Contact Us': t('navigation.contactUs'),
+    'Settings': t('navigation.settings'),
+    'Posts': t('menu.posts'),
+    'Calendar': t('menu.calendar'),
+    'Events': t('navigation.events'),
+    'Support': t('menu.support'),
+    'Memorials': t('menu.memorials'),
+    'Members': t('menu.members'),
+    'Staff': t('menu.staff'),
+    'Chat': t('menu.chat'),
+    'Small Groups': t('menu.smallGroups'),
+    'Trips': t('menu.trips'),
+    'Volunteering': t('menu.volunteering'),
+    'Resources': t('menu.resources'),
+    'Photos': t('menu.photos'),
+    'Podcasts': t('menu.podcasts'),
+    'Talks': t('menu.talks'),
+    'Books': t('menu.books'),
+    'Live Stream': t('menu.liveStream'),
+    'Wall': t('navigation.wall'),
+    'Workboard': t('menu.workboard'),
+    'Tickets': t('menu.tickets'),
+    'Assets': t('menu.assets'),
+    'Ceremony': t('menu.ceremony'),
+    'Education': t('menu.education'),
+    'Counseling': t('menu.counseling'),
+    'Facilities': t('menu.facilities'),
+    'Other': t('menu.other'),
+    'Give Now': t('menu.giveNow'),
+    'Funds': t('menu.funds'),
+    'My Pledges': t('menu.myPledges'),
+  }), [t]);
+
+  const getLabel = React.useCallback((key: string) => labelMap[key as keyof typeof labelMap] || key, [labelMap]);
   const workFeaturesOn = Boolean(
     tenant.settings?.enableWorkboard || tenant.settings?.enableTicketing || tenant.settings?.enableAssetManagement
   );
@@ -299,7 +344,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
         const activeClasses = 'menu-chip menu-chip--active';
         return (
           <Link key={sub.key} href={`${basePath}${sub.path}`} className={isActive ? activeClasses : submenuChipClasses}>
-            {sub.label}
+            {getLabel(sub.label)}
           </Link>
         );
       });
@@ -401,7 +446,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
                 onMouseLeave={() => scheduleHide('content')}
               >
                 <Link href={fullPath} className={baseClasses(isActive)}>
-                  {item.label}
+                  {getLabel(item.label)}
                 </Link>
               </div>
             );
@@ -416,7 +461,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
                 onMouseLeave={() => scheduleHide('community')}
               >
                 <Link href={fullPath} className={baseClasses(isActive)}>
-                  {item.label}
+                  {getLabel(item.label)}
                 </Link>
               </div>
             );
@@ -431,7 +476,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
                 onMouseLeave={() => scheduleHide('work')}
               >
                 <Link href={fullPath} className={baseClasses(isActive)}>
-                  {item.label}
+                  {getLabel(item.label)}
                 </Link>
               </div>
             );
@@ -446,7 +491,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
                 onMouseLeave={() => scheduleHide('services')}
               >
                 <Link href={fullPath} className={baseClasses(isActive)}>
-                  {item.label}
+                  {getLabel(item.label)}
                 </Link>
               </div>
             );
@@ -461,7 +506,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
                 onMouseLeave={() => scheduleHide('donations')}
               >
                 <Link href={fullPath} className={baseClasses(isActive)}>
-                  {item.label}
+                  {getLabel(item.label)}
                 </Link>
               </div>
             );
@@ -470,7 +515,7 @@ export default function TenantNav({ tenant, canViewSettings }: TenantNavProps) {
           // Settings is a simple link - no hover submenu, uses ControlPanel sidebar instead
           return (
             <Link key={item.key} href={fullPath} className={baseClasses(isActive)}>
-              {item.label}
+              {getLabel(item.label)}
             </Link>
           );
         })}

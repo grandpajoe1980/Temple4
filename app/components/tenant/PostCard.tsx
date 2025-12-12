@@ -5,6 +5,7 @@ import UserLink from '@/app/components/ui/UserLink';
 import type { PostWithAuthor } from '@/types';
 import Card from '../ui/Card';
 import CommentsSection, { CurrentUser } from './CommentsSection';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface PostCardProps {
   post: PostWithAuthor;
@@ -13,55 +14,64 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, tenantId, currentUser }) => {
+  const { t, lang } = useTranslation();
+  const localeCode = lang === 'vi' ? 'vi-VN' : lang === 'es' ? 'es-ES' : 'en-US';
+
   const postTypeStyles = {
     ANNOUNCEMENT: 'bg-blue-100 text-blue-800',
     BLOG: 'bg-green-100 text-green-800',
     BOOK: 'bg-purple-100 text-purple-800',
   };
 
-    // Ensure publishedAt is a Date instance for formatting — API sometimes returns a string
-    const publishedDate = post.publishedAt ? new Date(post.publishedAt as any) : null;
+  const postTypeLabels: Record<string, string> = {
+    ANNOUNCEMENT: t('posts.typeAnnouncement'),
+    BLOG: t('posts.typeBlog'),
+    BOOK: t('posts.typeBook'),
+  };
 
-    return (
+  // Ensure publishedAt is a Date instance for formatting — API sometimes returns a string
+  const publishedDate = post.publishedAt ? new Date(post.publishedAt as any) : null;
+
+  return (
     <Card className="!p-0 overflow-visible">
-        <div className="p-6">
-            <div className="flex justify-between items-start">
-                <div>
-                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${postTypeStyles[post.type]}`}>
-                        {post.type}
-                    </span>
-                    <h3 className="mt-2 text-xl font-semibold text-gray-900 hover:tenant-text-primary cursor-pointer">
-                        {post.title}
-                    </h3>
-                </div>
-                 <div className="flex-shrink-0 ml-4">
-                    {/* Placeholder for edit/delete menu */}
-                    <button className="text-gray-400 hover:text-gray-600">
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <p className="mt-3 text-sm text-gray-600 line-clamp-3">
-                {post.body}
-            </p>
+      <div className="p-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${postTypeStyles[post.type]}`}>
+              {postTypeLabels[post.type] || post.type}
+            </span>
+            <h3 className="mt-2 text-xl font-semibold text-gray-900 hover:tenant-text-primary cursor-pointer">
+              {post.title}
+            </h3>
+          </div>
+          <div className="flex-shrink-0 ml-4">
+            {/* Placeholder for edit/delete menu */}
+            <button className="text-gray-400 hover:text-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+              </svg>
+            </button>
+          </div>
         </div>
-        <div className="bg-gray-50 px-6 py-3 flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-3">
-                <UserLink userId={post.authorUserId} className="flex items-center space-x-2">
-                  <Avatar src={post.authorAvatarUrl || '/placeholder-avatar.svg'} name={post.authorDisplayName} size="sm" />
-                  <span className="font-medium text-gray-800 hover:tenant-text-primary">{post.authorDisplayName}</span>
-                </UserLink>
-            </div>
-            <time dateTime={publishedDate ? publishedDate.toISOString() : ''} className="text-gray-500">
-                {publishedDate
-                  ? publishedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                  : 'Unpublished'}
-            </time>
+
+        <p className="mt-3 text-sm text-gray-600 line-clamp-3">
+          {post.body}
+        </p>
+      </div>
+      <div className="bg-gray-50 px-6 py-3 flex items-center justify-between text-sm">
+        <div className="flex items-center space-x-3">
+          <UserLink userId={post.authorUserId} className="flex items-center space-x-2">
+            <Avatar src={post.authorAvatarUrl || '/placeholder-avatar.svg'} name={post.authorDisplayName} size="sm" />
+            <span className="font-medium text-gray-800 hover:tenant-text-primary">{post.authorDisplayName}</span>
+          </UserLink>
         </div>
-        <CommentsSection tenantId={tenantId} postId={post.id} currentUser={currentUser} />
+        <time dateTime={publishedDate ? publishedDate.toISOString() : ''} className="text-gray-500">
+          {publishedDate
+            ? publishedDate.toLocaleDateString(localeCode, { year: 'numeric', month: 'long', day: 'numeric' })
+            : t('posts.unpublished')}
+        </time>
+      </div>
+      <CommentsSection tenantId={tenantId} postId={post.id} currentUser={currentUser} />
     </Card>
   );
 };

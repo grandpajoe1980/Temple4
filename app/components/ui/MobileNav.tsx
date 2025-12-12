@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/sheet';
 import { CONTROL_PANEL_TABS } from '@/constants';
 import { ThemeToggle } from '../ThemeToggle';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface MobileNavProps {
   className?: string;
@@ -100,8 +101,60 @@ export default function MobileNav({ className }: MobileNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
+  const { t } = useTranslation();
   const isAuthenticated = Boolean(session?.user);
   const isPlatformAdmin = Boolean((session as any)?.user?.isSuperAdmin);
+
+  // Translation mapping for menu labels
+  const labelMap = useMemo(() => ({
+    'Home': t('navigation.home'),
+    'Content': t('menu.content'),
+    'Community': t('navigation.community'),
+    'Work': t('menu.work'),
+    'Services': t('menu.services'),
+    'Donations': t('donations.title'),
+    'Contact Us': t('navigation.contactUs'),
+    'Settings': t('navigation.settings'),
+    'Posts': t('menu.posts'),
+    'Calendar': t('menu.calendar'),
+    'Events': t('navigation.events'),
+    'Support': t('menu.support'),
+    'Memorials': t('menu.memorials'),
+    'Members': t('menu.members'),
+    'Staff': t('menu.staff'),
+    'Chat': t('menu.chat'),
+    'Small Groups': t('menu.smallGroups'),
+    'Trips': t('menu.trips'),
+    'Volunteering': t('menu.volunteering'),
+    'Resources': t('menu.resources'),
+    'Photos': t('menu.photos'),
+    'Podcasts': t('menu.podcasts'),
+    'Talks': t('menu.talks'),
+    'Books': t('menu.books'),
+    'Live Stream': t('menu.liveStream'),
+    'Wall': t('navigation.wall'),
+    'Workboard': t('menu.workboard'),
+    'Tickets': t('menu.tickets'),
+    'Assets': t('menu.assets'),
+    'Ceremony': t('menu.ceremony'),
+    'Education': t('menu.education'),
+    'Counseling': t('menu.counseling'),
+    'Facilities': t('menu.facilities'),
+    'Other': t('menu.other'),
+    'Give Now': t('menu.giveNow'),
+    'Funds': t('menu.funds'),
+    'My Pledges': t('menu.myPledges'),
+    'Friends': t('navigation.friends'),
+    'Explore': t('navigation.explore'),
+    'My Account': t('navigation.myAccount'),
+    'Notifications': t('navigation.notifications'),
+    'Messages': t('navigation.messages'),
+    'Theme': t('navigation.theme'),
+    'Log in': t('auth.logIn'),
+    'Create Account': t('auth.createAccount'),
+  }), [t]);
+
+  const getLabel = useCallback((key: string) => labelMap[key as keyof typeof labelMap] || key, [labelMap]);
 
   // Detect if we're on a tenant page
   const isTenantPage = pathname?.startsWith('/tenants/');
@@ -205,6 +258,7 @@ export default function MobileNav({ className }: MobileNavProps) {
 
   const renderNavLink = (href: string, label: string, indent: boolean = false) => {
     const isActive = pathname === href || pathname?.startsWith(href + '/');
+    const translatedLabel = getLabel(label);
     return (
       <button
         key={href}
@@ -215,7 +269,7 @@ export default function MobileNav({ className }: MobileNavProps) {
             : 'text-foreground hover:bg-muted'
           }`}
       >
-        {label}
+        {translatedLabel}
       </button>
     );
   };
@@ -228,6 +282,7 @@ export default function MobileNav({ className }: MobileNavProps) {
   ) => {
     const isExpanded = expandedSections[key];
     const enabledItems = items.filter((item) => isFeatureEnabled(item.feature));
+    const translatedLabel = getLabel(label);
 
     if (enabledItems.length === 0) return null;
 
@@ -237,7 +292,7 @@ export default function MobileNav({ className }: MobileNavProps) {
           onClick={() => toggleSection(key)}
           className="w-full flex items-center justify-between px-4 py-3 text-base text-foreground hover:bg-muted"
         >
-          <span>{label}</span>
+          <span>{translatedLabel}</span>
           <svg
             className={`h-5 w-5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''
               }`}
@@ -313,7 +368,7 @@ export default function MobileNav({ className }: MobileNavProps) {
             className="w-full flex items-center justify-between px-4 py-3 text-base text-foreground hover:bg-muted"
           >
             <span className="flex items-center gap-2">
-              <span>Settings</span>
+              <span>{getLabel('Settings')}</span>
               <svg
                 className="h-4 w-4 text-muted-foreground"
                 xmlns="http://www.w3.org/2000/svg"
@@ -378,11 +433,11 @@ export default function MobileNav({ className }: MobileNavProps) {
         <button
           onClick={() => handleNavClick('/friends')}
           className={`w-full text-left block px-4 py-3 text-base transition-colors relative ${pathname === '/friends' || pathname?.startsWith('/friends/')
-              ? 'tenant-bg-50 tenant-text-primary font-medium'
-              : 'text-foreground hover:bg-muted'
+            ? 'tenant-bg-50 tenant-text-primary font-medium'
+            : 'text-foreground hover:bg-muted'
             }`}
         >
-          Friends
+          {getLabel('Friends')}
           {pendingFriendRequests > 0 && (
             <span className="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full">
               {pendingFriendRequests}
@@ -394,7 +449,7 @@ export default function MobileNav({ className }: MobileNavProps) {
       {/* Theme Toggle */}
       <div className="border-t border-border my-2" />
       <div className="px-4 py-3 flex items-center justify-between">
-        <span className="text-base text-foreground">Theme</span>
+        <span className="text-base text-foreground">{getLabel('Theme')}</span>
         <ThemeToggle variant="dropdown" size="sm" />
       </div>
     </div>
@@ -417,7 +472,7 @@ export default function MobileNav({ className }: MobileNavProps) {
               : 'text-foreground hover:bg-muted'
               }`}
           >
-            Friends
+            {getLabel('Friends')}
             {pendingFriendRequests > 0 && (
               <span className="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full">
                 {pendingFriendRequests}
@@ -441,7 +496,7 @@ export default function MobileNav({ className }: MobileNavProps) {
       {/* Theme Toggle */}
       <div className="border-t border-border my-2" />
       <div className="px-4 py-3 flex items-center justify-between">
-        <span className="text-base text-foreground">Theme</span>
+        <span className="text-base text-foreground">{getLabel('Theme')}</span>
         <ThemeToggle variant="dropdown" size="sm" />
       </div>
     </div>

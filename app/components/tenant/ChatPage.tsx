@@ -9,6 +9,7 @@ import Modal from '../ui/Modal';
 import CreateChannelForm from '../messages/CreateChannelForm';
 import ConversationDetailsPanel from '../messages/ConversationDetailsPanel';
 import CommunityChips from './CommunityChips';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface ChatPageProps {
   tenant: any; // Has architectural issues, needs refactoring
@@ -66,6 +67,7 @@ function normalizeConversation(conversation: any, currentUserId: string): Enrich
 }
 
 const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCreateGroupChats }) => {
+  const { t } = useTranslation();
   const [conversations, setConversations] = useState<EnrichedConversation[]>([]);
   const [isDetailsPanelOpen, setIsDetailsPanelOpen] = useState(true);
 
@@ -165,12 +167,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
         <div className="w-full sm:w-1/3 md:w-1/4 border-r border-gray-200 flex flex-col min-h-0">
           <div className="p-4 border-b border-gray-200 flex justify-between items-center sticky z-20" style={{ top: 'calc(var(--site-header-height) + var(--tenant-nav-height, 3rem))' }}>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Channels</h2>
-              <p className="text-sm text-gray-500">Conversations in {tenant.name}</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('chat.channels')}</h2>
+              <p className="text-sm text-gray-500">{t('chat.conversationsIn', { name: tenant.name })}</p>
             </div>
             {canCreate && (
               <Button size="sm" data-test="create-channel-trigger" onClick={() => setIsModalOpen(true)}>
-                New
+                {t('common.new')}
               </Button>
             )}
           </div>
@@ -191,7 +193,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
               key={activeConversation.id} // Re-mount component when conversation changes
               currentUser={user}
               conversation={activeConversation}
-              onViewProfile={onViewProfile || (() => {})}
+              onViewProfile={onViewProfile || (() => { })}
               tenant={tenant}
               isDetailsPanelOpen={isDetailsPanelOpen}
               onToggleDetailsPanel={() => setIsDetailsPanelOpen(!isDetailsPanelOpen)}
@@ -200,9 +202,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
           ) : (
             <div className="flex-1 flex items-center justify-center text-center">
               <div>
-                <h3 className="text-lg font-medium text-gray-900">No Channels Available</h3>
+                <h3 className="text-lg font-medium text-gray-900">{t('chat.noChannels')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  {canCreate ? 'Create a channel to start chatting.' : 'There are no channels for you in this tenant yet.'}
+                  {canCreate ? t('chat.createToStart') : t('chat.noChannelsYet')}
                 </p>
               </div>
             </div>
@@ -211,20 +213,20 @@ const ChatPage: React.FC<ChatPageProps> = ({ tenant, user, onViewProfile, canCre
 
         {/* Right Panel: Conversation Details */}
         {isDetailsPanelOpen && activeConversation && (
-            <div className="hidden lg:block w-full sm:w-1/3 md:w-1/4 border-l border-gray-200 min-h-0">
-                <div className="h-full min-h-0 overflow-auto">
-                  <ConversationDetailsPanel 
-                      key={activeConversation.id}
-                      conversation={activeConversation}
-                      tenant={tenant}
-                      onViewProfile={onViewProfile || (() => {})}
-                  />
-                </div>
+          <div className="hidden lg:block w-full sm:w-1/3 md:w-1/4 border-l border-gray-200 min-h-0">
+            <div className="h-full min-h-0 overflow-auto">
+              <ConversationDetailsPanel
+                key={activeConversation.id}
+                conversation={activeConversation}
+                tenant={tenant}
+                onViewProfile={onViewProfile || (() => { })}
+              />
             </div>
+          </div>
         )}
 
       </div>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-channel-modal" title="Create a New Channel">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-channel-modal" title={t('chat.createChannel')}>
         <CreateChannelForm
           tenant={tenant}
           currentUser={user}

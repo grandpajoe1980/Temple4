@@ -5,6 +5,7 @@ import type { EventWithCreator, Tenant, User, UserTenantMembership } from '@/typ
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import { MembershipStatus, MembershipApprovalMode } from '@/types';
+import useTranslation from '@/app/hooks/useTranslation';
 
 type TenantPage = 'home' | 'settings' | 'posts' | 'calendar' | 'sermons' | 'podcasts' | 'books' | 'members' | 'chat' | 'donations' | 'contact' | 'volunteering' | 'smallGroups' | 'liveStream';
 
@@ -23,6 +24,7 @@ interface HomePageProps {
 }
 
 const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh }) => {
+  const { t } = useTranslation();
   const [membership, setMembership] = useState<UserTenantMembership | null>(null);
   const [upcomingEvents, setUpcomingEvents] = useState<EventWithCreator[]>([]);
   const [recentPosts, setRecentPosts] = useState<PostListItem[]>([]);
@@ -107,7 +109,7 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
   if (isLoading) {
     return (
       <div className="grid place-items-center">
-        <Card className="max-w-2xl w-full text-center">Loading membership...</Card>
+        <Card className="max-w-2xl w-full text-center">{t('common.loading')}</Card>
       </div>
     );
   }
@@ -116,34 +118,34 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
   if (!membership || membership.status !== MembershipStatus.APPROVED) {
     let joinContent;
     if (membership?.status === MembershipStatus.BANNED) {
-          joinContent = (
+      joinContent = (
         <div className="text-center">
-          <h3 className="text-xl font-semibold text-red-800">Access Restricted</h3>
-          <p className="mt-2 text-gray-600">You are currently banned from this community. Please contact an administrator for more information.</p>
+          <h3 className="text-xl font-semibold text-red-800">{t('tenant.accessRestricted')}</h3>
+          <p className="mt-2 text-gray-600">{t('tenant.bannedMessage')}</p>
         </div>
       );
     } else if (membership?.status === MembershipStatus.PENDING) {
       joinContent = (
         <div className="text-center">
-          <h3 className="text-xl font-semibold text-gray-800">Request Sent</h3>
-          <p className="mt-2 text-gray-600">Your membership request is pending approval from the administrators of {tenant.name}.</p>
-          <Button disabled className="mt-4">Membership Pending</Button>
+          <h3 className="text-xl font-semibold text-gray-800">{t('tenant.requestSent')}</h3>
+          <p className="mt-2 text-gray-600">{t('tenant.pendingApproval', { name: tenant.name })}</p>
+          <Button disabled className="mt-4">{t('tenant.membershipPending')}</Button>
         </div>
       );
     } else {
       const isApprovalRequired = tenant.settings.membershipApprovalMode === MembershipApprovalMode.APPROVAL_REQUIRED;
       joinContent = (
         <div className="text-center">
-          <h3 className="text-xl font-semibold text-gray-800">Join {tenant.name}</h3>
+          <h3 className="text-xl font-semibold text-gray-800">{t('tenant.join', { name: tenant.name })}</h3>
           <p className="mt-2 text-gray-600">{tenant.description}</p>
           <Button onClick={handleJoin} className="mt-6">
-            {isApprovalRequired ? 'Request Membership' : 'Join Community'}
+            {isApprovalRequired ? t('tenant.requestMembership') : t('tenant.joinCommunity')}
           </Button>
         </div>
       );
     }
 
-      return (
+    return (
       <div className="grid place-items-center">
         <Card className="max-w-2xl w-full">{joinContent}</Card>
       </div>
@@ -159,7 +161,7 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
   return (
     <div className="space-y-8">
       {isLive && (
-        <div 
+        <div
           onClick={() => onNavigate('liveStream')}
           className="bg-red-600 text-white rounded-lg shadow-lg p-4 flex items-center justify-center space-x-3 cursor-pointer hover:bg-red-700 transition-colors animate-pulse"
         >
@@ -172,102 +174,102 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
       )}
 
       {/* Header Section */}
-        <div className="relative bg-white rounded-lg shadow-sm overflow-hidden overflow-x-hidden">
+      <div className="relative bg-white rounded-lg shadow-sm overflow-hidden overflow-x-hidden">
         <div className="h-48 tenant-bg-100 overflow-hidden">
-            {tenant.branding.bannerImageUrl && (
-              <img 
-                  src={tenant.branding.bannerImageUrl} 
-                  alt={`${tenant.name} banner`} 
+          {tenant.branding.bannerImageUrl && (
+            <img
+              src={tenant.branding.bannerImageUrl}
+              alt={`${tenant.name} banner`}
               className="h-full w-full object-contain object-left max-w-full"
-              />
-            )}
+            />
+          )}
         </div>
         <div className="p-6">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between min-w-0">
             <div className="flex items-end space-x-5 min-w-0">
               <div className="flex-shrink-0">
-                 <img 
+                <img
                   src={tenant.branding.logoUrl || '/placeholder-logo.svg'}
                   alt={`${tenant.name} logo`}
                   className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-white p-1 shadow-md object-cover ring-4 ring-white -mt-12 sm:-mt-16 max-w-full"
                 />
               </div>
               <div className="mt-4 sm:mt-0 min-w-0 flex-1 pr-4 sm:pr-2">
-                        <h2 className="text-xl sm:text-3xl font-bold text-gray-900 break-words leading-tight w-full">{tenant.name}</h2>
+                <h2 className="text-xl sm:text-3xl font-bold text-gray-900 break-words leading-tight w-full">{tenant.name}</h2>
                 <p className="text-sm font-medium text-gray-500 whitespace-normal break-words">{tenant.creed}</p>
               </div>
             </div>
-                <div className="mt-4 sm:mt-0 flex-shrink-0">
-                    {tenant.settings.enableDonations && donationLink && (
-                        <a href={donationLink.url} target="_blank" rel="noopener noreferrer">
-                            <Button>
-                                Donate
-                            </Button>
-                        </a>
-                    )}
-                </div>
+            <div className="mt-4 sm:mt-0 flex-shrink-0">
+              {tenant.settings.enableDonations && donationLink && (
+                <a href={donationLink.url} target="_blank" rel="noopener noreferrer">
+                  <Button>
+                    {t('tenant.donate')}
+                  </Button>
+                </a>
+              )}
             </div>
+          </div>
         </div>
       </div>
-      
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-            {/* Welcome Message */}
-            <Card>
-                <h3 className="text-xl font-semibold text-gray-800">Welcome, {tenantDisplayName}!</h3>
-                <p className="mt-2 text-gray-600">
-                    This is the central hub for {tenant.name}. Here you’ll find the latest announcements, upcoming events, and more. We’re glad you’re here.
-                </p>
-            </Card>
+          {/* Welcome Message */}
+          <Card>
+            <h3 className="text-xl font-semibold text-gray-800">Welcome, {tenantDisplayName}!</h3>
+            <p className="mt-2 text-gray-600">
+              This is the central hub for {tenant.name}. Here you’ll find the latest announcements, upcoming events, and more. We’re glad you’re here.
+            </p>
+          </Card>
 
-            {/* Recent Posts */}
-             <Card className="!p-0">
-                <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                    <div>
-                        <h3 className="text-lg font-semibold leading-6 text-gray-900">Recent Posts</h3>
-                        <p className="mt-1 text-sm text-gray-500">The latest news and announcements.</p>
-                    </div>
-                    <Button variant="secondary" size="sm" onClick={() => onNavigate('posts')}>View All</Button>
-                </div>
-                <ul className="divide-y divide-gray-200">
-                    {recentPosts.length > 0 ? recentPosts.map((post: any) => (
-                        <li key={post.id} className="p-4 hover:bg-gray-50 cursor-pointer">
-                            <div className="text-sm font-semibold text-gray-800">{post.title}</div>
-                            <div className="text-xs text-gray-500 mt-1">
-                                By {post.authorDisplayName} on {post.publishedAt.toLocaleDateString()}
-                            </div>
-                        </li>
-                    )) : (
-                        <li className="p-4 text-sm text-gray-500 text-center">No recent posts.</li>
-                    )}
-                </ul>
-            </Card>
+          {/* Recent Posts */}
+          <Card className="!p-0">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold leading-6 text-gray-900">{t('tenant.recentPosts')}</h3>
+                <p className="mt-1 text-sm text-gray-500">{t('tenant.recentPostsDesc')}</p>
+              </div>
+              <Button variant="secondary" size="sm" onClick={() => onNavigate('posts')}>{t('common.viewAll')}</Button>
+            </div>
+            <ul className="divide-y divide-gray-200">
+              {recentPosts.length > 0 ? recentPosts.map((post: any) => (
+                <li key={post.id} className="p-4 hover:bg-gray-50 cursor-pointer">
+                  <div className="text-sm font-semibold text-gray-800">{post.title}</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    By {post.authorDisplayName} on {post.publishedAt.toLocaleDateString()}
+                  </div>
+                </li>
+              )) : (
+                <li className="p-4 text-sm text-gray-500 text-center">{t('tenant.noRecentPosts')}</li>
+              )}
+            </ul>
+          </Card>
         </div>
-        
+
         <div className="lg:col-span-1">
-             {/* Upcoming Events */}
-            <Card className="!p-0">
-                <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                    <div>
-                        <h3 className="text-lg font-semibold leading-6 text-gray-900">Upcoming Events</h3>
-                        <p className="mt-1 text-sm text-gray-500">What’s happening soon.</p>
-                    </div>
-                    <Button variant="secondary" size="sm" onClick={() => onNavigate('calendar')}>View Calendar</Button>
-                </div>
-                <ul className="divide-y divide-gray-200">
-                   {upcomingEvents.length > 0 ? upcomingEvents.map((event: any) => (
-                        <li key={event.id} className="p-4 hover:bg-gray-50 cursor-pointer">
-                            <div className="font-semibold text-sm text-gray-800">{event.title}</div>
-                            <div className="text-xs tenant-text-primary mt-1">
-                              {event.startDateTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                            </div>
-                        </li>
-                   )) : (
-                        <li className="p-4 text-sm text-gray-500 text-center">No upcoming events.</li>
-                   )}
-                </ul>
-            </Card>
+          {/* Upcoming Events */}
+          <Card className="!p-0">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold leading-6 text-gray-900">Upcoming Events</h3>
+                <p className="mt-1 text-sm text-gray-500">What’s happening soon.</p>
+              </div>
+              <Button variant="secondary" size="sm" onClick={() => onNavigate('calendar')}>View Calendar</Button>
+            </div>
+            <ul className="divide-y divide-gray-200">
+              {upcomingEvents.length > 0 ? upcomingEvents.map((event: any) => (
+                <li key={event.id} className="p-4 hover:bg-gray-50 cursor-pointer">
+                  <div className="font-semibold text-sm text-gray-800">{event.title}</div>
+                  <div className="text-xs tenant-text-primary mt-1">
+                    {event.startDateTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                  </div>
+                </li>
+              )) : (
+                <li className="p-4 text-sm text-gray-500 text-center">{t('tenant.noUpcomingEvents')}</li>
+              )}
+            </ul>
+          </Card>
         </div>
       </div>
 

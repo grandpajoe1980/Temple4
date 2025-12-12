@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo, type MutableRefObject } from 'react';
 import { CONTROL_PANEL_TABS } from '@/constants';
+import useTranslation from '@/app/hooks/useTranslation';
 
 type TenantSubmenuKey = 'content' | 'community' | 'services' | 'settings';
 
@@ -13,6 +14,7 @@ interface TenantMenuProps {
 }
 
 export default function TenantMenu({ pathname, session }: TenantMenuProps) {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [tenantSettings, setTenantSettings] = useState<any | null>(null);
@@ -27,6 +29,43 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
     const ref = useRef<HTMLDivElement | null>(null);
     const buttonRef = useRef<HTMLButtonElement | null>(null);
     const mobilePanelRef = useRef<HTMLDivElement | null>(null);
+
+    // Translation mapping for menu labels
+    const labelMap = useMemo(() => ({
+        'Home': t('navigation.home'),
+        'Content': t('menu.content'),
+        'Community': t('navigation.community'),
+        'Work': t('menu.work'),
+        'Services': t('menu.services'),
+        'Donations': t('donations.title'),
+        'Contact Us': t('navigation.contactUs'),
+        'Settings': t('navigation.settings'),
+        'Posts': t('menu.posts'),
+        'Calendar': t('menu.calendar'),
+        'Support Requests': t('menu.support'),
+        'Members': t('menu.members'),
+        'Staff': t('menu.staff'),
+        'Chat': t('menu.chat'),
+        'Small Groups': t('menu.smallGroups'),
+        'Trips': t('menu.trips'),
+        'Volunteering': t('menu.volunteering'),
+        'Resources': t('menu.resources'),
+        'Photos': t('menu.photos'),
+        'Podcasts': t('menu.podcasts'),
+        'Talks': t('menu.talks'),
+        'Books': t('menu.books'),
+        'Live Stream': t('menu.liveStream'),
+        'Wall': t('navigation.wall'),
+        'Ceremony': t('menu.ceremony'),
+        'Education': t('menu.education'),
+        'Counseling': t('menu.counseling'),
+        'Facilities': t('menu.facilities'),
+        'Other': t('menu.other'),
+        'Friends': t('navigation.friends'),
+        'Explore': t('navigation.explore'),
+    }), [t]);
+
+    const getLabel = (key: string) => labelMap[key as keyof typeof labelMap] || key;
 
     const clearTimer = (timerRef: MutableRefObject<number | null>) => {
         if (timerRef.current) {
@@ -257,7 +296,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                                     tabIndex={0}
                                                 >
                                                     <span className="inline-flex items-center justify-between w-full">
-                                                        <span>{item.label}</span>
+                                                        <span>{getLabel(item.label)}</span>
                                                         <svg className="h-4 w-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                                         </svg>
@@ -290,7 +329,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                                                 }
                                                                 onClick={handleNavClick}
                                                             >
-                                                                {sub.label}
+                                                                {getLabel(sub.label)}
                                                             </Link>
                                                         );
                                                     })}
@@ -310,14 +349,14 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                         >
                                             {item.key === 'settings' ? (
                                                 <span className="inline-flex items-center gap-2">
-                                                    <span>{item.label}</span>
+                                                    <span>{getLabel(item.label)}</span>
                                                     <svg className="h-4 w-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0a1.724 1.724 0 002.026 1.14c.962-.23 1.89.69 1.66 1.65a1.724 1.724 0 001.139 2.026c.92.3.92 1.603 0 1.902a1.724 1.724 0 00-1.14 2.026c.23.962-.69 1.89-1.65 1.66a1.724 1.724 0 00-2.026 1.139c-.3.92-1.603.92-1.902 0a1.724 1.724 0 00-2.026-1.14c-.962.23-1.89-.69-1.66-1.65a1.724 1.724 0 00-1.139-2.026c-.92-.3-.92-1.603 0-1.902a1.724 1.724 0 001.14-2.026c-.23-.962.69-1.89 1.65-1.66.7.166 1.47-.2 1.902-1.14z" />
                                                     </svg>
                                                 </span>
                                             ) : item.key === 'content' ? (
                                                 <span className="inline-flex items-center gap-2">
-                                                    <span>{item.label}</span>
+                                                    <span>{getLabel(item.label)}</span>
                                                     <svg className="h-4 w-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                                     </svg>
@@ -339,7 +378,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                         onClick={handleNavClick}
                                         role="menuitem"
                                     >
-                                        Friends
+                                        {getLabel('Friends')}
                                         {pendingFriendRequests > 0 && (
                                             <span className="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full">
                                                 {pendingFriendRequests}
@@ -348,7 +387,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                     </Link>
                                 )}
                                 <Link href="/" className="block px-4 py-3 text-sm text-foreground hover:bg-muted" onClick={handleNavClick} role="menuitem">
-                                    Explore
+                                    {getLabel('Explore')}
                                 </Link>
                             </div>
                         </div>
@@ -389,7 +428,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                                     tabIndex={0}
                                                 >
                                                     <span className="inline-flex items-center gap-2">
-                                                        <span>{item.label}</span>
+                                                        <span>{getLabel(item.label)}</span>
                                                         <svg className="h-4 w-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                                         </svg>
@@ -415,7 +454,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                                     tabIndex={0}
                                                 >
                                                     <span className="inline-flex items-center gap-2">
-                                                        <span>{item.label}</span>
+                                                        <span>{getLabel(item.label)}</span>
                                                         <svg className="h-4 w-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                                         </svg>
@@ -441,7 +480,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                                     tabIndex={0}
                                                 >
                                                     <span className="inline-flex items-center gap-2">
-                                                        <span>{item.label}</span>
+                                                        <span>{getLabel(item.label)}</span>
                                                         <svg className="h-4 w-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                                         </svg>
@@ -467,7 +506,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                                     tabIndex={0}
                                                 >
                                                     <span className="inline-flex items-center gap-2">
-                                                        <span>{item.label}</span>
+                                                        <span>{getLabel(item.label)}</span>
                                                         <svg className="h-4 w-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0a1.724 1.724 0 002.026 1.14c.962-.23 1.89.69 1.66 1.65a1.724 1.724 0 001.139 2.026c.92.3.92 1.603 0 1.902a1.724 1.724 0 00-1.14 2.026c.23.962-.69 1.89-1.65 1.66a1.724 1.724 0 00-2.026 1.139c-.3.92-1.603.92-1.902 0a1.724 1.724 0 00-2.026-1.14c-.962.23-1.89-.69-1.66-1.65a1.724 1.724 0 00-1.139-2.026c-.92-.3-.92-1.603 0-1.902a1.724 1.724 0 001.14-2.026c-.23-.962.69-1.89 1.65-1.66.7.166 1.47-.2 1.902-1.14z" />
                                                         </svg>
@@ -486,7 +525,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                             role="menuitem"
                                             tabIndex={0}
                                         >
-                                            {item.label}
+                                            {getLabel(item.label)}
                                         </Link>
                                     );
                                 })}
@@ -494,7 +533,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                 <div className="border-t border-border mt-1" />
                                 {isAuthenticated && (
                                     <Link href="/friends" className="block px-4 py-2 text-sm text-foreground hover:bg-muted relative" onClick={handleNavClick} role="menuitem">
-                                        Friends
+                                        {getLabel('Friends')}
                                         {pendingFriendRequests > 0 && (
                                             <span className="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full">
                                                 {pendingFriendRequests}
@@ -502,7 +541,7 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                                         )}
                                     </Link>
                                 )}
-                                <Link href="/" className="block px-4 py-2 text-sm text-foreground hover:bg-muted" onClick={handleNavClick} role="menuitem">Explore</Link>
+                                <Link href="/" className="block px-4 py-2 text-sm text-foreground hover:bg-muted" onClick={handleNavClick} role="menuitem">{getLabel('Explore')}</Link>
                             </div>
 
                             {/* Right column: submenu (shows when hovered) */}

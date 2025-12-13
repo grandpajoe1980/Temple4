@@ -4,6 +4,7 @@ import React from 'react';
 import type { Tenant } from '@/types';
 import ToggleSwitch from '../../ui/ToggleSwitch';
 import Button from '../../ui/Button';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface FeaturesTabProps {
   tenant: Tenant;
@@ -13,6 +14,7 @@ interface FeaturesTabProps {
 }
 
 const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave, onRefresh }) => {
+  const { t } = useTranslation();
   const [isSaving, setIsSaving] = React.useState(false);
   const formatLabel = (key: string) => {
     return key.replace('enable', '').replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
@@ -79,8 +81,8 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave, onR
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Feature Toggles</h3>
-        <p className="mt-1 text-sm text-gray-500">Enable or disable major features for your members.</p>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.features.title')}</h3>
+        <p className="mt-1 text-sm text-gray-500">{t('settings.features.description')}</p>
       </div>
       <div className="space-y-4">
         {featureKeys.map((key) => (
@@ -92,16 +94,16 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave, onR
           />
         ))}
       </div>
-      
+
       <div className="border-t border-gray-200 pt-8">
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Visitor Visibility</h3>
-        <p className="mt-1 text-sm text-gray-500">Control what non-members can see. Features must be enabled above to be visible.</p>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.features.visitorVisibility')}</h3>
+        <p className="mt-1 text-sm text-gray-500">{t('settings.features.visitorVisibilityDesc')}</p>
       </div>
-       <div className="space-y-4">
+      <div className="space-y-4">
         {visibilityKeys.map((key) => (
           <ToggleSwitch
             key={`vis-${key}`}
-            label={`Show ${formatLabel(key)} to Visitors`}
+            label={t('settings.features.showToVisitors', { feature: formatLabel(key) })}
             enabled={tenant.settings.visitorVisibility[key] && (tenant.settings as any)[`enable${key.charAt(0).toUpperCase() + key.slice(1)}`]}
             onChange={(enabled) => handleVisibilityToggle(key, enabled)}
           />
@@ -116,15 +118,15 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ tenant, onUpdate, onSave, onR
               setIsSaving(true);
               await onSave({ settings: { ...tenant.settings } });
               onRefresh?.();
-              alert('Features saved');
+              alert(t('settings.featuresSaved'));
             } catch (error: any) {
-              alert(error.message || 'Failed to save features');
+              alert(error.message || t('settings.featuresSaveFailed'));
             } finally {
               setIsSaving(false);
             }
           }}
         >
-          {isSaving ? 'Saving...' : 'Save Feature Settings'}
+          {isSaving ? t('common.saving') : t('settings.saveFeatures')}
         </Button>
       </div>
     </div>

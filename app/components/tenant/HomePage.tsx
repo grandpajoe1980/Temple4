@@ -24,7 +24,8 @@ interface HomePageProps {
 }
 
 const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh }) => {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
+  const localeCode = lang === 'vi' ? 'vi-VN' : lang === 'es' ? 'es-ES' : 'en-US';
   const [membership, setMembership] = useState<UserTenantMembership | null>(null);
   const [upcomingEvents, setUpcomingEvents] = useState<EventWithCreator[]>([]);
   const [recentPosts, setRecentPosts] = useState<PostListItem[]>([]);
@@ -169,7 +170,7 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
           </span>
-          <span className="font-bold text-lg">We’re Live! Click here to join.</span>
+          <span className="font-bold text-lg">{t('tenant.liveNow')}</span>
         </div>
       )}
 
@@ -217,9 +218,9 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
         <div className="lg:col-span-2 space-y-8">
           {/* Welcome Message */}
           <Card>
-            <h3 className="text-xl font-semibold text-gray-800">Welcome, {tenantDisplayName}!</h3>
+            <h3 className="text-xl font-semibold text-gray-800">{t('tenant.welcomeUser', { name: tenantDisplayName || t('common.anonymous') })}</h3>
             <p className="mt-2 text-gray-600">
-              This is the central hub for {tenant.name}. Here you’ll find the latest announcements, upcoming events, and more. We’re glad you’re here.
+              {t('tenant.welcomeMessage', { name: tenant.name })}
             </p>
           </Card>
 
@@ -237,7 +238,7 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
                 <li key={post.id} className="p-4 hover:bg-gray-50 cursor-pointer">
                   <div className="text-sm font-semibold text-gray-800">{post.title}</div>
                   <div className="text-xs text-gray-500 mt-1">
-                    By {post.authorDisplayName} on {post.publishedAt.toLocaleDateString()}
+                    {t('tenant.byAuthorOn', { author: post.authorDisplayName || t('common.anonymous'), date: post.publishedAt.toLocaleDateString(localeCode) })}
                   </div>
                 </li>
               )) : (
@@ -252,17 +253,17 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
           <Card className="!p-0">
             <div className="p-6 border-b border-gray-200 flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-semibold leading-6 text-gray-900">Upcoming Events</h3>
-                <p className="mt-1 text-sm text-gray-500">What’s happening soon.</p>
+                <h3 className="text-lg font-semibold leading-6 text-gray-900">{t('tenant.upcomingEvents')}</h3>
+                <p className="mt-1 text-sm text-gray-500">{t('tenant.upcomingEventsDesc')}</p>
               </div>
-              <Button variant="secondary" size="sm" onClick={() => onNavigate('calendar')}>View Calendar</Button>
+              <Button variant="secondary" size="sm" onClick={() => onNavigate('calendar')}>{t('tenant.viewCalendar')}</Button>
             </div>
             <ul className="divide-y divide-gray-200">
               {upcomingEvents.length > 0 ? upcomingEvents.map((event: any) => (
                 <li key={event.id} className="p-4 hover:bg-gray-50 cursor-pointer">
                   <div className="font-semibold text-sm text-gray-800">{event.title}</div>
                   <div className="text-xs tenant-text-primary mt-1">
-                    {event.startDateTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    {event.startDateTime.toLocaleDateString(localeCode, { weekday: 'short', month: 'short', day: 'numeric' })}
                   </div>
                 </li>
               )) : (

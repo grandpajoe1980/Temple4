@@ -5,6 +5,7 @@ import type { Tenant, LiveStreamSettings } from '@/types';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface LiveStreamTabProps {
   tenant: Tenant;
@@ -13,6 +14,7 @@ interface LiveStreamTabProps {
 }
 
 const LiveStreamTab: React.FC<LiveStreamTabProps> = ({ tenant, onUpdate, onSave }) => {
+  const { t } = useTranslation();
   const [isSaving, setIsSaving] = React.useState(false);
   const settings = tenant.settings.liveStreamSettings;
 
@@ -32,13 +34,13 @@ const LiveStreamTab: React.FC<LiveStreamTabProps> = ({ tenant, onUpdate, onSave 
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Live Stream Settings</h3>
-        <p className="mt-1 text-sm text-gray-500">Configure your live stream embed. The main "Enable Live Stream" toggle is in the <span className="font-semibold tenant-text-primary">Features</span> tab.</p>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.liveStream.title')}</h3>
+        <p className="mt-1 text-sm text-gray-500">{t('settings.liveStream.description')}</p>
       </div>
-      
+
       <div className="space-y-6">
         <div>
-          <label htmlFor="provider" className="block text-sm font-medium text-gray-700 mb-1">Stream Provider</label>
+          <label htmlFor="provider" className="block text-sm font-medium text-gray-700 mb-1">{t('settings.liveStream.provider')}</label>
           <select
             id="provider"
             name="provider"
@@ -49,31 +51,31 @@ const LiveStreamTab: React.FC<LiveStreamTabProps> = ({ tenant, onUpdate, onSave 
             <option value="YOUTUBE">YouTube</option>
             <option value="FACEBOOK">Facebook</option>
             <option value="VIMEO">Vimeo</option>
-            <option value="OTHER">Other (enter embed URL)</option>
+            <option value="OTHER">{t('settings.liveStream.otherProvider')}</option>
           </select>
         </div>
-        
-        <Input 
-            label="Embed URL"
-            id="embedUrl"
-            name="embedUrl"
-            type="url"
-            value={settings.embedUrl || ''}
-            onChange={e => handleSettingsChange('embedUrl', e.target.value)}
-            placeholder="https://www.youtube.com/embed/..."
+
+        <Input
+          label={t('settings.liveStream.embedUrl')}
+          id="embedUrl"
+          name="embedUrl"
+          type="url"
+          value={settings.embedUrl || ''}
+          onChange={e => handleSettingsChange('embedUrl', e.target.value)}
+          placeholder="https://www.youtube.com/embed/..."
         />
       </div>
 
       <div className="border-t border-gray-200 pt-8">
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Go Live</h3>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.liveStream.goLive')}</h3>
       </div>
       <ToggleSwitch
-        label="We're Live!"
-        description="Enable this to show a 'Live' indicator on your tenant home page."
+        label={t('settings.liveStream.wereLive')}
+        description={t('settings.liveStream.wereLiveDesc')}
         enabled={settings.isLive}
         onChange={enabled => handleSettingsChange('isLive', enabled)}
       />
-      
+
       <div className="text-right border-t border-gray-200 pt-6">
         <Button
           disabled={isSaving}
@@ -81,15 +83,15 @@ const LiveStreamTab: React.FC<LiveStreamTabProps> = ({ tenant, onUpdate, onSave 
             try {
               setIsSaving(true);
               await onSave({ settings: { ...tenant.settings } });
-              alert('Live stream settings saved');
+              alert(t('settings.liveStream.saved'));
             } catch (error: any) {
-              alert(error.message || 'Failed to save live stream settings');
+              alert(error.message || t('settings.liveStream.saveFailed'));
             } finally {
               setIsSaving(false);
             }
           }}
         >
-          {isSaving ? 'Saving...' : 'Save Changes'}
+          {isSaving ? t('common.saving') : t('settings.saveChanges')}
         </Button>
       </div>
     </div>

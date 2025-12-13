@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import type { TenantSettings } from '@/types';
 import type { TenantWithRelations } from '@/lib/data';
 import Button from '../ui/Button';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface TenantSelectorProps {
   tenants: TenantWithRelations[];
@@ -32,7 +33,17 @@ const featureMap: Record<FeatureKey, string> = {
 };
 
 const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCreateNew, showHeader = true }) => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
+
+  const featureLabels: Record<FeatureKey, string> = {
+    enableCalendar: t('features.events'),
+    enableGroupChat: t('features.chat'),
+    enableDonations: t('features.donations'),
+    enableVolunteering: t('features.volunteers'),
+    enableSmallGroups: t('features.smallGroups'),
+    enableLiveStream: t('features.liveStream'),
+  };
 
   const filteredTenants = useMemo(() => {
     const lowerQuery = query.trim().toLowerCase();
@@ -60,8 +71,8 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
       {showHeader && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-foreground">Select a tenant</h2>
-            <p className="text-sm text-muted-foreground">Search the full network or spin up a new spiritual home.</p>
+            <h2 className="text-2xl font-semibold text-foreground">{t('tenantSelector.selectTenant')}</h2>
+            <p className="text-sm text-muted-foreground">{t('tenantSelector.searchDescription')}</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative">
@@ -72,15 +83,15 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
               </span>
               <input
                 type="search"
-                aria-label="Filter tenants"
+                aria-label={t('tenantSelector.filterTenants')}
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 className="w-full rounded-xl border border-border bg-card/80 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="Search name, creed, or city"
+                placeholder={t('tenantSelector.searchPlaceholder')}
               />
             </div>
             <Button onClick={onCreateNew} className="rounded-xl text-sm">
-              + Create new community
+              {t('tenantSelector.createNewCommunity')}
             </Button>
           </div>
         </div>
@@ -89,7 +100,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
       <div className="space-y-4">
         {filteredTenants.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/70 p-6 text-center text-sm text-muted-foreground">
-            No communities match that search yet. Try another phrase or create a new tenant.
+            {t('tenantSelector.noMatchingCommunities')}
           </div>
         ) : (
           filteredTenants.map((tenant) => {
@@ -101,7 +112,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
               postalCode: tenant.postalCode,
             };
             const tenantSettings = tenant?.settings ?? null;
-            const activeFeatures = Object.entries(featureMap)
+            const activeFeatures = Object.entries(featureLabels)
               .filter(([key]) => Boolean(tenantSettings?.[key as FeatureKey]))
               .map(([, label]) => label)
               .slice(0, 3);
@@ -118,7 +129,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
                     <div className="flex items-center gap-3">
                       <h3 className="text-lg font-semibold text-foreground">{tenant.name}</h3>
                       <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-                        {isPublic ? 'Public' : 'Private'}
+                        {isPublic ? t('common.public') : t('common.private')}
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground">
@@ -131,7 +142,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
                       ) : null}
                     </p>
                   </div>
-                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Tap to open</span>
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('tenantSelector.tapToOpen')}</span>
                 </div>
                 {tenant.description ? (
                   <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
@@ -149,7 +160,7 @@ const TenantSelector: React.FC<TenantSelectorProps> = ({ tenants, onSelect, onCr
                       </span>
                     ))
                   ) : (
-                    <span className="text-xs text-muted-foreground">Feature toggles coming soon</span>
+                    <span className="text-xs text-muted-foreground">{t('tenantSelector.featuresSoon')}</span>
                   )}
                 </div>
               </button>

@@ -6,6 +6,7 @@ import type { UserTenantRole } from '@/types';
 import Card from '../ui/Card';
 import Link from 'next/link';
 import Avatar from '../ui/Avatar';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface MemberCardProps {
   member: MemberWithMembership;
@@ -13,12 +14,22 @@ interface MemberCardProps {
 }
 
 const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
+  const { t } = useTranslation();
+
   const roleColors: { [key: string]: string } = {
     ADMIN: 'bg-red-100 text-red-800',
     STAFF: 'bg-sky-100 text-sky-800',
     LEADER: 'tenant-bg-100 tenant-text-primary',
     MODERATOR: 'bg-indigo-100 text-indigo-800',
     MEMBER: 'bg-gray-100 text-gray-800',
+  };
+
+  const roleLabels: { [key: string]: string } = {
+    ADMIN: t('roles.admin'),
+    STAFF: t('roles.staff'),
+    LEADER: t('roles.leader'),
+    MODERATOR: t('roles.moderator'),
+    MEMBER: t('roles.member'),
   };
 
   const primaryRole = member.membership.roles.find((roleInfo: UserTenantRole) => roleInfo.isPrimary) || member.membership.roles[0];
@@ -43,11 +54,10 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, onViewProfile }) => {
           {member.membership.roles.map((roleInfo: UserTenantRole) => (
             <span
               key={roleInfo.id}
-              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                roleColors[roleInfo.role] || 'bg-gray-100 text-gray-800'
-              }`}
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${roleColors[roleInfo.role] || 'bg-gray-100 text-gray-800'
+                }`}
             >
-              {roleInfo.role}
+              {roleLabels[roleInfo.role] || roleInfo.role}
             </span>
           ))}
         </div>

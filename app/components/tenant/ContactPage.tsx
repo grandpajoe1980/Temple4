@@ -41,7 +41,7 @@ interface ContactPageProps {
 const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName }) => {
   const { t } = useTranslation();
   const serviceMessage = initialServiceName
-    ? `Hi there! I'm interested in learning more about ${initialServiceName}.`
+    ? t('contact.serviceInquiry', { service: initialServiceName })
     : '';
   const [formState, setFormState] = useState({ name: '', email: '', message: serviceMessage });
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -225,8 +225,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
             <form onSubmit={handleSubmit} className="space-y-6">
               {initialServiceName && (
                 <div className="rounded-md border tenant-border-200 tenant-bg-50 p-4 text-sm tenant-text-primary">
-                  You’re asking about <span className="font-semibold">{initialServiceName}</span>. We’ll include that in your
-                  message so our team knows how to help.
+                  {t('contact.askingAbout', { service: initialServiceName })}
                 </div>
               )}
               <Input
@@ -251,7 +250,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ tenant, initialServiceName })
               />
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                  Message
+                  {t('contact.message')}
                 </label>
                 <textarea
                   id="message"

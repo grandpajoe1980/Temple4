@@ -5,6 +5,7 @@ import type { EnrichedResourceItem, User, Tenant } from '@/types';
 import { FileType, ResourceVisibility } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface ResourceItemCardProps {
   resource: EnrichedResourceItem;
@@ -38,7 +39,7 @@ const FileTypeIcon: React.FC<{ type: FileType }> = ({ type }) => {
       </svg>
     ),
     [FileType.PNG]: (
-       <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full" viewBox="0 0 20 20" fill="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
       </svg>
     ),
@@ -52,10 +53,12 @@ const FileTypeIcon: React.FC<{ type: FileType }> = ({ type }) => {
 };
 
 const ResourceItemCard: React.FC<ResourceItemCardProps> = ({ resource, currentUser, tenant, permissions, onUpdate }) => {
+  const { t, lang } = useTranslation();
+  const localeCode = lang === 'vi' ? 'vi-VN' : lang === 'es' ? 'es-ES' : 'en-US';
   const canManage = Boolean(permissions?.canManageResources ?? false);
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) return;
+    if (!window.confirm(t('resources.confirmDelete'))) return;
     try {
       const res = await fetch(`/api/tenants/${tenant.id}/resources/${resource.id}`, {
         method: 'DELETE',
@@ -67,10 +70,10 @@ const ResourceItemCard: React.FC<ResourceItemCardProps> = ({ resource, currentUs
       onUpdate();
     } catch (error) {
       console.error('Failed to delete resource:', error);
-      alert('Failed to delete resource');
+      alert(t('resources.deleteFailed'));
     }
   };
-  
+
   const iconBgColor = resource.visibility === ResourceVisibility.MEMBERS_ONLY ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-600';
 
   return (
@@ -84,7 +87,7 @@ const ResourceItemCard: React.FC<ResourceItemCardProps> = ({ resource, currentUs
             <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">{resource.title}</h3>
             {resource.visibility === ResourceVisibility.MEMBERS_ONLY && (
               <span className="inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-800 mt-1">
-                Members Only
+                {t('resources.membersOnly')}
               </span>
             )}
           </div>
@@ -94,11 +97,11 @@ const ResourceItemCard: React.FC<ResourceItemCardProps> = ({ resource, currentUs
       <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>{resource.uploaderDisplayName}</span>
-          <span>{new Date(resource.createdAt).toLocaleDateString()}</span>
+          <span>{new Date(resource.createdAt).toLocaleDateString(localeCode)}</span>
         </div>
-          <div className="mt-3 flex items-center space-x-2">
+        <div className="mt-3 flex items-center space-x-2">
           <a href={resource.fileUrl} download className="w-full">
-            <Button className="w-full">Download</Button>
+            <Button className="w-full">{t('resources.download')}</Button>
           </a>
           {canManage && (
             <Button variant="danger" size="sm" onClick={handleDelete} className="!p-2.5">

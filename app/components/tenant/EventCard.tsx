@@ -16,7 +16,7 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
-  const { t, language } = useTranslation();
+  const { t, lang } = useTranslation();
   const router = useRouter();
   const kind = (event as any).kind;
   const isTrip = kind === 'trip';
@@ -27,7 +27,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId }) => {
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Get locale code for date formatting
-  const localeCode = language === 'vi' ? 'vi-VN' : language === 'es' ? 'es-ES' : 'en-US';
+  const localeCode = lang === 'vi' ? 'vi-VN' : lang === 'es' ? 'es-ES' : 'en-US';
 
   const formatDateTime = (start: Date, end: Date) => {
     const startDate = start.toLocaleDateString(localeCode, { weekday: 'long', month: 'long', day: 'numeric' });

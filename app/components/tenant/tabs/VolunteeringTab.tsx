@@ -7,6 +7,7 @@ import Modal from '../../ui/Modal';
 import VolunteerNeedForm from '../forms/VolunteerNeedForm';
 import Avatar from '../../ui/Avatar';
 import UserLink from '../../ui/UserLink';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface VolunteeringTabProps {
   tenant: Tenant;
@@ -15,6 +16,7 @@ interface VolunteeringTabProps {
 }
 
 const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, onRefresh }) => {
+  const { t } = useTranslation();
   const [needs, setNeeds] = useState<EnrichedVolunteerNeed[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expandedNeedId, setExpandedNeedId] = useState<string | null>(null);
@@ -56,10 +58,10 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
       });
       if (!res.ok) throw new Error('Failed to create volunteer need');
       await refreshNeeds();
-        setIsModalOpen(false);
+      setIsModalOpen(false);
     } catch (err) {
       console.error('Failed to create volunteer need', err);
-      alert('Failed to create volunteer need');
+      alert(t('settings.volunteering.createFailed'));
     }
   };
 
@@ -71,10 +73,10 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Volunteer Management</h3>
-          <p className="mt-1 text-sm text-gray-500">Create and manage volunteer opportunities for your members.</p>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.volunteering.title')}</h3>
+          <p className="mt-1 text-sm text-gray-500">{t('settings.volunteering.description')}</p>
         </div>
-        <Button data-test="create-volunteer-trigger-tab" onClick={() => setIsModalOpen(true)}>+ New</Button>
+        <Button data-test="create-volunteer-trigger-tab" onClick={() => setIsModalOpen(true)}>{t('common.new')}</Button>
       </div>
 
       <div className="space-y-4">
@@ -120,13 +122,13 @@ const VolunteeringTab: React.FC<VolunteeringTabProps> = ({ tenant, currentUser, 
           ))
         ) : (
           <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-900">No Volunteer Needs Created</h3>
-            <p className="mt-1 text-sm text-gray-500">Click “Create Need” to get started.</p>
+            <h3 className="text-lg font-medium text-gray-900">{t('settings.volunteering.noNeeds')}</h3>
+            <p className="mt-1 text-sm text-gray-500">{t('settings.volunteering.clickToCreate')}</p>
           </div>
         )}
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-volunteer-modal" title="Create Volunteer Need">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="create-volunteer-modal" title={t('settings.volunteering.createNeed')}>
         <VolunteerNeedForm onSubmit={handleCreateNeed} onCancel={() => setIsModalOpen(false)} />
       </Modal>
     </div>

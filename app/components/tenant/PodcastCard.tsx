@@ -4,6 +4,7 @@ import Card from '../ui/Card';
 import Avatar from '@/app/components/ui/Avatar';
 import UserLink from '@/app/components/ui/UserLink';
 import PodcastEmbed from '@/app/components/PodcastEmbed';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface PodcastCardProps {
   podcast: EnrichedMediaItem;
@@ -15,6 +16,9 @@ interface PodcastCardProps {
 }
 
 const PodcastCard: React.FC<PodcastCardProps> = ({ podcast, canEdit = false, onEdit, onDelete, onPlay, expanded = true }) => {
+  const { lang } = useTranslation();
+  const localeCode = lang === 'vi' ? 'vi-VN' : lang === 'es' ? 'es-ES' : 'en-US';
+
   // Always show the full embedded player
   return (
     <Card className="relative !p-0 overflow-hidden flex flex-col">
@@ -23,10 +27,10 @@ const PodcastCard: React.FC<PodcastCardProps> = ({ podcast, canEdit = false, onE
         {canEdit ? (
           <>
             <button onClick={() => onEdit?.(podcast)} className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center" title="Edit">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5z" fill="currentColor"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5z" fill="currentColor" /></svg>
             </button>
             <button onClick={() => onDelete?.(podcast)} className="h-9 w-9 rounded-full bg-red-600 text-white flex items-center justify-center" title="Delete">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 7L5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 7L5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           </>
         ) : null}
@@ -44,7 +48,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({ podcast, canEdit = false, onE
           <span className="font-medium text-gray-800">{podcast.authorDisplayName}</span>
         </UserLink>
         <time dateTime={podcast.publishedAt.toISOString()} className="text-gray-500">
-          {podcast.publishedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {podcast.publishedAt.toLocaleDateString(localeCode, { year: 'numeric', month: 'long', day: 'numeric' })}
         </time>
       </div>
     </Card>

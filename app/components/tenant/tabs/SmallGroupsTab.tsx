@@ -6,6 +6,7 @@ import type { Tenant, User, EnrichedSmallGroup, EnrichedMember } from '@/types';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import SmallGroupForm from '../forms/SmallGroupForm';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface SmallGroupsTabProps {
   tenant: Tenant;
@@ -14,12 +15,13 @@ interface SmallGroupsTabProps {
 }
 
 const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, onRefresh }) => {
+  const { t } = useTranslation();
   const [groups, setGroups] = useState<EnrichedSmallGroup[]>([]);
   const [tenantMembers, setTenantMembers] = useState<EnrichedMember[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
@@ -92,7 +94,7 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
       setEditingGroup(null);
     } catch (err) {
       console.error('Delete request failed', err);
-      alert('Failed to delete group');
+      alert(t('settings.smallGroups.deleteFailed'));
     }
   };
 
@@ -100,11 +102,11 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
     return (
       <div className="space-y-8">
         <div>
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Small Group Management</h3>
-          <p className="mt-1 text-sm text-gray-500">Create and manage small groups for your members.</p>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.smallGroups.title')}</h3>
+          <p className="mt-1 text-sm text-gray-500">{t('settings.smallGroups.description')}</p>
         </div>
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading groups...</p>
+          <p className="text-gray-500">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -114,23 +116,23 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Small Group Management</h3>
-          <p className="mt-1 text-sm text-gray-500">Create and manage small groups for your members.</p>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.smallGroups.title')}</h3>
+          <p className="mt-1 text-sm text-gray-500">{t('settings.smallGroups.description')}</p>
         </div>
-        <Button data-test="create-smallgroup-trigger" onClick={() => setIsModalOpen(true)}>+ Create Group</Button>
+        <Button data-test="create-smallgroup-trigger" onClick={() => setIsModalOpen(true)}>{t('settings.smallGroups.createGroup')}</Button>
       </div>
-      
+
       <div className="flow-root">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <table className="min-w-full divide-y divide-gray-300">
               <thead>
                 <tr>
-                  <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Group Name</th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Leader</th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Members</th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">Actions</span></th>
+                  <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">{t('settings.smallGroups.groupName')}</th>
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('settings.smallGroups.leader')}</th>
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('settings.smallGroups.members')}</th>
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('settings.smallGroups.status')}</th>
+                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">{t('common.edit')}</span></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
@@ -147,7 +149,7 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       {
                         (() => {
-                          const label = group.isHidden ? 'Hidden' : (group.isActive ? 'Active' : 'Inactive');
+                          const label = group.isHidden ? t('settings.smallGroups.hidden') : (group.isActive ? t('settings.smallGroups.active') : t('settings.smallGroups.inactive'));
                           const cls = group.isHidden ? 'bg-yellow-100 text-yellow-800' : (group.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800');
                           return (
                             <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>
@@ -158,7 +160,7 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
                       }
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                       <Button variant="secondary" size="sm" onClick={() => { setEditingGroup(group); setIsModalOpen(true); }}>Edit</Button>
+                      <Button variant="secondary" size="sm" onClick={() => { setEditingGroup(group); setIsModalOpen(true); }}>{t('common.edit')}</Button>
                     </td>
                   </tr>
                 ))}
@@ -168,7 +170,7 @@ const SmallGroupsTab: React.FC<SmallGroupsTabProps> = ({ tenant, currentUser, on
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingGroup(null); }} dataTest={editingGroup ? 'edit-smallgroup-modal' : 'create-smallgroup-modal'} title={editingGroup ? 'Edit Small Group' : 'Create Small Group'}>
+      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingGroup(null); }} dataTest={editingGroup ? 'edit-smallgroup-modal' : 'create-smallgroup-modal'} title={editingGroup ? t('settings.smallGroups.editGroup') : t('settings.smallGroups.createGroupTitle')}>
         <SmallGroupForm
           onSubmit={editingGroup ? handleUpdateGroup : handleCreateGroup}
           onCancel={() => { setIsModalOpen(false); setEditingGroup(null); }}

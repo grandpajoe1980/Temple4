@@ -24,7 +24,7 @@ interface CommentsSectionProps {
 }
 
 const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, currentUser }) => {
-  const { t, language } = useTranslation();
+  const { t, lang } = useTranslation();
   const [comments, setComments] = useState<PostCommentWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -32,7 +32,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ tenantId, postId, cur
   const toast = useToast();
 
   // Get locale for date formatting
-  const localeCode = language === 'vi' ? 'vi-VN' : language === 'es' ? 'es-ES' : 'en-US';
+  const localeCode = lang === 'vi' ? 'vi-VN' : lang === 'es' ? 'es-ES' : 'en-US';
 
   useEffect(() => {
     const fetchComments = async () => {

@@ -11,6 +11,7 @@ import UserLink from '@/app/components/ui/UserLink';
 // Permissions are fetched from the server via the tenant context endpoint
 import EditRolesModal from './EditRolesModal';
 import Modal from '../../ui/Modal';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface MembershipTabProps {
   tenant: Tenant;
@@ -24,16 +25,16 @@ interface MembershipTabProps {
 // Helper to get onboarding status display
 const getOnboardingStatusBadge = (status?: OnboardingStatus | string) => {
   if (!status) return null;
-  
+
   const statusConfig: Record<string, { label: string; className: string }> = {
     [OnboardingStatus.PENDING]: { label: 'Pending', className: 'bg-gray-100 text-gray-700' },
     [OnboardingStatus.PACKET_QUEUED]: { label: 'Packet Queued', className: 'bg-yellow-100 text-yellow-700' },
     [OnboardingStatus.PACKET_SENT]: { label: 'Packet Sent', className: 'bg-blue-100 text-blue-700' },
     [OnboardingStatus.COMPLETED]: { label: 'Completed', className: 'bg-green-100 text-green-700' },
   };
-  
+
   const config = statusConfig[status] || { label: status, className: 'bg-gray-100 text-gray-700' };
-  
+
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.className}`}>
       {config.label}
@@ -42,6 +43,7 @@ const getOnboardingStatusBadge = (status?: OnboardingStatus | string) => {
 };
 
 const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave, currentUser, onImpersonate, onRefresh }) => {
+  const { t } = useTranslation();
   const [allMembers, setAllMembers] = useState<EnrichedMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingMember, setEditingMember] = useState<EnrichedMember | null>(null);
@@ -113,11 +115,11 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
   const handleStatusUpdate = async (membershipId: string, status: MembershipStatus, memberName: string) => {
     let confirmMessage = `Are you sure you want to ${status.toLowerCase()} this member?`;
     if (status === MembershipStatus.BANNED) {
-        confirmMessage = `Are you sure you want to ban ${memberName}? This will revoke all their permissions and access to this tenant's member-only content.`;
+      confirmMessage = `Are you sure you want to ban ${memberName}? This will revoke all their permissions and access to this tenant's member-only content.`;
     } else if (status === MembershipStatus.APPROVED && allMembers.find(m => m.membership.id === membershipId)?.membership.status === MembershipStatus.BANNED) {
-        confirmMessage = `Are you sure you want to unban ${memberName}? This will restore their previous roles and permissions.`;
+      confirmMessage = `Are you sure you want to unban ${memberName}? This will restore their previous roles and permissions.`;
     } else if (status === MembershipStatus.APPROVED) {
-        confirmMessage = `Are you sure you want to approve ${memberName}'s request to join?`;
+      confirmMessage = `Are you sure you want to approve ${memberName}'s request to join?`;
     }
 
     if (window.confirm(confirmMessage)) {
@@ -129,7 +131,7 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
       onRefresh();
     }
   };
-  
+
   const handleRolesUpdate = async (member: EnrichedMember, newRoles: UserTenantRole[]) => {
     // Existing server route expects an array of role names (TenantRole)
     await fetch(`/api/tenants/${tenant.id}/members/${member.id}`, {
@@ -145,11 +147,11 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
     return (
       <div className="space-y-8">
         <div>
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Membership & Moderation</h3>
-          <p className="mt-1 text-sm text-gray-500">Manage member access and permissions for your tenant.</p>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.membership.title')}</h3>
+          <p className="mt-1 text-sm text-gray-500">{t('settings.membership.description')}</p>
         </div>
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading members...</p>
+          <p className="text-gray-500">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -164,7 +166,7 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
       return (
         <div>
           <h3 className="text-lg font-medium leading-6 text-gray-900">{title}</h3>
-          <p className="mt-1 text-sm text-gray-500">No members in this category.</p>
+          <p className="mt-1 text-sm text-gray-500">{t('settings.membership.noMembers')}</p>
         </div>
       );
     }
@@ -177,12 +179,12 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
               <table className="min-w-full divide-y divide-gray-300">
                 <thead>
                   <tr>
-                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Name</th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Title / Roles</th>
+                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">{t('settings.membership.name')}</th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('settings.membership.titleRoles')}</th>
                     {showOnboarding && (
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Onboarding</th>
+                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('settings.membership.onboarding')}</th>
                     )}
-                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">Actions</span></th>
+                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">{t('common.actions')}</span></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
@@ -217,26 +219,26 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
                           </td>
                         )}
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                           <div className="flex items-center justify-end space-x-2">
-                             {member.membership.status === MembershipStatus.PENDING && canApprove && (
-                                <>
-                                  <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.REJECTED, member.profile?.displayName)}>Reject</Button>
-                                  <Button size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.APPROVED, member.profile?.displayName)}>Approve</Button>
-                                </>
-                             )}
-                              {member.membership.status === MembershipStatus.APPROVED && canApprove && (
-                                <Button data-test={`edit-roles-trigger-${member.id}`} variant="secondary" size="sm" onClick={() => setEditingMember(member)}>Edit Roles</Button>
-                              )}
-                             {member.membership.status === MembershipStatus.APPROVED && canBan && (
-                                <Button variant="danger" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.BANNED, member.profile?.displayName)}>Ban</Button>
-                             )}
-                              {member.membership.status === MembershipStatus.BANNED && canBan && (
-                                <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.APPROVED, member.profile?.displayName)}>Unban</Button>
-                             )}
-                             {currentUser.isSuperAdmin && currentUser.id !== member.id && (
-                               <Button variant="secondary" size="sm" onClick={() => onImpersonate(member)}>Impersonate</Button>
+                          <div className="flex items-center justify-end space-x-2">
+                            {member.membership.status === MembershipStatus.PENDING && canApprove && (
+                              <>
+                                <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.REJECTED, member.profile?.displayName)}>{t('common.reject')}</Button>
+                                <Button size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.APPROVED, member.profile?.displayName)}>{t('common.approve')}</Button>
+                              </>
                             )}
-                           </div>
+                            {member.membership.status === MembershipStatus.APPROVED && canApprove && (
+                              <Button data-test={`edit-roles-trigger-${member.id}`} variant="secondary" size="sm" onClick={() => setEditingMember(member)}>{t('settings.membership.editRoles')}</Button>
+                            )}
+                            {member.membership.status === MembershipStatus.APPROVED && canBan && (
+                              <Button variant="danger" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.BANNED, member.profile?.displayName)}>{t('common.ban')}</Button>
+                            )}
+                            {member.membership.status === MembershipStatus.BANNED && canBan && (
+                              <Button variant="secondary" size="sm" onClick={() => handleStatusUpdate(member.id, MembershipStatus.APPROVED, member.profile?.displayName)}>{t('common.unban')}</Button>
+                            )}
+                            {currentUser.isSuperAdmin && currentUser.id !== member.id && (
+                              <Button variant="secondary" size="sm" onClick={() => onImpersonate(member)}>{t('common.impersonate')}</Button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -253,12 +255,12 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Membership Settings</h3>
-        <p className="mt-1 text-sm text-gray-500">Configure how users can join your temple.</p>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.membership.settingsTitle')}</h3>
+        <p className="mt-1 text-sm text-gray-500">{t('settings.membership.settingsDesc')}</p>
       </div>
       <div>
         <label htmlFor="membershipApprovalMode" className="block text-sm font-medium text-gray-700">
-          Membership Approval Mode
+          {t('settings.membership.approvalMode')}
         </label>
         <select
           id="membershipApprovalMode"
@@ -267,19 +269,19 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
           value={tenant.settings.membershipApprovalMode}
           onChange={handleModeChange}
         >
-          <option value={MembershipApprovalMode.OPEN}>Open Enrollment (anyone can join instantly)</option>
-          <option value={MembershipApprovalMode.APPROVAL_REQUIRED}>Approval Required (admins must approve requests)</option>
+          <option value={MembershipApprovalMode.OPEN}>{t('settings.membership.openEnrollment')}</option>
+          <option value={MembershipApprovalMode.APPROVAL_REQUIRED}>{t('settings.membership.approvalRequired')}</option>
         </select>
       </div>
 
       {/* Welcome Packet Settings */}
       <div className="border-t border-gray-200 pt-6">
-        <h4 className="text-md font-medium text-gray-900 mb-4">Welcome Packet</h4>
+        <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.membership.welcomePacket')}</h4>
         <p className="text-sm text-gray-500 mb-4">
-          Configure a welcome packet that new members will receive when their membership is approved.
+          {t('settings.membership.welcomePacketDesc')}
         </p>
         <Input
-          label="Welcome Packet URL"
+          label={t('settings.membership.welcomePacketUrl')}
           id="welcomePacketUrl"
           name="welcomePacketUrl"
           type="url"
@@ -288,23 +290,22 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
           placeholder="https://example.com/welcome-packet.pdf"
         />
         <p className="mt-1 text-xs text-gray-500">
-          Enter a URL to a PDF, Google Doc, or webpage that new members should receive when approved.
-          Leave empty to skip sending a welcome packet.
+          {t('settings.membership.welcomePacketHint')}
         </p>
       </div>
 
       <div className="border-t border-gray-200 pt-8 space-y-8">
-        <MemberTable members={requested} title="Pending Requests" />
-        <MemberTable members={approved} title="Approved Members" showOnboarding={true} />
-        <MemberTable members={banned} title="Banned Members" />
+        <MemberTable members={requested} title={t('settings.membership.pendingRequests')} />
+        <MemberTable members={approved} title={t('settings.membership.approvedMembers')} showOnboarding={true} />
+        <MemberTable members={banned} title={t('settings.membership.bannedMembers')} />
       </div>
 
       {editingMember && (
         <EditRolesModal
-         isOpen={!!editingMember}
-         onClose={() => setEditingMember(null)}
-         member={editingMember}
-         onSubmit={handleRolesUpdate}
+          isOpen={!!editingMember}
+          onClose={() => setEditingMember(null)}
+          member={editingMember}
+          onSubmit={handleRolesUpdate}
         />
       )}
 
@@ -315,15 +316,15 @@ const MembershipTab: React.FC<MembershipTabProps> = ({ tenant, onUpdate, onSave,
             try {
               setIsSaving(true);
               await onSave({ settings: { ...tenant.settings } });
-              alert('Membership settings saved');
+              alert(t('settings.membership.saved'));
             } catch (error: any) {
-              alert(error.message || 'Failed to save membership settings');
+              alert(error.message || t('settings.membership.saveFailed'));
             } finally {
               setIsSaving(false);
             }
           }}
         >
-          {isSaving ? 'Saving...' : 'Save Membership Settings'}
+          {isSaving ? t('common.saving') : t('settings.membership.saveSettings')}
         </Button>
       </div>
     </div>

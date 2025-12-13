@@ -634,6 +634,7 @@ model Event {
   // organizer relation intentionally not modeled to avoid ambiguous relations on User
   cancellationReason   String?
   tags                 Json? // array of tags stored as JSON
+  recurrenceRule       String? // RRULE string
   recurrenceGroupId    String?
   deletedAt            DateTime?
   createdAt            DateTime             @default(now())

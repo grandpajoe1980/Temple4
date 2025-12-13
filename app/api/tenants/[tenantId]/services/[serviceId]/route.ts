@@ -28,9 +28,9 @@ const updateSchema = z
     category: z.enum(SERVICE_CATEGORY_VALUES).optional(),
     isPublic: z.boolean().optional(),
     requiresBooking: z.boolean().optional(),
-    contactEmailOverride: z.string().email().optional().or(z.literal('')),
-    pricing: z.string().max(1000).optional().or(z.literal('')),
-    imageUrl: z.string().url().optional().or(z.literal('')),
+    contactEmailOverride: z.string().email().nullish().or(z.literal('')),
+    pricing: z.string().max(1000).nullish().or(z.literal('')),
+    imageUrl: z.string().url().nullish().or(z.literal('')),
     order: z.number().int().min(0).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
@@ -85,14 +85,18 @@ export async function PATCH(
     return validationError(parsed.error.flatten().fieldErrors);
   }
 
+  // Helper to normalize: undefined -> undefined (no change), null/"" -> null (clear), string -> trimmed string
+  const normalizeNullable = (val: string | null | undefined) => {
+    if (val === undefined) return undefined;
+    if (val === null || val.trim() === '') return null;
+    return val.trim();
+  };
+
   const normalizedData = {
     ...parsed.data,
-    contactEmailOverride:
-      parsed.data.contactEmailOverride === undefined
-        ? undefined
-        : parsed.data.contactEmailOverride?.trim() || undefined,
-    pricing: parsed.data.pricing === undefined ? undefined : parsed.data.pricing?.trim() || undefined,
-    imageUrl: parsed.data.imageUrl === undefined ? undefined : parsed.data.imageUrl?.trim() || undefined,
+    contactEmailOverride: normalizeNullable(parsed.data.contactEmailOverride),
+    pricing: normalizeNullable(parsed.data.pricing),
+    imageUrl: normalizeNullable(parsed.data.imageUrl),
   };
 
   const updated = await updateServiceOffering(tenantId, serviceId, normalizedData);

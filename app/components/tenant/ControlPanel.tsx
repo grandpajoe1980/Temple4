@@ -25,7 +25,6 @@ import TripsTab from './tabs/TripsTab';
 
 // Tabs that link to separate admin pages
 const STANDALONE_TABS: Record<string, string> = {
-  'Assets': '/admin/assets',
   'Localization': '/admin/localization',
   'Member Notes': '/admin/member-notes',
   'Memorials': '/admin/memorials',
@@ -82,7 +81,9 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
         case 'Resource Center':
           return Boolean(permissions?.canManageResources);
         case 'Contact Submissions':
-            return Boolean(permissions?.canManageContactSubmissions);
+          return Boolean(permissions?.canManageContactSubmissions);
+        case 'Services':
+          return Boolean(permissions?.canManageServices);
         case 'Facilities':
           return Boolean(permissions?.canManageFacilities);
         default:
@@ -104,8 +105,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
 
     return ordered;
   }, [currentUser, isAdmin, permissions]);
-  
-  const [activeTab, setActiveTab] = useState(availableTabs[0] || CONTROL_PANEL_TABS[0]);
+
+  const [activeTab, setActiveTab] = useState(availableTabs[0] || 'General');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -189,7 +190,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
         return (
           <div className="text-center py-12 text-gray-500">
             <p>This section has its own dedicated page.</p>
-            <button 
+            <button
               onClick={() => handleTabClick(activeTab)}
               className="mt-4 tenant-text-primary hover:text-[color:var(--primary)] font-medium"
             >
@@ -215,11 +216,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
               <button
                 key={tab}
                 onClick={() => handleTabClick(tab)}
-                className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-between ${
-                  isActive
-                    ? 'tenant-bg-50 tenant-text-primary font-medium'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
+                className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-between ${isActive
+                  ? 'tenant-bg-50 tenant-text-primary font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
               >
                 <span>{tab}</span>
                 {isStandalone && (
@@ -277,9 +277,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ tenant, onUpdate, onSave, c
                         setMobileMenuOpen(false);
                         handleTabClick(tab);
                       }}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-between ${
-                        isActive ? 'tenant-bg-50 tenant-text-primary font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`}
+                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-between ${isActive ? 'tenant-bg-50 tenant-text-primary font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        }`}
                     >
                       <span>{tab}</span>
                       {isStandalone && (

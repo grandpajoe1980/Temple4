@@ -25,10 +25,10 @@ const serviceOfferingSchema = z.object({
   contactEmailOverride: z
     .string()
     .email('Contact email must be valid')
-    .optional()
+    .nullish()
     .or(z.literal('')),
-  pricing: z.string().max(1000).optional().or(z.literal('')),
-  imageUrl: z.string().url('Image URL must be valid').optional().or(z.literal('')),
+  pricing: z.string().max(1000).nullish().or(z.literal('')),
+  imageUrl: z.string().url('Image URL must be valid').nullish().or(z.literal('')),
   order: z.number().int().min(0).optional(),
 });
 
@@ -81,9 +81,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
 
   const normalizedData = {
     ...parsed.data,
-    contactEmailOverride: parsed.data.contactEmailOverride?.trim() || undefined,
-    pricing: parsed.data.pricing?.trim() || undefined,
-    imageUrl: parsed.data.imageUrl?.trim() || undefined,
+    contactEmailOverride: parsed.data.contactEmailOverride?.trim() || null,
+    pricing: parsed.data.pricing?.trim() || null,
+    imageUrl: parsed.data.imageUrl?.trim() || null,
   };
 
   const service = await createServiceOffering(tenantId, normalizedData);

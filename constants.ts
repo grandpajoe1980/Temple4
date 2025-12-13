@@ -29,7 +29,6 @@ export const CONTROL_PANEL_TABS = [
   'Localization',
   'Memorials',
   'Vanity Domains',
-  'Assets',
   'Workboard',
   'Tickets',
   'Member Notes',
@@ -56,6 +55,7 @@ const defaultRolePermissions: RolePermissions = {
   canManageFacilities: false,
   canManagePrayerWall: false,
   canViewWorkMenu: false,
+  canManageServices: false,
 };
 
 export const adminPermissions: RolePermissions = {
@@ -79,6 +79,7 @@ export const adminPermissions: RolePermissions = {
   canManageFacilities: true,
   canManagePrayerWall: true,
   canViewWorkMenu: true,
+  canManageServices: true,
 };
 
 const defaultPermissions: TenantFeaturePermissions = {
@@ -103,6 +104,7 @@ const defaultPermissions: TenantFeaturePermissions = {
     canManageContactSubmissions: true,
     canManageFacilities: true,
     canViewWorkMenu: false,
+    canManageServices: true,
   },
   [TenantRoleType.MODERATOR]: {
     ...defaultRolePermissions,
@@ -169,9 +171,9 @@ export const getInitialTenant = (): Omit<Tenant, 'id' | 'name' | 'slug' | 'creed
       otherGivingLinks: [],
     },
     liveStreamSettings: {
-        provider: 'YOUTUBE',
-        embedUrl: '',
-        isLive: false,
+      provider: 'YOUTUBE',
+      embedUrl: '',
+      isLive: false,
     },
     visitorVisibility: {
       calendar: true,

@@ -75,16 +75,55 @@ export default function CalendarClient({ tenantId }: { tenantId: string }) {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.map(ev => (
-          <EventCard
-            key={ev.id}
-            event={ev}
-            onOpen={id => setSelectedEventId(id)}
-            tenantId={tenantId}
-            isAdmin={isAdmin}
-            onDelete={(id: string) => setEvents((prev) => prev.filter((e) => e.id !== id))}
-          />
-        ))}
+        {(() => {
+          // Filter for unique recurrences (show next upcoming)
+          const now = new Date();
+          const processedEvents = new Map<string, any>();
+          const singleEvents: any[] = [];
+
+          // Sort by date first to make finding "next" easier
+          const sortedEvents = [...events].sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime());
+
+          sortedEvents.forEach(ev => {
+            if (ev.recurrenceGroupId) {
+              const existing = processedEvents.get(ev.recurrenceGroupId);
+              const evDate = new Date(ev.startDateTime);
+
+              // If we haven't seen this group, or the existing one is past and this one is future (or closer to now)
+              if (!existing) {
+                processedEvents.set(ev.recurrenceGroupId, ev);
+              } else {
+                const existingDate = new Date(existing.startDateTime);
+                // If existing is in past, and this one is in future (or closer to being current)
+                if (existingDate < now && evDate >= now) {
+                  processedEvents.set(ev.recurrenceGroupId, ev);
+                }
+                // If both are future, keep the earlier one (already sorted, so first seen is earlier)
+                // If both are past, keep the later one? (Sorted ASC, so later one comes later in loop. We want the one closest to now?)
+                // If both past, we usually want the *last* one (most recent past).
+                else if (existingDate < now && evDate < now) {
+                  processedEvents.set(ev.recurrenceGroupId, ev);
+                }
+              }
+            } else {
+              singleEvents.push(ev);
+            }
+          });
+
+          const uniqueRecurring = Array.from(processedEvents.values());
+          const displayList = [...singleEvents, ...uniqueRecurring].sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime());
+
+          return displayList.map(ev => (
+            <EventCard
+              key={ev.id}
+              event={ev}
+              onOpen={id => setSelectedEventId(id)}
+              tenantId={tenantId}
+              isAdmin={isAdmin}
+              onDelete={(id: string) => setEvents((prev) => prev.filter((e) => e.id !== id))}
+            />
+          ));
+        })()}
       </div>
       {selectedEventId && <RSVPModal tenantId={tenantId} eventId={selectedEventId} onClose={() => setSelectedEventId(null)} />}
     </div>

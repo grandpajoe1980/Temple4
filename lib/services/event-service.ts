@@ -20,6 +20,8 @@ export interface EventResponseDto {
   onlineUrl: string | null;
   posterStorageKey?: string | null;
   posterUrl?: string | null;
+  recurrenceRule?: string | null;
+  recurrenceGroupId?: string | null;
   creatorDisplayName: string;
   creatorAvatarUrl: string | null;
   rsvpCount: number;
@@ -48,6 +50,8 @@ export function mapEventToResponseDto(event: EventRecord): EventResponseDto {
     onlineUrl: event.onlineUrl ?? null,
     posterStorageKey: event.posterStorageKey ?? null,
     posterUrl: event.posterUrl ?? null,
+    recurrenceRule: event.recurrenceRule ?? null,
+    recurrenceGroupId: event.recurrenceGroupId ?? null,
     creatorDisplayName: event.creator.profile?.displayName || event.creator.email,
     creatorAvatarUrl: event.creator.profile?.avatarUrl || null,
     rsvpCount: event._count?.rsvps ?? 0,
@@ -69,6 +73,8 @@ export function mapEventDtoToClient(event: EventResponseDto): EventWithCreator {
     posterUrl: event.posterUrl ?? null,
     isOnline: event.isOnline,
     onlineUrl: event.onlineUrl,
+    recurrenceRule: event.recurrenceRule,
+    recurrenceGroupId: event.recurrenceGroupId,
     deletedAt: null,
     creatorDisplayName: event.creatorDisplayName,
     creatorAvatarUrl: event.creatorAvatarUrl,
@@ -82,8 +88,9 @@ export async function listTenantEvents(options: {
   viewerUserId?: string | null;
   from?: string | null;
   to?: string | null;
+  uniqueRecurrence?: boolean;
 }): Promise<EventResponseDto[]> {
-  const { tenantId, viewerUserId, from, to } = options;
+  const { tenantId, viewerUserId, from, to, uniqueRecurrence } = options;
 
   const canView = await canUserViewContent(viewerUserId ?? null, tenantId, 'calendar');
   if (!canView) {
@@ -135,7 +142,19 @@ export async function listTenantEvents(options: {
     orderBy: { startDateTime: 'asc' },
   });
 
-  return events.map((event) => mapEventToResponseDto(event));
+  let validEvents = events;
+
+  if (uniqueRecurrence) {
+    const seenGroups = new Set<string>();
+    validEvents = events.filter(ev => {
+      if (!ev.recurrenceGroupId) return true;
+      if (seenGroups.has(ev.recurrenceGroupId)) return false;
+      seenGroups.add(ev.recurrenceGroupId);
+      return true;
+    });
+  }
+
+  return validEvents.map((event) => mapEventToResponseDto(event));
 }
 
 // Basic create helper — service layer for event creation

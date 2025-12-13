@@ -94,10 +94,13 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, onDateClick, on
   const handleViewChange = (view: 'month' | 'week' | 'list') => {
     setCurrentView(view);
     // Sync FullCalendar view if needed
-    if (calendarRef.current) {
-      const fcView = view === 'month' ? 'dayGridMonth' : 'timeGridWeek';
-      calendarRef.current.getApi().changeView(fcView);
-    }
+    // Sync FullCalendar view if needed
+    // REMOVED: changeView causes error because the current instance might not have the target plugin loaded. 
+    // Conditional rendering below handles the view switch.
+    // if (calendarRef.current) {
+    //   const fcView = view === 'month' ? 'dayGridMonth' : 'timeGridWeek';
+    //   calendarRef.current.getApi().changeView(fcView);
+    // }
   };
 
   const handleDateNavigate = (direction: 'prev' | 'next' | 'today') => {

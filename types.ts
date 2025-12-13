@@ -81,42 +81,42 @@ export enum TripDonationStatus {
 }
 
 export enum CommunityPostType {
-    SUPPORT_REQUEST = 'SUPPORT_REQUEST',
-    TANGIBLE_NEED = 'TANGIBLE_NEED',
+  SUPPORT_REQUEST = 'SUPPORT_REQUEST',
+  TANGIBLE_NEED = 'TANGIBLE_NEED',
 }
 
 export enum CommunityPostStatus {
-    PENDING_APPROVAL = 'PENDING_APPROVAL',
-    PUBLISHED = 'PUBLISHED',
-    FULFILLED = 'FULFILLED',
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  PUBLISHED = 'PUBLISHED',
+  FULFILLED = 'FULFILLED',
 }
 
 export enum ResourceVisibility {
-    PUBLIC = 'PUBLIC',
-    MEMBERS_ONLY = 'MEMBERS_ONLY',
+  PUBLIC = 'PUBLIC',
+  MEMBERS_ONLY = 'MEMBERS_ONLY',
 }
 
 export enum FileType {
-    PDF = 'PDF',
-    DOCX = 'DOCX',
-    MP3 = 'MP3',
-    JPG = 'JPG',
-    PNG = 'PNG',
-    OTHER = 'OTHER',
+  PDF = 'PDF',
+  DOCX = 'DOCX',
+  MP3 = 'MP3',
+  JPG = 'JPG',
+  PNG = 'PNG',
+  OTHER = 'OTHER',
 }
 
 export enum ContactSubmissionStatus {
-    UNREAD = 'UNREAD',
-    READ = 'READ',
-    ARCHIVED = 'ARCHIVED',
+  UNREAD = 'UNREAD',
+  READ = 'READ',
+  ARCHIVED = 'ARCHIVED',
 }
 
 export type ServiceCategory = 'CEREMONY' | 'EDUCATION' | 'FACILITY' | 'COUNSELING' | 'OTHER';
 
 export enum RSVPStatus {
-    GOING = 'GOING',
-    INTERESTED = 'INTERESTED',
-    NOT_GOING = 'NOT_GOING',
+  GOING = 'GOING',
+  INTERESTED = 'INTERESTED',
+  NOT_GOING = 'NOT_GOING',
 }
 
 // NotificationType is defined in schema.prisma and exported from @prisma/client
@@ -351,6 +351,7 @@ export interface RolePermissions {
   canManageFacilities: boolean;
   canViewWorkMenu?: boolean;
   canManagePrayerWall: boolean;
+  canManageServices: boolean;
 }
 
 // Sticking with a map for easier frontend access
@@ -374,10 +375,10 @@ export interface UserTenantMembership {
 }
 
 export interface UserTenantRole {
-    id: string;
-    role: TenantRole;
-    displayTitle?: string;
-    isPrimary: boolean;
+  id: string;
+  role: TenantRole;
+  displayTitle?: string;
+  isPrimary: boolean;
 }
 
 // Enriched type for displaying members in the UI
@@ -405,8 +406,8 @@ export interface PostInput {
   isPublished: boolean;
 }
 export interface PostWithAuthor extends Post {
-    authorDisplayName: string;
-    authorAvatarUrl?: string;
+  authorDisplayName: string;
+  authorAvatarUrl?: string;
 }
 
 export interface PostComment {
@@ -439,15 +440,17 @@ export interface Event {
   isAllDay?: boolean;
   posterStorageKey?: string | null;
   posterUrl?: string | null;
+  recurrenceRule?: string | null;
+  recurrenceGroupId?: string | null;
 }
 export interface EventWithCreator extends Event {
-    creatorDisplayName: string;
-    creatorAvatarUrl: string | null;
-    rsvpCount: number;
-    currentUserRsvpStatus?: RSVPStatus | null;
-    kind?: 'event' | 'trip' | 'birthday';
-    tripId?: string;
-    birthdayUserId?: string;
+  creatorDisplayName: string;
+  creatorAvatarUrl: string | null;
+  rsvpCount: number;
+  currentUserRsvpStatus?: RSVPStatus | null;
+  kind?: 'event' | 'trip' | 'birthday';
+  tripId?: string;
+  birthdayUserId?: string;
 }
 
 export interface EventRSVP {
@@ -525,10 +528,10 @@ export interface ConversationParticipant {
 }
 
 export interface EnrichedConversation extends Conversation {
-    participants: User[];
-    unreadCount: number;
-    lastMessage?: EnrichedChatMessage;
-    displayName: string;
+  participants: User[];
+  unreadCount: number;
+  lastMessage?: EnrichedChatMessage;
+  displayName: string;
 }
 
 
@@ -678,13 +681,13 @@ export interface EnrichedMemorial extends Memorial {
 }
 
 // Vanity Domain types
-export type VanityDomainStatus = 
-  | 'PENDING_VERIFICATION' 
-  | 'DNS_VERIFIED' 
-  | 'SSL_PROVISIONING' 
-  | 'ACTIVE' 
-  | 'SSL_EXPIRED' 
-  | 'DISABLED' 
+export type VanityDomainStatus =
+  | 'PENDING_VERIFICATION'
+  | 'DNS_VERIFIED'
+  | 'SSL_PROVISIONING'
+  | 'ACTIVE'
+  | 'SSL_EXPIRED'
+  | 'DISABLED'
   | 'ERROR';
 
 export type VanityDomainType = 'FULL_DOMAIN' | 'SUBDOMAIN' | 'PATH_PREFIX';
@@ -723,46 +726,46 @@ export interface VanityDomainWithDetails extends VanityDomain {
 }
 
 // Asset Management types
-export type AssetStatus = 
-  | 'AVAILABLE' 
-  | 'IN_USE' 
-  | 'MAINTENANCE' 
-  | 'RESERVED' 
-  | 'RETIRED' 
+export type AssetStatus =
+  | 'AVAILABLE'
+  | 'IN_USE'
+  | 'MAINTENANCE'
+  | 'RESERVED'
+  | 'RETIRED'
   | 'DISPOSED';
 
-export type AssetCondition = 
-  | 'EXCELLENT' 
-  | 'GOOD' 
-  | 'FAIR' 
-  | 'POOR' 
-  | 'DAMAGED' 
+export type AssetCondition =
+  | 'EXCELLENT'
+  | 'GOOD'
+  | 'FAIR'
+  | 'POOR'
+  | 'DAMAGED'
   | 'UNKNOWN';
 
-export type AssetCategory = 
-  | 'EQUIPMENT' 
-  | 'FURNITURE' 
-  | 'VEHICLE' 
-  | 'BUILDING' 
-  | 'SUPPLIES' 
-  | 'INSTRUMENTS' 
-  | 'LITURGICAL' 
-  | 'KITCHEN' 
-  | 'GROUNDS' 
+export type AssetCategory =
+  | 'EQUIPMENT'
+  | 'FURNITURE'
+  | 'VEHICLE'
+  | 'BUILDING'
+  | 'SUPPLIES'
+  | 'INSTRUMENTS'
+  | 'LITURGICAL'
+  | 'KITCHEN'
+  | 'GROUNDS'
   | 'OTHER';
 
-export type AssetEventType = 
-  | 'CREATED' 
-  | 'UPDATED' 
-  | 'CHECKED_OUT' 
-  | 'CHECKED_IN' 
-  | 'MAINTENANCE_SCHEDULED' 
-  | 'MAINTENANCE_COMPLETED' 
-  | 'CONDITION_UPDATED' 
-  | 'LOCATION_CHANGED' 
-  | 'RESERVED' 
-  | 'UNRESERVED' 
-  | 'RETIRED' 
+export type AssetEventType =
+  | 'CREATED'
+  | 'UPDATED'
+  | 'CHECKED_OUT'
+  | 'CHECKED_IN'
+  | 'MAINTENANCE_SCHEDULED'
+  | 'MAINTENANCE_COMPLETED'
+  | 'CONDITION_UPDATED'
+  | 'LOCATION_CHANGED'
+  | 'RESERVED'
+  | 'UNRESERVED'
+  | 'RETIRED'
   | 'DISPOSED';
 
 export interface Asset {
@@ -1088,8 +1091,8 @@ export interface DonationRecord {
 }
 
 export interface EnrichedDonationRecord extends DonationRecord {
-    userAvatarUrl?: string;
-    fundName?: string;
+  userAvatarUrl?: string;
+  fundName?: string;
 }
 
 // --- VOLUNTEER MODELS ---
@@ -1147,18 +1150,18 @@ export interface SmallGroupMembership {
 
 // Enriched types for UI
 export interface EnrichedGroupMember {
-    membership?: SmallGroupMembership;
-    user: User;
-    status?: MembershipStatus;
-    role?: SmallGroupRole;
-    addedByUserId?: string;
-    joinedAt?: Date | string;
-    leftAt?: Date | string | null;
+  membership?: SmallGroupMembership;
+  user: User;
+  status?: MembershipStatus;
+  role?: SmallGroupRole;
+  addedByUserId?: string;
+  joinedAt?: Date | string;
+  leftAt?: Date | string | null;
 }
 
 export interface EnrichedSmallGroup extends SmallGroup {
-    leader: User;
-    members: EnrichedGroupMember[];
+  leader: User;
+  members: EnrichedGroupMember[];
 }
 
 // --- TRIP MODELS ---
@@ -1299,48 +1302,48 @@ export interface EnrichedTrip extends Trip {
 
 // --- COMMUNITY BOARD / PRAYER WALL MODELS ---
 export interface CommunityPost {
-    id: string;
-    tenantId: string;
-    authorUserId: string | null; // Null for anonymous
-    type: CommunityPostType;
-    body: string;
-    isAnonymous: boolean;
-    status: CommunityPostStatus;
-    createdAt: Date;
+  id: string;
+  tenantId: string;
+  authorUserId: string | null; // Null for anonymous
+  type: CommunityPostType;
+  body: string;
+  isAnonymous: boolean;
+  status: CommunityPostStatus;
+  createdAt: Date;
 }
 
 export interface EnrichedCommunityPost extends CommunityPost {
-    authorDisplayName: string;
-    authorAvatarUrl?: string;
+  authorDisplayName: string;
+  authorAvatarUrl?: string;
 }
 
 // --- RESOURCE CENTER MODELS ---
 export interface ResourceItem {
-    id: string;
-    tenantId: string;
-    uploaderUserId: string;
-    title: string;
-    description: string;
-    fileUrl: string; // For mock, this is just a string. In real app, it would be a URL to a file.
-    fileType: FileType;
-    visibility: ResourceVisibility;
-    createdAt: Date;
+  id: string;
+  tenantId: string;
+  uploaderUserId: string;
+  title: string;
+  description: string;
+  fileUrl: string; // For mock, this is just a string. In real app, it would be a URL to a file.
+  fileType: FileType;
+  visibility: ResourceVisibility;
+  createdAt: Date;
 }
 
 export interface EnrichedResourceItem extends ResourceItem {
-    uploaderDisplayName: string;
-    uploaderAvatarUrl?: string;
+  uploaderDisplayName: string;
+  uploaderAvatarUrl?: string;
 }
 
 // --- CONTACT & SUBMISSIONS ---
 export interface ContactSubmission {
-    id: string;
-    tenantId: string;
-    name: string;
-    email: string;
-    message: string;
-    status: ContactSubmissionStatus;
-    createdAt: Date;
+  id: string;
+  tenantId: string;
+  name: string;
+  email: string;
+  message: string;
+  status: ContactSubmissionStatus;
+  createdAt: Date;
 }
 
 // --- RECURRING PLEDGES MODELS ---

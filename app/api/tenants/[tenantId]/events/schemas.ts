@@ -21,6 +21,7 @@ export const createEventSchema = z.object({
   url: z.string().url().optional(),
   organizerId: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  recurrenceRule: z.string().nullish(),
   recurrenceGroupId: z.string().optional(),
   volunteerRoles: z.array(z.object({
     roleName: z.string().min(1),

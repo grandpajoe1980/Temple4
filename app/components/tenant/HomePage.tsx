@@ -220,7 +220,7 @@ const HomePage: React.FC<HomePageProps> = ({ tenant, user, onNavigate, onRefresh
           <Card>
             <h3 className="text-xl font-semibold text-gray-800">{t('tenant.welcomeUser', { name: tenantDisplayName || t('common.anonymous') })}</h3>
             <p className="mt-2 text-gray-600">
-              {t('tenant.welcomeMessage', { name: tenant.name })}
+              {t('tenant.welcomeMessage', { tenantName: tenant.name })}
             </p>
           </Card>
 

@@ -1,6 +1,8 @@
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link'; // Assuming Link might be needed, but actually just useRouter
+import { useRouter } from 'next/navigation';
 import type { Tenant, User, Event, EventWithCreator } from '@/types';
 import Button from '../ui/Button';
 import EventCard from './EventCard';
@@ -23,6 +25,7 @@ type ViewMode = 'list' | 'calendar';
 
 const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
   const { t } = useTranslation();
+  const router = useRouter();
   const [events, setEvents] = useState<EventWithCreator[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
@@ -122,15 +125,20 @@ const EventsPage: React.FC<EventsPageProps> = ({ tenant, user }) => {
     }
   };
 
+  const handleEventClick = (event: EventWithCreator) => {
+    if (event.kind === 'birthday' && event.birthdayUserId) {
+      router.push(`/profile/${event.birthdayUserId}`);
+    } else {
+      setSelectedEvent(event);
+    }
+  };
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
     setCalendarFocusDate(date);
     setDayModalOpen(true);
   };
 
-  const handleEventClick = (event: EventWithCreator) => {
-    setSelectedEvent(event);
-  };
+
 
   const dayPickerEvents = useMemo(() => {
     const uniqueDates = new Set<string>();

@@ -45,6 +45,14 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
     setIsDayModalOpen(true);
   };
 
+  const handleEventClick = (event: EventWithCreator) => {
+    if (event.kind === 'birthday' && event.birthdayUserId) {
+      router.push(`/profile/${event.birthdayUserId}`);
+    } else {
+      router.push(`/tenants/${tenantId}/events/${event.id}`);
+    }
+  };
+
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false);
     router.push(`/tenants/${tenantId}/calendar`);
@@ -116,7 +124,12 @@ export default function CalendarPageClient({ events, tenantId, canCreateEvent, o
   return (
     <div className="space-y-4">
       <CommunityChips tenantId={tenantId} />
-      <EventsCalendar events={calendarEvents} onDateClick={handleDateClick} currentUserId={currentUserId} />
+      <EventsCalendar
+        events={calendarEvents}
+        onDateClick={handleDateClick}
+        onEventClick={handleEventClick}
+        currentUserId={currentUserId}
+      />
       {selectedDate && (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg">
           <p className="text-sm text-gray-700">

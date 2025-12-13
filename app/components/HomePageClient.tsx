@@ -63,17 +63,17 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
   return (
     <div className="min-h-screen">
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10 sm:px-6 lg:px-8">
-        <section className="animate-fade-up animate-fade-up-init grid gap-8 lg:grid-cols-[1.4fr,0.6fr]" style={{ animationFillMode: 'forwards' }}>
+        <section className="animate-temple-float grid gap-8 lg:grid-cols-[1.4fr,0.6fr]" style={{ animationFillMode: 'both' }}>
           <div>
             <div className="flex flex-col items-center gap-6">
               {/* Logo and branding */}
-              <div className="flex items-center gap-4 animate-fade-up animate-fade-up-init" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+              <div className="flex items-center gap-4 animate-temple-float" style={{ animationDelay: '100ms', animationFillMode: 'both' }}>
                 <Logo className="text-4xl md:text-6xl h-[1em] w-[1em] text-amber-600" />
-                <h1 className="text-4xl md:text-6xl font-sans font-thin uppercase tracking-tight text-amber-600">ASEMBLI</h1>
+                <h1 className="text-4xl md:text-6xl font-sans font-thin uppercase tracking-tight text-amber-600 animate-temple-fade dark:animate-temple-reveal">ASEMBLI</h1>
               </div>
 
               {/* Search form */}
-              <form onSubmit={handleSubmit} className="w-full max-w-2xl animate-fade-up animate-fade-up-init" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+              <form onSubmit={handleSubmit} className="w-full max-w-2xl animate-temple-float" style={{ animationDelay: '200ms', animationFillMode: 'both' }}>
                 <div className="relative">
                   <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-slate-400">
                     <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -110,7 +110,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
 
               {/* Login prompt for logged-out users */}
               {!isLoggedIn && (
-                <div className="text-center text-sm text-slate-500 animate-fade-up animate-fade-up-init" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
+                <div className="text-center text-sm text-slate-500 animate-temple-float" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
                   <button onClick={() => router.push('/auth/login')} className="text-amber-600 hover:underline font-medium">
                     {t('auth.signIn')}
                   </button>
@@ -119,7 +119,7 @@ export default function HomePageClient({ session, tenants, allTenants }: HomePag
               )}
 
               {/* Content container with relative positioning for transitions */}
-              <div className="mt-6 w-full relative animate-fade-up animate-fade-up-init" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
+              <div className="mt-6 w-full relative animate-temple-float" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
                 {/* "Your communities" section - fades out when searching */}
                 {isLoggedIn && memberTenants.length > 0 && (
                   <div className={`search-transition ${isSearching ? 'search-fade-out' : 'search-fade-in'}`}>

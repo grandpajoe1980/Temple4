@@ -242,10 +242,10 @@ export default function TenantMenu({ pathname, session }: TenantMenuProps) {
                 </svg>
             </button>
 
-            <div className="hidden sm:flex flex-col leading-tight">
+            <Link href="https://asembli.org/" className="hidden sm:flex flex-col leading-tight hover:opacity-80 transition-opacity">
                 <span className="text-xs font-semibold uppercase tracking-[0.3em] tenant-text-primary">Asembli</span>
                 <span className="text-lg font-semibold text-foreground">Platform</span>
-            </div>
+            </Link>
             <span className="text-base font-semibold text-muted-foreground sm:hidden">Asembli</span>
 
             {open && (

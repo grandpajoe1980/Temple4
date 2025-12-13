@@ -280,7 +280,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
             </div>
             <ul className="divide-y divide-gray-200">
               {recentPosts.length > 0 ? recentPosts.map((post: any) => (
-                <li key={post.id} className="p-4 hover:bg-gray-50 cursor-pointer" onClick={() => onNavigate(`posts/${post.id}`)}>
+                <li key={post.id} className="p-4 hover:bg-gray-50 cursor-pointer" onClick={() => onNavigate('posts')}>
                   <div className="text-sm font-semibold text-gray-800">{post.title}</div>
                   <div className="text-xs text-gray-500 mt-1">
                     {t('tenant.byAuthorOn', { author: post.author?.profile?.displayName ?? t('common.anonymous'), date: new Date(post.publishedAt).toLocaleDateString(localeCode) })}
@@ -305,7 +305,7 @@ export default function HomePageClient({ tenant, user, membership, upcomingEvent
             </div>
             <ul className="divide-y divide-gray-200">
               {upcomingEvents.length > 0 ? upcomingEvents.map((event: any) => (
-                <li key={event.id} className="p-4 hover:bg-gray-50 cursor-pointer" onClick={() => onNavigate(`calendar/${event.id}`)}>
+                <li key={event.id} className="p-4 hover:bg-gray-50 cursor-pointer" onClick={() => onNavigate('calendar')}>
                   <div className="font-semibold text-sm text-gray-800">{event.title}</div>
                   <div className="text-xs tenant-text-primary mt-1">
                     {new Date(event.startDateTime).toLocaleDateString(localeCode, { weekday: 'short', month: 'short', day: 'numeric' })}

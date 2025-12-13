@@ -253,7 +253,7 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+/* @media (prefers-reduced-motion: reduce) {
 
   *,
   *::before,
@@ -263,7 +263,7 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
+} */
 
 /* Mobile-friendly improvements */
 @media (max-width: 767px) {
@@ -1149,11 +1149,11 @@
    Home Page Animations
    ========================================================================= */
 
-/* Fade-up animation on page load */
-@keyframes fadeUpIn {
+/* Temple Float Up Animation */
+@keyframes templeFloatUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(100px);
   }
 
   to {
@@ -1162,25 +1162,25 @@
   }
 }
 
-.animate-fade-up {
-  animation: fadeUpIn 0.5s ease-out forwards;
+.animate-temple-float {
+  animation: templeFloatUp 1.5s ease-out forwards;
 }
 
 /* Stagger delay utilities for cascading animations */
 .animate-delay-100 {
-  animation-delay: 100ms;
-}
-
-.animate-delay-200 {
   animation-delay: 200ms;
 }
 
+.animate-delay-200 {
+  animation-delay: 500ms;
+}
+
 .animate-delay-300 {
-  animation-delay: 300ms;
+  animation-delay: 800ms;
 }
 
 .animate-delay-400 {
-  animation-delay: 400ms;
+  animation-delay: 1100ms;
 }
 
 /* Initial state for elements that will animate (prevents flash) */
@@ -1201,7 +1201,37 @@
   width: 100%;
 }
 
-.search-fade-in {
-  opacity: 1;
-  transform: translateY(0);
+/* Temple Color Fade Animation */
+@keyframes templeColorFade {
+  from {
+    color: transparent;
+  }
+
+  to {
+    color: inherit;
+  }
+}
+
+.animate-temple-fade {
+  animation: templeColorFade 1.5s ease-out forwards;
+}
+
+/* Temple Dark Mode Reveal */
+@keyframes templeTextReveal {
+  from {
+    color: var(--background);
+  }
+
+  to {
+    color: var(--foreground);
+  }
+}
+
+.dark .animate-temple-reveal {
+  animation: templeTextReveal 1.5s ease-out forwards;
+}
+
+/* Debug Helper */
+.debug-border {
+  border: 5px solid red !important;
 }

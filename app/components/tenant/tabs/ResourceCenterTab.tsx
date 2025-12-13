@@ -6,6 +6,7 @@ import type { Tenant, User, EnrichedResourceItem, ResourceItem } from '@/types';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import ResourceForm from '../forms/ResourceForm';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface ResourceCenterTabProps {
   tenant: Tenant;
@@ -14,6 +15,7 @@ interface ResourceCenterTabProps {
 }
 
 const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUser, onRefresh }) => {
+  const { t } = useTranslation();
   const [resources, setResources] = useState<EnrichedResourceItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,19 +49,19 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
       setIsModalOpen(false);
     } catch (e) {
       console.error(e);
-      alert('Failed to add resource');
+      alert(t('settings.resources.addFailed'));
     }
   };
 
   const handleDelete = async (resourceId: string) => {
-    if (!window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) return;
+    if (!window.confirm(t('settings.resources.deleteConfirm'))) return;
     try {
       const res = await fetch(`/api/tenants/${tenant.id}/resources/${resourceId}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete resource');
       onRefresh();
     } catch (e) {
       console.error(e);
-      alert('Failed to delete resource');
+      alert(t('settings.resources.deleteFailed'));
     }
   };
 
@@ -67,11 +69,11 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
     return (
       <div className="space-y-8">
         <div>
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Resource Center Management</h3>
-          <p className="mt-1 text-sm text-gray-500">Manage your tenant’s downloadable resources and files.</p>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.resources.title')}</h3>
+          <p className="mt-1 text-sm text-gray-500">{t('settings.resources.description')}</p>
         </div>
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading resources...</p>
+          <p className="text-gray-500">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -81,10 +83,10 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Resource Management</h3>
-          <p className="mt-1 text-sm text-gray-500">Manage all downloadable resources for your members.</p>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.resources.managementTitle')}</h3>
+          <p className="mt-1 text-sm text-gray-500">{t('settings.resources.managementDesc')}</p>
         </div>
-        <Button data-test="add-resource-trigger" onClick={() => setIsModalOpen(true)}>+ Add Resource</Button>
+        <Button data-test="add-resource-trigger" onClick={() => setIsModalOpen(true)}>{t('settings.resources.addResource')}</Button>
       </div>
 
       <div className="flow-root">
@@ -93,11 +95,11 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
             <table className="min-w-full divide-y divide-gray-300">
               <thead>
                 <tr>
-                  <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Title</th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Uploader</th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Visibility</th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Type</th>
-                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">Actions</span></th>
+                  <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">{t('settings.resources.titleHeader')}</th>
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('settings.resources.uploader')}</th>
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('settings.resources.visibility')}</th>
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('settings.resources.type')}</th>
+                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">{t('common.actions')}</span></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
@@ -111,7 +113,7 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{resource.visibility.replace('_', ' ')}</td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{resource.fileType}</td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                      <Button variant="danger" size="sm" onClick={() => handleDelete(resource.id)}>Delete</Button>
+                      <Button variant="danger" size="sm" onClick={() => handleDelete(resource.id)}>{t('common.delete')}</Button>
                     </td>
                   </tr>
                 ))}
@@ -121,7 +123,7 @@ const ResourceCenterTab: React.FC<ResourceCenterTabProps> = ({ tenant, currentUs
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="add-resource-modal" title="Add New Resource">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest="add-resource-modal" title={t('settings.resources.addNewResource')}>
         <ResourceForm onSubmit={handleCreateResource} onCancel={() => setIsModalOpen(false)} />
       </Modal>
     </div>

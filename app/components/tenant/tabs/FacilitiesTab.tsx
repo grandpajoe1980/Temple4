@@ -6,6 +6,7 @@ import Card from '../../ui/Card';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import Input from '../../ui/Input';
+import useTranslation from '@/app/hooks/useTranslation';
 // `@prisma/client` exports are server-side values. Client components must not
 // import runtime values from it. Define a small client-side type instead and
 // use string literals for runtime values.
@@ -26,6 +27,7 @@ const typeOptions = [
 ];
 
 export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps) {
+  const { t } = useTranslation();
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [bookings, setBookings] = useState<FacilityBooking[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,7 +44,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
 
   useEffect(() => {
     loadFacilities();
-     
+
   }, [tenant.id]);
 
   useEffect(() => {
@@ -51,7 +53,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
       return;
     }
     loadBookings();
-     
+
   }, [facilities]);
 
   const loadFacilities = async () => {
@@ -144,21 +146,21 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-semibold text-gray-900">Facilities</h3>
-          <p className="text-gray-600 text-sm">Create and manage facilities and booking requests.</p>
+          <h3 className="text-xl font-semibold text-gray-900">{t('settings.facilities.title')}</h3>
+          <p className="text-gray-600 text-sm">{t('settings.facilities.description')}</p>
         </div>
         <Button onClick={() => {
           setEditingFacilityId(null);
           setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '', imageUrl: '' });
           setIsModalOpen(true);
-        }}>New Facility</Button>
+        }}>{t('settings.facilities.newFacility')}</Button>
       </div>
 
       <Card>
         {isLoading ? (
-          <p className="text-sm text-gray-600">Loading facilities...</p>
+          <p className="text-sm text-gray-600">{t('common.loading')}</p>
         ) : facilities.length === 0 ? (
-          <p className="text-sm text-gray-600">No facilities created yet.</p>
+          <p className="text-sm text-gray-600">{t('settings.facilities.noFacilities')}</p>
         ) : (
           <ul className="divide-y divide-gray-200">
             {facilities.map((facility) => (
@@ -169,7 +171,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                     <p className="text-xs text-gray-600">{facility.type}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    {!facility.isActive && <span className="text-xs text-red-600">Inactive</span>}
+                    {!facility.isActive && <span className="text-xs text-red-600">{t('smallGroups.inactive')}</span>}
                     <Button size="sm" onClick={() => {
                       setEditingFacilityId(facility.id);
                       setFormState({
@@ -181,7 +183,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                         imageUrl: facility.imageUrl ?? '',
                       });
                       setIsModalOpen(true);
-                    }}>Edit</Button>
+                    }}>{t('common.edit')}</Button>
                   </div>
                 </div>
               </li>
@@ -191,9 +193,9 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
       </Card>
 
       <Card>
-        <h4 className="text-lg font-semibold text-gray-900">Booking Requests</h4>
+        <h4 className="text-lg font-semibold text-gray-900">{t('settings.facilities.bookingRequests')}</h4>
         {bookings.length === 0 ? (
-          <p className="text-sm text-gray-600 mt-2">No booking requests yet.</p>
+          <p className="text-sm text-gray-600 mt-2">{t('settings.facilities.noBookings')}</p>
         ) : (
           <ul className="mt-3 space-y-3">
             {bookings.map((booking) => (
@@ -204,40 +206,40 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                     <p className="text-gray-600">
                       {new Date(booking.startAt).toLocaleString()} → {new Date(booking.endAt).toLocaleString()}
                     </p>
-                    <p className="text-xs text-gray-500">Facility: {booking.facilityId}</p>
+                    <p className="text-xs text-gray-500">{t('settings.facilities.facility')}: {booking.facilityId}</p>
                   </div>
                   <div className="flex gap-2">
                     {booking.status === 'REQUESTED' && (
                       <>
                         <Button size="sm" onClick={() => updateBookingStatus(booking.id, 'APPROVED')}>
-                          Approve
+                          {t('common.approve')}
                         </Button>
                         <Button
                           size="sm"
                           variant="secondary"
                           onClick={() => updateBookingStatus(booking.id, 'REJECTED')}
                         >
-                          Reject
+                          {t('common.reject')}
                         </Button>
                       </>
                     )}
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Status: {booking.status}</p>
+                <p className="text-xs text-gray-500 mt-1">{t('settings.smallGroups.status')}: {booking.status}</p>
               </li>
             ))}
           </ul>
         )}
       </Card>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest={editingFacilityId ? 'edit-facility-modal' : 'create-facility-modal'} title={editingFacilityId ? 'Edit Facility' : 'Create Facility'}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dataTest={editingFacilityId ? 'edit-facility-modal' : 'create-facility-modal'} title={editingFacilityId ? t('settings.facilities.editFacility') : t('settings.facilities.createFacility')}>
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700">Name</label>
+            <label className="text-sm font-medium text-gray-700">{t('common.name')}</label>
             <Input value={formState.name} onChange={(e) => setFormState({ ...formState, name: e.target.value })} />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700">Type</label>
+            <label className="text-sm font-medium text-gray-700">{t('settings.facilities.type')}</label>
             <select
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               value={formState.type}
@@ -251,7 +253,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700">Description</label>
+            <label className="text-sm font-medium text-gray-700">{t('common.description')}</label>
             <textarea
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               rows={3}
@@ -261,11 +263,11 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div>
-              <label className="text-sm font-medium text-gray-700">Location</label>
+              <label className="text-sm font-medium text-gray-700">{t('settings.facilities.location')}</label>
               <Input value={formState.location} onChange={(e) => setFormState({ ...formState, location: e.target.value })} />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">Capacity</label>
+              <label className="text-sm font-medium text-gray-700">{t('settings.facilities.capacity')}</label>
               <Input
                 type="number"
                 value={formState.capacity}
@@ -274,18 +276,18 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700">Image</label>
+            <label className="text-sm font-medium text-gray-700">{t('settings.facilities.image')}</label>
             <div className="mt-2 flex items-center gap-3">
               <div className="flex-1">
                 <Input
-                  placeholder="Image URL (or upload below)"
+                  placeholder={t('settings.facilities.imagePlaceholder')}
                   value={formState.imageUrl}
                   onChange={(e) => setFormState({ ...formState, imageUrl: e.target.value })}
                 />
               </div>
               <div>
                 <label className="inline-block cursor-pointer rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
-                  Upload
+                  {t('common.upload')}
                   <input
                     type="file"
                     accept="image/*"
@@ -331,12 +333,12 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                   variant="danger"
                   onClick={async () => {
                     // confirm delete
-                     
-                    if (!confirm('Delete this facility? This will remove related bookings.')) return;
+
+                    if (!confirm(t('settings.facilities.deleteConfirm'))) return;
 
                     try {
                       const res = await fetch(`/api/tenants/${tenant.id}/facilities/${editingFacilityId}`, { method: 'DELETE' });
-                        if (res.ok) {
+                      if (res.ok) {
                         setIsModalOpen(false);
                         setEditingFacilityId(null);
                         setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '', imageUrl: '' });
@@ -351,14 +353,14 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                     }
                   }}
                 >
-                  Delete
+                  {t('common.delete')}
                 </Button>
               )}
             </div>
 
             <div className="flex justify-end gap-3">
               <Button variant="secondary" onClick={() => { setIsModalOpen(false); setEditingFacilityId(null); }}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button onClick={async () => {
                 // Save (create or update)
@@ -380,7 +382,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                       body: JSON.stringify(payload),
                     });
 
-                      if (res.ok) {
+                    if (res.ok) {
                       setIsModalOpen(false);
                       setEditingFacilityId(null);
                       setFormState({ name: '', type: 'ROOM', description: '', location: '', capacity: '', imageUrl: '' });
@@ -411,7 +413,7 @@ export default function FacilitiesTab({ tenant, onRefresh }: FacilitiesTabProps)
                   console.error('Failed to save facility', err);
                 }
               }}>
-                {editingFacilityId ? 'Save' : 'Create'}
+                {editingFacilityId ? t('common.save') : t('common.create')}
               </Button>
             </div>
           </div>

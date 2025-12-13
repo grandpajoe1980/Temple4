@@ -8,6 +8,7 @@ import ImageUpload from '../../ui/ImageUpload';
 import ToggleSwitch from '../../ui/ToggleSwitch';
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube, FaLinkedin, FaGlobe, FaGripVertical } from 'react-icons/fa';
 import { FaTiktok, FaXTwitter } from 'react-icons/fa6';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface SocialLink {
   platform: string;
@@ -58,11 +59,12 @@ const isValidHttpsUrl = (url: string): boolean => {
 };
 
 const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) => {
+  const { t } = useTranslation();
   const [isSaving, setIsSaving] = React.useState(false);
   const [socialLinkErrors, setSocialLinkErrors] = React.useState<Record<number, string>>({});
   const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
   const [showPlatformPicker, setShowPlatformPicker] = React.useState(false);
-  
+
   // Auto-save branding after an upload completes. We keep this local so the
   // ImageUpload component stays generic and the BrandingTab can decide to
   // persist changes immediately (PhotosPage-style behavior).
@@ -72,7 +74,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
       await onSave({ branding: { ...partialBranding } });
     } catch (error: any) {
       // Use a simple alert for now to surface errors to the admin user.
-      alert(error?.message || 'Failed to save branding');
+      alert(error?.message || t('settings.branding.saveFailed'));
     } finally {
       setIsSaving(false);
     }
@@ -113,11 +115,11 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
 
   // Social Links handlers
   const socialLinks = (tenant.branding.socialLinks || []) as SocialLink[];
-  
+
   const handleSocialLinkChange = (index: number, field: keyof SocialLink, value: string | boolean) => {
     const newLinks = [...socialLinks];
     newLinks[index] = { ...newLinks[index], [field]: value };
-    
+
     // Validate URL if changed
     if (field === 'url' && typeof value === 'string') {
       const errors = { ...socialLinkErrors };
@@ -128,7 +130,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
       }
       setSocialLinkErrors(errors);
     }
-    
+
     onUpdate({
       ...tenant,
       branding: { ...tenant.branding, socialLinks: newLinks },
@@ -141,7 +143,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
       alert(`${getPlatformName(platform)} is already added`);
       return;
     }
-    
+
     const newLink: SocialLink = {
       platform,
       url: '',
@@ -162,7 +164,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
     const errors = { ...socialLinkErrors };
     delete errors[index];
     setSocialLinkErrors(errors);
-    
+
     onUpdate({
       ...tenant,
       branding: { ...tenant.branding, socialLinks: newLinks },
@@ -223,13 +225,13 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
   return (
     <div className="space-y-8">
       <div>
-            <h3 className="text-lg font-medium leading-6 text-gray-900">Branding</h3>
-            <p className="mt-1 text-sm text-gray-500">Customize the look and feel of your temple&apos;s pages.</p>
-          </div>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.branding.title')}</h3>
+        <p className="mt-1 text-sm text-gray-500">{t('settings.branding.description')}</p>
+      </div>
 
       <div className="space-y-6">
         <ImageUpload
-          label="Logo"
+          label={t('settings.branding.logo')}
           currentImageUrl={tenant.branding.logoUrl}
           onImageUrlChange={async (url) => {
             const updated = { ...tenant.branding, logoUrl: url };
@@ -243,7 +245,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
           previewClassName="w-32 h-32 object-contain rounded-lg border border-gray-200"
         />
         <ImageUpload
-          label="Banner Image"
+          label={t('settings.branding.bannerImage')}
           currentImageUrl={tenant.branding.bannerImageUrl}
           onImageUrlChange={async (url) => {
             const updated = { ...tenant.branding, bannerImageUrl: url };
@@ -258,20 +260,20 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
       </div>
 
       <div className="border-t border-gray-200 pt-8">
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Colors</h3>
-        <p className="mt-1 text-sm text-gray-500">Choose colors that match your community&apos;s identity.</p>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.branding.colors')}</h3>
+        <p className="mt-1 text-sm text-gray-500">{t('settings.branding.colorsDesc')}</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="primaryColor" className="block text-sm font-medium text-gray-700">Primary Color</label>
-            <div className="mt-1 flex items-center space-x-3">
+          <label htmlFor="primaryColor" className="block text-sm font-medium text-gray-700">{t('settings.branding.primaryColor')}</label>
+          <div className="mt-1 flex items-center space-x-3">
             <input type="color" id="primaryColor" name="primaryColor" value={tenant.branding.primaryColor ?? '#111827'} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
             <Input id="primaryColorText" name="primaryColor" type="text" label="" value={tenant.branding.primaryColor ?? ''} onChange={handleColorChange} />
           </div>
         </div>
         <div>
-          <label htmlFor="accentColor" className="block text-sm font-medium text-gray-700">Accent Color</label>
-            <div className="mt-1 flex items-center space-x-3">
+          <label htmlFor="accentColor" className="block text-sm font-medium text-gray-700">{t('settings.branding.accentColor')}</label>
+          <div className="mt-1 flex items-center space-x-3">
             <input type="color" id="accentColor" name="accentColor" value={tenant.branding.accentColor ?? '#FFFFFF'} onChange={handleColorChange} className="h-10 w-10 rounded-md border-gray-300" />
             <Input id="accentColorText" name="accentColor" type="text" label="" value={tenant.branding.accentColor ?? ''} onChange={handleColorChange} />
           </div>
@@ -280,9 +282,9 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
 
       {/* Social Media Links Section */}
       <div className="border-t border-gray-200 pt-8">
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Social Media Links</h3>
-        <p className="mt-1 text-sm text-gray-500">Add your social media profiles. These will appear in your temple&apos;s footer.</p>
-        <p className="mt-1 text-xs tenant-text-primary">Drag to reorder. URLs must use HTTPS.</p>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.branding.socialMediaLinks')}</h3>
+        <p className="mt-1 text-sm text-gray-500">{t('settings.branding.socialMediaDesc')}</p>
+        <p className="mt-1 text-xs tenant-text-primary">{t('settings.branding.socialMediaHint')}</p>
       </div>
       <div className="space-y-4">
         {socialLinks.map((link, index) => (
@@ -293,20 +295,19 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, index)}
             onDragEnd={handleDragEnd}
-            className={`flex items-start space-x-4 p-4 bg-gray-50 rounded-lg border transition-all ${
-              draggedIndex === index ? 'opacity-50 border-[color:var(--primary)]' : 'border-gray-200'
-            } ${socialLinkErrors[index] ? 'border-red-300 bg-red-50' : ''}`}
+            className={`flex items-start space-x-4 p-4 bg-gray-50 rounded-lg border transition-all ${draggedIndex === index ? 'opacity-50 border-[color:var(--primary)]' : 'border-gray-200'
+              } ${socialLinkErrors[index] ? 'border-red-300 bg-red-50' : ''}`}
           >
             {/* Drag handle */}
             <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 pt-2">
               <FaGripVertical size={16} />
             </div>
-            
+
             {/* Platform icon */}
             <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white rounded-lg border border-gray-200 text-gray-600">
               {getPlatformIcon(link.platform)}
             </div>
-            
+
             {/* Form fields */}
             <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -338,13 +339,13 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
               />
               <div className="flex items-end pb-2">
                 <ToggleSwitch
-                  label="Show in footer"
+                  label={t('settings.branding.showInFooter')}
                   enabled={link.showInFooter ?? true}
                   onChange={(enabled) => handleSocialLinkChange(index, 'showInFooter', enabled)}
                 />
               </div>
             </div>
-            
+
             {/* Delete button */}
             <Button
               type="button"
@@ -360,7 +361,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
             </Button>
           </div>
         ))}
-        
+
         {/* Add Platform Button with Picker */}
         <div className="relative">
           <Button
@@ -369,12 +370,12 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
             onClick={() => setShowPlatformPicker(!showPlatformPicker)}
             disabled={availablePlatforms.length === 0}
           >
-            + Add Social Link
+            {t('settings.branding.addSocialLink')}
           </Button>
-          
+
           {showPlatformPicker && availablePlatforms.length > 0 && (
             <div className="absolute z-10 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
-              <p className="text-xs text-gray-500 px-2 pb-2">Select a platform:</p>
+              <p className="text-xs text-gray-500 px-2 pb-2">{t('settings.branding.selectPlatform')}:</p>
               <div className="grid grid-cols-2 gap-1">
                 {availablePlatforms.map((platform) => (
                   <button
@@ -391,23 +392,23 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
             </div>
           )}
         </div>
-        
+
         {availablePlatforms.length === 0 && socialLinks.length > 0 && (
-          <p className="text-sm text-gray-500">All available platforms have been added.</p>
+          <p className="text-sm text-gray-500">{t('settings.branding.allPlatformsAdded')}</p>
         )}
       </div>
 
       {/* Footer Preview */}
       {socialLinks.some((link) => link.url && link.showInFooter) && (
         <div className="border-t border-gray-200 pt-8">
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Footer Preview</h3>
-          <p className="mt-1 text-sm text-gray-500 mb-4">Preview how your social links will appear in the footer.</p>
-          
+          <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.branding.footerPreview')}</h3>
+          <p className="mt-1 text-sm text-gray-500 mb-4">{t('settings.branding.footerPreviewDesc')}</p>
+
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="px-4 py-6">
               <div className="flex flex-col items-center space-y-4">
                 <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-500">Follow us:</span>
+                  <span className="text-sm text-gray-500">{t('settings.branding.followUs')}:</span>
                   <div className="flex gap-3">
                     {socialLinks
                       .filter((link) => link.url && link.showInFooter)
@@ -432,9 +433,9 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
       )}
 
       <div className="border-t border-gray-200 pt-8">
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Custom Links</h3>
-        <p className="mt-1 text-sm text-gray-500">Add custom links to your temple&apos;s public page (e.g., website, donations).</p>
-        <p className="mt-1 text-xs tenant-text-primary">To enable the &apos;Donate&apos; button on your home page, add a link with the exact label &quot;Donate&quot;.</p>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.branding.customLinks')}</h3>
+        <p className="mt-1 text-sm text-gray-500">{t('settings.branding.customLinksDesc')}</p>
+        <p className="mt-1 text-xs tenant-text-primary">{t('settings.branding.customLinksHint')}</p>
       </div>
       <div className="space-y-4">
         {(tenant.branding.customLinks || []).map((link, index) => (
@@ -472,7 +473,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
             </Button>
           </div>
         ))}
-        <Button type="button" variant="secondary" onClick={handleAddLink}>+ Add Link</Button>
+        <Button type="button" variant="secondary" onClick={handleAddLink}>{t('settings.branding.addLink')}</Button>
       </div>
 
       <div className="text-right border-t border-gray-200 pt-6">
@@ -482,18 +483,18 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ tenant, onUpdate, onSave }) =
             try {
               setIsSaving(true);
               await onSave({ branding: { ...tenant.branding } });
-              alert('Branding saved');
+              alert(t('settings.branding.saved'));
             } catch (error: any) {
-              alert(error.message || 'Failed to save branding');
+              alert(error.message || t('settings.branding.saveFailed'));
             } finally {
               setIsSaving(false);
             }
           }}
         >
-          {isSaving ? 'Saving...' : 'Save Branding'}
+          {isSaving ? t('common.saving') : t('settings.branding.saveBranding')}
         </Button>
         {hasValidationErrors && (
-          <p className="mt-2 text-sm text-red-600">Please fix validation errors before saving.</p>
+          <p className="mt-2 text-sm text-red-600">{t('settings.branding.fixErrors')}</p>
         )}
       </div>
     </div>

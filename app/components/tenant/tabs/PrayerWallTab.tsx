@@ -7,6 +7,7 @@ import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
 import Avatar from '@/app/components/ui/Avatar';
 import UserLink from '@/app/components/ui/UserLink';
+import useTranslation from '@/app/hooks/useTranslation';
 
 async function fetchCommunityPosts(tenantId: string, includePrivate?: boolean) {
   const search = includePrivate ? '?includePrivate=true' : '';
@@ -42,6 +43,7 @@ interface PrayerWallTabProps {
 }
 
 const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRefresh, onUpdate, onSave }) => {
+  const { t } = useTranslation();
   const [allPosts, setAllPosts] = useState<EnrichedCommunityPost[]>([]);
   const [statusFilter, setStatusFilter] = useState<CommunityPostStatus | 'ALL'>('ALL');
   const [isLoading, setIsLoading] = useState(true);
@@ -64,17 +66,17 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
 
   const handleStatusChange = async (postId: string, newStatus: CommunityPostStatus) => {
     if (window.confirm(`Are you sure you want to change this post's status to ${newStatus}?`)) {
-        await updateCommunityPostStatus(tenant.id, postId, newStatus);
-        onRefresh();
+      await updateCommunityPostStatus(tenant.id, postId, newStatus);
+      onRefresh();
     }
   };
-  
+
   const handleDelete = async (postId: string) => {
     // For now, we'll just set the status to something that hides it. A real delete would be better.
-     if (window.confirm(`Are you sure you want to delete this post? This cannot be undone.`)) {
-        // This is a mock for delete. A real implementation would remove the record.
-        await updateCommunityPostStatus(tenant.id, postId, 'DELETED' as any);
-        onRefresh();
+    if (window.confirm(`Are you sure you want to delete this post? This cannot be undone.`)) {
+      // This is a mock for delete. A real implementation would remove the record.
+      await updateCommunityPostStatus(tenant.id, postId, 'DELETED' as any);
+      onRefresh();
     }
   }
 
@@ -93,9 +95,9 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
     try {
       await onSave({ settings: { ...tenant.settings } });
       onRefresh();
-      alert('Support request settings saved');
+      alert(t('settings.prayerWall.saved'));
     } catch (error: any) {
-      alert(error.message || 'Failed to save prayer wall settings');
+      alert(error.message || t('settings.prayerWall.saveFailed'));
     } finally {
       setIsSavingSettings(false);
     }
@@ -114,11 +116,11 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
     return (
       <div className="space-y-8">
         <div>
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Support Board Moderation</h3>
-          <p className="mt-1 text-sm text-gray-500">Manage all support requests and tangible needs submitted by members.</p>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.prayerWall.title')}</h3>
+          <p className="mt-1 text-sm text-gray-500">{t('settings.prayerWall.description')}</p>
         </div>
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading posts...</p>
+          <p className="text-gray-500">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -127,20 +129,20 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Support Board Moderation</h3>
-        <p className="mt-1 text-sm text-gray-500">Manage all support requests and tangible needs submitted by members.</p>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.prayerWall.title')}</h3>
+        <p className="mt-1 text-sm text-gray-500">{t('settings.prayerWall.description')}</p>
       </div>
 
       <div className="space-y-4 rounded-lg bg-white p-4 shadow-sm border border-gray-200">
         <ToggleSwitch
-          label="Auto-approve community posts"
-          description="When enabled, new support requests are published immediately without moderator approval."
+          label={t('settings.prayerWall.autoApprove')}
+          description={t('settings.prayerWall.autoApproveDesc')}
           enabled={tenant.settings.autoApproveSupportRequests}
           onChange={handleAutoApproveToggle}
         />
         <div className="text-right">
           <Button onClick={handleSaveSettings} disabled={isSavingSettings}>
-            {isSavingSettings ? 'Saving...' : 'Save Support Request Settings'}
+            {isSavingSettings ? t('common.saving') : t('settings.prayerWall.saveSettings')}
           </Button>
         </div>
       </div>
@@ -151,11 +153,10 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`${
-                statusFilter === status
+              className={`${statusFilter === status
                   ? 'border-[color:var(--primary)] tenant-text-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             >
               {status.replace('_', ' ')}
             </button>
@@ -169,45 +170,45 @@ const PrayerWallTab: React.FC<PrayerWallTabProps> = ({ tenant, currentUser, onRe
             <table className="min-w-full divide-y divide-gray-300">
               <thead>
                 <tr>
-                  <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Author</th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Request</th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">Actions</span></th>
+                  <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">{t('settings.prayerWall.author')}</th>
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('settings.prayerWall.request')}</th>
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('settings.smallGroups.status')}</th>
+                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">{t('common.actions')}</span></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
                 {filteredPosts.map((post: any) => (
                   <tr key={post.id}>
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
-                        <div className="flex items-center">
-                            <div className="h-10 w-10 flex-shrink-0">
-                                <UserLink userId={post.authorUserId}>
-                                  <Avatar src={post.authorAvatarUrl} name={post.authorDisplayName} size="md" />
-                                </UserLink>
-                            </div>
-                            <div className="ml-4 font-medium text-gray-900">
-                              <UserLink userId={post.authorUserId} className="inline-block">
-                                {post.authorDisplayName}
-                              </UserLink>
-                            </div>
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 flex-shrink-0">
+                          <UserLink userId={post.authorUserId}>
+                            <Avatar src={post.authorAvatarUrl} name={post.authorDisplayName} size="md" />
+                          </UserLink>
                         </div>
+                        <div className="ml-4 font-medium text-gray-900">
+                          <UserLink userId={post.authorUserId} className="inline-block">
+                            {post.authorDisplayName}
+                          </UserLink>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500">
-                        <p className="line-clamp-3">{post.body}</p>
+                      <p className="line-clamp-3">{post.body}</p>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                            {post.status.replace('_', ' ')}
-                        </span>
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                        {post.status.replace('_', ' ')}
+                      </span>
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0 space-x-2">
-                        {post.status === CommunityPostStatus.PENDING_APPROVAL && (
-                            <Button size="sm" onClick={() => handleStatusChange(post.id, CommunityPostStatus.PUBLISHED)}>Approve</Button>
-                        )}
-                        {post.status === CommunityPostStatus.PUBLISHED && (
-                             <Button size="sm" variant="secondary" onClick={() => handleStatusChange(post.id, CommunityPostStatus.FULFILLED)}>Mark as Fulfilled</Button>
-                        )}
-                        <Button size="sm" variant="danger" onClick={() => handleDelete(post.id)}>Delete</Button>
+                      {post.status === CommunityPostStatus.PENDING_APPROVAL && (
+                        <Button size="sm" onClick={() => handleStatusChange(post.id, CommunityPostStatus.PUBLISHED)}>{t('common.approve')}</Button>
+                      )}
+                      {post.status === CommunityPostStatus.PUBLISHED && (
+                        <Button size="sm" variant="secondary" onClick={() => handleStatusChange(post.id, CommunityPostStatus.FULFILLED)}>{t('settings.prayerWall.markFulfilled')}</Button>
+                      )}
+                      <Button size="sm" variant="danger" onClick={() => handleDelete(post.id)}>{t('common.delete')}</Button>
                     </td>
                   </tr>
                 ))}

@@ -6,6 +6,7 @@ import { SERVICE_CATEGORY_OPTIONS } from '@/constants';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface ServiceOfferingFormProps {
   initialValues?: Partial<ServiceOffering>;
@@ -14,6 +15,7 @@ interface ServiceOfferingFormProps {
 }
 
 export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel }: ServiceOfferingFormProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState(initialValues?.name ?? '');
   const [description, setDescription] = useState(initialValues?.description ?? '');
   const [category, setCategory] = useState<ServiceCategory>(initialValues?.category ?? 'CEREMONY');
@@ -45,7 +47,7 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!name.trim() || !description.trim()) {
-      alert('Name and description are required.');
+      alert(t('forms.serviceOffering.requiredFields'));
       return;
     }
 
@@ -66,7 +68,7 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
-          label="Service Name"
+          label={t('forms.serviceOffering.serviceName')}
           id="service-name"
           name="service-name"
           value={name}
@@ -75,7 +77,7 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
         />
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-            Category
+            {t('forms.serviceOffering.category')}
           </label>
           <select
             id="category"
@@ -95,7 +97,7 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-          Description
+          {t('common.description')}
         </label>
         <textarea
           id="description"
@@ -110,7 +112,7 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
-          label="Display Order"
+          label={t('forms.serviceOffering.displayOrder')}
           id="order"
           name="order"
           type="number"
@@ -122,7 +124,7 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
           }}
         />
         <Input
-          label="Contact Email (optional)"
+          label={t('forms.serviceOffering.contactEmail')}
           id="contactEmailOverride"
           name="contactEmailOverride"
           type="email"
@@ -133,7 +135,7 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
-          label="Image URL (optional)"
+          label={t('forms.serviceOffering.imageUrl')}
           id="imageUrl"
           name="imageUrl"
           value={imageUrl ?? ''}
@@ -141,8 +143,8 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
           placeholder="https://…"
         />
         <ToggleSwitch
-          label="Requires Booking"
-          description="Show that a coordinator will help schedule next steps."
+          label={t('forms.serviceOffering.requiresBooking')}
+          description={t('forms.serviceOffering.requiresBookingDesc')}
           enabled={requiresBooking}
           onChange={setRequiresBooking}
         />
@@ -150,14 +152,14 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <ToggleSwitch
-          label="Visible to Visitors"
-          description="Turn off to make this service members-only."
+          label={t('forms.serviceOffering.visibleToVisitors')}
+          description={t('forms.serviceOffering.visibleToVisitorsDesc')}
           enabled={isPublic}
           onChange={setIsPublic}
         />
         <ToggleSwitch
-          label="Include Cost"
-          description="Show pricing or suggested contributions on the service card."
+          label={t('forms.serviceOffering.includeCost')}
+          description={t('forms.serviceOffering.includeCostDesc')}
           enabled={hasCost}
           onChange={setHasCost}
         />
@@ -165,7 +167,7 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
 
       {hasCost && (
         <Input
-          label="Cost or Suggested Contribution"
+          label={t('forms.serviceOffering.costOrContribution')}
           id="pricing"
           name="pricing"
           value={pricing}
@@ -176,9 +178,9 @@ export default function ServiceOfferingForm({ initialValues, onSubmit, onCancel 
 
       <div className="flex justify-end gap-3 border-t border-gray-200 pt-4">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </Button>
-        <Button type="submit">Save Service</Button>
+        <Button type="submit">{t('forms.serviceOffering.saveService')}</Button>
       </div>
     </form>
   );

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import useTranslation from '@/app/hooks/useTranslation';
 
 export interface TripFormValues {
   name: string;
@@ -31,6 +32,7 @@ interface TripFormProps {
 }
 
 export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitting }: TripFormProps) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<TripFormValues>({
     name: initial?.name || '',
     summary: initial?.summary || '',
@@ -72,7 +74,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-gray-700">Trip name</label>
+          <label className="block text-sm font-medium text-gray-700">{t('forms.trip.tripName')}</label>
           <input
             required
             value={form.name}
@@ -81,7 +83,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Destination</label>
+          <label className="block text-sm font-medium text-gray-700">{t('forms.trip.destination')}</label>
           <input
             value={form.destination}
             onChange={(e) => setForm({ ...form, destination: e.target.value })}
@@ -89,7 +91,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Meeting point</label>
+          <label className="block text-sm font-medium text-gray-700">{t('forms.trip.meetingPoint')}</label>
           <input
             value={form.meetingPoint}
             onChange={(e) => setForm({ ...form, meetingPoint: e.target.value })}
@@ -97,7 +99,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Start date</label>
+          <label className="block text-sm font-medium text-gray-700">{t('forms.trip.startDate')}</label>
           <input
             type="date"
             value={form.startDate}
@@ -106,7 +108,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">End date</label>
+          <label className="block text-sm font-medium text-gray-700">{t('forms.trip.endDate')}</label>
           <input
             type="date"
             value={form.endDate}
@@ -115,7 +117,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Capacity</label>
+          <label className="block text-sm font-medium text-gray-700">{t('forms.trip.capacity')}</label>
           <input
             type="number"
             min={0}
@@ -125,7 +127,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Cost per person (USD)</label>
+          <label className="block text-sm font-medium text-gray-700">{t('forms.trip.costPerPerson')}</label>
           <input
             id="trip-cost"
             type="number"
@@ -136,7 +138,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Deposit (USD)</label>
+          <label className="block text-sm font-medium text-gray-700">{t('forms.trip.deposit')}</label>
           <input
             id="trip-deposit"
             type="number"
@@ -147,7 +149,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Fundraising goal (USD)</label>
+          <label className="block text-sm font-medium text-gray-700">{t('forms.trip.fundraisingGoal')}</label>
           <input
             id="trip-fundraising-goal"
             type="number"
@@ -161,7 +163,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Summary</label>
+          <label className="block text-sm font-medium text-gray-700">{t('forms.trip.summary')}</label>
           <textarea
             value={form.summary}
             onChange={(e) => setForm({ ...form, summary: e.target.value })}
@@ -169,7 +171,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Description</label>
+          <label className="block text-sm font-medium text-gray-700">{t('common.description')}</label>
           <textarea
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -185,7 +187,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             checked={form.fundraisingEnabled}
             onChange={(e) => setForm({ ...form, fundraisingEnabled: e.target.checked })}
           />
-          Enable fundraiser
+          {t('forms.trip.enableFundraiser')}
         </label>
         <label className="flex items-center gap-2 text-sm text-gray-700">
           <input
@@ -193,7 +195,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             checked={form.allowSponsorship}
             onChange={(e) => setForm({ ...form, allowSponsorship: e.target.checked })}
           />
-          Allow sponsorship (donate to a specific person)
+          {t('forms.trip.allowSponsorship')}
         </label>
         <label className="flex items-center gap-2 text-sm text-gray-700">
           <input
@@ -201,7 +203,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             checked={form.waiverRequired}
             onChange={(e) => setForm({ ...form, waiverRequired: e.target.checked })}
           />
-          Waiver required
+          {t('forms.trip.waiverRequired')}
         </label>
         <label className="flex items-center gap-2 text-sm text-gray-700">
           <input
@@ -209,19 +211,19 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             checked={form.isPublic}
             onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
           />
-          Public trip page
+          {t('forms.trip.publicTripPage')}
         </label>
       </div>
 
       <div className="flex items-center gap-3">
-        <label className="text-sm font-medium text-gray-700">Join policy</label>
+        <label className="text-sm font-medium text-gray-700">{t('forms.trip.joinPolicy')}</label>
         <select
           value={form.joinPolicy}
           onChange={(e) => setForm({ ...form, joinPolicy: e.target.value as 'OPEN' | 'APPROVAL' })}
           className="rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-[color:var(--primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-tint-50)]"
         >
-          <option value="APPROVAL">Approval required</option>
-          <option value="OPEN">Open join</option>
+          <option value="APPROVAL">{t('forms.trip.approvalRequired')}</option>
+          <option value="OPEN">{t('forms.trip.openJoin')}</option>
         </select>
       </div>
 
@@ -232,7 +234,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
             onClick={onCancel}
             className="rounded-md border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-gray-300"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
         ) : null}
         <button
@@ -240,7 +242,7 @@ export default function TripForm({ initial, onSubmit, onCancel, isEdit, submitti
           disabled={submitting}
           className="rounded-md tenant-active-strong px-4 py-2 text-sm font-semibold text-[color:var(--primary-foreground)] shadow-sm hover:tenant-active-strong disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {submitting ? 'Saving…' : isEdit ? 'Save changes' : 'Create trip'}
+          {submitting ? t('common.saving') : isEdit ? t('common.saveChanges') : t('forms.trip.createTrip')}
         </button>
       </div>
     </form>

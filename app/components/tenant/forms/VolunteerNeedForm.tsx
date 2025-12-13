@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface VolunteerNeedFormProps {
   onSubmit: (data: { title: string; description: string; date: Date; slotsNeeded: number; location?: string }) => void;
@@ -10,6 +11,7 @@ interface VolunteerNeedFormProps {
 }
 
 const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCancel }) => {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -19,7 +21,7 @@ const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCance
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !date || slotsNeeded < 1) {
-      alert('Please fill out all required fields.');
+      alert(t('forms.requiredFields'));
       return;
     }
     onSubmit({
@@ -34,7 +36,7 @@ const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCance
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Input
-        label="Opportunity Title"
+        label={t('forms.volunteer.opportunityTitle')}
         id="title"
         name="title"
         value={title}
@@ -43,7 +45,7 @@ const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCance
       />
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-          Description
+          {t('common.description')}
         </label>
         <textarea
           id="description"
@@ -55,7 +57,7 @@ const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCance
         />
       </div>
       <Input
-        label="Location"
+        label={t('forms.volunteer.location')}
         id="location"
         name="location"
         value={location}
@@ -65,7 +67,7 @@ const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCance
 
       <div className="grid grid-cols-2 gap-6">
         <Input
-          label="Date"
+          label={t('forms.volunteer.date')}
           id="date"
           name="date"
           type="date"
@@ -74,7 +76,7 @@ const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCance
           required
         />
         <Input
-          label="Slots Needed"
+          label={t('forms.volunteer.slotsNeeded')}
           id="slotsNeeded"
           name="slotsNeeded"
           type="number"
@@ -86,10 +88,10 @@ const VolunteerNeedForm: React.FC<VolunteerNeedFormProps> = ({ onSubmit, onCance
       </div>
       <div className="flex justify-end items-center space-x-4 pt-4 border-t border-gray-200">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit">
-          Create Need
+          {t('forms.volunteer.createNeed')}
         </Button>
       </div>
     </form>

@@ -7,6 +7,7 @@ import Avatar from '@/app/components/ui/Avatar';
 import UserLink from '@/app/components/ui/UserLink';
 import TripJoinForm, { TripJoinFormValues } from './TripJoinForm';
 import TripForm, { TripFormValues } from './forms/TripForm';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface TripDetailProps {
   tenantId: string;
@@ -18,6 +19,7 @@ interface TripDetailProps {
 }
 
 export default function TripDetail({ tenantId, tripId, currentUser, onClose, onRefresh, isAdmin }: TripDetailProps) {
+  const { t } = useTranslation();
   const [trip, setTrip] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -279,13 +281,13 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
   if (!tripId) {
     return (
       <div className="rounded-lg border border-dashed border-gray-200 bg-white p-6 text-center text-gray-500">
-        Select a trip to view details.
+        {t('detail.trip.selectTrip')}
       </div>
     );
   }
 
   if (loading) {
-    return <div className="rounded-lg border border-gray-200 bg-white p-6 text-gray-600">Loading trip…</div>;
+    return <div className="rounded-lg border border-gray-200 bg-white p-6 text-gray-600">{t('detail.trip.loading')}</div>;
   }
 
   if (error) {
@@ -305,26 +307,26 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
 
   const initialEditValues: TripFormValues | undefined = trip
     ? {
-        name: trip.name || '',
-        summary: trip.summary || '',
-        description: trip.description || '',
-        destination: trip.destination || '',
-        startDate: trip.startDate ? new Date(trip.startDate).toISOString().slice(0, 10) : '',
-        endDate: trip.endDate ? new Date(trip.endDate).toISOString().slice(0, 10) : '',
-        meetingPoint: trip.meetingPoint || '',
-        capacity: trip.capacity || undefined,
-        costCents: typeof trip.costCents === 'number' ? trip.costCents : null,
-        currency: trip.currency || 'USD',
-        depositCents: typeof trip.depositCents === 'number' ? trip.depositCents : null,
-        fundraisingEnabled: !!trip.fundraisingEnabled,
-        fundraisingGoalCents: typeof trip.fundraisingGoalCents === 'number' ? trip.fundraisingGoalCents : null,
-        allowSponsorship: !!trip.allowSponsorship,
-        joinPolicy: (trip.joinPolicy as any) || 'APPROVAL',
-        waiverRequired: !!trip.waiverRequired,
-        allowMessages: trip.allowMessages ?? true,
-        allowPhotos: trip.allowPhotos ?? true,
-        isPublic: !!trip.isPublic,
-      }
+      name: trip.name || '',
+      summary: trip.summary || '',
+      description: trip.description || '',
+      destination: trip.destination || '',
+      startDate: trip.startDate ? new Date(trip.startDate).toISOString().slice(0, 10) : '',
+      endDate: trip.endDate ? new Date(trip.endDate).toISOString().slice(0, 10) : '',
+      meetingPoint: trip.meetingPoint || '',
+      capacity: trip.capacity || undefined,
+      costCents: typeof trip.costCents === 'number' ? trip.costCents : null,
+      currency: trip.currency || 'USD',
+      depositCents: typeof trip.depositCents === 'number' ? trip.depositCents : null,
+      fundraisingEnabled: !!trip.fundraisingEnabled,
+      fundraisingGoalCents: typeof trip.fundraisingGoalCents === 'number' ? trip.fundraisingGoalCents : null,
+      allowSponsorship: !!trip.allowSponsorship,
+      joinPolicy: (trip.joinPolicy as any) || 'APPROVAL',
+      waiverRequired: !!trip.waiverRequired,
+      allowMessages: trip.allowMessages ?? true,
+      allowPhotos: trip.allowPhotos ?? true,
+      isPublic: !!trip.isPublic,
+    }
     : undefined;
 
   return (
@@ -338,21 +340,21 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
         <div className="flex items-center gap-2">
           {onClose ? (
             <Button variant="ghost" onClick={onClose}>
-              Close
+              {t('common.close')}
             </Button>
           ) : null}
           {canManage ? (
             <Button variant="secondary" onClick={() => setShowEditTrip(true)} disabled={savingTrip}>
-              Edit trip
+              {t('detail.trip.editTrip')}
             </Button>
           ) : null}
           {!currentMembership ? (
             <Button variant="primary" onClick={() => setShowJoinForm(true)} disabled={joining}>
-              {joining ? 'Joining…' : 'Join trip'}
+              {joining ? t('detail.trip.joining') : t('detail.trip.joinTrip')}
             </Button>
           ) : (
             <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-              {currentMembership.status === 'APPROVED' ? 'Joined' : 'Pending approval'}
+              {currentMembership.status === 'APPROVED' ? t('detail.trip.joined') : t('detail.trip.pendingApproval')}
             </span>
           )}
         </div>
@@ -362,7 +364,7 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-          <h3 className="text-sm font-semibold text-gray-800">Logistics</h3>
+          <h3 className="text-sm font-semibold text-gray-800">{t('detail.trip.logistics')}</h3>
           <ul className="mt-2 space-y-1 text-sm text-gray-700">
             <li>Dates: {trip.startDate ? new Date(trip.startDate).toLocaleDateString() : 'TBD'} → {trip.endDate ? new Date(trip.endDate).toLocaleDateString() : 'TBD'}</li>
             {trip.meetingPoint ? <li>Meet at: {trip.meetingPoint}</li> : null}
@@ -380,7 +382,7 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
           </ul>
         </div>
         <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-          <h3 className="text-sm font-semibold text-gray-800">Fundraiser</h3>
+          <h3 className="text-sm font-semibold text-gray-800">{t('detail.trip.fundraiser')}</h3>
           {trip.fundraisingEnabled ? (
             <>
               <div className="text-sm text-gray-700">
@@ -388,7 +390,7 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
                 {fundraisingGoal ? ` of ${(fundraisingGoal / 100).toLocaleString(undefined, { style: 'currency', currency: trip.currency || 'USD' })}` : ''}
               </div>
               {fundraisingGoal ? (
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white">
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white">
                   <div
                     className="h-2 tenant-bg-200"
                     style={{ width: `${Math.min(100, Math.round((raised / fundraisingGoal) * 100))}%` }}
@@ -397,12 +399,12 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
               ) : null}
               <div className="mt-3 flex gap-2">
                 <Button variant="primary" onClick={handleDonate} disabled={donating}>
-                  {donating ? 'Processing…' : 'Donate'}
+                  {donating ? t('detail.trip.processing') : t('detail.trip.donate')}
                 </Button>
               </div>
             </>
           ) : (
-            <p className="text-sm text-gray-600">Fundraiser is not enabled for this trip.</p>
+            <p className="text-sm text-gray-600">{t('detail.trip.fundraiserDisabled')}</p>
           )}
         </div>
       </div>
@@ -456,7 +458,7 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
       ) : null}
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-800">Members</h3>
+        <h3 className="text-sm font-semibold text-gray-800">{t('detail.smallGroup.tabs.members')}</h3>
         <ul className="mt-2 divide-y divide-gray-100 rounded border border-gray-100 bg-gray-50">
           {(trip.members || []).map((m: any) => (
             <li key={m.id || m.user?.id} className="flex flex-col gap-2 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
@@ -486,17 +488,17 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
                 {canManage && m.status !== 'APPROVED' && m.user?.id ? (
                   <>
                     <Button variant="primary" size="sm" onClick={() => handleApprove(m.user.id)} disabled={savingTrip}>
-                      Approve
+                      {t('common.approve')}
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => handleReject(m.user.id)} disabled={savingTrip}>
-                      Reject
+                      {t('common.reject')}
                     </Button>
                   </>
                 ) : null}
               </div>
             </li>
           ))}
-          {trip.members?.length === 0 ? <li className="px-3 py-2 text-sm text-gray-500">No members yet.</li> : null}
+          {trip.members?.length === 0 ? <li className="px-3 py-2 text-sm text-gray-500">{t('detail.trip.noMembers')}</li> : null}
         </ul>
       </div>
 
@@ -526,10 +528,10 @@ export default function TripDetail({ tenantId, tripId, currentUser, onClose, onR
               onClick={() => handleUpdateStatus('COMPLETED')}
               disabled={savingTrip || trip?.status === 'COMPLETED'}
             >
-              {trip?.status === 'COMPLETED' ? 'Completed' : 'Mark complete'}
+              {trip?.status === 'COMPLETED' ? t('detail.trip.completed') : t('detail.trip.markComplete')}
             </Button>
             <Button variant="danger" onClick={() => handleUpdateStatus('ARCHIVED')} disabled={savingTrip}>
-              Delete trip
+              {t('detail.trip.deleteTrip')}
             </Button>
           </div>
         ) : null}

@@ -8,6 +8,7 @@ import Button from '../../ui/Button';
 import Avatar from '@/app/components/ui/Avatar';
 import UserLink from '@/app/components/ui/UserLink';
 import EditUserProfileModal from './EditUserProfileModal';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface UserProfilesTabProps {
   tenant: Tenant;
@@ -16,6 +17,7 @@ interface UserProfilesTabProps {
 }
 
 const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, onRefresh }) => {
+  const { t } = useTranslation();
   const [allMembers, setAllMembers] = useState<EnrichedMember[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingMember, setEditingMember] = useState<EnrichedMember | null>(null);
@@ -69,13 +71,13 @@ const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, 
     return (
       <div className="space-y-8">
         <div>
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Manage User Profiles</h3>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.userProfiles.title')}</h3>
           <p className="mt-1 text-sm text-gray-500">
-            View member profiles for {tenant.name}.
+            {t('settings.userProfiles.descriptionLoading', { name: tenant.name })}
           </p>
         </div>
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading members...</p>
+          <p className="text-gray-500">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -84,16 +86,16 @@ const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, 
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Manage User Profiles</h3>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('settings.userProfiles.title')}</h3>
         <p className="mt-1 text-sm text-gray-500">
-          View member profiles for {tenant.name}. Platform Super Admins can edit profiles from this panel.
+          {t('settings.userProfiles.description', { name: tenant.name })}
         </p>
       </div>
-      
+
       <Input
-        label="Search Members"
+        label={t('settings.userProfiles.searchMembers')}
         id="profile-search"
-        placeholder="Search by name or email..."
+        placeholder={t('settings.userProfiles.searchPlaceholder')}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
@@ -104,9 +106,9 @@ const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, 
             <table className="min-w-full divide-y divide-gray-300">
               <thead>
                 <tr>
-                  <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Name</th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Roles</th>
-                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">Edit</span></th>
+                  <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">{t('settings.membership.name')}</th>
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{t('roles.title')}</th>
+                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">{t('common.edit')}</span></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
@@ -135,7 +137,7 @@ const UserProfilesTab: React.FC<UserProfilesTabProps> = ({ tenant, currentUser, 
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                       {currentUser.isSuperAdmin && (
                         <Button data-test={`edit-user-profile-trigger-${member.id}`} variant="secondary" size="sm" onClick={() => setEditingMember(member)}>
-                          Edit
+                          {t('common.edit')}
                         </Button>
                       )}
                     </td>

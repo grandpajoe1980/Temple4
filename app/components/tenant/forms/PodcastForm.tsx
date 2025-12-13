@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
+import useTranslation from '@/app/hooks/useTranslation';
 
 export interface PodcastFormData {
   title: string;
@@ -18,6 +19,7 @@ interface PodcastFormProps {
 }
 
 const PodcastForm: React.FC<PodcastFormProps> = ({ onSubmit, onCancel, isSubmitting = false, defaultValues }) => {
+  const { t } = useTranslation();
   const [title, setTitle] = useState(defaultValues?.title ?? '');
   const [description, setDescription] = useState(defaultValues?.description ?? '');
   const [embedUrl, setEmbedUrl] = useState(defaultValues?.embedUrl ?? '');
@@ -34,7 +36,7 @@ const PodcastForm: React.FC<PodcastFormProps> = ({ onSubmit, onCancel, isSubmitt
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !embedUrl) {
-      alert('Please provide a title and audio/embed URL for the podcast.');
+      alert(t('forms.podcast.requiredFields'));
       return;
     }
 
@@ -48,19 +50,19 @@ const PodcastForm: React.FC<PodcastFormProps> = ({ onSubmit, onCancel, isSubmitt
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Input
-        label="Episode Title"
+        label={t('forms.podcast.episodeTitle')}
         id="title"
         name="title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
-        placeholder="e.g., Weekly Devotional"
+        placeholder={t('forms.podcast.episodePlaceholder')}
         disabled={isSubmitting}
       />
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-          Description
+          {t('common.description')}
         </label>
         <textarea
           id="description"
@@ -69,13 +71,13 @@ const PodcastForm: React.FC<PodcastFormProps> = ({ onSubmit, onCancel, isSubmitt
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)] sm:text-sm bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="What is this episode about?"
+          placeholder={t('forms.podcast.descriptionPlaceholder')}
           disabled={isSubmitting}
         />
       </div>
 
       <Input
-        label="Audio or Embed URL"
+        label={t('forms.podcast.audioUrl')}
         id="embedUrl"
         name="embedUrl"
         type="url"
@@ -88,10 +90,10 @@ const PodcastForm: React.FC<PodcastFormProps> = ({ onSubmit, onCancel, isSubmitt
 
       <div className="flex justify-end items-center space-x-4 pt-4 border-t border-gray-200">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : 'Save Podcast'}
+          {isSubmitting ? t('common.saving') : t('forms.podcast.savePodcast')}
         </Button>
       </div>
     </form>

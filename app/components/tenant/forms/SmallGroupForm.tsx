@@ -5,6 +5,7 @@ import type { EnrichedMember } from '@/types';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import ToggleSwitch from '../../ui/ToggleSwitch';
+import useTranslation from '@/app/hooks/useTranslation';
 
 interface SmallGroupFormProps {
   onSubmit: (data: { name: string; description: string; leaderUserId: string; meetingSchedule: string; isActive: boolean; isHidden?: boolean }) => void;
@@ -17,6 +18,7 @@ interface SmallGroupFormProps {
 }
 
 const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, members, initial, isEdit, onDelete }) => {
+  const { t } = useTranslation();
   const [name, setName] = useState(initial?.name ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [leaderUserId, setLeaderUserId] = useState(initial?.leaderUserId ?? members[0]?.id ?? '');
@@ -37,7 +39,7 @@ const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, mem
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !leaderUserId || !meetingSchedule) {
-      alert('Please fill out all required fields.');
+      alert(t('forms.requiredFields'));
       return;
     }
     onSubmit({ name, description, leaderUserId, meetingSchedule, isActive, isHidden });
@@ -46,7 +48,7 @@ const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, mem
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Input
-        label="Group Name"
+        label={t('forms.smallGroup.groupName')}
         id="name"
         name="name"
         value={name}
@@ -55,7 +57,7 @@ const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, mem
       />
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-          Description
+          {t('common.description')}
         </label>
         <textarea
           id="description"
@@ -68,7 +70,7 @@ const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, mem
       </div>
       <div>
         <label htmlFor="leaderUserId" className="block text-sm font-medium text-gray-700 mb-1">
-          Group Leader
+          {t('forms.smallGroup.groupLeader')}
         </label>
         <select
           id="leaderUserId"
@@ -84,23 +86,23 @@ const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, mem
         </select>
       </div>
       <Input
-        label="Meeting Schedule"
+        label={t('forms.smallGroup.meetingSchedule')}
         id="meetingSchedule"
         name="meetingSchedule"
         value={meetingSchedule}
         onChange={(e) => setMeetingSchedule(e.target.value)}
-        placeholder="e.g., Tuesdays at 7 PM"
+        placeholder={t('forms.smallGroup.scheduleExample')}
         required
       />
       <ToggleSwitch
-        label="Group is Active"
-        description="Inactive groups are hidden from the main discovery page."
+        label={t('forms.smallGroup.groupActive')}
+        description={t('forms.smallGroup.groupActiveDesc')}
         enabled={isActive}
         onChange={setIsActive}
       />
       <ToggleSwitch
-        label="Group is Hidden"
-        description="Hidden groups are not shown in public discovery; members and admins can still access them."
+        label={t('forms.smallGroup.groupHidden')}
+        description={t('forms.smallGroup.groupHiddenDesc')}
         enabled={isHidden}
         onChange={setIsHidden}
       />
@@ -108,19 +110,19 @@ const SmallGroupForm: React.FC<SmallGroupFormProps> = ({ onSubmit, onCancel, mem
         <div>
           {isEdit && onDelete && (
             <Button type="button" variant="danger" onClick={async () => {
-              if (!confirm('Delete this group? This cannot be undone.')) return;
+              if (!confirm(t('forms.smallGroup.deleteConfirm'))) return;
               await onDelete();
             }}>
-              Delete
+              {t('common.delete')}
             </Button>
           )}
         </div>
         <div className="flex items-center space-x-4">
           <Button type="button" variant="secondary" onClick={onCancel}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit">
-            {isEdit ? 'Save Changes' : 'Create Group'}
+            {isEdit ? t('common.saveChanges') : t('forms.smallGroup.createGroup')}
           </Button>
         </div>
       </div>
